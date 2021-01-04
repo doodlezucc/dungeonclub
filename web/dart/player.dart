@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'test_server.dart';
+import 'communication.dart';
 import 'server_actions.dart';
 
 class Player {
@@ -14,23 +14,25 @@ class Player {
         _displayName = displayName;
 
   static Future<Player> create(String name, String password) async {
-    print('create');
     var response = await request(PLAYER_CREATE, params: {
       'name': name,
       'password': password,
     });
-    print('RESPONSE');
-    print(response.response);
-    return Player(name, name);
+    if (response) {
+      return Player(name, name);
+    }
+    return null;
   }
 
   static Future<Player> get(String name) async {
     print('get');
     var response = await request(PLAYER_GET, params: {'name': name});
     print('RESPONSE');
-    var json = jsonDecode(response.response);
-    print(json);
-    return Player(name, json['displayName']);
+    print(response);
+    if (response != null) {
+      return Player(name, response['displayName']);
+    }
+    return null;
   }
 
   Future<bool> changeDisplayName(String s, String password) async {

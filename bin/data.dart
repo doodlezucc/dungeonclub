@@ -1,8 +1,13 @@
 class ServerData {
   var players = <ServerPlayer>[];
 
+  ServerPlayer getPlayer(String name) {
+    if (name == null) return null;
+    return players.singleWhere((p) => p.name == name, orElse: () => null);
+  }
+
   Map<String, dynamic> toJson() => {
-        'players': players.map((e) => e.toJson()),
+        'players': players.map((e) => e.toJson()).toList(),
       };
 }
 

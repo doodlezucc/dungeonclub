@@ -34,6 +34,8 @@ void main(List<String> args) async {
     return;
   }
 
+  manualSaveWatch.start();
+
   Response _cors(Response response) => response.change(headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST',
@@ -52,55 +54,46 @@ void main(List<String> args) async {
 }
 
 Future<void> save() async {
-  print('saving');
-  var json = JsonEncoder.withIndent(' ').convert(data);
+  var json = JsonEncoder.withIndent(' ').convert(data.toJson());
+  print(json);
   await File('database/data.json').writeAsString(json);
+  print('Saved!');
 }
 
-Future<Response> handleBackendRequest(Request request) async {
-  var ok = Response.ok('ok!');
-  var notOk = Response.internalServerError(body: 'not ok!');
-
-  if (request.url.hasQuery) {
-    var params = request.url.queryParameters;
-    //print(params);
-    switch (params['action']) {
-      case 'manualSave': // don't know about the safety of this one, chief
-        if (manualSaveWatch.elapsedMilliseconds > 10000) {
-          await save();
-        } else {
-          print('Manual saving has a cooldown.');
-        }
-        manualSaveWatch.reset();
-        return ok;
-      case PLAYER_CREATE:
-        var name = params['name'];
-        if (data.players.any((p) => p.name == name)) {
-          return notOk;
-        }
-        data.players.add(ServerPlayer(name, name, params['password']));
-        return ok;
-      case PLAYER_CHANGE_DISPLAY_NAME:
-        var name = params['name'];
-        var player =
-            data.players.singleWhere((p) => p.name == name, orElse: () => null);
-        if (player != null && player.password == params['password']) {
-          player.displayName = params['displayName'];
-          return ok;
-        }
-        return notOk;
-      case PLAYER_GET:
-        var name = params['name'];
-        var player =
-            data.players.singleWhere((p) => p.name == name, orElse: () => null);
-        if (player != null && player.password == params['password']) {
-          return Response.ok({'name': name, 'displayName': player.displayName});
-        }
-        return notOk;
-    }
+Future<dynamic> handleBackendRequest(
+    String action, Map<String, dynamic> params) async {
+  switch (action) {
+    case 'manualSave': // don't know about the safety of this one, chief
+      if (manualSaveWatch.elapsedMilliseconds > 1000) {
+        await save();
+      } else {
+        print('Manual saving has a cooldown.');
+      }
+      manualSaveWatch.reset();
+      return true;
+    case PLAYER_CREATE:
+      var name = params['name'];
+      if (data.getPlayer(name) != null) {
+        return false;
+      }
+      data.players.add(ServerPlayer(name, name, params['password']));
+      return true;
+    case PLAYER_CHANGE_DISPLAY_NAME:
+      var name = params['name'];
+      var player = data.getPlayer(name);
+      if (player != null && player.password == params['password']) {
+        player.displayName = params['displayName'];
+        return true;
+      }
+      return false;
+    case PLAYER_GET:
+      var name = params['name'];
+      var player = data.getPlayer(name);
+      if (player != null) {
+        return {'name': name, 'displayName': player.displayName};
+      }
+      return null;
   }
-
-  return Response.notFound('wow 404');
 }
 
 String getMimeType(File f) {
@@ -117,8 +110,20 @@ String getMimeType(File f) {
 
 final FutureOr<Response> Function(Request) doWebSocketStuff =
     ws.webSocketHandler((WebSocketChannel webSocket) {
-  print('I think there is some sort of connection');
-  webSocket.sink.add('shock!');
+  webSocket.stream.listen((data) async {
+    print(data);
+    if (data is String && data[0] == '{') {
+      var json = jsonDecode(data);
+
+      var result = await handleBackendRequest(json['action'], json['params']);
+
+      var id = json['id'];
+      if (id != null) {
+        print('Processed a job called $id or summin idk');
+        webSocket.sink.add(jsonEncode({'id': id, 'result': result}));
+      }
+    }
+  });
 });
 
 Future<Response> _echoRequest(Request request) async {
