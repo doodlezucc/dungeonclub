@@ -7,7 +7,7 @@ class ServerData {
   }
 
   Map<String, dynamic> toJson() => {
-        'players': players.map((e) => e.toJson()).toList(),
+        'players': players.map((e) => e.toJson(withPassword: true)).toList(),
       };
 }
 
@@ -18,9 +18,9 @@ class ServerPlayer {
 
   ServerPlayer(this.name, this.displayName, this.password);
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson({withPassword = false}) => {
         'name': name,
         'displayName': displayName,
-        'password': password,
+        if (withPassword) 'password': password,
       };
 }

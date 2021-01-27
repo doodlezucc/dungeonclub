@@ -11,13 +11,13 @@ class Player {
       : _name = name,
         _displayName = displayName;
 
-  static Future<Player> create(String name, String password) async {
+  static Future<LocalPlayer> create(String name, String password) async {
     var response = await request(PLAYER_CREATE, params: {
       'name': name,
       'password': password,
     });
-    if (response) {
-      return Player(name, name);
+    if (response != false) {
+      return LocalPlayer._(name, response);
     }
     return null;
   }
@@ -27,6 +27,22 @@ class Player {
     var response = await request(PLAYER_GET, params: {'name': name});
     if (response != null) {
       return Player(name, response['displayName']);
+    }
+    return null;
+  }
+}
+
+class LocalPlayer extends Player {
+  LocalPlayer._(String name, Map<String, dynamic> json)
+      : super(name, json['displayName']);
+
+  static Future<LocalPlayer> login(String name, String password) async {
+    var response = await request(PLAYER_GET, params: {
+      'name': name,
+      'password': password,
+    });
+    if (response != null) {
+      return LocalPlayer._(name, response);
     }
     return null;
   }

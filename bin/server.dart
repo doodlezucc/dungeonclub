@@ -76,8 +76,9 @@ Future<dynamic> handleBackendRequest(
       if (data.getPlayer(name) != null) {
         return false;
       }
-      data.players.add(ServerPlayer(name, name, params['password']));
-      return true;
+      var player = ServerPlayer(name, name, params['password']);
+      data.players.add(player);
+      return player.toJson();
     case PLAYER_CHANGE_DISPLAY_NAME:
       var name = params['name'];
       var player = data.getPlayer(name);
@@ -89,10 +90,7 @@ Future<dynamic> handleBackendRequest(
     case PLAYER_GET:
       var name = params['name'];
       var player = data.getPlayer(name);
-      if (player != null) {
-        return {'name': name, 'displayName': player.displayName};
-      }
-      return null;
+      return player?.toJson();
   }
 }
 
