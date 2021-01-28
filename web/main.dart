@@ -1,26 +1,27 @@
 import 'dart:html';
 
 import 'dart/communication.dart';
-import 'dart/player.dart';
+import 'dart/user.dart';
 
-LocalPlayer player;
+final user = User();
+final InputElement loginEmail = querySelector('#loginEmail');
+final InputElement loginPassword = querySelector('#loginPassword');
 
 void main() {
   wsConnect();
 
   querySelector('h1').text = 'Eventually... it worked!!!';
+
+  querySelector('button#login').onClick.listen((event) {
+    user.login(loginEmail.value, loginPassword.value);
+  });
+
   querySelector('button#create').onClick.listen((event) async {
-    player = await Player.create('da player', 'bad password');
+    var game = await user.account.createNewGame();
+    print(game.id);
+    print(game.owner);
   });
-  querySelector('button#get').onClick.listen((event) async {
-    await Player.get('da player');
-  });
-  querySelector('button#login').onClick.listen((event) async {
-    player = await LocalPlayer.login('da player', 'bad password');
-  });
-  querySelector('button#change').onClick.listen((event) async {
-    await player.changeDisplayName('zucc', 'bad password');
-  });
+
   querySelector('button#save').onClick.listen((event) async {
     send('{"action":"manualSave"}');
   });
