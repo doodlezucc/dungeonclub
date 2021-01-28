@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import '../web/dart/server_actions.dart';
+import '../web/dart/server_actions.dart' as a;
 import 'data.dart';
 import 'server.dart';
 
@@ -34,6 +34,7 @@ class Connection {
       }
     }, onDone: () {
       print('Lost connection (${ws.closeCode})');
+      connections.remove(this);
     }, onError: (err) {
       print('ws error');
       print(err);
@@ -48,7 +49,7 @@ class Connection {
       case 'manualSave': // don't know about the safety of this one, chief
         return data.manualSave();
 
-      case ACCOUNT_CREATE:
+      case a.ACCOUNT_CREATE:
         var email = params['email'];
         if (data.getAccount(email) != null) {
           return false;
@@ -57,8 +58,16 @@ class Connection {
         data.accounts.add(_account);
         return _account.toSnippet();
 
-      case ACCOUNT_LOGIN:
+      case a.ACCOUNT_LOGIN:
         return login(params['email'], params['password']);
+
+      case a.GAME_CREATE_NEW:
+        if (account == null) return false;
+
+        var game = Game(account, params['name']);
+        data.games.add(game);
+        account.enteredGames.add(game);
+        return game.id;
     }
   }
 

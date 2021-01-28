@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypt/crypt.dart';
+import 'package:random_string/random_string.dart';
 
+import 'connections.dart';
 import 'server.dart';
 
 class ServerData {
@@ -31,7 +33,7 @@ class ServerData {
     if (email == null) return null;
     return accounts.singleWhere(
         (p) => alreadyEncrypted
-            ? p.encryptedEmail.hash == email
+            ? p.encryptedEmail.toString() == email
             : p.encryptedEmail.match(email),
         orElse: () => null);
   }
@@ -42,14 +44,25 @@ class ServerData {
       };
 
   void fromJson(Map<String, dynamic> json) {
+    var owners = <Game, String>{};
+
+    games.clear();
+    games.addAll(List.from(json['games']).map((j) {
+      var game = Game.fromJson(j);
+      owners[game] = j['owner'];
+      return game;
+    }));
+    print('Loaded ${games.length} games');
+
     accounts.clear();
     accounts
         .addAll(List.from(json['accounts']).map((j) => Account.fromJson(j)));
-    print('Loaded ${accounts.length} accounts!');
+    print('Loaded ${accounts.length} accounts');
 
-    games.clear();
-    games.addAll(List.from(json['games']).map((j) => Game.fromJson(j)));
-    print('Loaded ${games.length} games!');
+    owners.forEach((game, ownerEmail) {
+      game.owner = data.getAccount(ownerEmail, alreadyEncrypted: true);
+    });
+    print('Set all game owners');
   }
 
   Future<void> save() async {
@@ -90,7 +103,10 @@ class Account {
 
   Account.fromJson(Map<String, dynamic> json)
       : encryptedEmail = Crypt(json['email']),
-        encryptedPassword = Crypt(json['password']);
+        encryptedPassword = Crypt(json['password']),
+        enteredGames = List.from(json['games'])
+            .map((id) => data.games.singleWhere((g) => g.id == id))
+            .toList();
 
   Map<String, dynamic> toJson() => {
         'email': encryptedEmail.toString(),
@@ -105,16 +121,25 @@ class Account {
 }
 
 class Game {
-  final int id;
+  final String id;
   String name;
   Account owner;
 
-  Game(this.id, Account owner);
+  final connections = <Connection>[];
+
+  static String _generateId() {
+    String id;
+    do {
+      id = randomAlphaNumeric(10);
+    } while (data.games.any((g) => g.id == id));
+    return id;
+  }
+
+  Game(this.owner, this.name) : id = _generateId();
 
   Game.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        name = json['name'],
-        owner = data.getAccount(json['email']);
+        name = json['name'];
 
   Map<String, dynamic> toJson() => {
         'id': id,

@@ -8,8 +8,10 @@ class Account {
 
   Account(Map<String, dynamic> json) : email = json['email'];
 
-  Future<Game> createNewGame() async {
-    var json = await request(GAME_CREATE_NEW);
-    return Game(json, this);
+  Future<Game> createNewGame(String name) async {
+    var id = await request(GAME_CREATE_NEW, params: {'name': name});
+    if (id == false) return null;
+
+    return Game(id, name, this);
   }
 }

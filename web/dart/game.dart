@@ -4,8 +4,8 @@ class Game {
   String _name;
   String get name => _name;
 
-  final int id;
+  final String id;
   final Account owner;
 
-  Game(Map<String, dynamic> json, this.owner) : id = json['id'];
+  Game(this.id, String name, this.owner) : _name = name;
 }

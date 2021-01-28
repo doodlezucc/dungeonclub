@@ -20,9 +20,9 @@ void main() {
   });
 
   querySelector('button#create').onClick.listen((_) async {
-    var game = await user.account.createNewGame();
+    var game = await user.account.createNewGame('Cool Campaign');
     print(game.id);
-    print(game.owner);
+    print(game.name);
   });
 
   querySelector('button#save').onClick.listen((_) async {
