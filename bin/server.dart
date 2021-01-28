@@ -30,6 +30,8 @@ void main(List<String> args) async {
     return;
   }
 
+  data.init();
+
   Response _cors(Response response) => response.change(headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST',

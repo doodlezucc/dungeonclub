@@ -5,15 +5,20 @@ import 'dart:io';
 
 import 'package:crypt/crypt.dart';
 
+import 'server.dart';
+
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
+  static final file = File('database/data.json');
 
   final accounts = <Account>[];
   final games = <Game>[];
 
-  ServerData() {
-    _manualSaveWatch.start();
-    //initAutoSave();
+  void init() {
+    load().then((_) {
+      _manualSaveWatch.start();
+      //initAutoSave();
+    });
   }
 
   void initAutoSave() {
@@ -22,9 +27,12 @@ class ServerData {
     });
   }
 
-  Account getAccount(String email) {
+  Account getAccount(String email, {bool alreadyEncrypted = false}) {
     if (email == null) return null;
-    return accounts.singleWhere((p) => p.encryptedEmail.match(email),
+    return accounts.singleWhere(
+        (p) => alreadyEncrypted
+            ? p.encryptedEmail.hash == email
+            : p.encryptedEmail.match(email),
         orElse: () => null);
   }
 
@@ -33,11 +41,31 @@ class ServerData {
         'games': games.map((e) => e.toJson()).toList(),
       };
 
+  void fromJson(Map<String, dynamic> json) {
+    accounts.clear();
+    accounts
+        .addAll(List.from(json['accounts']).map((j) => Account.fromJson(j)));
+    print('Loaded ${accounts.length} accounts!');
+
+    games.clear();
+    games.addAll(List.from(json['games']).map((j) => Game.fromJson(j)));
+    print('Loaded ${games.length} games!');
+  }
+
   Future<void> save() async {
     var json = JsonEncoder.withIndent(' ').convert(toJson());
     print(json);
-    await File('database/data.json').writeAsString(json);
+    await file.writeAsString(json);
     print('Saved!');
+  }
+
+  Future<void> load() async {
+    if (!await file.exists()) return;
+
+    var s = await file.readAsString();
+    var json = jsonDecode(s);
+    fromJson(json);
+    print('Loaded!');
   }
 
   Future<void> manualSave() async {
@@ -60,14 +88,18 @@ class Account {
       : encryptedEmail = Crypt.sha256(email),
         encryptedPassword = Crypt.sha256(password);
 
+  Account.fromJson(Map<String, dynamic> json)
+      : encryptedEmail = Crypt(json['email']),
+        encryptedPassword = Crypt(json['password']);
+
   Map<String, dynamic> toJson() => {
-        'email': encryptedEmail.hash,
-        'password': encryptedPassword.hash,
+        'email': encryptedEmail.toString(),
+        'password': encryptedPassword.toString(),
         'games': enteredGames.map((g) => g.id).toList(),
       };
 
   Map<String, dynamic> toSnippet() => {
-        'email': encryptedEmail.hash,
+        'email': encryptedEmail.toString(),
         'games': enteredGames.map((g) => g.toJson()).toList(),
       };
 }
@@ -79,9 +111,14 @@ class Game {
 
   Game(this.id, Account owner);
 
+  Game.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        name = json['name'],
+        owner = data.getAccount(json['email']);
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
-        'owner': owner.encryptedEmail.hash,
+        'owner': owner.encryptedEmail.toString(),
       };
 }
