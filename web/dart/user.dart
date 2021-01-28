@@ -12,11 +12,15 @@ class User {
   Session _session;
   Session get session => _session;
 
-  Future<void> login(String email, String password) async {
-    var response = await request(ACCOUNT_LOGIN, params: {
-      'email': email,
-      'password': password,
-    });
+  Future<void> login(String email, String password,
+      {bool signUp = false}) async {
+    var response = await request(
+      signUp ? ACCOUNT_CREATE : ACCOUNT_LOGIN,
+      params: {
+        'email': email,
+        'password': password,
+      },
+    );
     if (response != false) {
       _account = Account(response);
     } else {

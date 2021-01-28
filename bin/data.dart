@@ -3,10 +3,13 @@ import 'dart:convert';
 
 import 'dart:io';
 
+import 'package:crypt/crypt.dart';
+
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
 
   final accounts = <Account>[];
+  final games = <Game>[];
 
   ServerData() {
     _manualSaveWatch.start();
@@ -21,13 +24,13 @@ class ServerData {
 
   Account getAccount(String email) {
     if (email == null) return null;
-    var encrypted = Account.encrypt(email);
-    return accounts.singleWhere((p) => p.encryptedEmail == encrypted,
+    return accounts.singleWhere((p) => p.encryptedEmail.match(email),
         orElse: () => null);
   }
 
   Map<String, dynamic> toJson() => {
-        'accounts': accounts.map((e) => e.toJson(withPassword: true)).toList(),
+        'accounts': accounts.map((e) => e.toJson()).toList(),
+        'games': games.map((e) => e.toJson()).toList(),
       };
 
   Future<void> save() async {
@@ -48,15 +51,37 @@ class ServerData {
 }
 
 class Account {
-  final String encryptedEmail;
-  String encryptedPassword;
+  final Crypt encryptedEmail;
+  Crypt encryptedPassword;
 
-  static String encrypt(String s) => s;
+  var enteredGames = <Game>[];
 
-  Account(this.encryptedEmail, this.encryptedPassword);
+  Account(String email, String password)
+      : encryptedEmail = Crypt.sha256(email),
+        encryptedPassword = Crypt.sha256(password);
 
-  Map<String, dynamic> toJson({withPassword = false}) => {
-        'email': encryptedEmail,
-        if (withPassword) 'password': encryptedPassword,
+  Map<String, dynamic> toJson() => {
+        'email': encryptedEmail.hash,
+        'password': encryptedPassword.hash,
+        'games': enteredGames.map((g) => g.id).toList(),
+      };
+
+  Map<String, dynamic> toSnippet() => {
+        'email': encryptedEmail.hash,
+        'games': enteredGames.map((g) => g.toJson()).toList(),
+      };
+}
+
+class Game {
+  final int id;
+  String name;
+  Account owner;
+
+  Game(this.id, Account owner);
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'owner': owner.encryptedEmail.hash,
       };
 }

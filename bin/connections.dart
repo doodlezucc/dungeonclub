@@ -55,7 +55,7 @@ class Connection {
         }
         _account = Account(email, params['password']);
         data.accounts.add(_account);
-        return _account.toJson();
+        return _account.toSnippet();
 
       case ACCOUNT_LOGIN:
         return login(params['email'], params['password']);
@@ -68,7 +68,7 @@ class Connection {
       return false;
     }
     _account = acc;
-    print('Connection logged in with account ' + acc.encryptedEmail);
-    return acc.toJson();
+    print('Connection logged in with account ' + acc.encryptedEmail.hash);
+    return acc.toSnippet();
   }
 }

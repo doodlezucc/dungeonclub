@@ -155,8 +155,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.1"
-  crypto:
+  crypt:
     dependency: "direct main"
+    description:
+      name: crypt
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.1"
+  crypto:
+    dependency: transitive
     description:
       name: crypto
       url: "https://pub.dartlang.org"
@@ -197,13 +204,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0"
-  http:
-    dependency: "direct main"
-    description:
-      name: http
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.12.2"
   http_multi_server:
     dependency: transitive
     description:
@@ -296,7 +296,7 @@ packages:
     source: hosted
     version: "1.9.3"
   path:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: path
       url: "https://pub.dartlang.org"

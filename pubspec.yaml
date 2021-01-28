@@ -11,9 +11,7 @@ dependencies:
   shelf: ^0.7.5
   shelf_web_socket: ^0.2.3
   web_socket_channel: ^1.1.0
-  path:
-  http:
-  crypto: ^2.1.5
+  crypt: ^3.0.1
 
 dev_dependencies:
   build_runner: ^1.10.0
