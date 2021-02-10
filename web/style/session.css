@@ -1,0 +1,14 @@
+#session {
+    border: 2px solid black;
+    margin: 20px;
+}
+
+#board {
+    position: relative;
+    display: flex;
+}
+
+#boardContainer {
+    position: relative;
+    overflow: hidden;
+}

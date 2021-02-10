@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'dart/communication.dart';
+import 'dart/session/session.dart';
 import 'dart/user.dart';
 
 final user = User();
@@ -28,4 +29,6 @@ void main() {
   querySelector('button#save').onClick.listen((_) async {
     send('{"action":"manualSave"}');
   });
+
+  Session.test();
 }
