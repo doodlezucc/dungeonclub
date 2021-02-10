@@ -3,14 +3,30 @@
     margin: 20px;
 }
 
-#board {
-    position: relative;
-    display: flex;
-    transition-duration: 0.05s;
-}
 
 #boardContainer {
     position: relative;
     overflow: hidden;
     user-select: none;
+    min-height: 500px;
+}
+
+#board {
+    position: absolute;
+    display: flex;
+    transition-duration: 0.05s;
+}
+
+.movable {
+    position: absolute;
+    border: 2px solid slateblue;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+}
+.movable > img {
+    width: inherit;
+    height: inherit;
+    pointer-events: none;
 }

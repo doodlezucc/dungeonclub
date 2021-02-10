@@ -7,6 +7,7 @@ import 'dart/user.dart';
 final user = User();
 final InputElement loginEmail = querySelector('#loginEmail');
 final InputElement loginPassword = querySelector('#loginPassword');
+Session session;
 
 void main() {
   wsConnect();
@@ -30,5 +31,7 @@ void main() {
     send('{"action":"manualSave"}');
   });
 
-  Session.test();
+  session = Session.test()
+    ..board.addMovable(
+        'https://i.kym-cdn.com/photos/images/newsfeed/000/096/044/trollface.jpg?1296494117');
 }
