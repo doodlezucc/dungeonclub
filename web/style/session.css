@@ -6,9 +6,11 @@
 #board {
     position: relative;
     display: flex;
+    transition-duration: 0.05s;
 }
 
 #boardContainer {
     position: relative;
     overflow: hidden;
+    user-select: none;
 }
