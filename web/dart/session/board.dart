@@ -30,11 +30,6 @@ class Board {
     _transform();
   }
 
-  void _transform() {
-    e.style.transform =
-        'scale($_scaledZoom) translate(${position.x}px, ${position.y}px)';
-  }
-
   Board(this.session) {
     position = Point(0, 0);
 
@@ -56,6 +51,11 @@ class Board {
     container.onMouseWheel.listen((event) {
       zoom -= event.deltaY / 300;
     });
+  }
+
+  void _transform() {
+    e.style.transform =
+        'scale($_scaledZoom) translate(${position.x}px, ${position.y}px)';
   }
 
   Movable addMovable(String img) {

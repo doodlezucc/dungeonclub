@@ -19,6 +19,7 @@
     transition-duration: 0.05s;
     border: 2px solid black;
     box-sizing: border-box;
+    outline: 1px solid transparent;
 }
 
 #grid {
