@@ -3,8 +3,10 @@ import 'dart:math';
 
 import 'grid.dart';
 import 'movable.dart';
+import 'session.dart';
 
 class Board {
+  final Session session;
   final HtmlElement e = querySelector('#board');
   final HtmlElement container = querySelector('#boardContainer');
   final ImageElement ground = querySelector('#board #ground');
@@ -33,7 +35,7 @@ class Board {
         'scale($_scaledZoom) translate(${position.x}px, ${position.y}px)';
   }
 
-  Board() {
+  Board(this.session) {
     position = Point(0, 0);
 
     grid.resize(ground.width, ground.height);

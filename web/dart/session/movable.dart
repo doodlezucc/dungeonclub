@@ -7,10 +7,11 @@ class Movable {
   final HtmlElement e;
   final Board board;
 
-  bool _accessible = true;
+  bool _accessible = false;
   bool get accessible => _accessible;
   set accessible(bool accessible) {
     _accessible = accessible;
+    e.classes.toggle('accessible', accessible);
   }
 
   Point _position;
@@ -27,11 +28,16 @@ class Movable {
           ..append(ImageElement(src: img)) {
     position = Point(0, 0);
 
+    if (board.session.isGM) {
+      accessible = true;
+    }
+
     var drag = false;
     Point start;
     Point offset;
 
     e.onMouseDown.listen((event) async {
+      if (!accessible) return;
       start = position + event.offset;
       offset = Point(0, 0);
       drag = true;

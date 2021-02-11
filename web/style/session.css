@@ -17,6 +17,8 @@
     position: absolute;
     display: flex;
     transition-duration: 0.05s;
+    border: 2px solid black;
+    box-sizing: border-box;
 }
 
 #grid {
@@ -36,4 +38,8 @@
     width: inherit;
     height: inherit;
     pointer-events: none;
+}
+
+.movable.accessible {
+    cursor: move;
 }

@@ -3,8 +3,12 @@ import 'board.dart';
 
 class Session {
   final Game game;
-  final Board board;
+  final bool isGM;
+  Board _board;
+  Board get board => _board;
 
-  Session(this.game) : board = Board();
-  Session.test() : this(Game('what', 'no', null));
+  Session(this.game, this.isGM) {
+    _board = Board(this);
+  }
+  Session.test() : this(Game('what', 'no', null), true);
 }
