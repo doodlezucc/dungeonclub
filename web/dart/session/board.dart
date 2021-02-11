@@ -1,24 +1,19 @@
 import 'dart:html';
 import 'dart:math';
 
+import 'grid.dart';
 import 'movable.dart';
 
 class Board {
   final HtmlElement e = querySelector('#board');
   final HtmlElement container = querySelector('#boardContainer');
   final ImageElement ground = querySelector('#board #ground');
-  final HtmlElement gridContainer = querySelector('#board #grid');
+  final grid = Grid();
   final movables = <Movable>[];
 
-  double _cellSize = 50;
-  double get cellSize => _cellSize;
-  set cellSize(double cellSize) {
-    _cellSize = cellSize;
-  }
-
-  Point<num> _position;
-  Point<num> get position => _position;
-  set position(Point<num> pos) {
+  Point _position;
+  Point get position => _position;
+  set position(Point pos) {
     _position = pos;
     _transform();
   }
@@ -41,6 +36,8 @@ class Board {
   Board() {
     position = Point(0, 0);
 
+    grid.resize(ground.width, ground.height);
+
     var drag = false;
     container.onMouseDown.listen((event) async {
       if ((event.target as HtmlElement).className.contains('movable')) return;
@@ -62,7 +59,7 @@ class Board {
   Movable addMovable(String img) {
     var m = Movable(board: this, img: img);
     movables.add(m);
-    gridContainer.append(m.e);
+    grid.e.append(m.e);
     return m;
   }
 }

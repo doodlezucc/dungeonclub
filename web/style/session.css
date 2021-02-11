@@ -9,12 +9,18 @@
     overflow: hidden;
     user-select: none;
     min-height: 500px;
+    display: flex;
+    justify-content: center;
 }
 
 #board {
     position: absolute;
     display: flex;
     transition-duration: 0.05s;
+}
+
+#grid {
+    position: absolute;
 }
 
 .movable {
@@ -24,6 +30,7 @@
     width: 100px;
     height: 100px;
     overflow: hidden;
+    box-sizing: border-box;
 }
 .movable > img {
     width: inherit;
