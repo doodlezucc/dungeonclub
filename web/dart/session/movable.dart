@@ -32,7 +32,7 @@ class Movable {
     Point offset;
 
     e.onMouseDown.listen((event) async {
-      start = position;
+      start = position + event.offset;
       offset = Point(0, 0);
       drag = true;
       await window.onMouseUp.first;
@@ -43,13 +43,12 @@ class Movable {
       if (drag) {
         offset += event.movement * (1 / board.scaledZoom);
 
-        var zoom = board.scaledZoom;
         var cell = board.grid.cellSize;
 
         var pos = start + offset;
         position = Point(
-          ((pos.x / cell + 0.5)).floor() * cell,
-          ((pos.y / cell + 0.5)).floor() * cell,
+          (pos.x / cell).floor() * cell,
+          (pos.y / cell).floor() * cell,
         );
       }
     });
