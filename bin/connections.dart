@@ -92,8 +92,8 @@ class Connection {
           var m = _game.board.addMovable(params);
           notifyOthers(action, {
             'id': m.id,
-            'x': m.pos.x,
-            'y': m.pos.y,
+            'x': m.x,
+            'y': m.y,
             'img': m.img,
           });
           return m.id;
@@ -101,6 +101,12 @@ class Connection {
         return;
 
       case a.GAME_MOVABLE_MOVE:
+        var m = _game?.board?.getMovable(params['id']);
+        if (m != null) {
+          m
+            ..x = params['x']
+            ..y = params['y'];
+        }
         return notifyOthers(action);
     }
   }

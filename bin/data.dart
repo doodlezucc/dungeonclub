@@ -127,7 +127,7 @@ class Game {
   Account owner;
 
   final connections = <Connection>[];
-  final Board board = Board();
+  final Board board;
 
   static String _generateId() {
     String id;
@@ -137,22 +137,35 @@ class Game {
     return id;
   }
 
-  Game(this.owner, this.name) : id = _generateId();
+  Game(this.owner, this.name)
+      : id = _generateId(),
+        board = Board();
 
   Game.fromJson(Map<String, dynamic> json)
       : id = json['id'],
-        name = json['name'];
+        name = json['name'],
+        board = Board(json['board']);
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'owner': owner.encryptedEmail.toString(),
+        'board': board.toJson(),
       };
 }
 
 class Board {
-  final movables = <Movable>[];
+  final List<Movable> movables;
   int _countMIDs = 0;
+
+  Board([Map<String, dynamic> json])
+      : movables = json != null
+            ? List.from(json['movables'])
+                .map((j) => Movable(j['id'], j))
+                .toList()
+            : <Movable>[] {
+    _countMIDs = movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
+  }
 
   Movable addMovable(Map<String, dynamic> json) {
     var m = Movable(_countMIDs++, json);
@@ -163,15 +176,28 @@ class Board {
   Movable getMovable(int id) {
     return movables.singleWhere((m) => m.id == id, orElse: () => null);
   }
+
+  Map<String, dynamic> toJson() => {
+        'movables': movables.map((e) => e.toJson()).toList(),
+      };
 }
 
 class Movable {
   final int id;
 
   String img;
-  Point pos;
+  num x;
+  num y;
 
   Movable(this.id, Map<String, dynamic> json)
       : img = json['img'],
-        pos = Point(json['x'], json['y']);
+        x = json['x'],
+        y = json['y'];
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'img': img,
+        'x': x,
+        'y': y,
+      };
 }
