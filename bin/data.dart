@@ -116,8 +116,7 @@ class Account {
       };
 
   Map<String, dynamic> toSnippet() => {
-        'email': encryptedEmail.toString(),
-        'games': enteredGames.map((g) => g.toJson()).toList(),
+        'games': enteredGames.map((g) => g.toSnippet()).toList(),
       };
 }
 
@@ -151,6 +150,11 @@ class Game {
         'name': name,
         'owner': owner.encryptedEmail.toString(),
         'board': board.toJson(),
+      };
+
+  Map<String, dynamic> toSnippet() => {
+        'id': id,
+        'name': name,
       };
 }
 
