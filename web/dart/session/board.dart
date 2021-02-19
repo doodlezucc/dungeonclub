@@ -1,6 +1,8 @@
 import 'dart:html';
 import 'dart:math';
 
+import '../communication.dart';
+import '../server_actions.dart';
 import 'grid.dart';
 import 'movable.dart';
 import 'session.dart';
@@ -58,10 +60,39 @@ class Board {
         'scale($_scaledZoom) translate(${position.x}px, ${position.y}px)';
   }
 
-  Movable addMovable(String img) {
+  Future<Movable> addMovable(String img) async {
     var m = Movable(board: this, img: img);
+    var id = await request(GAME_MOVABLE_CREATE, {
+      'x': m.position.x,
+      'y': m.position.y,
+      'img': img,
+    });
+    m.id = id;
     movables.add(m);
     grid.e.append(m.e);
     return m;
+  }
+
+  static Point parsePoint(dynamic json) {
+    return Point(json['x'], json['y']);
+  }
+
+  void onMovableCreate(Map<String, dynamic> json) {
+    var m = Movable(
+      board: this,
+      img: json['img'],
+      id: json['id'],
+      pos: parsePoint(json),
+    );
+    movables.add(m);
+    grid.e.append(m.e);
+  }
+
+  void onMovableMove(json) {
+    for (var m in movables) {
+      if (m.id == json['id']) {
+        return m.onMove(parsePoint(json));
+      }
+    }
   }
 }

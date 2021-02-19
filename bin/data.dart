@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:crypt/crypt.dart';
 import 'package:random_string/random_string.dart';
@@ -126,6 +127,7 @@ class Game {
   Account owner;
 
   final connections = <Connection>[];
+  final Board board = Board();
 
   static String _generateId() {
     String id;
@@ -146,4 +148,30 @@ class Game {
         'name': name,
         'owner': owner.encryptedEmail.toString(),
       };
+}
+
+class Board {
+  final movables = <Movable>[];
+  int _countMIDs = 0;
+
+  Movable addMovable(Map<String, dynamic> json) {
+    var m = Movable(_countMIDs++, json);
+    movables.add(m);
+    return m;
+  }
+
+  Movable getMovable(int id) {
+    return movables.singleWhere((m) => m.id == id, orElse: () => null);
+  }
+}
+
+class Movable {
+  final int id;
+
+  String img;
+  Point pos;
+
+  Movable(this.id, Map<String, dynamic> json)
+      : img = json['img'],
+        pos = Point(json['x'], json['y']);
 }

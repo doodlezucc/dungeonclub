@@ -1,9 +1,12 @@
 import 'dart:html';
 import 'dart:math';
 
+import '../communication.dart';
+import '../server_actions.dart';
 import 'board.dart';
 
 class Movable {
+  int id;
   final HtmlElement e;
   final Board board;
 
@@ -22,27 +25,42 @@ class Movable {
     e.style.top = '${position.y}px';
   }
 
-  Movable({this.board, String img})
+  void onMove(Point pos) {
+    print('i was told to move lol');
+    position = pos;
+  }
+
+  Movable({this.board, String img, this.id, Point pos})
       : e = DivElement()
           ..className = 'movable'
           ..append(ImageElement(src: img)) {
-    position = Point(0, 0);
+    position = pos ?? Point(0, 0);
 
     if (board.session.isGM) {
       accessible = true;
     }
 
     var drag = false;
+    Point startPos;
     Point start;
     Point offset;
 
     e.onMouseDown.listen((event) async {
       if (!accessible) return;
-      start = position + event.offset;
+      startPos = position;
+      start = startPos + event.offset;
       offset = Point(0, 0);
       drag = true;
       await window.onMouseUp.first;
       drag = false;
+      if (startPos != position) {
+        print('log this pos');
+        return sendAction(GAME_MOVABLE_MOVE, {
+          'id': id,
+          'x': position.x,
+          'y': position.y,
+        });
+      }
     });
 
     window.onMouseMove.listen((event) {

@@ -15,6 +15,7 @@ void onConnect(WebSocketChannel ws) {
 
 class Connection {
   final WebSocketChannel ws;
+  Game _game;
   Account _account;
   Account get account => _account;
 
@@ -43,6 +44,23 @@ class Connection {
     });
   }
 
+  void sendAction(String action, [Map<String, dynamic> params]) {
+    ws.sink.add(jsonEncode({
+      'action': action,
+      if (params != null) 'params': params,
+    }));
+  }
+
+  void notifyOthers(String action, [Map<String, dynamic> params]) {
+    if (_game != null) {
+      for (var c in _game.connections) {
+        if (c != this) {
+          c.sendAction(action, params);
+        }
+      }
+    }
+  }
+
   Future<dynamic> handleAction(
       String action, Map<String, dynamic> params) async {
     switch (action) {
@@ -64,10 +82,26 @@ class Connection {
       case a.GAME_CREATE_NEW:
         if (account == null) return false;
 
-        var game = Game(account, params['name']);
-        data.games.add(game);
-        account.enteredGames.add(game);
-        return game.id;
+        _game = Game(account, params['name'])..connections.add(this);
+        data.games.add(_game);
+        account.enteredGames.add(_game);
+        return _game.id;
+
+      case a.GAME_MOVABLE_CREATE:
+        if (_game != null) {
+          var m = _game.board.addMovable(params);
+          notifyOthers(action, {
+            'id': m.id,
+            'x': m.pos.x,
+            'y': m.pos.y,
+            'img': m.img,
+          });
+          return m.id;
+        }
+        return;
+
+      case a.GAME_MOVABLE_MOVE:
+        return notifyOthers(action);
     }
   }
 

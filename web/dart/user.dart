@@ -16,7 +16,7 @@ class User {
       {bool signUp = false}) async {
     var response = await request(
       signUp ? ACCOUNT_CREATE : ACCOUNT_LOGIN,
-      params: {
+      {
         'email': email,
         'password': password,
       },
