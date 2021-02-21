@@ -32,7 +32,7 @@ class ServerData {
 
   Account getAccount(String email, {bool alreadyEncrypted = false}) {
     if (email == null) return null;
-    return accounts.singleWhere(
+    return accounts.firstWhere(
         (p) => alreadyEncrypted
             ? p.encryptedEmail.toString() == email
             : p.encryptedEmail.match(email),
@@ -125,7 +125,7 @@ class Game {
   String name;
   Account owner;
 
-  final connections = <Connection>[];
+  final _connections = <Connection>[];
   final Board board;
 
   static String _generateId() {
@@ -134,6 +134,15 @@ class Game {
       id = randomAlphaNumeric(10);
     } while (data.games.any((g) => g.id == id));
     return id;
+  }
+
+  void notify(String action, Map<String, dynamic> params,
+      {Connection exclude}) {
+    for (var c in _connections) {
+      if (exclude != c) {
+        c.sendAction(action, params);
+      }
+    }
   }
 
   Game(this.owner, this.name)
@@ -156,6 +165,18 @@ class Game {
         'id': id,
         'name': name,
       };
+
+  Map<String, dynamic> toSessionSnippet(Account acc) => {
+        'board': board.toJson(),
+        'isGM': owner == acc,
+      };
+
+  void connect(Connection connection, bool add) {
+    if (add) {
+      return _connections.add(connection);
+    }
+    _connections.remove(connection);
+  }
 }
 
 class Board {

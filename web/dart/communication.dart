@@ -26,10 +26,10 @@ void wsConnect() {
 
         switch (action) {
           case GAME_MOVABLE_CREATE:
-            return session.board.onMovableCreate(params);
+            return user.session.board.onMovableCreate(params);
 
           case GAME_MOVABLE_MOVE:
-            return session.board.onMovableMove(params);
+            return user.session.board.onMovableMove(params);
         }
 
         window.console.warn('Unhandled action!');

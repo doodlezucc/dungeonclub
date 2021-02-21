@@ -7,7 +7,6 @@ import 'dart/user.dart';
 final user = User();
 final InputElement loginEmail = querySelector('#loginEmail');
 final InputElement loginPassword = querySelector('#loginPassword');
-Session session;
 
 void main() {
   wsConnect();
@@ -21,13 +20,17 @@ void main() {
     user.login(loginEmail.value, loginPassword.value, signUp: true);
   });
 
+  querySelector('button#join').onClick.listen((_) {
+    return user.joinSession('pog');
+  });
+
   querySelector('button#create').onClick.listen((_) async {
     if (!user.registered) return print('No permissions to create a new game!');
     var game = await user.account.createNewGame('Cool Campaign');
     print(game.id);
     print(game.name);
-    session = Session(game, true);
-    return session.board.addMovable(
+    user.session = Session(game, true);
+    return user.session.board.addMovable(
         'https://i.kym-cdn.com/photos/images/newsfeed/000/096/044/trollface.jpg?1296494117');
   });
 

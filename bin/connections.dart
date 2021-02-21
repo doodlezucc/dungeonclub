@@ -35,6 +35,7 @@ class Connection {
       }
     }, onDone: () {
       print('Lost connection (${ws.closeCode})');
+      _game?.connect(this, false);
       connections.remove(this);
     }, onError: (err) {
       print('ws error');
@@ -52,13 +53,7 @@ class Connection {
   }
 
   void notifyOthers(String action, [Map<String, dynamic> params]) {
-    if (_game != null) {
-      for (var c in _game.connections) {
-        if (c != this) {
-          c.sendAction(action, params);
-        }
-      }
-    }
+    _game?.notify(action, params, exclude: this);
   }
 
   Future<dynamic> handleAction(
@@ -82,10 +77,22 @@ class Connection {
       case a.GAME_CREATE_NEW:
         if (account == null) return false;
 
-        _game = Game(account, params['name'])..connections.add(this);
+        _game = Game(account, params['name'])..connect(this, true);
         data.games.add(_game);
         account.enteredGames.add(_game);
         return _game.id;
+
+      case a.GAME_JOIN:
+        var id = params['id'];
+        var game = data.games.firstWhere((g) => g.id == id, orElse: () => null);
+        if (game != null) {
+          if (game.owner != account) {
+            return "Joining games you don't own is not yet supported";
+          }
+          _game = game..connect(this, true);
+          return game.toSessionSnippet(account);
+        }
+        return 'Game not found!';
 
       case a.GAME_MOVABLE_CREATE:
         if (_game != null) {
@@ -107,7 +114,7 @@ class Connection {
             ..x = params['x']
             ..y = params['y'];
         }
-        return notifyOthers(action);
+        return notifyOthers(action, params);
     }
   }
 

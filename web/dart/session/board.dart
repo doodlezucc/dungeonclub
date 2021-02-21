@@ -95,4 +95,10 @@ class Board {
       }
     }
   }
+
+  void fromJson(Map<String, dynamic> json) {
+    for (var m in json['movables']) {
+      onMovableCreate(m);
+    }
+  }
 }
