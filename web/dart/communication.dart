@@ -2,73 +2,52 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 
-import '../main.dart';
-import 'server_actions.dart';
+import '../comms.dart';
+import 'action_handler.dart';
 
-WebSocket _webSocket;
-final _waitForOpen = Completer();
+final socket = FrontSocket();
 
-void wsConnect() {
-  var secure = window.location.href.startsWith('https') ? 's' : '';
+class FrontSocket extends Socket {
+  WebSocket _webSocket;
+  final _waitForOpen = Completer();
 
-  _webSocket = WebSocket('ws$secure://localhost:7070/ws')
-    ..onOpen.listen((e) => _waitForOpen.complete())
-    ..onClose.listen((e) => print('CLOSE'))
-    ..onError.listen((e) => print(e))
-    ..onMessage.listen((e) {
-      print('MSG: ' + e.data);
-      if (e.data is String && e.data.startsWith('{"action":')) {
-        var parsed = jsonDecode(e.data);
-        var action = parsed['action'];
-        var params = parsed['params'];
+  void connect() {
+    var secure = window.location.href.startsWith('https') ? 's' : '';
 
-        print('Action $action incoming');
+    _webSocket = WebSocket('ws$secure://localhost:7070/ws')
+      ..onOpen.listen((e) => _waitForOpen.complete())
+      ..onClose.listen((e) => print('CLOSE'))
+      ..onError.listen((e) => print(e))
+      ..onMessage.listen((e) {
+        print('MSG: ' + e.data);
+        if (e.data is String && e.data.startsWith('{"action":')) {
+          var parsed = jsonDecode(e.data);
+          var action = parsed['action'];
+          var params = parsed['params'];
 
-        switch (action) {
-          case GAME_MOVABLE_CREATE:
-            return user.session.board.onMovableCreate(params);
-
-          case GAME_MOVABLE_MOVE:
-            return user.session.board.onMovableMove(params);
+          handleAction(action, params);
         }
+      });
+  }
 
-        window.console.warn('Unhandled action!');
-      }
-    });
-}
+  @override
+  Stream get messageStream => _webSocket.onMessage.map((event) => event.data);
 
-Future<void> send(dynamic message) async {
-  await _waitForOpen.future;
-  _webSocket.send(message);
-}
+  @override
+  Future<void> send(data) async {
+    await _waitForOpen.future;
+    _webSocket.send(data);
+  }
 
-Future<void> sendAction(String action, [Map<String, dynamic> params]) async {
-  //if (!_waitForOpen.isCompleted) (await _waitForOpen.future);
-  await _waitForOpen.future;
+  @override
+  Future<dynamic> request(String action, [Map<String, dynamic> params]) async {
+    await _waitForOpen.future;
+    return super.request(action, params);
+  }
 
-  var json = jsonEncode({
-    'action': action,
-    if (params != null) 'params': params,
-  });
-  _webSocket.send(json);
-}
-
-int _jobId = 0;
-
-Future<dynamic> request(String action, [Map<String, dynamic> params]) async {
-  await _waitForOpen.future;
-
-  var myId = _jobId++;
-  var json = jsonEncode({
-    'id': myId,
-    'action': action,
-    if (params != null) 'params': params,
-  });
-  _webSocket.send(json);
-
-  var msg = await _webSocket.onMessage.firstWhere(
-      (msg) => msg.data is String && msg.data.startsWith('{"id":$myId,'));
-
-  _jobId--;
-  return jsonDecode(msg.data)['result'];
+  @override
+  Future<void> sendAction(String action, [Map<String, dynamic> params]) async {
+    await _waitForOpen.future;
+    return super.sendAction(action, params);
+  }
 }

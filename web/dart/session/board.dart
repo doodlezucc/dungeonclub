@@ -62,7 +62,7 @@ class Board {
 
   Future<Movable> addMovable(String img) async {
     var m = Movable(board: this, img: img);
-    var id = await request(GAME_MOVABLE_CREATE, {
+    var id = await socket.request(GAME_MOVABLE_CREATE, {
       'x': m.position.x,
       'y': m.position.y,
       'img': img,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../web/dart/server_actions.dart' as a;
+import 'back_socket.dart';
 import 'data.dart';
 import 'server.dart';
 
@@ -13,14 +14,13 @@ void onConnect(WebSocketChannel ws) {
   connections.add(Connection(ws));
 }
 
-class Connection {
-  final WebSocketChannel ws;
+class Connection extends BackSocket {
   Game _game;
   Account _account;
   Account get account => _account;
 
-  Connection(this.ws) {
-    ws.stream.listen((data) async {
+  Connection(WebSocketChannel ws) : super(ws) {
+    messageStream.listen((data) async {
       print(data);
       if (data is String && data[0] == '{') {
         var json = jsonDecode(data);
@@ -43,13 +43,6 @@ class Connection {
       print(ws.closeCode);
       print(ws.closeReason);
     });
-  }
-
-  void sendAction(String action, [Map<String, dynamic> params]) {
-    ws.sink.add(jsonEncode({
-      'action': action,
-      if (params != null) 'params': params,
-    }));
   }
 
   void notifyOthers(String action, [Map<String, dynamic> params]) {
@@ -87,7 +80,9 @@ class Connection {
         var game = data.games.firstWhere((g) => g.id == id, orElse: () => null);
         if (game != null) {
           if (game.owner != account) {
-            return "Joining games you don't own is not yet supported";
+            if (!game.gmOnline) return 'GM is not online!';
+
+            return await game.gm.sendAction(a.GAME_JOIN_REQUEST);
           }
           _game = game..connect(this, true);
           return game.toSessionSnippet(account);
@@ -105,7 +100,7 @@ class Connection {
           });
           return m.id;
         }
-        return;
+        return false;
 
       case a.GAME_MOVABLE_MOVE:
         var m = _game?.board?.getMovable(params['id']);

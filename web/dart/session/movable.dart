@@ -55,7 +55,7 @@ class Movable {
       drag = false;
       if (startPos != position) {
         print('log this pos');
-        return sendAction(GAME_MOVABLE_MOVE, {
+        return socket.sendAction(GAME_MOVABLE_MOVE, {
           'id': id,
           'x': position.x,
           'y': position.y,

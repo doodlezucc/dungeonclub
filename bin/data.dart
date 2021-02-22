@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:crypt/crypt.dart';
 import 'package:random_string/random_string.dart';
 
+import '../web/dart/server_actions.dart' as a;
 import 'connections.dart';
 import 'server.dart';
 
@@ -125,7 +126,12 @@ class Game {
   String name;
   Account owner;
 
+  Connection get gm =>
+      _connections.firstWhere((c) => owner == c.account, orElse: () => null);
+  bool get gmOnline => gm != null;
+
   final _connections = <Connection>[];
+  final _characters = <PlayerCharacter, Connection>{};
   final Board board;
 
   static String _generateId() {
@@ -149,6 +155,22 @@ class Game {
       : id = _generateId(),
         board = Board();
 
+  void connect(Connection connection, bool add) {
+    if (!add) {
+      _connections.remove(connection);
+      return;
+    }
+    _connections.add(connection);
+  }
+
+  void addPC(String name) {
+    _characters[PlayerCharacter(name)] = null;
+  }
+
+  void removePC(int index) {
+    _characters.remove(_characters.keys.elementAt(index));
+  }
+
   Game.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
@@ -159,6 +181,7 @@ class Game {
         'name': name,
         'owner': owner.encryptedEmail.toString(),
         'board': board.toJson(),
+        'pcs': _characters.keys.map((e) => e.toJson()).toList()
       };
 
   Map<String, dynamic> toSnippet() => {
@@ -168,42 +191,48 @@ class Game {
 
   Map<String, dynamic> toSessionSnippet(Account acc) => {
         'board': board.toJson(),
-        'isGM': owner == acc,
+        if (owner == acc)
+          'gm': {
+            'pcs': _characters.keys.map((e) => e.toJson()).toList(),
+          },
       };
+}
 
-  void connect(Connection connection, bool add) {
-    if (add) {
-      return _connections.add(connection);
-    }
-    _connections.remove(connection);
-  }
+class PlayerCharacter {
+  String name;
+
+  PlayerCharacter(this.name);
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+      };
 }
 
 class Board {
-  final List<Movable> movables;
+  final List<Movable> _movables;
   int _countMIDs = 0;
 
   Board([Map<String, dynamic> json])
-      : movables = json != null
+      : _movables = json != null
             ? List.from(json['movables'])
                 .map((j) => Movable(j['id'], j))
                 .toList()
             : <Movable>[] {
-    _countMIDs = movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
+    _countMIDs = _movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
   }
 
   Movable addMovable(Map<String, dynamic> json) {
     var m = Movable(_countMIDs++, json);
-    movables.add(m);
+    _movables.add(m);
     return m;
   }
 
   Movable getMovable(int id) {
-    return movables.singleWhere((m) => m.id == id, orElse: () => null);
+    return _movables.singleWhere((m) => m.id == id, orElse: () => null);
   }
 
   Map<String, dynamic> toJson() => {
-        'movables': movables.map((e) => e.toJson()).toList(),
+        'movables': _movables.map((e) => e.toJson()).toList(),
       };
 }
 

@@ -17,17 +17,17 @@ class User {
   }
 
   Future<bool> joinSession(String id) async {
-    var s = await request(GAME_JOIN, {'id': id});
+    var s = await socket.request(GAME_JOIN, {'id': id});
     if (s is String) return false;
 
-    session = Session(Game(id, s['name'], Account()), s['isGM'])
+    session = Session(Game(id, s['name'], Account()), s['gm'] != null)
       ..board.fromJson(s['board']);
     return true;
   }
 
   Future<void> login(String email, String password,
       {bool signUp = false}) async {
-    var response = await request(
+    var response = await socket.request(
       signUp ? ACCOUNT_CREATE : ACCOUNT_LOGIN,
       {
         'email': email,

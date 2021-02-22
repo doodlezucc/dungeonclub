@@ -9,7 +9,7 @@ final InputElement loginEmail = querySelector('#loginEmail');
 final InputElement loginPassword = querySelector('#loginPassword');
 
 void main() {
-  wsConnect();
+  socket.connect();
 
   querySelector('h1').text = 'Eventually... it worked!!!';
 
@@ -35,7 +35,7 @@ void main() {
   });
 
   querySelector('button#save').onClick.listen((_) {
-    send('{"action":"manualSave"}');
+    socket.send('{"action":"manualSave"}');
   });
 
   //session = Session.test()
