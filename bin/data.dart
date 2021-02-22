@@ -171,10 +171,19 @@ class Game {
     _characters.remove(_characters.keys.elementAt(index));
   }
 
+  PlayerCharacter assignPC(int index, Connection c) {
+    var ch = _characters.keys.elementAt(index);
+    _characters[ch] = c;
+    return ch;
+  }
+
   Game.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
-        board = Board(json['board']);
+        board = Board(json['board']) {
+    _characters.addEntries(List.from(json['pcs'])
+        .map((e) => MapEntry(PlayerCharacter(e['name']), null)));
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -189,13 +198,17 @@ class Game {
         'name': name,
       };
 
-  Map<String, dynamic> toSessionSnippet(Account acc) => {
-        'board': board.toJson(),
-        if (owner == acc)
-          'gm': {
-            'pcs': _characters.keys.map((e) => e.toJson()).toList(),
-          },
-      };
+  Map<String, dynamic> toSessionSnippet(Connection c, [PlayerCharacter mine]) {
+    return {
+      'board': board.toJson(),
+      'pcs': _characters.keys
+          .where((pc) => pc != mine)
+          .map((e) => e.toJson())
+          .toList(),
+      if (mine != null) 'mine': mine.toJson(),
+      if (owner == c.account) 'gm': {},
+    };
+  }
 }
 
 class PlayerCharacter {

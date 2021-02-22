@@ -1,6 +1,5 @@
 import 'account.dart';
 import 'communication.dart';
-import 'game.dart';
 import 'server_actions.dart';
 import 'session/session.dart';
 
@@ -20,8 +19,7 @@ class User {
     var s = await socket.request(GAME_JOIN, {'id': id});
     if (s is String) return false;
 
-    session = Session(Game(id, s['name'], Account()), s['gm'] != null)
-      ..board.fromJson(s['board']);
+    session = Session(id, s['name'], s['gm'] != null)..fromJson(s);
     return true;
   }
 

@@ -1,7 +1,6 @@
 import 'dart:html';
 
 import 'dart/communication.dart';
-import 'dart/session/session.dart';
 import 'dart/user.dart';
 
 final user = User();
@@ -26,10 +25,7 @@ void main() {
 
   querySelector('button#create').onClick.listen((_) async {
     if (!user.registered) return print('No permissions to create a new game!');
-    var game = await user.account.createNewGame('Cool Campaign');
-    print(game.id);
-    print(game.name);
-    user.session = Session(game, true);
+    user.session = await user.account.createNewGame('Cool Campaign');
     return user.session.board.addMovable(
         'https://i.kym-cdn.com/photos/images/newsfeed/000/096/044/trollface.jpg?1296494117');
   });
