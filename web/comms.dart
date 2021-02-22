@@ -2,12 +2,31 @@ import 'dart:async';
 import 'dart:convert';
 
 abstract class Socket {
-  Stream get messageStream;
-  Future<void> send(dynamic data);
-
   int _jobId = 0;
 
-  Future<dynamic> request(String action, [Map<String, dynamic> params]) async {
+  Stream get messageStream;
+  Future<void> send(dynamic data);
+  Future handleAction(String action, [Map<String, dynamic> params]);
+
+  StreamSubscription listen({void Function() onDone, Function onError}) =>
+      messageStream.listen((data) async {
+        print(data);
+        if (data is String) {
+          if (data[0] == '{') {
+            var json = jsonDecode(data);
+
+            var result = await handleAction(json['action'], json['params']);
+
+            var id = json['id'];
+            if (id != null) {
+              print('Processed a job called $id or summin idk');
+              await send('r' + jsonEncode({'id': id, 'result': result}));
+            }
+          }
+        }
+      }, onDone: onDone, onError: onError);
+
+  Future request(String action, [Map<String, dynamic> params]) async {
     var myId = _jobId++;
     var json = jsonEncode({
       'id': myId,
@@ -16,11 +35,11 @@ abstract class Socket {
     });
     await send(json);
 
-    var msg = await messageStream.firstWhere(
-        (data) => data is String && data.startsWith('{"id":$myId,'));
+    String msg = await messageStream.firstWhere(
+        (data) => data is String && data.startsWith('r{"id":$myId,'));
 
     _jobId--;
-    return jsonDecode(msg)['result'];
+    return jsonDecode(msg.substring(1))['result'];
   }
 
   Future<void> sendAction(String action, [Map<String, dynamic> params]) async {

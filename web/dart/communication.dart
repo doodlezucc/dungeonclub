@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:html';
 
 import '../comms.dart';
-import 'action_handler.dart';
+import 'action_handler.dart' as handler;
 
 final socket = FrontSocket();
 
@@ -17,17 +16,9 @@ class FrontSocket extends Socket {
     _webSocket = WebSocket('ws$secure://localhost:7070/ws')
       ..onOpen.listen((e) => _waitForOpen.complete())
       ..onClose.listen((e) => print('CLOSE'))
-      ..onError.listen((e) => print(e))
-      ..onMessage.listen((e) {
-        print('MSG: ' + e.data);
-        if (e.data is String && e.data.startsWith('{"action":')) {
-          var parsed = jsonDecode(e.data);
-          var action = parsed['action'];
-          var params = parsed['params'];
+      ..onError.listen((e) => print(e));
 
-          handleAction(action, params);
-        }
-      });
+    listen();
   }
 
   @override
@@ -50,4 +41,8 @@ class FrontSocket extends Socket {
     await _waitForOpen.future;
     return super.sendAction(action, params);
   }
+
+  @override
+  Future handleAction(String action, [Map<String, dynamic> params]) =>
+      handler.handleAction(action, params);
 }

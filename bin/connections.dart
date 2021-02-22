@@ -1,9 +1,7 @@
-import 'dart:convert';
-
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../web/dart/server_actions.dart' as a;
-import 'back_socket.dart';
+import '../web/comms.dart';
 import 'data.dart';
 import 'server.dart';
 
@@ -14,43 +12,36 @@ void onConnect(WebSocketChannel ws) {
   connections.add(Connection(ws));
 }
 
-class Connection extends BackSocket {
+class Connection extends Socket {
+  final WebSocketChannel ws;
   Game _game;
   Account _account;
   Account get account => _account;
 
-  Connection(WebSocketChannel ws) : super(ws) {
-    messageStream.listen((data) async {
-      print(data);
-      if (data is String && data[0] == '{') {
-        var json = jsonDecode(data);
-
-        var result = await handleAction(json['action'], json['params']);
-
-        var id = json['id'];
-        if (id != null) {
-          print('Processed a job called $id or summin idk');
-          ws.sink.add(jsonEncode({'id': id, 'result': result}));
-        }
-      }
-    }, onDone: () {
-      print('Lost connection (${ws.closeCode})');
-      _game?.connect(this, false);
-      connections.remove(this);
-    }, onError: (err) {
-      print('ws error');
-      print(err);
-      print(ws.closeCode);
-      print(ws.closeReason);
-    });
+  Connection(this.ws) {
+    listen(
+      onDone: () {
+        print('Lost connection (${ws.closeCode})');
+        _game?.connect(this, false);
+        connections.remove(this);
+      },
+      onError: (err) {
+        print('ws error');
+        print(err);
+        print(ws.closeCode);
+        print(ws.closeReason);
+      },
+    );
   }
 
-  void notifyOthers(String action, [Map<String, dynamic> params]) {
-    _game?.notify(action, params, exclude: this);
-  }
+  @override
+  Stream get messageStream => ws.stream;
 
-  Future<dynamic> handleAction(
-      String action, Map<String, dynamic> params) async {
+  @override
+  Future<void> send(data) async => ws.sink.add(data);
+
+  @override
+  Future handleAction(String action, [Map<String, dynamic> params]) async {
     switch (action) {
       case 'manualSave': // don't know about the safety of this one, chief
         return data.manualSave();
@@ -111,6 +102,10 @@ class Connection extends BackSocket {
         }
         return notifyOthers(action, params);
     }
+  }
+
+  void notifyOthers(String action, [Map<String, dynamic> params]) {
+    _game?.notify(action, params, exclude: this);
   }
 
   dynamic login(String email, String password) {
