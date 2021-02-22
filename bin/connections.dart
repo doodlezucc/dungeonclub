@@ -14,11 +14,12 @@ void onConnect(WebSocketChannel ws) {
 
 class Connection extends Socket {
   final WebSocketChannel ws;
+  final Stream broadcastStream;
   Game _game;
   Account _account;
   Account get account => _account;
 
-  Connection(this.ws) {
+  Connection(this.ws) : broadcastStream = ws.stream.asBroadcastStream() {
     listen(
       onDone: () {
         print('Lost connection (${ws.closeCode})');
@@ -35,7 +36,7 @@ class Connection extends Socket {
   }
 
   @override
-  Stream get messageStream => ws.stream;
+  Stream get messageStream => broadcastStream;
 
   @override
   Future<void> send(data) async => ws.sink.add(data);
@@ -73,7 +74,7 @@ class Connection extends Socket {
           if (game.owner != account) {
             if (!game.gmOnline) return 'GM is not online!';
 
-            return await game.gm.sendAction(a.GAME_JOIN_REQUEST);
+            return await game.gm.request(a.GAME_JOIN_REQUEST);
           }
           _game = game..connect(this, true);
           return game.toSessionSnippet(account);
