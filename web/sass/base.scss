@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&family=Lato&display=swap');
+
+$radius: 8px;
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: 'Lato', sans-serif;
+}
+
+%heading {
+    font-family: 'Josefin Sans', sans-serif;
+    font-weight: normal;
+}
+
+h1 {
+    @extend %heading;
+    margin: 0;
+}
+
+%clickable {
+    outline: none;
+    border: none;
+    border-radius: 8px;
+    background-color: white;
+    padding: 6px;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-out;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 16px;
+}
+%clickable:enabled:hover {
+    background-color: #ddd;
+}
+%clickable:enabled:active {
+    background-color: #bbb;
+    transition-duration: 0s;
+}
+
+button {
+    @extend %clickable;
+}
+button.icon {
+    padding: 0;
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+}
+
+.good {
+    color: #3c943c;
+}
+.bad {
+    color: #e24b4b;
+}
+
+input {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+#notifications {
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification {
+    display: flex;
+    background-color: white;
+    box-shadow: 0 0 10px #0008;
+    border-radius: 8px;
+    padding: 8px;
+    align-items: center;
+    gap: 4px;
+
+    span {
+        margin-left: 4px;
+    }
+}

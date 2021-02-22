@@ -6,10 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="scaffolded-by" content="https://github.com/dart-lang/stagehand">
-    <link rel="stylesheet" href="style/style.css">
-    <link rel="stylesheet" href="style/session.css">
+    <link rel="stylesheet" href="style/base.css">
+    <link rel="stylesheet" href="style/game.css">
     <title>DnD Interactive</title>
     <script defer src="main.dart.js"></script>
+    <script src="https://kit.fontawesome.com/a3de05bb60.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -34,6 +35,15 @@
                     <canvas></canvas>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="notifications">
+        <div class="notification">
+            <span><b>Guy</b> wants to join.</span>
+
+            <button class="icon good"><i class="fas fa-check"></i></button>
+            <button class="icon bad"><i class="fas fa-times"></i></button>
         </div>
     </div>
 </body>

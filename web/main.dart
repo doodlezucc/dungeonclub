@@ -8,6 +8,7 @@ final InputElement loginEmail = querySelector('#loginEmail');
 final InputElement loginPassword = querySelector('#loginPassword');
 
 void main() {
+  _listenToCssReload();
   socket.connect();
 
   querySelector('h1').text = 'Eventually... it worked!!!';
@@ -35,4 +36,13 @@ void main() {
   });
 
   //session = Session.test()
+}
+
+void _listenToCssReload() {
+  document.onKeyPress.listen((event) {
+    if (event.target is InputElement) return;
+    if (event.key == 'R') {
+      querySelectorAll<LinkElement>('link').forEach((link) => link.href += '');
+    }
+  });
 }
