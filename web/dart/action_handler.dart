@@ -14,8 +14,24 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session.board.onMovableMove(params);
 
     case GAME_JOIN_REQUEST:
-      return await user.account?.displayJoinRequestDialog('joe');
+      return await user.account?.displayPickCharacterDialog('joe');
+
+    case GAME_CONNECTION:
+      return _onConnectionChange(params);
   }
 
   window.console.warn('Unhandled action!');
+}
+
+void _onConnectionChange(Map<String, dynamic> params) {
+  bool join = params['join'];
+  int pc = params['pc'];
+
+  var name = pc != null ? user.session.characters[pc].name : 'GM';
+
+  if (join) {
+    print('$name joined the game');
+  } else {
+    print('$name left the game');
+  }
 }

@@ -5,9 +5,3 @@ class Character {
 
   Character.fromJson(json) : this(json['name']);
 }
-
-class MyCharacter extends Character {
-  MyCharacter(String name) : super(name);
-
-  MyCharacter.fromJson(json) : this(json['name']);
-}

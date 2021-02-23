@@ -131,7 +131,7 @@ class Game {
   bool get gmOnline => gm != null;
 
   final _connections = <Connection>[];
-  final _characters = <PlayerCharacter, Connection>{};
+  final List<PlayerCharacter> _characters;
   final Board board;
 
   static String _generateId() {
@@ -153,10 +153,15 @@ class Game {
 
   Game(this.owner, this.name)
       : id = _generateId(),
-        board = Board();
+        board = Board(),
+        _characters = [];
 
-  void connect(Connection connection, bool add) {
-    if (!add) {
+  void connect(Connection connection, bool join) {
+    notify(a.GAME_CONNECTION, {
+      'join': join,
+      'pc': _characters.indexWhere((e) => e.connection == connection),
+    });
+    if (!join) {
       _connections.remove(connection);
       return;
     }
@@ -164,33 +169,31 @@ class Game {
   }
 
   void addPC(String name) {
-    _characters[PlayerCharacter(name)] = null;
+    _characters.add(PlayerCharacter(name));
   }
 
   void removePC(int index) {
-    _characters.remove(_characters.keys.elementAt(index));
+    _characters.removeAt(index);
   }
 
   PlayerCharacter assignPC(int index, Connection c) {
-    var ch = _characters.keys.elementAt(index);
-    _characters[ch] = c;
-    return ch;
+    return _characters[index]..connection = c;
   }
 
   Game.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
-        board = Board(json['board']) {
-    _characters.addEntries(List.from(json['pcs'])
-        .map((e) => MapEntry(PlayerCharacter(e['name']), null)));
-  }
+        board = Board(json['board']),
+        _characters = List.from(json['pcs'])
+            .map((e) => PlayerCharacter(e['name']))
+            .toList();
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'owner': owner.encryptedEmail.toString(),
         'board': board.toJson(),
-        'pcs': _characters.keys.map((e) => e.toJson()).toList()
+        'pcs': _characters.map((e) => e.toJson()).toList()
       };
 
   Map<String, dynamic> toSnippet() => {
@@ -198,20 +201,18 @@ class Game {
         'name': name,
       };
 
-  Map<String, dynamic> toSessionSnippet(Connection c, [PlayerCharacter mine]) {
+  Map<String, dynamic> toSessionSnippet(Connection c, [int mine]) {
     return {
       'board': board.toJson(),
-      'pcs': _characters.keys
-          .where((pc) => pc != mine)
-          .map((e) => e.toJson())
-          .toList(),
-      if (mine != null) 'mine': mine.toJson(),
+      'pcs': _characters.map((e) => e.toJson()).toList(),
+      if (mine != null) 'mine': mine,
       if (owner == c.account) 'gm': {},
     };
   }
 }
 
 class PlayerCharacter {
+  Connection connection;
   String name;
 
   PlayerCharacter(this.name);

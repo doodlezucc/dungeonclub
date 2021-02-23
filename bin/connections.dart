@@ -71,16 +71,16 @@ class Connection extends Socket {
         var id = params['id'];
         var game = data.games.firstWhere((g) => g.id == id, orElse: () => null);
         if (game != null) {
-          PlayerCharacter pc;
+          int id;
           if (game.owner != account) {
             if (!game.gmOnline) return 'GM is not online!';
 
-            var charId = await game.gm.request(a.GAME_JOIN_REQUEST);
-            if (charId == null) return 'Access denied!';
-            pc = game.assignPC(charId, this);
+            id = await game.gm.request(a.GAME_JOIN_REQUEST);
+            if (id == null) return 'Access denied!';
+            game.assignPC(id, this);
           }
           _game = game..connect(this, true);
-          return game.toSessionSnippet(this, pc);
+          return game.toSessionSnippet(this, id);
         }
         return 'Game not found!';
 

@@ -25,7 +25,7 @@ class MyAccount extends Account {
     return Session(id, name, true);
   }
 
-  Future displayJoinRequestDialog(String name) async {
+  Future displayPickCharacterDialog(String name) async {
     var notif = HtmlNotification('<b>$name</b> wants to join');
     if (!await notif.prompt()) return null;
 
@@ -36,7 +36,7 @@ class MyAccount extends Account {
     HtmlElement roster = parent.querySelector('.roster');
     List.from(roster.children).forEach((e) => e.remove());
 
-    parent.querySelector('span').innerHtml = "Pick <b>$name<b>'s character";
+    parent.querySelector('span').innerHtml = "Pick <b>$name</b>'s character";
 
     for (var i = 0; i < chars.length; i++) {
       var ch = chars[i];
