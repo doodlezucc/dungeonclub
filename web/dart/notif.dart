@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 
 import 'font_awesome.dart';
@@ -6,31 +7,36 @@ class HtmlNotification {
   static final HtmlElement _parent = querySelector('#notifications');
   final HtmlElement e;
 
-  HtmlNotification(String msg, {void Function(bool v) onClick})
+  HtmlNotification(String msg)
       : e = DivElement()
           ..className = 'notification'
-          ..append(SpanElement()..innerHtml = msg) {
-    var hasHandler = onClick != null;
+          ..append(SpanElement()..innerHtml = msg);
 
-    if (hasHandler) {
-      e.append(ButtonElement()
-        ..className = 'icon good'
-        ..append(icon('check'))
-        ..onClick.listen((e) {
-          onClick(true);
-          remove();
-        }));
-    }
+  void display() {
+    _parent.append(
+        e..append(_iconButton('times')..onClick.listen((e) => remove())));
+  }
 
-    e.append(ButtonElement()
-      ..classes = {'icon', if (hasHandler) 'bad'}
-      ..append(icon('times'))
+  ButtonElement _iconButton(String ico, [String className]) => ButtonElement()
+    ..classes = {'icon', if (className != null) className}
+    ..append(icon(ico));
+
+  Future<bool> prompt() {
+    var completer = Completer<bool>();
+    e.append(_iconButton('check', 'good')
       ..onClick.listen((e) {
-        if (hasHandler) onClick(false);
+        completer.complete(true);
+        remove();
+      }));
+
+    e.append(_iconButton('times', 'bad')
+      ..onClick.listen((e) {
+        completer.complete(false);
         remove();
       }));
 
     _parent.append(e);
+    return completer.future;
   }
 
   void remove() {

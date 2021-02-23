@@ -36,10 +36,11 @@ abstract class Socket {
     await send(json);
 
     String msg = await messageStream.firstWhere(
-        (data) => data is String && data.startsWith('r{"id":$myId,'));
+        (data) => data is String && data.startsWith('r{"id":$myId,'),
+        orElse: () => null);
 
     _jobId--;
-    return jsonDecode(msg.substring(1))['result'];
+    return msg != null ? jsonDecode(msg.substring(1))['result'] : null;
   }
 
   Future<void> sendAction(String action, [Map<String, dynamic> params]) async {

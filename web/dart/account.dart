@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:html';
 
+import '../main.dart';
 import 'communication.dart';
 import 'game.dart';
+import 'notif.dart';
 import 'server_actions.dart';
 import 'session/session.dart';
 
@@ -23,9 +26,31 @@ class MyAccount extends Account {
   }
 
   Future displayJoinRequestDialog(String name) async {
-    var v = window.confirm('$name wants to join');
-    if (!v) return null;
+    var notif = HtmlNotification('<b>$name</b> wants to join');
+    if (!await notif.prompt()) return null;
 
-    return 1; // in-game character id
+    var completer = Completer<int>();
+    var chars = user.session.characters;
+
+    HtmlElement parent = querySelector('#charPick');
+    HtmlElement roster = parent.querySelector('.roster');
+    List.from(roster.children).forEach((e) => e.remove());
+
+    parent.querySelector('span').innerHtml = "Pick <b>$name<b>'s character";
+
+    for (var i = 0; i < chars.length; i++) {
+      var ch = chars[i];
+      roster.append(DivElement()
+        ..className = 'char'
+        ..append(ImageElement())
+        ..append(SpanElement()..text = ch.name)
+        ..onClick.listen((e) => completer.complete(i)));
+    }
+
+    parent.classes.add('show');
+
+    var result = await completer.future;
+    parent.classes.remove('show');
+    return result;
   }
 }
