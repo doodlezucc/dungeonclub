@@ -214,8 +214,9 @@ class Game {
   bool applyChanges(Map<String, dynamic> data) {
     _characters.clear();
     name = data['name'];
-    _characters
-        .addAll(List.from(data['pcs']).map((e) => PlayerCharacter.fromJson(e)));
+    var pcs = List.from(data['pcs']);
+    if (pcs.length >= 20) return false;
+    _characters.addAll(pcs.map((e) => PlayerCharacter.fromJson(e)));
     return true;
   }
 }

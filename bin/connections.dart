@@ -70,7 +70,8 @@ class Connection extends Socket {
       case a.GAME_EDIT:
         var gameId = params['id'];
         var game = account.enteredGames.firstWhere(
-            (g) => g.id == gameId && g.owner == account && g.online == 0);
+            (g) => g.id == gameId && g.owner == account && g.online == 0,
+            orElse: () => null);
         if (game == null) return 'Access denied!';
 
         var data = params['data'];

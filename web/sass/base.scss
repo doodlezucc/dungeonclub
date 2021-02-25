@@ -68,7 +68,7 @@ button.big {
     background-color: #d0d0d0;
     padding: 16px;
 }
-button.big:hover {
+button.big:not(:disabled):hover {
     background-color: #ddd;
 }
 
@@ -108,11 +108,11 @@ li {
     transition-duration: 0.5s;
     transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
 }
-%responsive:hover {
+%responsive:not(:disabled):hover {
     transform: scale(0.98);
     transition-duration: 0.1s;
 }
-%responsive:active {
+%responsive:not(:disabled):active {
     transform: scale(0.95);
 }
 
@@ -239,6 +239,9 @@ li {
         display: grid;
         grid-template-columns: auto auto;
         gap: 4px;
+        max-height: 50vh;
+        overflow-y: auto;
+        overflow-x: hidden;
 
         img {
             width: 64px;

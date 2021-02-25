@@ -18,6 +18,7 @@ final ButtonElement _addCharButton = _panel.querySelector('#addChar')
       'name': '',
       'img': '',
     }));
+    _updateAddButton();
   });
 
 final ButtonElement _saveButton = _panel.querySelector('.save');
@@ -32,6 +33,8 @@ Future<void> display(Game game) async {
   _chars?.forEach((c) => c.e.remove());
   _chars = List.from(result['pcs']).map((e) => _EditChar(e)).toList();
 
+  _updateAddButton();
+
   StreamSubscription sub;
   sub = _saveButton.onClick.listen((event) async {
     _saveButton.disabled = true;
@@ -40,6 +43,10 @@ Future<void> display(Game game) async {
   });
 
   _panel.classes.add('show');
+}
+
+void _updateAddButton() {
+  _addCharButton.disabled = _chars.length >= 20;
 }
 
 class _EditChar {
@@ -61,12 +68,13 @@ class _EditChar {
           remove();
         }));
 
-    _roster.insertBefore(e, _addCharButton);
+    _roster.append(e);
   }
 
   void remove() {
     _chars.remove(this);
     e.remove();
+    _updateAddButton();
   }
 
   Map<String, dynamic> toJson() => {
@@ -76,12 +84,16 @@ class _EditChar {
 }
 
 Future<void> _saveChanges(String id) async {
-  await socket.sendAction(GAME_EDIT, {
+  var saved = await socket.request(GAME_EDIT, {
     'id': id,
     'data': {
       'name': _gameNameInput.value,
       'pcs': _chars.map((e) => e.toJson()).toList(),
     },
   });
-  _panel.classes.remove('show');
+  if (saved) {
+    _panel.classes.remove('show');
+  } else {
+    print('Settings saved!');
+  }
 }
