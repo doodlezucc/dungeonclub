@@ -17,7 +17,8 @@ final ButtonElement _addCharButton = _panel.querySelector('#addChar')
     _chars.add(_EditChar({
       'name': '',
       'img': '',
-    }));
+    })
+      ..focus());
     _updateAddButton();
   });
 
@@ -75,6 +76,10 @@ class _EditChar {
     _chars.remove(this);
     e.remove();
     _updateAddButton();
+  }
+
+  void focus() {
+    _nameInput.focus();
   }
 
   Map<String, dynamic> toJson() => {

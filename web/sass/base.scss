@@ -148,6 +148,7 @@ li {
         display: flex;
         flex-direction: column;
         text-align: center;
+        align-items: center;
         cursor: pointer;
         transition-duration: 0.1s;
 
@@ -165,7 +166,8 @@ li {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px;
+    flex-direction: row !important;
+    gap: 8px !important;
 }
 
 %center {
