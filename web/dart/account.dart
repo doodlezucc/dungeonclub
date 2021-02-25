@@ -31,7 +31,12 @@ class MyAccount extends Account {
 
   Future displayPickCharacterDialog(String name) async {
     var notif = HtmlNotification('<b>$name</b> wants to join');
-    if (!await notif.prompt()) return null;
+    document.title = '$name wants to join | $appName';
+
+    var letIn = await notif.prompt();
+    document.title = appName;
+
+    if (!letIn) return null;
 
     var completer = Completer<int>();
     var chars = user.session.characters;

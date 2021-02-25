@@ -7,12 +7,13 @@ import 'dart/user.dart';
 final user = User();
 final InputElement loginEmail = querySelector('#loginEmail');
 final InputElement loginPassword = querySelector('#loginPassword');
+const appName = 'D&D Interactive';
 
 void main() {
   _listenToCssReload();
   socket.connect();
 
-  querySelector('h1').text = 'Eventually... it worked!!!';
+  print('Ready!');
 
   querySelector('button#login').onClick.listen((_) {
     user.login(loginEmail.value, loginPassword.value);
