@@ -27,6 +27,8 @@
 
     <button id="save">Save server data</button>
 
+    <button id="editGame">Edit Campaign</button>
+
     <div id="session">
         <div id="boardContainer">
             <div id="board">
@@ -41,7 +43,23 @@
     <div id="notifications"></div>
 
     <div id="overlay">
-        <div id="charPick">
+        <div class="panel" id="editGamePanel">
+            <h2>Campaign Settings</h2>
+            <div>
+                <h3>Name</h3>
+                <input id="gameName" placeholder="Campaign name...">
+            </div>
+            <div>
+                <h3>Playable Characters</h3>
+                <div id="editChars">
+                    <button id="addChar" class="big">New Character</button>
+                </div>
+            </div>
+
+            <button class="save">Save</button>
+        </div>
+
+        <div id="charPick" class="panel">
             <span>Pick dude's character</span>
             <div class="roster">
                 <div class="char">

@@ -16,12 +16,20 @@ body {
 
 %heading {
     font-family: 'Josefin Sans', sans-serif;
-    font-weight: normal;
+    margin: 0;
 }
 
 h1 {
     @extend %heading;
-    margin: 0;
+    font-weight: normal;
+}
+h2 {
+    @extend %heading;
+    text-align: center;
+}
+h3 {
+    @extend %heading;
+    margin-top: 8px;
 }
 
 %clickable {
@@ -32,15 +40,17 @@ h1 {
     padding: 6px;
     transition-duration: 0.1s;
     transition-timing-function: ease-out;
-    cursor: pointer;
     font-family: inherit;
     font-size: 16px;
 }
-%clickable:enabled:hover {
+%clickable:not(:disabled) {
+    cursor: pointer;
+}
+%clickable:not(:disabled):hover, .tab %clickable:not(:disabled):focus {
     background-color: #ddd;
 }
-%clickable:enabled:active {
-    background-color: #bbb;
+%clickable:not(:disabled):active {
+    background-color: #bbb !important;
     transition-duration: 0s;
 }
 
@@ -53,6 +63,14 @@ button.icon {
     height: 25px;
     font-size: 16px;
 }
+button.big {
+    @extend %responsive;
+    background-color: #d0d0d0;
+    padding: 16px;
+}
+button.big:hover {
+    background-color: #ddd;
+}
 
 .good {
     color: #3c943c;
@@ -64,6 +82,25 @@ button.icon {
 input {
     font-family: inherit;
     font-size: inherit;
+    outline: none;
+    border: none;
+    border-bottom: 1px solid #bbb;
+    transition-property: border-bottom-color;
+    transition-duration: 0.1s;
+    margin-bottom: 1px;
+}
+input:focus {
+    border-bottom: 2px solid #555;
+    margin-bottom: 0;
+}
+
+li {
+    display: flex;
+    gap: 4px;
+    border: 2px solid #bbb;
+    border-radius: $radius;
+    align-items: center;
+    padding: 4px;
 }
 
 %responsive {
@@ -80,12 +117,11 @@ input {
 }
 
 #notifications {
+    @extend %vertical;
     position: fixed;
     top: 0;
     left: 0;
     margin: 24px;
-    display: flex;
-    flex-direction: column;
     gap: 10px;
 }
 
@@ -104,16 +140,7 @@ input {
 }
 
 #charPick {
-    position: fixed;
     max-width: 70%;
-
-    display: flex;
-    flex-direction: column;
-    background-color: white;
-    box-shadow: 0 0 8px #0006;
-    border-radius: $radius;
-    padding: 16px 32px;
-    gap: 16px;
     align-items: center;
 
     .char {
@@ -141,15 +168,19 @@ input {
     gap: 8px;
 }
 
-#overlay {
-    position: fixed;
+%center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+}
+
+#overlay {
+    @extend %center;
+    position: fixed;
     pointer-events: none;
 
     > * {
@@ -161,5 +192,57 @@ input {
     > .show {
         opacity: 1;
         pointer-events: all;
+    }
+}
+
+.edit-img {
+    @extend %responsive;
+    display: flex;
+    position: relative;
+
+    > div {
+        @extend %center;
+        position: absolute;
+        background-color: #0006;
+        color: white;
+        font-weight: bold;
+        opacity: 0;
+        cursor: pointer;
+        user-select: none;
+        transition-duration: 0.1s;
+    }
+    > div:hover {
+        opacity: 1;
+    }
+}
+
+%vertical {
+    display: flex;
+    flex-direction: column;
+}
+
+.panel {
+    @extend %vertical;
+    background-color: white;
+    box-shadow: 0 0 8px #0006;
+    border-radius: $radius;
+    padding: 16px 32px;
+    gap: 16px;
+
+    > div {
+        @extend %vertical;
+        gap: 4px;
+    }
+}
+#editGamePanel {
+    #editChars {
+        display: grid;
+        grid-template-columns: auto auto;
+        gap: 4px;
+
+        img {
+            width: 64px;
+            height: 64px;
+        }
     }
 }

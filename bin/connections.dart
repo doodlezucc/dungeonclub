@@ -67,6 +67,20 @@ class Connection extends Socket {
         account.enteredGames.add(_game);
         return _game.id;
 
+      case a.GAME_EDIT:
+        var gameId = params['id'];
+        var game = account.enteredGames.firstWhere(
+            (g) => g.id == gameId && g.owner == account && g.online == 0);
+        if (game == null) return 'Access denied!';
+
+        var data = params['data'];
+        if (data != null) {
+          // User wants to save changes.
+          return game.applyChanges(data);
+        }
+
+        return game.toSessionSnippet(this);
+
       case a.GAME_JOIN:
         var id = params['id'];
         var game = data.games.firstWhere((g) => g.id == id, orElse: () => null);

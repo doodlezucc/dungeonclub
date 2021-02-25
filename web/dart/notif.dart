@@ -14,22 +14,18 @@ class HtmlNotification {
 
   void display() {
     _parent.append(
-        e..append(_iconButton('times')..onClick.listen((e) => remove())));
+        e..append(iconButton('times')..onClick.listen((e) => remove())));
   }
-
-  ButtonElement _iconButton(String ico, [String className]) => ButtonElement()
-    ..classes = {'icon', if (className != null) className}
-    ..append(icon(ico));
 
   Future<bool> prompt() {
     var completer = Completer<bool>();
-    e.append(_iconButton('check', 'good')
+    e.append(iconButton('check', 'good')
       ..onClick.listen((e) {
         completer.complete(true);
         remove();
       }));
 
-    e.append(_iconButton('times', 'bad')
+    e.append(iconButton('times', 'bad')
       ..onClick.listen((e) {
         completer.complete(false);
         remove();

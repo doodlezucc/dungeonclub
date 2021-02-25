@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'dart/communication.dart';
+import 'dart/panels/edit_game.dart' as edit_game;
 import 'dart/user.dart';
 
 final user = User();
@@ -35,7 +36,17 @@ void main() {
     socket.send('{"action":"manualSave"}');
   });
 
-  //session = Session.test()
+  querySelector('button#editGame').onClick.listen((_) {
+    if (user.registered) {
+      edit_game.display(user.account.games.first);
+    }
+  });
+
+  testFlow();
+}
+
+void testFlow() {
+  user.login(loginEmail.value, loginPassword.value);
 }
 
 void _listenToCssReload() {

@@ -14,9 +14,13 @@ class Account {
 
 class MyAccount extends Account {
   final String email;
-  final games = <Game>[];
+  final List<Game> games;
 
-  MyAccount(Map<String, dynamic> json) : email = json['email'];
+  MyAccount(Map<String, dynamic> json)
+      : email = json['email'],
+        games = List.from(json['games'])
+            .map((e) => Game(e['id'], e['name'], null))
+            .toList();
 
   Future<Session> createNewGame(String name) async {
     var id = await socket.request(GAME_CREATE_NEW, {'name': name});

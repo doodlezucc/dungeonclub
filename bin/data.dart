@@ -129,6 +129,7 @@ class Game {
   Connection get gm =>
       _connections.firstWhere((c) => owner == c.account, orElse: () => null);
   bool get gmOnline => gm != null;
+  int get online => _connections.length;
 
   final _connections = <Connection>[];
   final List<PlayerCharacter> _characters;
@@ -209,6 +210,14 @@ class Game {
       if (owner == c.account) 'gm': {},
     };
   }
+
+  bool applyChanges(Map<String, dynamic> data) {
+    _characters.clear();
+    name = data['name'];
+    _characters
+        .addAll(List.from(data['pcs']).map((e) => PlayerCharacter.fromJson(e)));
+    return true;
+  }
 }
 
 class PlayerCharacter {
@@ -216,6 +225,7 @@ class PlayerCharacter {
   String name;
 
   PlayerCharacter(this.name);
+  PlayerCharacter.fromJson(Map<String, dynamic> json) : name = json['name'];
 
   Map<String, dynamic> toJson() => {
         'name': name,

@@ -2,6 +2,8 @@ const ACCOUNT_CREATE = 'accountCreate';
 const ACCOUNT_LOGIN = 'userLogin';
 
 const GAME_CREATE_NEW = 'gameCreateNew';
+const GAME_EDIT = 'gameEdit';
+
 const GAME_JOIN_REQUEST = 'gameJoinRequest';
 const GAME_JOIN = 'gameJoin';
 const GAME_CONNECTION = 'gameConnection';
