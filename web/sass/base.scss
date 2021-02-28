@@ -251,3 +251,40 @@ li {
         }
     }
 }
+
+.file-upload {
+    @extend %responsive;
+    @extend %clickable;
+    display: inline-flex;
+    padding: 6px 12px;
+    cursor: pointer;
+    align-self: center;
+
+    > input {
+        display: none;
+    }
+}
+
+#uploadPanel {
+    > div {
+        justify-content: center;
+        overflow: hidden;
+        width: 300px;
+        height: 300px;
+
+        img {
+            width: inherit;
+            height: inherit;
+            object-fit: contain;
+        }
+
+        canvas {
+            position: absolute;
+            right: -300px;
+        }
+
+        > .file-upload {
+            position: absolute;
+        }
+    }
+}

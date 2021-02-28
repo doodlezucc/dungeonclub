@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'dart/communication.dart';
 import 'dart/panels/edit_game.dart' as edit_game;
+import 'dart/panels/upload.dart' as upload;
 import 'dart/user.dart';
 
 final user = User();
@@ -43,11 +44,15 @@ void main() {
     }
   });
 
-  //testFlow();
+  document.onDrop.listen((e) => e.preventDefault());
+  document.onDragOver.listen((e) => e.preventDefault());
+
+  testFlow();
 }
 
 void testFlow() {
-  user.login(loginEmail.value, loginPassword.value);
+  //user.login(loginEmail.value, loginPassword.value);
+  upload.display();
 }
 
 void _listenToCssReload() {

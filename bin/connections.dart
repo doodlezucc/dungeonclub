@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../web/dart/server_actions.dart' as a;
@@ -120,6 +123,19 @@ class Connection extends Socket {
             ..y = params['y'];
         }
         return notifyOthers(action, params);
+
+      case a.IMAGE_UPLOAD:
+        String base64 = params['data'];
+        String type = params['type'];
+        int id = params['id'];
+        if (base64 == null ||
+            type == null ||
+            id == null ||
+            (type == a.IMAGE_TYPE_PC && _game == null)) return null;
+        print('lol i have data');
+        var file = await (await _game.getFile('$type$id.png')).create();
+        await file.writeAsBytes(base64Decode(base64));
+        return file.path;
     }
   }
 

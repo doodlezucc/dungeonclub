@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:crypt/crypt.dart';
+import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
 
 import '../web/dart/server_actions.dart' as a;
@@ -13,7 +14,8 @@ import 'server.dart';
 
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
-  static final file = File('database/data.json');
+  static final directory = Directory('database');
+  static final file = File(path.join(directory.path, 'data.json'));
 
   final accounts = <Account>[];
   final games = <Game>[];
@@ -123,6 +125,8 @@ class Account {
 
 class Game {
   final String id;
+  Directory get resources =>
+      Directory(path.join(ServerData.directory.path, 'games', id));
   String name;
   Account owner;
 
@@ -150,6 +154,13 @@ class Game {
         c.sendAction(action, params);
       }
     }
+  }
+
+  Future<File> getFile(String filePath) async {
+    if (!await resources.exists()) {
+      await resources.create(recursive: true);
+    }
+    return File(path.join(resources.path, filePath));
   }
 
   Game(this.owner, this.name)

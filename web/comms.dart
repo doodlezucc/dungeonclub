@@ -10,7 +10,9 @@ abstract class Socket {
 
   StreamSubscription listen({void Function() onDone, Function onError}) =>
       messageStream.listen((data) async {
-        print(data);
+        var ds = data.toString();
+        var cut = 200;
+        print(ds.length <= cut ? ds : ds.substring(0, cut));
         if (data is String) {
           if (data[0] == '{') {
             var json = jsonDecode(data);
