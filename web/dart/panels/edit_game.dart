@@ -92,7 +92,8 @@ class _EditChar {
       'gameId': _gameId,
     });
     if (url != null) {
-      _iconImg.src = url;
+      // Cachebreaker suffix for forced reloading
+      _iconImg.src = '$url?${DateTime.now().millisecondsSinceEpoch}';
     }
   }
 

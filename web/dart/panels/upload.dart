@@ -133,7 +133,7 @@ void _initialize() {
 void _resizeOutside() {
   var ctx = _canvas.context2D;
   ctx.clearRect(0, 0, _canvas.width, _canvas.height);
-  ctx.fillStyle = '#000a';
+  ctx.fillStyle = '#000c';
   ctx.fillRect(0, 0, _canvas.width, position.y); // top
   ctx.fillRect(0, position.y, position.x, size.y); // left
   ctx.fillRect(position.x + size.x, position.y, _canvas.width, size.y); // right
@@ -192,14 +192,34 @@ void _loadFileAsImage(File file) async {
   _crop.classes.remove('hide');
 }
 
-void _imgToCanvas() {
-  var ctx = _canvas.context2D;
-  ctx.drawImageScaled(_img, 0, 0, _canvas.width, _canvas.height);
+CanvasElement _imgToCanvas({int maxRes = 256}) {
+  var x = position.x / _imgSize.x;
+  var y = position.y / _imgSize.y;
+  var w = size.x / _imgSize.x;
+  var h = size.y / _imgSize.y;
+  var nw = _img.naturalWidth;
+  var nh = _img.naturalHeight;
+
+  var dw = (w * nw).round();
+  var dh = (h * nh).round();
+
+  if (dw >= dh && dw > maxRes) {
+    dh = (dh * maxRes / dw).round();
+    dw = maxRes;
+  }
+  if (dh >= dw && dh > maxRes) {
+    dw = (dw * maxRes / dh).round();
+    dh = maxRes;
+  }
+
+  return CanvasElement(width: dw, height: dh)
+    ..context2D.drawImageScaledFromSource(
+        _img, x * nw, y * nh, w * nw, h * nh, 0, 0, dw, dh);
 }
 
 Future<String> _upload(String type, Map<String, dynamic> extras) async {
-  _imgToCanvas();
-  var blob = await _canvas.toBlob('image/png');
+  var canvas = _imgToCanvas();
+  var blob = await canvas.toBlob('image/png');
 
   var reader = FileReader()..readAsDataUrl(blob);
   await reader.onLoadEnd.first;
