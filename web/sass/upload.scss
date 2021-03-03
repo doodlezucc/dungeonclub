@@ -1,15 +1,15 @@
 #crop {
-    background-color: #fff6;
+    background-color: transparent;
     position: absolute;
     --resizer-size: 16px;
     --inset-size: 6px;
     --inset: -10px;
     --corner-size: calc(var(--resizer-size) + 10px);
     z-index: 2;
-    cursor: grab;
+    cursor: move;
 
     > * {
-        background-color: #f3a5;
+        background-color: transparent;
         position: absolute;
         width: var(--resizer-size);
         height: var(--resizer-size);
@@ -29,6 +29,10 @@
     > .corner {
         width: var(--corner-size);
         height: var(--corner-size);
+        border: 2px solid #fff6;
+        border-radius: 50%;
+        box-shadow: 0 0 4px #000a;
+        transition-duration: 0.2s;
     }
 
     > .top { top: var(--inset); }
@@ -38,5 +42,8 @@
 }
 
 #crop:active {
-    cursor: grabbing;
+    > .corner:not(:active) {
+        border-color: #fff0;
+        box-shadow: 0 0 10px #0000;
+    }
 }

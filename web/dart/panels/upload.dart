@@ -31,12 +31,19 @@ final DivElement _crop = _panel.querySelector('#crop');
 Point<double> get _imgSize =>
     Point(_img.width.toDouble(), _img.height.toDouble());
 
-Point<double> _position;
+Point<double> _position = Point(0, 0);
 Point<double> get position => _position;
-set position(Point<double> p) {
+
+void setPosAndSize(Point<double> p, Point<double> s) {
   _position = clamp(p, Point(0, 0), _imgSize - size);
+  _size = clamp(s, minSize, _imgSize - position);
+  _position = clamp(p, Point(0, 0), _imgSize - size);
+
   _crop.style.left = '${_position.x}px';
   _crop.style.top = '${_position.y}px';
+  _crop.style.width = '${_size.x}px';
+  _crop.style.height = '${_size.y}px';
+
   _resizeOutside();
 }
 
@@ -54,12 +61,6 @@ Point<double> minSize = Point<double>(50, 50);
 
 Point<double> _size = Point(400, 400);
 Point<double> get size => _size;
-set size(Point<double> size) {
-  _size = clampMin(size, minSize);
-  _crop.style.width = '${size.x}px';
-  _crop.style.height = '${size.y}px';
-  _resizeOutside();
-}
 
 bool _init = false;
 
@@ -89,26 +90,26 @@ void _initialize() {
           var height = size1.y;
 
           var maxPosDiff = size1 - minSize;
+          var minPosDiff = pos1 * -1;
 
           if (classes.contains('top')) {
-            var v = min(diff.y, maxPosDiff.y);
+            var v = min(max(diff.y, minPosDiff.y), maxPosDiff.y);
             y += v;
             height -= v;
           }
           if (classes.contains('right')) width += diff.x;
           if (classes.contains('bottom')) height += diff.y;
           if (classes.contains('left')) {
-            var v = min(diff.x, maxPosDiff.x);
+            var v = min(max(diff.x, minPosDiff.x), maxPosDiff.x);
             x += v;
             width -= v;
           }
 
-          size = Point(width, height);
-          position = Point(x, y);
+          setPosAndSize(Point(x, y), Point(width, height));
         };
       } else {
         action = (diff) {
-          position = pos1 + diff;
+          setPosAndSize(pos1 + diff, size);
         };
       }
 
@@ -163,7 +164,6 @@ Future<String> display(
 void _loadFileAsImage(File file) async {
   _img.src = Url.createObjectUrlFromBlob(file);
   await _img.onLoad.first;
-  print('loaded');
 
   var width = _img.naturalWidth;
   var height = _img.naturalHeight;
@@ -181,8 +181,7 @@ void _loadFileAsImage(File file) async {
   _img.height = height;
   _canvas.width = width;
   _canvas.height = height;
-  position = Point(0, 0);
-  size = Point(max.toDouble(), max.toDouble());
+  setPosAndSize(Point(0, 0), Point(max.toDouble(), max.toDouble()));
 }
 
 void _imgToCanvas() {
