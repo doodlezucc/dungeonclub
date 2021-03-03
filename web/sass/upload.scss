@@ -1,0 +1,42 @@
+#crop {
+    background-color: #fff6;
+    position: absolute;
+    --resizer-size: 16px;
+    --inset-size: 6px;
+    --inset: -10px;
+    --corner-size: calc(var(--resizer-size) + 10px);
+    z-index: 2;
+    cursor: grab;
+
+    > * {
+        background-color: #f3a5;
+        position: absolute;
+        width: var(--resizer-size);
+        height: var(--resizer-size);
+        box-sizing: border-box;
+    }
+    
+    > .width {
+        left: var(--inset-size);
+        right: var(--inset-size);
+        width: auto;
+    }
+    > .height {
+        top: var(--inset-size);
+        bottom: var(--inset-size);
+        height: auto;
+    }
+    > .corner {
+        width: var(--corner-size);
+        height: var(--corner-size);
+    }
+
+    > .top { top: var(--inset); }
+    > .right { right: var(--inset); }
+    > .bottom { bottom: var(--inset); }
+    > .left { left: var(--inset); }
+}
+
+#crop:active {
+    cursor: grabbing;
+}

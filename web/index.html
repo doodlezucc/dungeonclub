@@ -8,6 +8,7 @@
     <meta name="scaffolded-by" content="https://github.com/dart-lang/stagehand">
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/game.css">
+    <link rel="stylesheet" href="style/upload.css">
     <title>D&D Interactive</title>
     <script defer src="main.dart.js"></script>
     <script src="https://kit.fontawesome.com/a3de05bb60.js" crossorigin="anonymous"></script>
@@ -61,8 +62,20 @@
         <div class="panel" id="uploadPanel">
             <h2>Upload Image</h2>
             <div>
+                <div id="crop">
+                    <div class="width top" style="cursor: n-resize;"></div>
+                    <div class="height right" style="cursor: e-resize;"></div>
+                    <div class="width bottom" style="cursor: s-resize;"></div>
+                    <div class="height left" style="cursor: w-resize;"></div>
+
+                    <div class="corner top right" style="cursor: ne-resize;"></div>
+                    <div class="corner bottom right" style="cursor: se-resize;"></div>
+                    <div class="corner bottom left" style="cursor: sw-resize;"></div>
+                    <div class="corner top left" style="cursor: nw-resize;"></div>
+                </div>
+
+                <canvas></canvas>
                 <img>
-                <canvas width="256" height="256"></canvas>
                 <label class="file-upload">
                     Drag file here
                     <input id="imgUpload" type="file" accept="image/*">

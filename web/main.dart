@@ -53,6 +53,8 @@ Future<void> testFlow() async {
   await user.login(loginEmail.value, loginPassword.value);
   await edit_game.display(user.account.games.first);
 
+  querySelector('.edit-img').click();
+
   //upload.display();
 }
 

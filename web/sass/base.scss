@@ -269,21 +269,11 @@ li {
     > div {
         justify-content: center;
         overflow: hidden;
-        width: 300px;
-        height: 300px;
+        min-width: 300px;
+        min-height: 300px;
+        position: relative;
 
-        img {
-            width: inherit;
-            height: inherit;
-            object-fit: contain;
-        }
-
-        canvas {
-            position: absolute;
-            right: -300px;
-        }
-
-        > .file-upload {
+        > *:not(img) {
             position: absolute;
         }
     }
