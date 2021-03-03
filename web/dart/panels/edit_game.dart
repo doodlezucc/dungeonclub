@@ -2,20 +2,24 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:path/path.dart';
 
 import '../communication.dart';
 import '../font_awesome.dart';
 import '../game.dart';
+import 'upload.dart' as uploader;
 
 final HtmlElement _panel = querySelector('#editGamePanel');
 final InputElement _gameNameInput = _panel.querySelector('#gameName');
 final HtmlElement _roster = _panel.querySelector('#editChars');
 
-List<_EditChar> _chars;
+final _chars = <_EditChar>[];
 
+String _gameId;
+int _idCounter = 0;
 final ButtonElement _addCharButton = _panel.querySelector('#addChar')
   ..onClick.listen((event) {
-    _chars.add(_EditChar({
+    _chars.add(_EditChar(_idCounter++, {
       'name': '',
       'img': '',
     })
@@ -26,14 +30,20 @@ final ButtonElement _addCharButton = _panel.querySelector('#addChar')
 final ButtonElement _saveButton = _panel.querySelector('.save');
 
 Future<void> display(Game game) async {
+  _gameId = game.id;
   var result = await socket.request(GAME_EDIT, {'id': game.id});
   if (result is String) return print('Error: $result');
 
   _saveButton.disabled = false;
 
   _gameNameInput.value = game.name;
-  _chars?.forEach((c) => c.e.remove());
-  _chars = List.from(result['pcs']).map((e) => _EditChar(e)).toList();
+  _chars.forEach((c) => c.e.remove());
+  _chars.clear();
+  var charJsons = List<Map>.from(result['pcs']);
+  for (var i = 0; i < charJsons.length; i++) {
+    _chars.add(_EditChar(i, charJsons[i]));
+  }
+  _idCounter = charJsons.length;
 
   _updateAddButton();
 
@@ -53,15 +63,18 @@ void _updateAddButton() {
 
 class _EditChar {
   final HtmlElement e;
+  final int id;
+  ImageElement _iconImg;
   InputElement _nameInput;
   String get name => _nameInput.value;
 
-  _EditChar(Map<String, dynamic> json) : e = LIElement() {
+  _EditChar(this.id, Map<String, dynamic> json) : e = LIElement() {
     e
       ..append(DivElement()
         ..className = 'edit-img'
         ..append(DivElement()..text = 'Change')
-        ..append(ImageElement(src: json['img'])))
+        ..append(_iconImg = ImageElement(src: json['img']))
+        ..onClick.listen((_) => _changeIcon()))
       ..append(_nameInput = InputElement()
         ..placeholder = 'Name...'
         ..value = json['name'])
@@ -71,6 +84,16 @@ class _EditChar {
         }));
 
     _roster.append(e);
+  }
+
+  Future<void> _changeIcon() async {
+    var url = await uploader.display(type: IMAGE_TYPE_PC, extras: {
+      'id': id,
+      'gameId': _gameId,
+    });
+    if (url != null) {
+      _iconImg.src = url;
+    }
   }
 
   void remove() {
@@ -85,7 +108,7 @@ class _EditChar {
 
   Map<String, dynamic> toJson() => {
         'name': name,
-        'img': '',
+        'img': basename(_iconImg.src),
       };
 }
 

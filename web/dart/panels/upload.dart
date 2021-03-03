@@ -26,7 +26,8 @@ final ImageElement _img = _panel.querySelector('img');
 final CanvasElement _canvas = _panel.querySelector('canvas');
 final ButtonElement _uploadButton = _panel.querySelector('button[type=submit]');
 
-Future<String> display() async {
+Future<String> display(
+    {String type = IMAGE_TYPE_PC, Map<String, dynamic> extras}) async {
   _panel.classes.add('show');
   _uploadInput.title = '';
   _imgContainer.title = '';
@@ -36,7 +37,7 @@ Future<String> display() async {
   StreamSubscription sub1;
   sub1 = _uploadButton.onClick.listen((event) async {
     _uploadButton.disabled = true;
-    var result = await _upload();
+    var result = await _upload(type, extras);
     if (result != null) {
       await sub1.cancel();
       completer.complete(result);
@@ -57,7 +58,7 @@ void _imgToCanvas() {
   ctx.drawImageScaled(_img, 0, 0, _canvas.width, _canvas.height);
 }
 
-Future<String> _upload() async {
+Future<String> _upload(String type, Map<String, dynamic> extras) async {
   _imgToCanvas();
   var blob = await _canvas.toBlob('image/png');
 
@@ -66,11 +67,10 @@ Future<String> _upload() async {
 
   var png = (reader.result as String).substring(22);
 
-  var imgPath = await socket.request(IMAGE_UPLOAD, {
-    'type': IMAGE_TYPE_PC,
-    'data': png,
-    'id': 0,
-  });
+  var json = <String, dynamic>{'type': type, 'data': png};
+  if (extras != null) json.addAll(Map.from(extras));
+
+  var imgPath = await socket.request(IMAGE_UPLOAD, json);
   if (imgPath != null) {
     _panel.classes.remove('show');
   }

@@ -13,6 +13,9 @@ import 'data.dart';
 // For Google Cloud Run, set _hostname to '0.0.0.0'.
 const _hostname = 'localhost';
 
+String _address;
+String get address => _address;
+
 final data = ServerData();
 
 void main(List<String> args) async {
@@ -46,7 +49,8 @@ void main(List<String> args) async {
       .addHandler(_echoRequest);
 
   var server = await io.serve(handler, _hostname, port);
-  print('Serving at http://${server.address.host}:${server.port}');
+  _address = 'http://${server.address.host}:${server.port}';
+  print('Serving at $address');
 }
 
 String getMimeType(File f) {
@@ -57,18 +61,22 @@ String getMimeType(File f) {
       return 'text/css';
     case '.js':
       return 'text/javascript';
+    case '.png':
+      return 'image/png';
   }
   return '';
 }
 
 Future<Response> _echoRequest(Request request) async {
-  if (request.url.path.isEmpty) {
+  var path = request.url.path;
+
+  if (path.isEmpty) {
     return Response.seeOther('index.html');
-  } else if (request.url.path == 'ws') {
+  } else if (path == 'ws') {
     return await ws.webSocketHandler(onConnect)(request);
   }
 
-  var file = File('web/' + request.url.path);
+  var file = path.startsWith('database') ? File(path) : File('web/' + path);
   if (await file.exists()) {
     var type = getMimeType(file);
     return Response(

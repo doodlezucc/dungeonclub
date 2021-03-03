@@ -128,14 +128,27 @@ class Connection extends Socket {
         String base64 = params['data'];
         String type = params['type'];
         int id = params['id'];
-        if (base64 == null ||
-            type == null ||
-            id == null ||
-            (type == a.IMAGE_TYPE_PC && _game == null)) return null;
+        String gameId = params['gameId'];
+        if (base64 == null || type == null || id == null) return 'Missing info';
+
         print('lol i have data');
-        var file = await (await _game.getFile('$type$id.png')).create();
+
+        File file;
+        if (gameId != null) {
+          var game = account.ownedGames
+              .firstWhere((g) => g.id == gameId, orElse: () => null);
+
+          if (game == null) {
+            return "You don't own this game!";
+          }
+
+          file = await (await game.getFile('$type$id.png')).create();
+        }
+
+        if (file == null) return null;
+
         await file.writeAsBytes(base64Decode(base64));
-        return file.path;
+        return '$address/${file.path}';
     }
   }
 

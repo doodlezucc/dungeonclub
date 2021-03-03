@@ -100,10 +100,15 @@ class Account {
   Crypt encryptedPassword;
 
   var enteredGames = <Game>[];
+  Iterable<Game> get ownedGames => enteredGames.where((g) => g.owner == this);
 
   Account(String email, String password)
       : encryptedEmail = Crypt.sha256(email),
         encryptedPassword = Crypt.sha256(password);
+
+  bool ownsGame(String gameId) {
+    return enteredGames.any((g) => g.id == gameId && g.owner == this);
+  }
 
   Account.fromJson(Map<String, dynamic> json)
       : encryptedEmail = Crypt(json['email']),

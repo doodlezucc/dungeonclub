@@ -43,20 +43,6 @@
     <div id="notifications"></div>
 
     <div id="overlay">
-        <div class="panel show" id="uploadPanel">
-            <h2>Upload Image</h2>
-            <div>
-                <img>
-                <canvas width="256" height="256"></canvas>
-                <label class="file-upload">
-                    Drag file here
-                    <input id="imgUpload" type="file" accept="image/*">
-                </label>
-            </div>
-
-            <button type="submit">Upload</button>
-        </div>
-
         <div class="panel" id="editGamePanel">
             <h2>Campaign Settings</h2>
             <div>
@@ -70,6 +56,20 @@
             </div>
 
             <button class="save">Save</button>
+        </div>
+
+        <div class="panel" id="uploadPanel">
+            <h2>Upload Image</h2>
+            <div>
+                <img>
+                <canvas width="256" height="256"></canvas>
+                <label class="file-upload">
+                    Drag file here
+                    <input id="imgUpload" type="file" accept="image/*">
+                </label>
+            </div>
+
+            <button type="submit">Upload</button>
         </div>
 
         <div id="charPick" class="panel">

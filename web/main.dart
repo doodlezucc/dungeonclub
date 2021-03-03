@@ -2,7 +2,6 @@ import 'dart:html';
 
 import 'dart/communication.dart';
 import 'dart/panels/edit_game.dart' as edit_game;
-import 'dart/panels/upload.dart' as upload;
 import 'dart/user.dart';
 
 final user = User();
@@ -50,9 +49,11 @@ void main() {
   testFlow();
 }
 
-void testFlow() {
-  //user.login(loginEmail.value, loginPassword.value);
-  upload.display();
+Future<void> testFlow() async {
+  await user.login(loginEmail.value, loginPassword.value);
+  await edit_game.display(user.account.games.first);
+
+  //upload.display();
 }
 
 void _listenToCssReload() {
