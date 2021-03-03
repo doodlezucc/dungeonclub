@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:dnd_interactive/actions.dart';
+
 import '../communication.dart';
 import '../font_awesome.dart';
 import '../game.dart';
-import '../server_actions.dart';
 
 final HtmlElement _panel = querySelector('#editGamePanel');
 final InputElement _gameNameInput = _panel.querySelector('#gameName');

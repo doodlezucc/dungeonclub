@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dnd_interactive/actions.dart' as a;
+import 'package:dnd_interactive/comms.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import '../web/dart/server_actions.dart' as a;
-import '../web/comms.dart';
 import 'data.dart';
 import 'server.dart';
 

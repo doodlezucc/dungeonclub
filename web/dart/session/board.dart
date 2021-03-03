@@ -1,8 +1,9 @@
 import 'dart:html';
 import 'dart:math';
 
+import 'package:dnd_interactive/actions.dart';
+
 import '../communication.dart';
-import '../server_actions.dart';
 import 'grid.dart';
 import 'movable.dart';
 import 'session.dart';

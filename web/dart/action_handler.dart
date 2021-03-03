@@ -1,7 +1,8 @@
 import 'dart:html';
 
+import 'package:dnd_interactive/actions.dart';
+
 import '../main.dart';
-import 'server_actions.dart';
 
 Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
   print('Action $action incoming');

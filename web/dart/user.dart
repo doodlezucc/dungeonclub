@@ -1,6 +1,7 @@
+import 'package:dnd_interactive/actions.dart';
+
 import 'account.dart';
 import 'communication.dart';
-import 'server_actions.dart';
 import 'session/session.dart';
 
 class User {

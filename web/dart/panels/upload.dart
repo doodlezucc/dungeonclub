@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:dnd_interactive/actions.dart';
+
 import '../communication.dart';
-import '../server_actions.dart';
 
 final HtmlElement _panel = querySelector('#uploadPanel');
 

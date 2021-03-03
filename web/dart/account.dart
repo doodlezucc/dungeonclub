@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:dnd_interactive/actions.dart';
+
 import '../main.dart';
 import 'communication.dart';
 import 'game.dart';
 import 'notif.dart';
-import 'server_actions.dart';
 import 'session/session.dart';
 
 class Account {

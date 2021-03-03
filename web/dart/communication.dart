@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:html';
 
-import '../comms.dart';
+import 'package:dnd_interactive/comms.dart';
+
 import 'action_handler.dart' as handler;
 
 final socket = FrontSocket();
