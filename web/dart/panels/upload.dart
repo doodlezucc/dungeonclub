@@ -143,6 +143,13 @@ void _resizeOutside() {
 Future<String> display(
     {String type = IMAGE_TYPE_PC, Map<String, dynamic> extras}) async {
   _initialize();
+
+  _img.width = 0;
+  _img.height = 0;
+  _canvas.width = 0;
+  _canvas.height = 0;
+  _crop.classes.add('hide');
+
   _panel.classes.add('show');
 
   var completer = Completer<String>();
@@ -182,6 +189,7 @@ void _loadFileAsImage(File file) async {
   _canvas.width = width;
   _canvas.height = height;
   setPosAndSize(Point(0, 0), Point(max.toDouble(), max.toDouble()));
+  _crop.classes.remove('hide');
 }
 
 void _imgToCanvas() {

@@ -272,6 +272,7 @@ li {
         min-width: 300px;
         min-height: 300px;
         position: relative;
+        box-shadow: 0 0 4px #0006;
 
         > *:not(img) {
             position: absolute;

@@ -1,3 +1,7 @@
+#crop.hide {
+    display: none;
+}
+
 #crop {
     background-color: transparent;
     position: absolute;
@@ -41,7 +45,7 @@
     > .left { left: var(--inset); }
 }
 
-#crop:active {
+#crop:active, #crop:not(:hover) {
     > .corner:not(:active) {
         border-color: #fff0;
         box-shadow: 0 0 10px #0000;
