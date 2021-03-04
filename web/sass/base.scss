@@ -218,6 +218,14 @@ li {
     }
 }
 
+.close {
+    @extend .icon;
+    border-radius: 50%;
+    position: absolute;
+    right: 8px;
+    top: 8px;
+}
+
 %vertical {
     display: flex;
     flex-direction: column;
@@ -228,7 +236,7 @@ li {
     background-color: white;
     box-shadow: 0 0 8px #0006;
     border-radius: $radius;
-    padding: 16px 32px;
+    padding: 24px 32px 16px 32px;
     gap: 16px;
 
     > div {

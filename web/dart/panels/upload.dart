@@ -7,21 +7,11 @@ import 'package:dnd_interactive/actions.dart';
 import '../communication.dart';
 
 final HtmlElement _panel = querySelector('#uploadPanel');
+final ButtonElement _cancelButton = _panel.querySelector('button.close');
 
-final HtmlElement _imgContainer = _panel.querySelector('div')
-  ..onDrop.listen((e) {
-    e.preventDefault();
-    if (e.dataTransfer.files != null && e.dataTransfer.files.isNotEmpty) {
-      _loadFileAsImage(e.dataTransfer.files[0]);
-    }
-  });
+final HtmlElement _imgContainer = _panel.querySelector('div');
 
-final FileUploadInputElement _uploadInput = _panel.querySelector('#imgUpload')
-  ..onInput.listen((event) {
-    if (_uploadInput.files.isNotEmpty) {
-      _loadFileAsImage(_uploadInput.files[0]);
-    }
-  });
+final FileUploadInputElement _uploadInput = _panel.querySelector('#imgUpload');
 
 final ImageElement _img = _panel.querySelector('img');
 final CanvasElement _canvas = _panel.querySelector('canvas');
@@ -67,8 +57,19 @@ bool _init = false;
 void _initialize() {
   if (!_init) {
     _init = true;
-    _uploadInput.title = '';
-    _imgContainer.title = '';
+
+    _uploadInput.onInput.listen((event) {
+      if (_uploadInput.files.isNotEmpty) {
+        _loadFileAsImage(_uploadInput.files[0]);
+      }
+    });
+    _imgContainer.onDrop.listen((e) {
+      e.preventDefault();
+      if (e.dataTransfer.files != null && e.dataTransfer.files.isNotEmpty) {
+        _loadFileAsImage(e.dataTransfer.files[0]);
+      }
+    });
+
     _crop.onMouseDown.listen((e) async {
       e.preventDefault();
       HtmlElement clicked = e.target;
@@ -162,17 +163,27 @@ Future<String> display({
   var completer = Completer<String>();
 
   StreamSubscription sub1;
+  StreamSubscription sub2;
   sub1 = _uploadButton.onClick.listen((event) async {
     _uploadButton.disabled = true;
     var result = await _upload(type, extras);
     if (result != null) {
       await sub1.cancel();
+      await sub2.cancel();
       completer.complete(result);
     }
     _uploadButton.disabled = false;
   });
 
-  return await completer.future;
+  sub2 = _cancelButton.onClick.listen((event) async {
+    await sub1.cancel();
+    await sub2.cancel();
+    completer.complete();
+  });
+
+  var finalResult = await completer.future;
+  _panel.classes.remove('show');
+  return finalResult;
 }
 
 void _loadFileAsImage(Blob blob) async {
@@ -237,8 +248,5 @@ Future<String> _upload(String type, Map<String, dynamic> extras) async {
   if (extras != null) json.addAll(Map.from(extras));
 
   var imgPath = await socket.request(IMAGE_UPLOAD, json);
-  if (imgPath != null) {
-    _panel.classes.remove('show');
-  }
   return imgPath;
 }
