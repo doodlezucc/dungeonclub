@@ -80,13 +80,16 @@
 
                 <canvas></canvas>
                 <img>
-                <label class="file-upload">
-                    Drag file here
-                    <input id="imgUpload" type="file" accept="image/*">
-                </label>
+                <span id="dragText">Drag & drop file here</span>
             </div>
 
-            <button type="submit">Upload</button>
+            <span>
+                <label class="file-upload">
+                    Open file
+                    <input id="imgUpload" type="file" accept="image/*">
+                </label>
+                <button class="big" type="submit">Upload</button>
+            </span>
         </div>
 
         <div id="charPick" class="panel">

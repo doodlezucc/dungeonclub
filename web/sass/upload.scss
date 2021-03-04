@@ -1,5 +1,11 @@
-#crop.hide {
-    display: none;
+#uploadPanel {
+    .hide {
+        display: none;
+    }
+
+    #dragText {
+        user-select: none;
+    }
 }
 
 #crop {

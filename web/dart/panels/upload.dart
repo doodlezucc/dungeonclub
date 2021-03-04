@@ -17,6 +17,7 @@ final ImageElement _img = _panel.querySelector('img');
 final CanvasElement _canvas = _panel.querySelector('canvas');
 final ButtonElement _uploadButton = _panel.querySelector('button[type=submit]');
 final DivElement _crop = _panel.querySelector('#crop');
+final SpanElement _dragText = _panel.querySelector('#dragText');
 
 Point<double> get _imgSize =>
     Point(_img.width.toDouble(), _img.height.toDouble());
@@ -154,6 +155,8 @@ Future<String> display({
     _canvas.width = 0;
     _canvas.height = 0;
     _crop.classes.add('hide');
+    _dragText.classes.remove('hide');
+    _uploadButton.disabled = true;
   } else {
     _loadFileAsImage(initialImg);
   }
@@ -161,27 +164,31 @@ Future<String> display({
   _panel.classes.add('show');
 
   var completer = Completer<String>();
+  var subs = <StreamSubscription>[];
 
-  StreamSubscription sub1;
-  StreamSubscription sub2;
-  sub1 = _uploadButton.onClick.listen((event) async {
+  subs.add(_uploadButton.onClick.listen((_) async {
     _uploadButton.disabled = true;
     var result = await _upload(type, extras);
     if (result != null) {
-      await sub1.cancel();
-      await sub2.cancel();
       completer.complete(result);
     }
     _uploadButton.disabled = false;
-  });
+  }));
 
-  sub2 = _cancelButton.onClick.listen((event) async {
-    await sub1.cancel();
-    await sub2.cancel();
+  subs.add(_cancelButton.onClick.listen((_) async {
     completer.complete();
-  });
+  }));
+
+  subs.add(document.onPaste.listen((e) {
+    e.preventDefault();
+    print('paste');
+    for (var file in e.clipboardData.files) {
+      return _loadFileAsImage(file);
+    }
+  }));
 
   var finalResult = await completer.future;
+  subs.forEach((s) => s.cancel());
   _panel.classes.remove('show');
   return finalResult;
 }
@@ -207,7 +214,9 @@ void _loadFileAsImage(Blob blob) async {
   _canvas.width = width;
   _canvas.height = height;
   setPosAndSize(Point(0, 0), Point(max.toDouble(), max.toDouble()));
+  _dragText.classes.add('hide');
   _crop.classes.remove('hide');
+  _uploadButton.disabled = false;
 }
 
 CanvasElement _imgToCanvas({int maxRes = 256}) {

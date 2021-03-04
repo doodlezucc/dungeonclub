@@ -66,16 +66,16 @@ button.icon {
 button.big {
     @extend %responsive;
     background-color: #d0d0d0;
-    padding: 16px;
+    padding: 8px 16px;
 }
 button.big:not(:disabled):hover {
     background-color: #ddd;
 }
 
-.good {
-    color: #3c943c;
+.good:not(:disabled) {
+    color: #009c46;
 }
-.bad {
+.bad:not(:disabled) {
     color: #e24b4b;
 }
 
@@ -243,6 +243,11 @@ li {
         @extend %vertical;
         gap: 4px;
     }
+
+    > span {
+        display: flex;
+        justify-content: space-evenly;
+    }
 }
 #editGamePanel {
     #editChars {
@@ -276,6 +281,7 @@ li {
 #uploadPanel {
     > div {
         justify-content: center;
+        align-items: center;
         overflow: hidden;
         min-width: 300px;
         min-height: 300px;

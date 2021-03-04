@@ -21,7 +21,6 @@ final ButtonElement _addCharButton = _panel.querySelector('#addChar')
   ..onClick.listen((event) {
     _chars.add(_EditChar(_idCounter++, {
       'name': '',
-      'img': '',
     })
       ..focus());
     _updateAddButton();
