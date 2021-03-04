@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
-import 'package:path/path.dart';
 
 import '../communication.dart';
 import '../font_awesome.dart';
@@ -19,10 +18,7 @@ String _gameId;
 int _idCounter = 0;
 final ButtonElement _addCharButton = _panel.querySelector('#addChar')
   ..onClick.listen((event) {
-    _chars.add(_EditChar(_idCounter++, {
-      'name': '',
-    })
-      ..focus());
+    _chars.add(_EditChar(_idCounter++, '', '')..focus());
     _updateAddButton();
   });
 
@@ -40,7 +36,9 @@ Future<void> display(Game game) async {
   _chars.clear();
   var charJsons = List<Map>.from(result['pcs']);
   for (var i = 0; i < charJsons.length; i++) {
-    _chars.add(_EditChar(i, charJsons[i]));
+    // ew, hardcoded url
+    _chars.add(_EditChar(i, charJsons[i]['name'],
+        'http://localhost:7070/database/games/$_gameId/pc$i.png'));
   }
   _idCounter = charJsons.length;
 
@@ -67,12 +65,12 @@ class _EditChar {
   InputElement _nameInput;
   String get name => _nameInput.value;
 
-  _EditChar(this.id, Map<String, dynamic> json) : e = LIElement() {
+  _EditChar(this.id, String name, String imgUrl) : e = LIElement() {
     e
       ..append(DivElement()
         ..className = 'edit-img'
         ..append(DivElement()..text = 'Change')
-        ..append(_iconImg = ImageElement(src: json['img']))
+        ..append(_iconImg = ImageElement(src: imgUrl))
         ..onClick.listen((_) => _changeIcon())
         ..onDrop.listen((e) {
           e.preventDefault();
@@ -82,7 +80,7 @@ class _EditChar {
         }))
       ..append(_nameInput = InputElement()
         ..placeholder = 'Name...'
-        ..value = json['name'])
+        ..value = name)
       ..append(iconButton('times', 'bad')
         ..onClick.listen((event) {
           remove();
@@ -118,7 +116,7 @@ class _EditChar {
 
   Map<String, dynamic> toJson() => {
         'name': name,
-        'img': basename(_iconImg.src),
+        //'img': basename(_iconImg.src),
       };
 }
 
