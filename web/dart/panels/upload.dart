@@ -187,6 +187,10 @@ Future<String> display({
     }
   }));
 
+  if (initialImg == null) {
+    _uploadInput.click();
+  }
+
   var finalResult = await completer.future;
   subs.forEach((s) => s.cancel());
   _panel.classes.remove('show');
