@@ -140,15 +140,22 @@ void _resizeOutside() {
   ctx.fillRect(0, position.y + size.y, _canvas.width, _canvas.height); // bottom
 }
 
-Future<String> display(
-    {String type = IMAGE_TYPE_PC, Map<String, dynamic> extras}) async {
+Future<String> display({
+  String type = IMAGE_TYPE_PC,
+  Map<String, dynamic> extras,
+  Blob initialImg,
+}) async {
   _initialize();
 
-  _img.width = 0;
-  _img.height = 0;
-  _canvas.width = 0;
-  _canvas.height = 0;
-  _crop.classes.add('hide');
+  if (initialImg == null) {
+    _img.width = 0;
+    _img.height = 0;
+    _canvas.width = 0;
+    _canvas.height = 0;
+    _crop.classes.add('hide');
+  } else {
+    _loadFileAsImage(initialImg);
+  }
 
   _panel.classes.add('show');
 
@@ -168,8 +175,8 @@ Future<String> display(
   return await completer.future;
 }
 
-void _loadFileAsImage(File file) async {
-  _img.src = Url.createObjectUrlFromBlob(file);
+void _loadFileAsImage(Blob blob) async {
+  _img.src = Url.createObjectUrlFromBlob(blob);
   await _img.onLoad.first;
 
   var width = _img.naturalWidth;

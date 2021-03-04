@@ -74,7 +74,13 @@ class _EditChar {
         ..className = 'edit-img'
         ..append(DivElement()..text = 'Change')
         ..append(_iconImg = ImageElement(src: json['img']))
-        ..onClick.listen((_) => _changeIcon()))
+        ..onClick.listen((_) => _changeIcon())
+        ..onDrop.listen((e) {
+          e.preventDefault();
+          if (e.dataTransfer.files != null && e.dataTransfer.files.isNotEmpty) {
+            _changeIcon(e.dataTransfer.files[0]);
+          }
+        }))
       ..append(_nameInput = InputElement()
         ..placeholder = 'Name...'
         ..value = json['name'])
@@ -86,11 +92,15 @@ class _EditChar {
     _roster.append(e);
   }
 
-  Future<void> _changeIcon() async {
-    var url = await uploader.display(type: IMAGE_TYPE_PC, extras: {
-      'id': id,
-      'gameId': _gameId,
-    });
+  Future<void> _changeIcon([Blob initialFile]) async {
+    var url = await uploader.display(
+      type: IMAGE_TYPE_PC,
+      initialImg: initialFile,
+      extras: {
+        'id': id,
+        'gameId': _gameId,
+      },
+    );
     if (url != null) {
       // Cachebreaker suffix for forced reloading
       _iconImg.src = '$url?${DateTime.now().millisecondsSinceEpoch}';
