@@ -293,3 +293,18 @@ li {
         }
     }
 }
+
+section {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    padding: 8px 20px;
+    box-sizing: border-box;
+    pointer-events: none;
+    opacity: 0;
+    transition-duration: 0.5s;
+}
+section.show {
+    pointer-events: all;
+    opacity: 1;
+}

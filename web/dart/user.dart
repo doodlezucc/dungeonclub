@@ -2,6 +2,7 @@ import 'package:dnd_interactive/actions.dart';
 
 import 'account.dart';
 import 'communication.dart';
+import 'section_page.dart';
 import 'session/session.dart';
 
 class User {
@@ -12,15 +13,13 @@ class User {
 
   Session _session;
   Session get session => _session;
-  set session(Session session) {
-    _session = session;
-  }
 
   Future<bool> joinSession(String id) async {
     var s = await socket.request(GAME_JOIN, {'id': id});
     if (s is String) return false;
 
-    session = Session(id, s['name'], s['gm'] != null)..fromJson(s);
+    _session = Session(id, s['name'], s['gm'] != null)..fromJson(s);
+    showPage('session');
     return true;
   }
 
