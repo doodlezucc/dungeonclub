@@ -26,6 +26,7 @@ Point<double> _position = Point(0, 0);
 Point<double> get position => _position;
 
 void setPosAndSize(Point<double> p, Point<double> s) {
+  p = Point(p.x.roundToDouble(), p.y.roundToDouble());
   _position = clamp(p, Point(0, 0), _imgSize - size);
   _size = clamp(s, minSize, _imgSize - position);
   _position = clamp(p, Point(0, 0), _imgSize - size);
@@ -53,6 +54,7 @@ Point<double> minSize = Point<double>(50, 50);
 Point<double> _size = Point(400, 400);
 Point<double> get size => _size;
 
+bool _square;
 bool _init = false;
 
 void _initialize() {
@@ -79,11 +81,15 @@ void _initialize() {
 
       void Function(Point<double>) action;
       if (clicked != _crop) {
-        var cursorCss = clicked.style.cursor;
+        var cursorCss = clicked.style.cursor + ' !important';
         document.body.style.cursor = cursorCss;
         _crop.style.cursor = cursorCss;
 
         var classes = clicked.classes;
+        var t = classes.contains('top');
+        var r = classes.contains('right');
+        var l = classes.contains('left');
+        var b = classes.contains('bottom');
 
         action = (diff) {
           var x = pos1.x;
@@ -94,17 +100,62 @@ void _initialize() {
           var maxPosDiff = size1 - minSize;
           var minPosDiff = pos1 * -1;
 
-          if (classes.contains('top')) {
-            var v = min(max(diff.y, minPosDiff.y), maxPosDiff.y);
-            y += v;
-            height -= v;
-          }
-          if (classes.contains('right')) width += diff.x;
-          if (classes.contains('bottom')) height += diff.y;
-          if (classes.contains('left')) {
-            var v = min(max(diff.x, minPosDiff.x), maxPosDiff.x);
-            x += v;
-            width -= v;
+          if (_square) {
+            var maxSizeDiff = _imgSize - size1 - pos1;
+            double v;
+            if (t) {
+              if (r) {
+                var maximum = min(maxSizeDiff.x, pos1.y);
+                v = max(min(max(diff.x, -diff.y), maximum), -maxPosDiff.x);
+              } else if (l) {
+                var minimum = min(pos1.x, pos1.y);
+                v = max(min(max(-diff.x, -diff.y), minimum), -maxPosDiff.x);
+                x -= v;
+              } else {
+                var minimum = min(pos1.y, min(pos1.x, maxSizeDiff.x) * 2);
+                v = max(min(-diff.y, minimum), -maxPosDiff.x);
+                x -= (v / 2);
+              }
+              y -= v;
+            } else if (b) {
+              if (r) {
+                var maximum = min(maxSizeDiff.x, maxSizeDiff.y);
+                v = max(min(max(diff.x, diff.y), maximum), -maxPosDiff.x);
+              } else if (l) {
+                var minimum = min(pos1.x, maxSizeDiff.y);
+                v = max(min(max(-diff.x, diff.y), minimum), -maxPosDiff.x);
+                x -= v;
+              } else {
+                var minimum =
+                    min(maxSizeDiff.y, min(pos1.x, maxSizeDiff.x) * 2);
+                v = max(min(diff.y, minimum), -maxPosDiff.x);
+                x -= (v / 2);
+              }
+            } else if (r) {
+              var minimum = min(min(pos1.y, maxSizeDiff.y) * 2, maxSizeDiff.x);
+              v = max(min(diff.x, minimum), -maxPosDiff.y);
+              y -= (v / 2);
+            } else {
+              var minimum = min(min(pos1.y, maxSizeDiff.y) * 2, pos1.x);
+              v = max(min(-diff.x, minimum), -maxPosDiff.y);
+              x -= v;
+              y -= (v / 2);
+            }
+            width += v;
+            height += v;
+          } else {
+            if (t) {
+              var v = min(max(diff.y, minPosDiff.y), maxPosDiff.y);
+              y += v;
+              height -= v;
+            }
+            if (r) width += diff.x;
+            if (b) height += diff.y;
+            if (l) {
+              var v = min(max(diff.x, minPosDiff.x), maxPosDiff.x);
+              x += v;
+              width -= v;
+            }
           }
 
           setPosAndSize(Point(x, y), Point(width, height));
@@ -146,8 +197,11 @@ Future<String> display({
   String type = IMAGE_TYPE_PC,
   Map<String, dynamic> extras,
   Blob initialImg,
+  bool square = false,
 }) async {
   _initialize();
+
+  _square = square;
 
   if (initialImg == null) {
     _img.width = 0;
