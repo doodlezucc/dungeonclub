@@ -1,0 +1,28 @@
+@use 'base.scss';
+
+#gamesContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
+
+    .game {
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        box-shadow: 0 0 4px #000a;
+        padding: 8px;
+        gap: 16px;
+        width: 200px;
+        border-radius: base.$radius;
+        transition-duration: 0.3s;
+
+        h3 { margin-top: 3px; }
+
+        span {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    }
+}

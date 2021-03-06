@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'dart/communication.dart';
+import 'dart/home.dart' as home;
 import 'dart/panels/edit_game.dart' as edit_game;
 import 'dart/user.dart';
 
@@ -15,31 +16,16 @@ void main() {
 
   print('Ready!');
 
-  querySelector('button#login').onClick.listen((_) {
-    user.login(loginEmail.value, loginPassword.value);
+  querySelector('button#login').onClick.listen((_) async {
+    await user.login(loginEmail.value, loginPassword.value);
+    home.init();
   });
   querySelector('button#signup').onClick.listen((_) {
     user.login(loginEmail.value, loginPassword.value, signUp: true);
   });
 
-  querySelector('button#join').onClick.listen((_) {
-    return user.joinSession('pog');
-  });
-
-  querySelector('button#create').onClick.listen((_) async {
-    if (!user.registered) return print('No permissions to create a new game!');
-    var game = await user.account.createNewGame('Cool Campaign');
-    await edit_game.display(game);
-  });
-
   querySelector('button#save').onClick.listen((_) {
     socket.send('{"action":"manualSave"}');
-  });
-
-  querySelector('button#editGame').onClick.listen((_) {
-    if (user.registered) {
-      edit_game.display(user.account.games.first);
-    }
   });
 
   document.onDrop.listen((e) => e.preventDefault());

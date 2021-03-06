@@ -114,7 +114,11 @@ class Account {
       : encryptedEmail = Crypt(json['email']),
         encryptedPassword = Crypt(json['password']),
         enteredGames = List.from(json['games'])
-            .map((id) => data.games.singleWhere((g) => g.id == id))
+            .map((id) => data.games.firstWhere(
+                  (g) => g.id == id,
+                  orElse: () => null,
+                ))
+            .where((g) => g != null)
             .toList();
 
   Map<String, dynamic> toJson() => {
@@ -124,7 +128,7 @@ class Account {
       };
 
   Map<String, dynamic> toSnippet() => {
-        'games': enteredGames.map((g) => g.toSnippet()).toList(),
+        'games': enteredGames.map((g) => g.toSnippet(this)).toList(),
       };
 }
 
@@ -213,9 +217,10 @@ class Game {
         'pcs': _characters.map((e) => e.toJson()).toList()
       };
 
-  Map<String, dynamic> toSnippet() => {
+  Map<String, dynamic> toSnippet(Account acc) => {
         'id': id,
         'name': name,
+        'mine': acc == owner,
       };
 
   Map<String, dynamic> toSessionSnippet(Connection c, [int mine]) {

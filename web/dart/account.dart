@@ -7,7 +7,6 @@ import '../main.dart';
 import 'communication.dart';
 import 'game.dart';
 import 'notif.dart';
-import 'session/session.dart';
 
 class Account {
   //final String name = 'noname';
@@ -20,14 +19,14 @@ class MyAccount extends Account {
   MyAccount(Map<String, dynamic> json)
       : email = json['email'],
         games = List.from(json['games'])
-            .map((e) => Game(e['id'], e['name'], null))
+            .map((e) => Game(e['id'], e['name'], e['mine']))
             .toList();
 
   Future<Game> createNewGame(String name) async {
     var snippet = await socket.request(GAME_CREATE_NEW, {'name': name});
     if (snippet == null) return null;
 
-    var game = Game(snippet['id'], name, this);
+    var game = Game(snippet['id'], name, true);
     games.add(game);
     return game;
   }

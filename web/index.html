@@ -6,9 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="scaffolded-by" content="https://github.com/dart-lang/stagehand">
-    <link rel="stylesheet" href="style/base.css">
-    <link rel="stylesheet" href="style/game.css">
-    <link rel="stylesheet" href="style/upload.css">
+    <link rel="stylesheet" href="style/style.css">
     <title>D&D Interactive</title>
     <script defer src="main.dart.js"></script>
     <script src="https://kit.fontawesome.com/a3de05bb60.js" crossorigin="anonymous"></script>
@@ -21,16 +19,15 @@
     <input type="password" id="loginPassword" value="wowzer">
     <button id="login">Log in</button>
     <button id="signup">Sign up</button>
-
-    <button id="join">Join session</button>
-
-    <button id="create">Create game</button>
-
     <button id="save">Save server data</button>
 
-    <button id="editGame">Edit Campaign</button>
+    <section id="home" class="show">
+        <div id="gamesContainer">
+            <button id="create" class="big">Create new game</button>
+        </div>
+    </section>
 
-    <div id="session">
+    <section id="session">
         <div id="boardContainer">
             <div id="board">
                 <img id="ground" src="https://via.placeholder.com/500" width="500" height="500">
@@ -39,7 +36,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <div id="notifications"></div>
 
