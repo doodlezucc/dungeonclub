@@ -23,11 +23,13 @@ class MyAccount extends Account {
             .map((e) => Game(e['id'], e['name'], null))
             .toList();
 
-  Future<Session> createNewGame(String name) async {
-    var id = await socket.request(GAME_CREATE_NEW, {'name': name});
-    if (id == false) return null;
+  Future<Game> createNewGame(String name) async {
+    var snippet = await socket.request(GAME_CREATE_NEW, {'name': name});
+    if (snippet == null) return null;
 
-    return Session(id, name, true);
+    var game = Game(snippet['id'], name, this);
+    games.add(game);
+    return game;
   }
 
   Future displayPickCharacterDialog(String name) async {

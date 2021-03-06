@@ -28,9 +28,8 @@ void main() {
 
   querySelector('button#create').onClick.listen((_) async {
     if (!user.registered) return print('No permissions to create a new game!');
-    user.session = await user.account.createNewGame('Cool Campaign');
-    return user.session.board.addMovable(
-        'https://i.kym-cdn.com/photos/images/newsfeed/000/096/044/trollface.jpg?1296494117');
+    var game = await user.account.createNewGame('Cool Campaign');
+    await edit_game.display(game);
   });
 
   querySelector('button#save').onClick.listen((_) {

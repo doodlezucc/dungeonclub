@@ -220,6 +220,7 @@ class Game {
 
   Map<String, dynamic> toSessionSnippet(Connection c, [int mine]) {
     return {
+      'id': id,
       'board': board.toJson(),
       'pcs': _characters.map((e) => e.toJson()).toList(),
       if (mine != null) 'mine': mine,

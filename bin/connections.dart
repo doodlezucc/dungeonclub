@@ -65,10 +65,10 @@ class Connection extends Socket {
       case a.GAME_CREATE_NEW:
         if (account == null) return false;
 
-        _game = Game(account, params['name'])..connect(this, true);
+        _game = Game(account, params['name']);
         data.games.add(_game);
         account.enteredGames.add(_game);
-        return _game.id;
+        return _game.toSessionSnippet(this);
 
       case a.GAME_EDIT:
         var gameId = params['id'];
