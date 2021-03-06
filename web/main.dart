@@ -1,7 +1,6 @@
 import 'dart:html';
 
 import 'dart/communication.dart';
-import 'dart/home.dart' as home;
 import 'dart/panels/edit_game.dart' as edit_game;
 import 'dart/user.dart';
 
@@ -18,7 +17,6 @@ void main() {
 
   querySelector('button#login').onClick.listen((_) async {
     await user.login(loginEmail.value, loginPassword.value);
-    home.init();
   });
   querySelector('button#signup').onClick.listen((_) {
     user.login(loginEmail.value, loginPassword.value, signUp: true);
@@ -37,10 +35,6 @@ void main() {
 Future<void> testFlow() async {
   await user.login(loginEmail.value, loginPassword.value);
   await edit_game.display(user.account.games.first);
-
-  querySelector('.edit-img').click();
-
-  //upload.display();
 }
 
 void _listenToCssReload() {

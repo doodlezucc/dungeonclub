@@ -11,6 +11,7 @@ import 'upload.dart' as uploader;
 final HtmlElement _panel = querySelector('#editGamePanel');
 final InputElement _gameNameInput = _panel.querySelector('#gameName');
 final HtmlElement _roster = _panel.querySelector('#editChars');
+final ButtonElement _cancelButton = _panel.querySelector('button.close');
 
 final _chars = <_EditChar>[];
 
@@ -44,11 +45,18 @@ Future<void> display(Game game) async {
 
   _updateAddButton();
 
-  StreamSubscription sub;
-  sub = _saveButton.onClick.listen((event) async {
+  StreamSubscription sub1;
+  StreamSubscription sub2;
+  sub1 = _saveButton.onClick.listen((event) async {
     _saveButton.disabled = true;
-    await sub.cancel();
+    await sub1.cancel();
+    await sub2.cancel();
     await _saveChanges(game.id);
+  });
+  sub2 = _cancelButton.onClick.listen((event) {
+    sub1.cancel();
+    sub2.cancel();
+    _panel.classes.remove('show');
   });
 
   _panel.classes.add('show');

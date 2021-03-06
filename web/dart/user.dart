@@ -2,6 +2,7 @@ import 'package:dnd_interactive/actions.dart';
 
 import 'account.dart';
 import 'communication.dart';
+import 'home.dart' as home;
 import 'section_page.dart';
 import 'session/session.dart';
 
@@ -34,6 +35,7 @@ class User {
     );
     if (response != false) {
       _account = MyAccount(response);
+      home.init();
     } else {
       print('Login failed!');
     }
