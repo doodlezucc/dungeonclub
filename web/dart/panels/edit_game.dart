@@ -25,7 +25,7 @@ final ButtonElement _addCharButton = _panel.querySelector('#addChar')
 
 final ButtonElement _saveButton = _panel.querySelector('.save');
 
-Future<void> display(Game game) async {
+Future<void> display(Game game, [HtmlElement title]) async {
   _gameId = game.id;
   var result = await socket.request(GAME_EDIT, {'id': game.id});
   if (result is String) return print('Error: $result');
@@ -52,6 +52,7 @@ Future<void> display(Game game) async {
     await sub1.cancel();
     await sub2.cancel();
     await _saveChanges(game.id);
+    title?.text = _gameNameInput.value;
   });
   sub2 = _cancelButton.onClick.listen((event) {
     sub1.cancel();

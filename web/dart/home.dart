@@ -16,7 +16,7 @@ void init() {
   _createGameButton.onClick.listen((event) async {
     if (!user.registered) return print('No permissions to create a new game!');
     var game = await user.account.createNewGame('Cool Campaign');
-    await edit_game.display(game);
+    _addEnteredGame(game, instantEdit: true);
   });
 }
 
@@ -26,24 +26,28 @@ Future<void> _displayEnteredGames() async {
   }
 }
 
-void _addEnteredGame(Game game) {
+void _addEnteredGame(Game game, {bool instantEdit = false}) {
+  HtmlElement nameEl;
   HtmlElement topRow;
   var e = DivElement()
     ..className = 'game'
-    ..append(
-        topRow = SpanElement()..append(HeadingElement.h3()..text = game.name))
+    ..append(topRow = SpanElement()
+      ..append(nameEl = HeadingElement.h3()..text = game.name))
     ..append(ButtonElement()
       ..text = 'Join session'
       ..onClick.listen((event) {
         user.joinSession(game.id);
       }));
 
+  var displayEdit = () {
+    edit_game.display(game, nameEl);
+  };
+
   if (game.owned) {
-    topRow.append(iconButton('cog')
-      ..onClick.listen((event) {
-        edit_game.display(game);
-      }));
+    topRow.append(iconButton('cog')..onClick.listen((_) => displayEdit()));
   }
 
   _gamesContainer.insertBefore(e, _createGameButton);
+
+  if (instantEdit) displayEdit();
 }
