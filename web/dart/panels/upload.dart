@@ -218,28 +218,26 @@ Future<String> display({
   _panel.classes.add('show');
 
   var completer = Completer<String>();
-  var subs = <StreamSubscription>[];
-
-  subs.add(_uploadButton.onClick.listen((_) async {
-    _uploadButton.disabled = true;
-    var result = await _upload(type, extras);
-    if (result != null) {
-      completer.complete(result);
-    }
-    _uploadButton.disabled = false;
-  }));
-
-  subs.add(_cancelButton.onClick.listen((_) async {
-    completer.complete();
-  }));
-
-  subs.add(document.onPaste.listen((e) {
-    e.preventDefault();
-    print('paste');
-    for (var file in e.clipboardData.files) {
-      return _loadFileAsImage(file);
-    }
-  }));
+  var subs = [
+    _uploadButton.onClick.listen((_) async {
+      _uploadButton.disabled = true;
+      var result = await _upload(type, extras);
+      if (result != null) {
+        completer.complete(result);
+      }
+      _uploadButton.disabled = false;
+    }),
+    _cancelButton.onClick.listen((_) async {
+      completer.complete();
+    }),
+    document.onPaste.listen((e) {
+      e.preventDefault();
+      print('paste');
+      for (var file in e.clipboardData.files) {
+        return _loadFileAsImage(file);
+      }
+    })
+  ];
 
   if (initialImg == null) {
     _uploadInput.click();

@@ -71,9 +71,11 @@ class Connection extends Socket {
         return _game.toSessionSnippet(this);
 
       case a.GAME_EDIT:
+        if (account == null) return false;
+
         var gameId = params['id'];
-        var game = account.enteredGames.firstWhere(
-            (g) => g.id == gameId && g.owner == account && g.online == 0,
+        var game = account.ownedGames.firstWhere(
+            (g) => g.id == gameId && g.online == 0,
             orElse: () => null);
         if (game == null) return 'Access denied!';
 
@@ -84,6 +86,18 @@ class Connection extends Socket {
         }
 
         return game.toSessionSnippet(this);
+
+      case a.GAME_DELETE:
+        if (account == null) return false;
+
+        var gameId = params['id'];
+        var game = account.ownedGames
+            .firstWhere((g) => g.id == gameId, orElse: () => null);
+        if (game == null) return 'Access denied!';
+
+        await game.delete();
+
+        return true;
 
       case a.GAME_JOIN:
         var id = params['id'];

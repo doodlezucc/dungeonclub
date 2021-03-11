@@ -197,6 +197,14 @@ class Game {
     _characters.removeAt(index);
   }
 
+  Future<void> delete() async {
+    if (await resources.exists()) {
+      await resources.delete(recursive: true);
+    }
+    data.games.remove(this);
+    owner.enteredGames.remove(this);
+  }
+
   PlayerCharacter assignPC(int index, Connection c) {
     return _characters[index]..connection = c;
   }

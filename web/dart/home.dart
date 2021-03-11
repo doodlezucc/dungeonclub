@@ -40,7 +40,7 @@ void _addEnteredGame(Game game, {bool instantEdit = false}) {
       }));
 
   var displayEdit = () {
-    edit_game.display(game, nameEl);
+    edit_game.display(game, nameEl, e);
   };
 
   if (game.owned) {

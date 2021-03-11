@@ -12,6 +12,8 @@ final HtmlElement _panel = querySelector('#editGamePanel');
 final InputElement _gameNameInput = _panel.querySelector('#gameName');
 final HtmlElement _roster = _panel.querySelector('#editChars');
 final ButtonElement _cancelButton = _panel.querySelector('button.close');
+final ButtonElement _deleteButton = _panel.querySelector('button#delete');
+final ButtonElement _saveButton = _panel.querySelector('button#save');
 
 final _chars = <_EditChar>[];
 
@@ -23,9 +25,7 @@ final ButtonElement _addCharButton = _panel.querySelector('#addChar')
     _updateAddButton();
   });
 
-final ButtonElement _saveButton = _panel.querySelector('.save');
-
-Future<void> display(Game game, [HtmlElement title]) async {
+Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   _gameId = game.id;
   var result = await socket.request(GAME_EDIT, {'id': game.id});
   if (result is String) return print('Error: $result');
@@ -45,22 +45,29 @@ Future<void> display(Game game, [HtmlElement title]) async {
 
   _updateAddButton();
 
-  StreamSubscription sub1;
-  StreamSubscription sub2;
-  sub1 = _saveButton.onClick.listen((event) async {
-    _saveButton.disabled = true;
-    await sub1.cancel();
-    await sub2.cancel();
-    await _saveChanges(game.id);
-    title?.text = _gameNameInput.value;
-  });
-  sub2 = _cancelButton.onClick.listen((event) {
-    sub1.cancel();
-    sub2.cancel();
-    _panel.classes.remove('show');
-  });
+  var closer = Completer();
+  var subs = [
+    _saveButton.onClick.listen((event) async {
+      _saveButton.disabled = true;
+      if (await _saveChanges(game.id)) {
+        title?.text = _gameNameInput.value;
+        closer.complete();
+      }
+    }),
+    _cancelButton.onClick.listen((event) => closer.complete()),
+    _deleteButton.onClick.listen((event) async {
+      if (await _delete(game.id)) {
+        refEl.remove();
+        closer.complete();
+      }
+    })
+  ];
 
   _panel.classes.add('show');
+
+  await closer.future;
+  _panel.classes.remove('show');
+  subs.forEach((s) => s.cancel());
 }
 
 void _updateAddButton() {
@@ -130,17 +137,17 @@ class _EditChar {
       };
 }
 
-Future<void> _saveChanges(String id) async {
-  var saved = await socket.request(GAME_EDIT, {
+Future<bool> _saveChanges(String id) async {
+  return await socket.request(GAME_EDIT, {
     'id': id,
     'data': {
       'name': _gameNameInput.value,
       'pcs': _chars.map((e) => e.toJson()).toList(),
     },
   });
-  if (saved) {
-    _panel.classes.remove('show');
-  } else {
-    print('Settings saved!');
-  }
+}
+
+Future<bool> _delete(String id) async {
+  var confirmed = true;
+  return confirmed && await socket.request(GAME_DELETE, {'id': id});
 }
