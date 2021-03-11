@@ -64,6 +64,7 @@ void _initialize() {
     _uploadInput.onInput.listen((event) {
       if (_uploadInput.files.isNotEmpty) {
         _loadFileAsImage(_uploadInput.files[0]);
+        _uploadInput.value = null;
       }
     });
     _imgContainer.onDrop.listen((e) {
