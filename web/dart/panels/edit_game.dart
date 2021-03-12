@@ -32,7 +32,9 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
 
   _saveButton.disabled = false;
 
-  _gameNameInput.value = game.name;
+  _gameNameInput
+    ..value = game.name
+    ..focus();
   _chars.forEach((c) => c.e.remove());
   _chars.clear();
   var charJsons = List<Map>.from(result['pcs']);

@@ -3,6 +3,7 @@ import 'dart:html';
 import '../main.dart';
 import 'font_awesome.dart';
 import 'game.dart';
+import 'panels/dialog.dart';
 import 'panels/edit_game.dart' as edit_game;
 
 final HtmlElement _gamesContainer = querySelector('#gamesContainer');
@@ -15,7 +16,16 @@ void init() {
 
   _createGameButton.onClick.listen((event) async {
     if (!user.registered) return print('No permissions to create a new game!');
-    var game = await user.account.createNewGame('Cool Campaign');
+
+    var name = await Dialog<String>(
+      'New Campaign',
+      okText: 'Create',
+      onClose: () => null,
+    ).withInput(placeholder: 'Campaign name...').display();
+
+    if (name == null) return;
+
+    var game = await user.account.createNewGame(name);
     _addEnteredGame(game, instantEdit: true);
   });
 }
