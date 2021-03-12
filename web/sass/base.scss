@@ -12,16 +12,48 @@ body {
     padding: 20px;
     box-sizing: border-box;
     font-family: 'Lato', sans-serif;
+    color: var(--color-text-primary);
+    background-color: var(--color-background);
+
+    --color-background: white;
+    --color-primary: #4933c3;
+    --color-text-primary: black;
+    --color-text-inverse: white;
+    --color-not-intense: #f8f8f8;
+    --color-button-hover: #ddd;
+    --color-button-active: #bbb;
+    --color-button-big: #d0d0d0;
+    --color-button-text: #111;
+    --color-input-active: #555;
+
+    --weight-thick: bold;
+
+    &.dark-mode {
+        --color-background: #16161a;
+        --color-primary: #856fff;
+        --color-text-primary: white;
+        --color-text-inverse: black;
+        --color-not-intense: #222;
+        --color-button-hover: #333;
+        --color-button-active: #383838;
+        --color-button-big: #444;
+        --color-button-text: #ddd;
+        --color-input-active: #777;
+    
+        --weight-thick: normal;
+    }
 }
 
 %heading {
     font-family: 'Josefin Sans', sans-serif;
     margin: 0;
+    font-weight: var(--weight-thick);
 }
 
 h1 {
     @extend %heading;
     font-weight: normal;
+    color: var(--color-primary);
 }
 h2 {
     @extend %heading;
@@ -36,7 +68,8 @@ h3 {
     outline: none;
     border: none;
     border-radius: 8px;
-    background-color: white;
+    background-color: transparent;
+    color: var(--color-button-text);
     padding: 6px;
     transition-duration: 0.1s;
     transition-timing-function: ease-out;
@@ -47,10 +80,11 @@ h3 {
     cursor: pointer;
 }
 %clickable:not(:disabled):hover, .tab %clickable:not(:disabled):focus {
-    background-color: #ddd;
+    background-color: var(--color-button-hover);
+    color: var(--color-text-primary);
 }
 %clickable:not(:disabled):active {
-    background-color: #bbb !important;
+    background-color: var(--color-button-active) !important;
     transition-duration: 0s;
 }
 
@@ -65,11 +99,9 @@ button.icon {
 }
 button.big {
     @extend %responsive;
-    background-color: #d0d0d0;
+    background-color: var(--color-button-big);
+    color: var(--color-text-primary);
     padding: 8px 16px;
-}
-button.big:not(:disabled):hover {
-    background-color: #ddd;
 }
 
 .good:not(:disabled) {
@@ -84,10 +116,12 @@ input {
     font-size: inherit;
     outline: none;
     border: none;
-    border-bottom: 1px solid #bbb;
+    border-bottom: 1px solid var(--color-button-active);
     transition-property: border-bottom-color;
     transition-duration: 0.1s;
     margin-bottom: 1px;
+    background-color: inherit;
+    color: inherit;
 }
 input:focus {
     border-bottom: 2px solid #555;
@@ -97,7 +131,7 @@ input:focus {
 li {
     display: flex;
     gap: 4px;
-    border: 2px solid #bbb;
+    border: 2px solid var(--color-button-active);
     border-radius: $radius;
     align-items: center;
     padding: 4px;
@@ -127,7 +161,7 @@ li {
 
 .notification {
     display: flex;
-    background-color: white;
+    background-color: var(--color-not-intense);
     box-shadow: 0 0 8px #0008;
     border-radius: $radius;
     padding: 8px;
@@ -205,7 +239,7 @@ li {
     > div {
         @extend %center;
         position: absolute;
-        background-color: #0006;
+        background-color: #0008;
         color: white;
         font-weight: bold;
         opacity: 0;
@@ -233,7 +267,7 @@ li {
 
 .panel {
     @extend %vertical;
-    background-color: white;
+    background-color: var(--color-not-intense);
     box-shadow: 0 0 8px #0006;
     border-radius: $radius;
     padding: 24px 32px 16px 32px;

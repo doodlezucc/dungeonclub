@@ -9,7 +9,7 @@
     .game {
         display: flex;
         flex-direction: column;
-        background-color: white;
+        background-color: var(--color-not-intense);
         box-shadow: 0 0 4px #000a;
         padding: 8px;
         gap: 16px;
