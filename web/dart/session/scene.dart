@@ -27,21 +27,21 @@ class Scene {
 
   Scene(this.id) : e = DivElement() {
     e
-      ..append(_img = ImageElement(src: getSceneImage(id, false)))
+      ..append(_img = ImageElement(src: getSceneImage(id)))
       ..onClick.listen((event) async {
         if (editing) return;
 
         var json = await socket.request(GAME_SCENE_GET, {'id': id});
         user.session.board
-          ..fromJson(id, json)
-          ..refScene = this;
+          ..refScene = this
+          ..fromJson(id, json);
         _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
         editing = true;
       });
     _scenesContainer.insertBefore(e, _addScene);
   }
 
-  static String getSceneImage(int id, bool cacheBreak) {
-    return getGameFile('scene$id.png', cacheBreak: cacheBreak);
+  static String getSceneImage(int id) {
+    return getGameFile('scene$id.png', cacheBreak: false);
   }
 }

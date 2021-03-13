@@ -133,7 +133,10 @@ class Board {
   }
 
   void onImgChange([String src]) async {
-    _ground.src = src ?? Scene.getSceneImage(_sceneId, true);
+    src = src ?? Scene.getSceneImage(_sceneId);
+    src += '?${DateTime.now().millisecondsSinceEpoch}';
+    _ground.src = src;
+    refScene?.image = src;
     await _ground.onLoad.first;
     grid.resize(_ground.naturalWidth, _ground.naturalHeight);
   }
