@@ -29,12 +29,18 @@ void main() {
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
 
-  //testFlow();
+  testFlow();
 }
 
 Future<void> testFlow() async {
+  var edit = false;
+
   await user.login(loginEmail.value, loginPassword.value);
-  await edit_game.display(user.account.games.first);
+  if (edit) {
+    await edit_game.display(user.account.games.first);
+  } else {
+    await user.joinSession(user.account.games.first.id);
+  }
 }
 
 void _listenToCssReload() {

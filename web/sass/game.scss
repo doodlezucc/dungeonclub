@@ -6,6 +6,16 @@
     display: flex;
     justify-content: center;
     border: 1px solid black;
+
+    > .controls {
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        background-color: var(--color-not-intense);
+        display: flex;
+        flex-direction: column;
+        padding: 8px;
+    }
 }
 
 #board {
@@ -29,13 +39,14 @@
     height: 100px;
     overflow: hidden;
     box-sizing: border-box;
-}
-.movable > img {
-    width: inherit;
-    height: inherit;
-    pointer-events: none;
-}
 
-.movable.accessible {
-    cursor: move;
+    &.accessible {
+        cursor: move;
+    }
+
+    > img {
+        width: inherit;
+        height: inherit;
+        pointer-events: none;
+    }
 }

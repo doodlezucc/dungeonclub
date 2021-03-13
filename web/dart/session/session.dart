@@ -20,6 +20,8 @@ class Session extends Game {
     characters.addAll(List.from(json['pcs']).map((e) => Character.fromJson(e)));
     _charId = json['mine'];
     print('Hello, ' + (myCharacter?.name ?? 'GM') + '!');
-    _board.fromJson(json['board']);
+    var scenes = List.from(json['scenes']);
+    int current = json['scene'];
+    _board.fromJson(current, scenes[current]);
   }
 }

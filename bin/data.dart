@@ -143,10 +143,13 @@ class Game {
       _connections.firstWhere((c) => owner == c.account, orElse: () => null);
   bool get gmOnline => gm != null;
   int get online => _connections.length;
+  Scene get currentScene =>
+      _currentScene < _scenes.length ? _scenes[_currentScene] : null;
 
   final _connections = <Connection>[];
   final List<PlayerCharacter> _characters;
-  final Board board;
+  final List<Scene> _scenes;
+  int _currentScene = 0;
 
   static String _generateId() {
     String id;
@@ -174,7 +177,7 @@ class Game {
 
   Game(this.owner, this.name)
       : id = _generateId(),
-        board = Board(),
+        _scenes = [],
         _characters = [];
 
   void connect(Connection connection, bool join) {
@@ -212,7 +215,8 @@ class Game {
   Game.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
-        board = Board(json['board']),
+        _currentScene = json['scene'] ?? 0,
+        _scenes = List.from(json['scenes']).map((e) => Scene(e)).toList(),
         _characters = List.from(json['pcs'])
             .map((e) => PlayerCharacter(e['name']))
             .toList();
@@ -221,8 +225,9 @@ class Game {
         'id': id,
         'name': name,
         'owner': owner.encryptedEmail.toString(),
-        'board': board.toJson(),
-        'pcs': _characters.map((e) => e.toJson()).toList()
+        'scene': _currentScene,
+        'pcs': _characters.map((e) => e.toJson()).toList(),
+        'scenes': _scenes.map((e) => e.toJson()).toList(),
       };
 
   Map<String, dynamic> toSnippet(Account acc) => {
@@ -234,8 +239,9 @@ class Game {
   Map<String, dynamic> toSessionSnippet(Connection c, [int mine]) {
     return {
       'id': id,
-      'board': board.toJson(),
+      'scene': _currentScene,
       'pcs': _characters.map((e) => e.toJson()).toList(),
+      'scenes': _scenes.map((e) => e.toJson()).toList(),
       if (mine != null) 'mine': mine,
       if (owner == c.account) 'gm': {},
     };
@@ -263,11 +269,11 @@ class PlayerCharacter {
       };
 }
 
-class Board {
+class Scene {
   final List<Movable> _movables;
   int _countMIDs = 0;
 
-  Board([Map<String, dynamic> json])
+  Scene([Map<String, dynamic> json])
       : _movables = json != null
             ? List.from(json['movables'])
                 .map((j) => Movable(j['id'], j))

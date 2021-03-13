@@ -4,15 +4,20 @@ import 'dart:math';
 import 'package:dnd_interactive/actions.dart';
 
 import '../communication.dart';
+import '../panels/upload.dart' as upload;
 import 'grid.dart';
 import 'movable.dart';
 import 'session.dart';
 
+final HtmlElement _container = querySelector('#boardContainer');
+final HtmlElement _e = querySelector('#board');
+final ImageElement _ground = _e.querySelector('#ground');
+
+final HtmlElement _controls = _container.querySelector('.controls');
+final ButtonElement _changeImage = _controls.querySelector('#changeImage');
+
 class Board {
   final Session session;
-  final HtmlElement e = querySelector('#board');
-  final HtmlElement container = querySelector('#boardContainer');
-  final ImageElement ground = querySelector('#board #ground');
   final grid = Grid();
   final movables = <Movable>[];
 
@@ -33,13 +38,21 @@ class Board {
     _transform();
   }
 
+  int _sceneId;
+  bool _init = false;
+
   Board(this.session) {
     position = Point(0, 0);
 
-    grid.resize(ground.width, ground.height);
+    if (!_init) {
+      _initBoard();
+      _init = true;
+    }
+  }
 
+  void _initBoard() {
     var drag = false;
-    container.onMouseDown.listen((event) async {
+    _container.onMouseDown.listen((event) async {
       if ((event.target as HtmlElement).className.contains('movable')) return;
       drag = true;
       await window.onMouseUp.first;
@@ -51,14 +64,35 @@ class Board {
       }
     });
 
-    container.onMouseWheel.listen((event) {
+    _container.onMouseWheel.listen((event) {
       zoom -= event.deltaY / 300;
+    });
+
+    _changeImage.onClick.listen((event) async {
+      var img = await upload.display(
+        type: IMAGE_TYPE_SCENE,
+        maxRes: 2048,
+        extras: {
+          'gameId': session.id,
+          'id': _sceneId,
+        },
+      );
+
+      if (img != null) {
+        _onImgChange(img);
+      }
     });
   }
 
   void _transform() {
-    e.style.transform =
+    _e.style.transform =
         'scale($_scaledZoom) translate(${position.x}px, ${position.y}px)';
+  }
+
+  void _onImgChange(String src) async {
+    _ground.src = '$src?${DateTime.now().millisecondsSinceEpoch}';
+    await _ground.onLoad.first;
+    grid.resize(_ground.naturalWidth, _ground.naturalHeight);
   }
 
   Future<Movable> addMovable(String img) async {
@@ -97,7 +131,11 @@ class Board {
     }
   }
 
-  void fromJson(Map<String, dynamic> json) {
+  void fromJson(int id, Map<String, dynamic> json) {
+    _sceneId = id;
+    // ew
+    _onImgChange(
+        'http://localhost:7070/database/games/${session.id}/scene$id.png');
     for (var m in json['movables']) {
       onMovableCreate(m);
     }

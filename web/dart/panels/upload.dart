@@ -199,6 +199,7 @@ Future<String> display({
   Map<String, dynamic> extras,
   Blob initialImg,
   bool square = false,
+  int maxRes = 256,
 }) async {
   _initialize();
 
@@ -222,7 +223,7 @@ Future<String> display({
   var subs = [
     _uploadButton.onClick.listen((_) async {
       _uploadButton.disabled = true;
-      var result = await _upload(type, extras);
+      var result = await _upload(type, extras, maxRes);
       if (result != null) {
         completer.complete(result);
       }
@@ -276,7 +277,7 @@ void _loadFileAsImage(Blob blob) async {
   _uploadButton.disabled = false;
 }
 
-CanvasElement _imgToCanvas({int maxRes = 256}) {
+CanvasElement _imgToCanvas(int maxRes) {
   var x = position.x / _imgSize.x;
   var y = position.y / _imgSize.y;
   var w = size.x / _imgSize.x;
@@ -301,8 +302,9 @@ CanvasElement _imgToCanvas({int maxRes = 256}) {
         _img, x * nw, y * nh, w * nw, h * nh, 0, 0, dw, dh);
 }
 
-Future<String> _upload(String type, Map<String, dynamic> extras) async {
-  var canvas = _imgToCanvas();
+Future<String> _upload(
+    String type, Map<String, dynamic> extras, int maxRes) async {
+  var canvas = _imgToCanvas(maxRes);
   var blob = await canvas.toBlob('image/png');
 
   var reader = FileReader()..readAsDataUrl(blob);

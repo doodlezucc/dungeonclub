@@ -13,3 +13,4 @@ const GAME_MOVABLE_MOVE = 'gameMovableMove';
 
 const IMAGE_UPLOAD = 'imageUpload';
 const IMAGE_TYPE_PC = 'pc';
+const IMAGE_TYPE_SCENE = 'scene';

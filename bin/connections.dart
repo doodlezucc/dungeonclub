@@ -117,8 +117,8 @@ class Connection extends Socket {
         return 'Game not found!';
 
       case a.GAME_MOVABLE_CREATE:
-        if (_game != null) {
-          var m = _game.board.addMovable(params);
+        if (_game?.currentScene != null) {
+          var m = _game.currentScene.addMovable(params);
           notifyOthers(action, {
             'id': m.id,
             'x': m.x,
@@ -130,7 +130,7 @@ class Connection extends Socket {
         return false;
 
       case a.GAME_MOVABLE_MOVE:
-        var m = _game?.board?.getMovable(params['id']);
+        var m = _game?.currentScene?.getMovable(params['id']);
         if (m != null) {
           m
             ..x = params['x']
