@@ -1,5 +1,7 @@
 import 'dart:html';
 
+import 'package:dnd_interactive/point_json.dart';
+
 class Grid {
   final HtmlElement e;
   CanvasElement _canvas;
@@ -44,5 +46,15 @@ class Grid {
     }
     ctx.closePath();
     ctx.stroke();
+  }
+
+  Map<String, dynamic> toJson() => {
+        'offset': writePoint(offset),
+        'cellSize': cellSize,
+      };
+
+  void fromJson(Map<String, dynamic> json) {
+    _offset = parsePoint(json['offset']);
+    cellSize = json['cellSize'];
   }
 }

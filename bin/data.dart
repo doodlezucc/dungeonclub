@@ -6,6 +6,7 @@ import 'dart:math';
 
 import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
+import 'package:dnd_interactive/point_json.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
 
@@ -271,7 +272,9 @@ class PlayerCharacter {
 
 class Scene {
   final List<Movable> _movables;
-  int _countMIDs = 0;
+  int _countMIDs;
+  Point gridOffset;
+  num cellSize;
 
   Scene([Map<String, dynamic> json])
       : _movables = json != null
@@ -280,6 +283,7 @@ class Scene {
                 .toList()
             : <Movable>[] {
     _countMIDs = _movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
+    applyGrid(json['grid'] ?? {});
   }
 
   Movable addMovable(Map<String, dynamic> json) {
@@ -292,7 +296,16 @@ class Scene {
     return _movables.singleWhere((m) => m.id == id, orElse: () => null);
   }
 
+  void applyGrid(Map<String, dynamic> json) {
+    gridOffset = parsePoint(json['offset']) ?? Point(0, 0);
+    cellSize = json['cellSize'] ?? 100;
+  }
+
   Map<String, dynamic> toJson() => {
+        'grid': {
+          'offset': writePoint(gridOffset),
+          'cellSize': cellSize,
+        },
         'movables': _movables.map((e) => e.toJson()).toList(),
       };
 }

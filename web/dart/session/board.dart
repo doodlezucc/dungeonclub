@@ -1,7 +1,8 @@
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/actions.dart' as a;
+import 'package:dnd_interactive/point_json.dart';
 
 import '../communication.dart';
 import '../panels/upload.dart' as upload;
@@ -66,7 +67,9 @@ class Board {
   void _initGridEditor() {
     _editGrid.onClick.listen((event) {
       if (!_editGrid.classes.toggle('active')) {
-        print('register grid change plzzz');
+        socket.sendAction(a.GAME_SCENE_UPDATE, {
+          'grid': grid.toJson(),
+        });
       }
     });
   }
@@ -99,7 +102,7 @@ class Board {
 
   Future<void> _changeImageDialog() async {
     var img = await upload.display(
-      type: IMAGE_TYPE_SCENE,
+      type: a.IMAGE_TYPE_SCENE,
       maxRes: 2048,
       extras: {
         'gameId': session.id,
@@ -128,7 +131,7 @@ class Board {
 
   Future<Movable> addMovable(String img) async {
     var m = Movable(board: this, img: img);
-    var id = await socket.request(GAME_MOVABLE_CREATE, {
+    var id = await socket.request(a.GAME_MOVABLE_CREATE, {
       'x': m.position.x,
       'y': m.position.y,
       'img': img,
@@ -137,10 +140,6 @@ class Board {
     movables.add(m);
     grid.e.append(m.e);
     return m;
-  }
-
-  static Point parsePoint(dynamic json) {
-    return Point(json['x'], json['y']);
   }
 
   void onMovableCreate(Map<String, dynamic> json) {
@@ -165,6 +164,9 @@ class Board {
   void fromJson(int id, Map<String, dynamic> json) {
     _sceneId = id;
     onImgChange();
+
+    grid.fromJson(json['grid']);
+
     for (var m in json['movables']) {
       onMovableCreate(m);
     }

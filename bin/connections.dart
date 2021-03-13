@@ -167,6 +167,14 @@ class Connection extends Socket {
 
         await file.writeAsBytes(base64Decode(base64));
         return '$address/${file.path}';
+
+      case a.GAME_SCENE_UPDATE:
+        if (_game.gm != this || _game?.currentScene == null) return;
+
+        var grid = params['grid'];
+        if (grid != null) _game.currentScene.applyGrid(grid);
+
+        notifyOthers(action, params);
     }
   }
 
