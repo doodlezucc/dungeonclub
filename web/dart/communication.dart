@@ -19,9 +19,9 @@ String getFile(String path, {bool cacheBreak = true}) {
   return out;
 }
 
-String getGameFile(String path, {String gameId}) {
+String getGameFile(String path, {String gameId, bool cacheBreak = true}) {
   gameId = user?.session?.id;
-  return getFile('database/games/$gameId/$path');
+  return getFile('database/games/$gameId/$path', cacheBreak: cacheBreak);
 }
 
 class FrontSocket extends Socket {

@@ -39,9 +39,8 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   _chars.clear();
   var charJsons = List<Map>.from(result['pcs']);
   for (var i = 0; i < charJsons.length; i++) {
-    // ew, hardcoded url
-    _chars.add(_EditChar(i, charJsons[i]['name'],
-        'http://localhost:7070/database/games/$_gameId/pc$i.png'));
+    _chars.add(_EditChar(
+        i, charJsons[i]['name'], getGameFile('pc$i.png', gameId: _gameId)));
   }
   _idCounter = charJsons.length;
 

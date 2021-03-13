@@ -8,6 +8,7 @@ import '../communication.dart';
 import '../panels/upload.dart' as upload;
 import 'grid.dart';
 import 'movable.dart';
+import 'scene.dart';
 import 'session.dart';
 
 final HtmlElement _container = querySelector('#boardContainer');
@@ -44,6 +45,7 @@ class Board {
   }
 
   int _sceneId;
+  Scene refScene;
   bool get editingGrid => _editGrid.classes.contains('active');
   bool _init = false;
 
@@ -90,7 +92,7 @@ class Board {
     _container.onMouseDown.listen((event) async {
       var movable = (event.target as HtmlElement).classes.contains('movable');
 
-      if (!editingGrid && movable) return;
+      if (event.path.contains(_controls) || (!editingGrid && movable)) return;
 
       isBoardDrag = event.path.contains(_e);
       drag = true;
@@ -131,10 +133,7 @@ class Board {
   }
 
   void onImgChange([String src]) async {
-    // ew
-    src = src ??
-        'http://localhost:7070/database/games/${session.id}/scene$_sceneId.png';
-    _ground.src = '$src?${DateTime.now().millisecondsSinceEpoch}';
+    _ground.src = src ?? Scene.getSceneImage(_sceneId, true);
     await _ground.onLoad.first;
     grid.resize(_ground.naturalWidth, _ground.naturalHeight);
   }

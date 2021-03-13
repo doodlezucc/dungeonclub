@@ -1,6 +1,7 @@
 import '../game.dart';
 import 'board.dart';
 import 'character.dart';
+import 'scene.dart';
 
 class Session extends Game {
   final bool isGM;
@@ -19,8 +20,21 @@ class Session extends Game {
     characters.addAll(List.from(json['pcs']).map((e) => Character.fromJson(e)));
     _charId = json['mine'];
     print('Hello, ' + (myCharacter?.name ?? 'GM') + '!');
-    var scenes = List.from(json['scenes']);
-    int current = json['scene'];
-    _board.fromJson(current, scenes[current]);
+
+    // Depends on global session object
+    Future.microtask(() {
+      var scenes = List.from(json['scenes']);
+      int current = json['scene'];
+      Scene ref;
+      if (isGM) {
+        for (var i = 0; i < scenes.length; i++) {
+          var scene = Scene(i);
+          if (i == current) ref = scene;
+        }
+      }
+      _board
+        ..fromJson(current, scenes[current])
+        ..refScene = ref;
+    });
   }
 }

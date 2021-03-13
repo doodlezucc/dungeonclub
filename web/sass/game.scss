@@ -1,3 +1,5 @@
+@use 'base.scss';
+
 #boardContainer {
     position: relative;
     overflow: hidden;
@@ -13,14 +15,54 @@
         right: 16px;
         top: 16px;
         background-color: var(--color-not-intense);
-        display: flex;
-        flex-direction: column;
         padding: 8px 16px;
         gap: 8px;
+        max-width: 400px;
 
         button.active {
             color: var(--color-text-primary);
             background-color: var(--color-button-big);
+        }
+
+        #scenes {
+            flex-direction: row;
+            overflow-x: auto;
+            overflow-y: hidden;
+            gap: 8px;
+            padding: 8px 0;
+
+            > div {
+                width: 128px;
+                height: 128px;
+                border-radius: 8px;
+                overflow: hidden;
+                box-sizing: border-box;
+                cursor: pointer;
+                border: 2px solid transparent;
+                transition-duration: 0.1s;
+                transition-property: border-color;
+
+                &.playing {
+                    border-color: var(--color-text-primary);
+                }
+                &.editing {
+                    border-color: var(--color-text-primary);
+                }
+                &:hover {
+                    border-color: var(--color-button-text);
+                }
+
+                > img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+        }
+
+        #gridControls {
+            display: flex;
+            flex-direction: column;
         }
     }
 }

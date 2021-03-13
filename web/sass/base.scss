@@ -25,6 +25,8 @@ body {
     --color-button-big: #d0d0d0;
     --color-button-text: #111;
     --color-input-active: #555;
+    --color-good: #009c46;
+    --color-bad: #e24b4b;
 
     --weight-thick: bold;
 
@@ -105,10 +107,10 @@ button.big {
 }
 
 .good:not(:disabled) {
-    color: #009c46;
+    color: var(--color-good);
 }
 .bad:not(:disabled) {
-    color: #e24b4b;
+    color: var(--color-bad);
 }
 
 input {
@@ -135,6 +137,7 @@ input {
 
 .disabled {
     pointer-events: none;
+    user-select: none;
     opacity: 0.5;
 }
 
