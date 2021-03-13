@@ -29,10 +29,13 @@ class Scene {
     e
       ..append(_img = ImageElement(src: getSceneImage(id, false)))
       ..onClick.listen((event) async {
+        if (editing) return;
+
         var json = await socket.request(GAME_SCENE_GET, {'id': id});
         user.session.board
           ..fromJson(id, json)
           ..refScene = this;
+        _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
         editing = true;
       });
     _scenesContainer.insertBefore(e, _addScene);

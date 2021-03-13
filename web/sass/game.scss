@@ -32,8 +32,8 @@
             padding: 8px 0;
 
             > div {
-                width: 128px;
-                height: 128px;
+                width: 120px;
+                height: 80px;
                 border-radius: 8px;
                 overflow: hidden;
                 box-sizing: border-box;
@@ -43,13 +43,14 @@
                 transition-property: border-color;
 
                 &.playing {
-                    border-color: var(--color-text-primary);
+                    border-color: var(--color-selected);
                 }
                 &.editing {
-                    border-color: var(--color-text-primary);
+                    border-color: var(--color-selected);
+                    border-style: dashed;
                 }
                 &:hover {
-                    border-color: var(--color-button-text);
+                    border-color: var(--color-text-primary);
                 }
 
                 > img {

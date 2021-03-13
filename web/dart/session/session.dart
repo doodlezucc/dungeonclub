@@ -29,7 +29,11 @@ class Session extends Game {
       if (isGM) {
         for (var i = 0; i < json['gm']['scenes']; i++) {
           var scene = Scene(i);
-          if (i == playingId) _board.refScene = scene;
+          if (i == playingId) {
+            _board.refScene = scene
+              ..editing = true
+              ..playing = true;
+          }
         }
       }
     });

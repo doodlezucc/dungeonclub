@@ -25,6 +25,7 @@ body {
     --color-button-big: #d0d0d0;
     --color-button-text: #111;
     --color-input-active: #555;
+    --color-selected: #555;
     --color-good: #009c46;
     --color-bad: #e24b4b;
 
@@ -32,7 +33,7 @@ body {
 
     &.dark-mode {
         --color-background: #16161a;
-        --color-primary: #856fff;
+        --color-primary: #9683ff;
         --color-text-primary: white;
         --color-text-inverse: black;
         --color-not-intense: #222;
@@ -41,6 +42,7 @@ body {
         --color-button-big: #444;
         --color-button-text: #ddd;
         --color-input-active: #777;
+        --color-selected: #ccc;
     
         --weight-thick: normal;
     }
