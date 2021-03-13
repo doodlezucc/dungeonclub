@@ -2,22 +2,39 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:dnd_interactive/comms.dart';
+import 'package:path/path.dart';
 
+import '../main.dart';
 import 'action_handler.dart' as handler;
 
 final socket = FrontSocket();
+
+final bool _isLocal = window.location.hostname == 'localhost';
+final String _serverAddress =
+    _isLocal ? 'http://localhost:7070' : dirname(window.location.href);
+
+String getFile(String path, {bool cacheBreak = true}) {
+  var out = join(_serverAddress, path);
+  if (cacheBreak) return '$out?${DateTime.now().millisecondsSinceEpoch}';
+  return out;
+}
+
+String getGameFile(String path, {String gameId}) {
+  gameId = user?.session?.id;
+  return getFile('database/games/$gameId/$path');
+}
 
 class FrontSocket extends Socket {
   WebSocket _webSocket;
   final _waitForOpen = Completer();
 
   void connect() {
-    var secure = window.location.href.startsWith('https') ? 's' : '';
-
-    _webSocket = WebSocket('ws$secure://localhost:7070/ws')
-      ..onOpen.listen((e) => _waitForOpen.complete())
-      ..onClose.listen((e) => print('CLOSE'))
-      ..onError.listen((e) => print(e));
+    print(getFile('path.png'));
+    _webSocket =
+        WebSocket(getFile('ws', cacheBreak: false).replaceFirst('http', 'ws'))
+          ..onOpen.listen((e) => _waitForOpen.complete())
+          ..onClose.listen((e) => print('CLOSE'))
+          ..onError.listen((e) => print(e));
 
     listen();
   }
