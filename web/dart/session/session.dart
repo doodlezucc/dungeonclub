@@ -13,7 +13,6 @@ class Session extends Game {
   Session(String id, String name, this.isGM) : super(id, name, null) {
     _board = Board(this);
   }
-  Session.test() : this('what', 'no', null);
 
   void fromJson(Map<String, dynamic> json) {
     characters.clear();

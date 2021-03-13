@@ -15,6 +15,7 @@ final ImageElement _ground = _e.querySelector('#ground');
 
 final HtmlElement _controls = _container.querySelector('.controls');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
+final ButtonElement _editGrid = _controls.querySelector('#editGrid');
 
 class Board {
   final Session session;
@@ -39,6 +40,7 @@ class Board {
   }
 
   int _sceneId;
+  bool get editingGrid => _editGrid.classes.contains('active');
   bool _init = false;
 
   Board(this.session) {
@@ -51,37 +53,63 @@ class Board {
   }
 
   void _initBoard() {
+    _initDragControls();
+
+    _container.onMouseWheel.listen((event) {
+      zoom -= event.deltaY / 300;
+    });
+
+    _changeImage.onClick.listen((_) => _changeImageDialog());
+    _initGridEditor();
+  }
+
+  void _initGridEditor() {
+    _editGrid.onClick.listen((event) {
+      if (!_editGrid.classes.toggle('active')) {
+        print('register grid change plzzz');
+      }
+    });
+  }
+
+  void _initDragControls() {
+    var isBoardDrag = false;
     var drag = false;
     _container.onMouseDown.listen((event) async {
-      if ((event.target as HtmlElement).className.contains('movable')) return;
+      var movable = (event.target as HtmlElement).classes.contains('movable');
+
+      if (!editingGrid && movable) return;
+
+      isBoardDrag = event.path.contains(_e);
       drag = true;
       await window.onMouseUp.first;
       drag = false;
     });
     window.onMouseMove.listen((event) {
       if (drag) {
-        position += event.movement * (1 / _scaledZoom);
+        var delta = event.movement * (1 / _scaledZoom);
+
+        if (!editingGrid || !isBoardDrag) {
+          position += delta;
+        } else {
+          grid.offset += delta;
+        }
       }
     });
+  }
 
-    _container.onMouseWheel.listen((event) {
-      zoom -= event.deltaY / 300;
-    });
+  Future<void> _changeImageDialog() async {
+    var img = await upload.display(
+      type: IMAGE_TYPE_SCENE,
+      maxRes: 2048,
+      extras: {
+        'gameId': session.id,
+        'id': _sceneId,
+      },
+    );
 
-    _changeImage.onClick.listen((event) async {
-      var img = await upload.display(
-        type: IMAGE_TYPE_SCENE,
-        maxRes: 2048,
-        extras: {
-          'gameId': session.id,
-          'id': _sceneId,
-        },
-      );
-
-      if (img != null) {
-        onImgChange(img);
-      }
-    });
+    if (img != null) {
+      onImgChange(img);
+    }
   }
 
   void _transform() {

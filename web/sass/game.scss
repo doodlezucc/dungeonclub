@@ -9,12 +9,18 @@
 
     > .controls {
         position: absolute;
+        z-index: 5;
         right: 16px;
         top: 16px;
         background-color: var(--color-not-intense);
         display: flex;
         flex-direction: column;
         padding: 8px;
+
+        button.active {
+            color: var(--color-text-primary);
+            background-color: var(--color-button-big);
+        }
     }
 }
 
