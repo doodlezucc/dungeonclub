@@ -26,10 +26,14 @@ void main() {
     socket.send('{"action":"manualSave"}');
   });
 
+  querySelector('button#joinDemo').onClick.listen((_) {
+    user.joinSession('pog');
+  });
+
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
 
-  testFlow();
+  //testFlow();
 }
 
 Future<void> testFlow() async {

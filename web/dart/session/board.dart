@@ -79,7 +79,7 @@ class Board {
       );
 
       if (img != null) {
-        _onImgChange(img);
+        onImgChange(img);
       }
     });
   }
@@ -89,7 +89,10 @@ class Board {
         'scale($_scaledZoom) translate(${position.x}px, ${position.y}px)';
   }
 
-  void _onImgChange(String src) async {
+  void onImgChange([String src]) async {
+    // ew
+    src = src ??
+        'http://localhost:7070/database/games/${session.id}/scene$_sceneId.png';
     _ground.src = '$src?${DateTime.now().millisecondsSinceEpoch}';
     await _ground.onLoad.first;
     grid.resize(_ground.naturalWidth, _ground.naturalHeight);
@@ -133,9 +136,7 @@ class Board {
 
   void fromJson(int id, Map<String, dynamic> json) {
     _sceneId = id;
-    // ew
-    _onImgChange(
-        'http://localhost:7070/database/games/${session.id}/scene$id.png');
+    onImgChange();
     for (var m in json['movables']) {
       onMovableCreate(m);
     }

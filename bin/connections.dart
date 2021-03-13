@@ -157,6 +157,10 @@ class Connection extends Socket {
           }
 
           file = await (await game.getFile('$type$id.png')).create();
+
+          if (type == a.IMAGE_TYPE_SCENE) {
+            game.notify(a.GAME_SCENE_UPDATE, {}, exclude: this);
+          }
         }
 
         if (file == null) return null;

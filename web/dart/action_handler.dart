@@ -14,6 +14,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_MOVABLE_MOVE:
       return user.session.board.onMovableMove(params);
 
+    case GAME_SCENE_UPDATE:
+      return user.session?.board?.onImgChange();
+
     case GAME_JOIN_REQUEST:
       return await user.account?.displayPickCharacterDialog('joe');
 
