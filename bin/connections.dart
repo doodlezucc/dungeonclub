@@ -19,6 +19,10 @@ class Connection extends Socket {
   final WebSocketChannel ws;
   final Stream broadcastStream;
   Game _game;
+
+  Scene _scene;
+  Scene get scene => _scene;
+
   Account _account;
   Account get account => _account;
 
@@ -66,6 +70,7 @@ class Connection extends Socket {
         if (account == null) return false;
 
         _game = Game(account, params['name']);
+        _scene = _game.playingScene;
         data.games.add(_game);
         account.enteredGames.add(_game);
         return _game.toSessionSnippet(this);
@@ -112,13 +117,14 @@ class Connection extends Socket {
             game.assignPC(id, this);
           }
           _game = game..connect(this, true);
+          _scene = game.playingScene;
           return game.toSessionSnippet(this, id);
         }
         return 'Game not found!';
 
       case a.GAME_MOVABLE_CREATE:
-        if (_game?.currentScene != null) {
-          var m = _game.currentScene.addMovable(params);
+        if (_scene != null) {
+          var m = _scene.addMovable(params);
           notifyOthers(action, {
             'id': m.id,
             'x': m.x,
@@ -127,10 +133,10 @@ class Connection extends Socket {
           });
           return m.id;
         }
-        return false;
+        return null;
 
       case a.GAME_MOVABLE_MOVE:
-        var m = _game?.currentScene?.getMovable(params['id']);
+        var m = _scene?.getMovable(params['id']);
         if (m != null) {
           m
             ..x = params['x']
@@ -169,12 +175,20 @@ class Connection extends Socket {
         return '$address/${file.path}';
 
       case a.GAME_SCENE_UPDATE:
-        if (_game.gm != this || _game?.currentScene == null) return;
+        if (_game?.gm != this || _scene == null) return;
 
         var grid = params['grid'];
-        if (grid != null) _game.currentScene.applyGrid(grid);
+        if (grid != null) _scene.applyGrid(grid);
 
-        notifyOthers(action, params);
+        return notifyOthers(action, params);
+
+      case a.GAME_SCENE_GET:
+        var sceneId = params['id'];
+        var scene = _game?.getScene(sceneId);
+        if (scene == null) return null;
+
+        _scene = scene;
+        return scene.toJson();
     }
   }
 

@@ -12,6 +12,7 @@ const GAME_MOVABLE_CREATE = 'gameMovableCreate';
 const GAME_MOVABLE_MOVE = 'gameMovableMove';
 
 const GAME_SCENE_UPDATE = 'gameSceneUpdate';
+const GAME_SCENE_GET = 'gameSceneGet';
 
 const IMAGE_UPLOAD = 'imageUpload';
 const IMAGE_TYPE_PC = 'pc';

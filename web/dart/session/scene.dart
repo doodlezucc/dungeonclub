@@ -1,5 +1,8 @@
 import 'dart:html';
 
+import 'package:dnd_interactive/actions.dart';
+
+import '../../main.dart';
 import '../communication.dart';
 
 final HtmlElement _scenesContainer = querySelector('#scenes');
@@ -23,7 +26,15 @@ class Scene {
   set image(String src) => _img.src = src;
 
   Scene(this.id) : e = DivElement() {
-    e.append(_img = ImageElement(src: getSceneImage(id, false)));
+    e
+      ..append(_img = ImageElement(src: getSceneImage(id, false)))
+      ..onClick.listen((event) async {
+        var json = await socket.request(GAME_SCENE_GET, {'id': id});
+        user.session.board
+          ..fromJson(id, json)
+          ..refScene = this;
+        editing = true;
+      });
     _scenesContainer.insertBefore(e, _addScene);
   }
 

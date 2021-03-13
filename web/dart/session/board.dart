@@ -138,6 +138,11 @@ class Board {
     grid.resize(_ground.naturalWidth, _ground.naturalHeight);
   }
 
+  void clear() {
+    movables.forEach((m) => m.e.remove());
+    movables.clear();
+  }
+
   Future<Movable> addMovable(String img) async {
     var m = Movable(board: this, img: img);
     var id = await socket.request(a.GAME_MOVABLE_CREATE, {
@@ -171,6 +176,8 @@ class Board {
   }
 
   void fromJson(int id, Map<String, dynamic> json) {
+    clear();
+
     _sceneId = id;
     onImgChange();
 

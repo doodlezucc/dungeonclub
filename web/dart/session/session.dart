@@ -23,18 +23,15 @@ class Session extends Game {
 
     // Depends on global session object
     Future.microtask(() {
-      var scenes = List.from(json['scenes']);
-      int current = json['scene'];
-      Scene ref;
+      int playingId = json['sceneId'];
+      _board.fromJson(playingId, json['scene']);
+
       if (isGM) {
-        for (var i = 0; i < scenes.length; i++) {
+        for (var i = 0; i < json['gm']['scenes']; i++) {
           var scene = Scene(i);
-          if (i == current) ref = scene;
+          if (i == playingId) _board.refScene = scene;
         }
       }
-      _board
-        ..fromJson(current, scenes[current])
-        ..refScene = ref;
     });
   }
 }
