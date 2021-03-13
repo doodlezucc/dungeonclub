@@ -16,7 +16,10 @@ final ImageElement _ground = _e.querySelector('#ground');
 
 final HtmlElement _controls = _container.querySelector('.controls');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
+
 final ButtonElement _editGrid = _controls.querySelector('#editGrid');
+final HtmlElement _gridControls = _controls.querySelector('#gridControls');
+final InputElement _gridCellSize = _controls.querySelector('#gridSize');
 
 class Board {
   final Session session;
@@ -66,11 +69,18 @@ class Board {
 
   void _initGridEditor() {
     _editGrid.onClick.listen((event) {
-      if (!_editGrid.classes.toggle('active')) {
+      var enable = _editGrid.classes.toggle('active');
+      _gridControls.classes.toggle('disabled', !enable);
+
+      if (!enable) {
         socket.sendAction(a.GAME_SCENE_UPDATE, {
           'grid': grid.toJson(),
         });
       }
+    });
+
+    _gridCellSize.onInput.listen((event) {
+      grid.cellSize = _gridCellSize.valueAsNumber;
     });
   }
 

@@ -6,19 +6,25 @@ class Grid {
   final HtmlElement e;
   CanvasElement _canvas;
 
-  double _cellSize = 100;
-  double get cellSize => _cellSize;
-  set cellSize(double cellSize) {
+  num _cellSize = 100;
+  num get cellSize => _cellSize;
+  set cellSize(num cellSize) {
     _cellSize = cellSize;
+    _clampOffset();
     redrawCanvas();
   }
 
   Point _offset = Point(0, 0);
   Point get offset => _offset;
   set offset(Point offset) {
+    _offset = offset;
+    _clampOffset();
+    redrawCanvas();
+  }
+
+  void _clampOffset() {
     _offset = Point(
         (offset.x + _cellSize) % _cellSize, (offset.y + _cellSize) % _cellSize);
-    redrawCanvas();
   }
 
   Grid() : e = querySelector('#grid') {
