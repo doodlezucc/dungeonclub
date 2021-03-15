@@ -115,9 +115,7 @@ class Board {
   Future<void> _changeImageDialog() async {
     var img = await upload.display(
       type: a.IMAGE_TYPE_SCENE,
-      maxRes: 2048,
       extras: {
-        'gameId': session.id,
         'id': _sceneId,
       },
     );

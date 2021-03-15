@@ -194,16 +194,35 @@ void _resizeOutside() {
   ctx.fillRect(0, position.y + size.y, _canvas.width, _canvas.height); // bottom
 }
 
-Future<String> display({
+int _getMaxRes(String type) {
+  switch (type) {
+    case IMAGE_TYPE_SCENE:
+      return 2048;
+    case IMAGE_TYPE_PC:
+    default:
+      return 256;
+  }
+}
+
+bool _isSquare(String type) {
+  switch (type) {
+    case IMAGE_TYPE_PC:
+      return true;
+    default:
+      return false;
+  }
+}
+
+Future<dynamic> display({
+  String action,
   String type = IMAGE_TYPE_PC,
   Map<String, dynamic> extras,
   Blob initialImg,
-  bool square = false,
-  int maxRes = 256,
 }) async {
   _initialize();
 
-  _square = square;
+  var maxRes = _getMaxRes(type);
+  _square = _isSquare(type);
 
   if (initialImg == null) {
     _img.width = 0;
@@ -219,11 +238,11 @@ Future<String> display({
 
   _panel.classes.add('show');
 
-  var completer = Completer<String>();
+  var completer = Completer();
   var subs = [
     _uploadButton.onClick.listen((_) async {
       _uploadButton.disabled = true;
-      var result = await _upload(type, extras, maxRes);
+      var result = await _upload(action, type, extras, maxRes);
       if (result != null) {
         completer.complete(result);
       }
@@ -302,8 +321,8 @@ CanvasElement _imgToCanvas(int maxRes) {
         _img, x * nw, y * nh, w * nw, h * nh, 0, 0, dw, dh);
 }
 
-Future<String> _upload(
-    String type, Map<String, dynamic> extras, int maxRes) async {
+Future<dynamic> _upload(
+    String action, String type, Map<String, dynamic> extras, int maxRes) async {
   var canvas = _imgToCanvas(maxRes);
   var blob = await canvas.toBlob('image/png');
 
@@ -315,6 +334,6 @@ Future<String> _upload(
   var json = <String, dynamic>{'type': type, 'data': png};
   if (extras != null) json.addAll(Map.from(extras));
 
-  var imgPath = await socket.request(IMAGE_UPLOAD, json);
-  return imgPath;
+  var result = await socket.request(action, json);
+  return result;
 }

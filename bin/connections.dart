@@ -144,43 +144,27 @@ class Connection extends Socket {
         }
         return notifyOthers(action, params);
 
-      case a.IMAGE_UPLOAD:
-        String base64 = params['data'];
-        String type = params['type'];
-        int id = params['id'];
-        String gameId = params['gameId'];
-        if (base64 == null || type == null || id == null) return 'Missing info';
-
-        print('lol i have data');
-
-        File file;
-        if (gameId != null) {
-          var game = account.ownedGames
-              .firstWhere((g) => g.id == gameId, orElse: () => null);
-
-          if (game == null) {
-            return "You don't own this game!";
-          }
-
-          file = await (await game.getFile('$type$id.png')).create();
-
-          if (type == a.IMAGE_TYPE_SCENE) {
-            game.notify(a.GAME_SCENE_UPDATE, {}, exclude: this);
-          }
-        }
-
-        if (file == null) return null;
-
-        await file.writeAsBytes(base64Decode(base64));
-        return '$address/${file.path}';
+      case a.GAME_CHARACTER_UPLOAD:
+        return await _uploadGameImageJson(params);
 
       case a.GAME_SCENE_UPDATE:
         if (_game?.gm != this || _scene == null) return;
 
         var grid = params['grid'];
-        if (grid != null) _scene.applyGrid(grid);
+        if (grid != null) {
+          _scene.applyGrid(grid);
+          return notifyOthers(action, params);
+        }
 
-        return notifyOthers(action, params);
+        var img = params['data'];
+        if (img != null) {
+          var result = await _uploadGameImageJson(params);
+          if (result != null) {
+            _game.notify(a.GAME_SCENE_UPDATE, {}, exclude: this);
+            return result;
+          }
+        }
+        return null;
 
       case a.GAME_SCENE_GET:
         var sceneId = params['id'];
@@ -189,7 +173,53 @@ class Connection extends Socket {
 
         _scene = scene;
         return scene.toJson();
+
+      case a.GAME_SCENE_ADD:
+        var id = _game.sceneCount;
+        var scene = _game?.addScene();
+        if (scene == null) return null;
+
+        await _uploadGameImage(
+          type: a.IMAGE_TYPE_SCENE,
+          id: id,
+          base64: params['data'],
+        );
+        _scene = scene;
+        return scene.toJson();
     }
+  }
+
+  Future<String> _uploadGameImage({
+    String base64,
+    String type,
+    int id,
+    String gameId,
+  }) async {
+    if (base64 == null || type == null || id == null) return 'Missing info';
+
+    print('lol i have data');
+
+    var game = gameId != null
+        ? account.ownedGames
+            .firstWhere((g) => g.id == gameId, orElse: () => null)
+        : _game;
+
+    if (game != null) {
+      var file = await (await game.getFile('$type$id.png')).create();
+
+      await file.writeAsBytes(base64Decode(base64));
+      return '$address/${file.path}';
+    }
+    return 'Missing game info';
+  }
+
+  Future<String> _uploadGameImageJson(Map<String, dynamic> json) {
+    return _uploadGameImage(
+      base64: json['data'],
+      type: json['type'],
+      id: json['id'],
+      gameId: json['gameId'],
+    );
   }
 
   void notifyOthers(String action, [Map<String, dynamic> params]) {

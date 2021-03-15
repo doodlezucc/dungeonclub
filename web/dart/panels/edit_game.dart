@@ -110,7 +110,6 @@ class _EditChar {
     var url = await uploader.display(
       type: IMAGE_TYPE_PC,
       initialImg: initialFile,
-      square: true,
       extras: {
         'id': id,
         'gameId': _gameId,

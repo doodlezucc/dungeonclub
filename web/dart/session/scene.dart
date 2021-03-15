@@ -4,12 +4,22 @@ import 'package:dnd_interactive/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../panels/upload.dart' as upload;
 
 final HtmlElement _scenesContainer = querySelector('#scenes');
 final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
-  ..onClick.listen((event) {
-    print('New scene pls');
+  ..onClick.listen((event) async {
+    var json = await upload.display(
+      action: GAME_SCENE_ADD,
+      type: IMAGE_TYPE_SCENE,
+    );
+
+    if (json != null) {
+      return Scene(_maxScene + 1).enterEdit(json);
+    }
   });
+
+int _maxScene = 0;
 
 class Scene {
   final HtmlElement e;
@@ -28,17 +38,20 @@ class Scene {
   Scene(this.id) : e = DivElement() {
     e
       ..append(_img = ImageElement(src: getSceneImage(id)))
-      ..onClick.listen((event) async {
-        if (editing) return;
-
-        var json = await socket.request(GAME_SCENE_GET, {'id': id});
-        user.session.board
-          ..refScene = this
-          ..fromJson(id, json);
-        _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
-        editing = true;
-      });
+      ..onClick.listen((event) => enterEdit());
     _scenesContainer.insertBefore(e, _addScene);
+    _maxScene = id;
+  }
+
+  Future<void> enterEdit([Map<String, dynamic> json]) async {
+    if (editing) return;
+
+    json = json ?? await socket.request(GAME_SCENE_GET, {'id': id});
+    user.session.board
+      ..refScene = this
+      ..fromJson(id, json);
+    _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
+    editing = true;
   }
 
   static String getSceneImage(int id) {

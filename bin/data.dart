@@ -144,6 +144,7 @@ class Game {
       _connections.firstWhere((c) => owner == c.account, orElse: () => null);
   bool get gmOnline => gm != null;
   int get online => _connections.length;
+  int get sceneCount => _scenes.length;
   Scene get playingScene =>
       _playingScene < _scenes.length ? _scenes[_playingScene] : null;
 
@@ -178,7 +179,7 @@ class Game {
 
   Game(this.owner, this.name)
       : id = _generateId(),
-        _scenes = [Scene()],
+        _scenes = [Scene({})],
         _characters = [];
 
   void connect(Connection connection, bool join) {
@@ -201,6 +202,11 @@ class Game {
     _characters.removeAt(index);
   }
 
+  Future<String> uploadImage(String type, int id, String base64) async {
+    var file = await (await getFile('$type$id.png')).create();
+    return '$address/${file.path}';
+  }
+
   Future<void> delete() async {
     if (await resources.exists()) {
       await resources.delete(recursive: true);
@@ -210,6 +216,12 @@ class Game {
   }
 
   Scene getScene(int id) => id < _scenes.length ? _scenes[id] : null;
+
+  Scene addScene() {
+    var scene = Scene({});
+    _scenes.add(scene);
+    return scene;
+  }
 
   PlayerCharacter assignPC(int index, Connection c) {
     return _characters[index]..connection = c;
@@ -278,12 +290,10 @@ class Scene {
   Point gridOffset;
   num cellSize;
 
-  Scene([Map<String, dynamic> json])
-      : _movables = json != null
-            ? List.from(json['movables'])
-                .map((j) => Movable(j['id'], j))
-                .toList()
-            : <Movable>[] {
+  Scene(Map<String, dynamic> json)
+      : _movables = List.from(json['movables'] ?? [])
+            .map((j) => Movable(j['id'], j))
+            .toList() {
     _countMIDs = _movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
     applyGrid(json['grid'] ?? {});
   }
