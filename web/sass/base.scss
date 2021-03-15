@@ -12,6 +12,8 @@ body {
     padding: 20px;
     box-sizing: border-box;
     font-family: 'Lato', sans-serif;
+    display: flex;
+    flex-direction: column;
     color: var(--color-text-primary);
     background-color: var(--color-background);
 
@@ -43,6 +45,8 @@ body {
         --color-button-text: #ddd;
         --color-input-active: #777;
         --color-selected: #ccc;
+        --color-good: #62ffa9;
+        --color-bad: #ff7676;
     
         --weight-thick: normal;
     }
@@ -163,6 +167,12 @@ li {
 }
 %responsive:not(:disabled):active {
     transform: scale(0.95);
+}
+
+#content {
+    display: flex;
+    position: relative;
+    height: 100%;
 }
 
 #notifications {
@@ -347,7 +357,7 @@ section {
     position: absolute;
     left: 0;
     width: 100%;
-    padding: 8px 20px;
+    height: 100%;
     box-sizing: border-box;
     pointer-events: none;
     opacity: 0;

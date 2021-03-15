@@ -15,43 +15,49 @@
 <body class="dark-mode">
     <h1>D&D Interactive</h1>
 
-    <input type="email" id="loginEmail" value="dummy@email.com">
-    <input type="password" id="loginPassword" value="wowzer">
-    <button id="login">Log in</button>
-    <button id="signup">Sign up</button>
-    <button id="joinDemo">Join session</button>
-    <button id="save">Save server data</button>
+    <span>
+        <input type="email" id="loginEmail" value="dummy@email.com">
+        <input type="password" id="loginPassword" value="wowzer">
+        <button id="login">Log in</button>
+        <button id="signup">Sign up</button>
+        <button id="joinDemo">Join session</button>
+        <button id="save">Save server data</button>
+    </span>
 
-    <section id="home" class="show">
-        <div id="gamesContainer">
-            <button id="create" class="big">Create new game</button>
-        </div>
-    </section>
-
-    <section id="session">
-        <div id="boardContainer">
-            <div class="controls panel">
-                <h3>Scene Editor</h3>
-                <div id="scenes">
-                    <button id="addScene" class="big">Add scene</button>
-                </div>
-                <button id="changeImage">Change image</button>
-                <button id="editGrid">Edit grid</button>
-                <div id="gridControls" class="disabled">
-                    <span>
-                        Cell size:
-                        <input id="gridSize" placeholder="Cell size in pixels..." type="number" min="8" value="100">
-                    </span>
-                </div>
+    <div id="content">
+        <section id="home" class="show">
+            <div id="gamesContainer">
+                <button id="create" class="big">Create new game</button>
             </div>
-            <div id="board">
-                <img id="ground" src="https://via.placeholder.com/500">
-                <div id="grid">
+        </section>
+
+        <section id="session">
+            <div id="boardContainer">
+                <div id="sceneEditor" class="controls panel">
+                    <h3>Scene Editor</h3>
+                    <button id="changeImage">Change image</button>
+                    <button id="editGrid">Edit grid</button>
+                    <div id="gridControls" class="disabled">
+                        <span>
+                            Cell size:
+                            <input id="gridSize" placeholder="Cell size in pixels..." type="number" min="8" value="100">
+                        </span>
+                    </div>
+                </div>
+                <div id="sceneSelector" class="controls panel">
+                    <h3>Scene Selector</h3>
+                    <div id="scenes">
+                        <button id="addScene" class="big">Add scene</button>
+                    </div>
+                </div>
+                <div id="board">
+                    <img id="ground" src="https://via.placeholder.com/500">
                     <canvas></canvas>
+                    <div id="grid"></div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
     <div id="notifications"></div>
 

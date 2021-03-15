@@ -4,7 +4,7 @@ import 'package:dnd_interactive/point_json.dart';
 
 class Grid {
   final HtmlElement e;
-  CanvasElement _canvas;
+  final CanvasElement _canvas = querySelector('#board canvas');
 
   num _cellSize = 100;
   num get cellSize => _cellSize;
@@ -19,6 +19,8 @@ class Grid {
   set offset(Point offset) {
     _offset = offset;
     _clampOffset();
+    e.style.left = '${_offset.x}px';
+    e.style.top = '${_offset.y}px';
     redrawCanvas();
   }
 
@@ -27,9 +29,7 @@ class Grid {
         (offset.x + _cellSize) % _cellSize, (offset.y + _cellSize) % _cellSize);
   }
 
-  Grid() : e = querySelector('#grid') {
-    _canvas = e.children.first;
-  }
+  Grid() : e = querySelector('#grid');
 
   void resize(int width, int height) {
     _canvas.width = width;
@@ -60,7 +60,7 @@ class Grid {
       };
 
   void fromJson(Map<String, dynamic> json) {
-    _offset = parsePoint(json['offset']);
     cellSize = json['cellSize'];
+    offset = parsePoint(json['offset']);
   }
 }
