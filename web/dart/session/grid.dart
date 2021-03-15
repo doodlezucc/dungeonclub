@@ -1,10 +1,19 @@
 import 'dart:html';
 
+import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/point_json.dart';
+
+import '../communication.dart';
+
+final HtmlElement _controls = querySelector('#boardContainer .controls');
+final ButtonElement _editGrid = _controls.querySelector('#editGrid');
+final HtmlElement _gridControls = _controls.querySelector('#gridControls');
+final InputElement _gridCellSize = _controls.querySelector('#gridSize');
 
 class Grid {
   final HtmlElement e;
   final CanvasElement _canvas = querySelector('#board canvas');
+  bool get editingGrid => _editGrid.classes.contains('active');
 
   num _cellSize = 100;
   num get cellSize => _cellSize;
@@ -29,7 +38,26 @@ class Grid {
         (offset.x + _cellSize) % _cellSize, (offset.y + _cellSize) % _cellSize);
   }
 
-  Grid() : e = querySelector('#grid');
+  Grid() : e = querySelector('#grid') {
+    _initGridEditor();
+  }
+
+  void _initGridEditor() {
+    _gridCellSize.onInput.listen((event) {
+      cellSize = _gridCellSize.valueAsNumber;
+    });
+
+    _editGrid.onClick.listen((event) {
+      var enable = _editGrid.classes.toggle('active');
+      _gridControls.classes.toggle('disabled', !enable);
+
+      if (!enable) {
+        socket.sendAction(GAME_SCENE_UPDATE, {
+          'grid': toJson(),
+        });
+      }
+    });
+  }
 
   void resize(int width, int height) {
     _canvas.width = width;
@@ -61,6 +89,7 @@ class Grid {
 
   void fromJson(Map<String, dynamic> json) {
     cellSize = json['cellSize'];
+    _gridCellSize.valueAsNumber = cellSize;
     offset = parsePoint(json['offset']);
   }
 }

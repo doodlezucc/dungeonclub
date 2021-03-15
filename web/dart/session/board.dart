@@ -18,10 +18,6 @@ final ImageElement _ground = _e.querySelector('#ground');
 final HtmlElement _controls = _container.querySelector('.controls');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
-final ButtonElement _editGrid = _controls.querySelector('#editGrid');
-final HtmlElement _gridControls = _controls.querySelector('#gridControls');
-final InputElement _gridCellSize = _controls.querySelector('#gridSize');
-
 class Board {
   final Session session;
   final grid = Grid();
@@ -46,7 +42,6 @@ class Board {
 
   int _sceneId;
   Scene refScene;
-  bool get editingGrid => _editGrid.classes.contains('active');
   bool _init = false;
 
   Board(this.session) {
@@ -66,24 +61,6 @@ class Board {
     });
 
     _changeImage.onClick.listen((_) => _changeImageDialog());
-    _initGridEditor();
-  }
-
-  void _initGridEditor() {
-    _editGrid.onClick.listen((event) {
-      var enable = _editGrid.classes.toggle('active');
-      _gridControls.classes.toggle('disabled', !enable);
-
-      if (!enable) {
-        socket.sendAction(a.GAME_SCENE_UPDATE, {
-          'grid': grid.toJson(),
-        });
-      }
-    });
-
-    _gridCellSize.onInput.listen((event) {
-      grid.cellSize = _gridCellSize.valueAsNumber;
-    });
   }
 
   void _initDragControls() {
@@ -92,7 +69,9 @@ class Board {
     _container.onMouseDown.listen((event) async {
       var movable = (event.target as HtmlElement).classes.contains('movable');
 
-      if (event.path.contains(_controls) || (!editingGrid && movable)) return;
+      if (event.path.contains(_controls) || (!grid.editingGrid && movable)) {
+        return;
+      }
 
       isBoardDrag = event.path.contains(_e);
       drag = true;
@@ -103,7 +82,7 @@ class Board {
       if (drag) {
         var delta = event.movement * (1 / _scaledZoom);
 
-        if (!editingGrid || !isBoardDrag) {
+        if (!grid.editingGrid || !isBoardDrag) {
           position += delta;
         } else {
           grid.offset += delta;

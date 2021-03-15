@@ -65,7 +65,7 @@ class Movable {
     });
 
     window.onMouseMove.listen((event) {
-      if (drag) {
+      if (drag && !board.grid.editingGrid) {
         offset += event.movement * (1 / board.scaledZoom);
 
         var cell = board.grid.cellSize;
