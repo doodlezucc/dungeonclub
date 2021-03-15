@@ -101,7 +101,7 @@ class Board {
     );
 
     if (img != null) {
-      onImgChange(img);
+      onImgChange(src: img);
     }
   }
 
@@ -110,11 +110,13 @@ class Board {
         'scale($_scaledZoom) translate(${position.x}px, ${position.y}px)';
   }
 
-  void onImgChange([String src]) async {
+  void onImgChange({String src, bool updateRef = true}) async {
     src = src ?? Scene.getSceneImage(_sceneId);
     src += '?${DateTime.now().millisecondsSinceEpoch}';
     _ground.src = src;
-    refScene?.image = src;
+    if (updateRef) {
+      refScene?.image = src;
+    }
     await _ground.onLoad.first;
     grid.resize(_ground.naturalWidth, _ground.naturalHeight);
   }
@@ -160,7 +162,7 @@ class Board {
     clear();
 
     _sceneId = id;
-    onImgChange();
+    onImgChange(updateRef: false);
 
     grid.fromJson(json['grid']);
 

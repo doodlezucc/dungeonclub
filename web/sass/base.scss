@@ -290,6 +290,36 @@ li {
     flex-direction: column;
 }
 
+@mixin hooked($height) {
+    bottom: -$height;
+    min-height: $height;
+    max-height: $height;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+
+    > .top-hook {
+        position: absolute;
+        bottom: 100%;
+        width: 100%;
+        left: 0;
+        align-items: center;
+        transition-duration: 0.2s;
+
+        > div {
+            @extend %vertical;
+            align-items: center;
+            text-shadow: 0 0 8px #000;
+            padding: 8px 0;
+        }
+    }
+    &:hover {
+        bottom: 0;
+        > .top-hook {
+            opacity: 0;
+        }
+    }
+}
+
 .panel {
     @extend %vertical;
     background-color: var(--color-not-intense);

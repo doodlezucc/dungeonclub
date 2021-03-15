@@ -1,5 +1,9 @@
 @use 'base.scss';
 
+%active {
+    box-shadow: 0 0 6px var(--color-text-inverse) inset;
+}
+
 #boardContainer {
     position: relative;
     overflow: hidden;
@@ -9,6 +13,7 @@
     min-height: 500px;
     display: flex;
     justify-content: center;
+    align-items: center;
     border: 1px solid black;
 
     > .controls {
@@ -35,7 +40,7 @@
     }
 
     #sceneSelector {
-        bottom: 0;
+        @include base.hooked(150px);
         width: 100%;
         border-radius: 0%;
 
@@ -55,24 +60,22 @@
                 box-sizing: border-box;
                 cursor: pointer;
                 border: 2px solid transparent;
-                transition-duration: 0.1s;
-                transition-property: border-color;
+                background-size: cover;
+                background-origin: border-box;
 
                 &.editing {
-                    border-color: var(--color-selected);
+                    @extend %active;
+                    border-color: var(--color-text-primary);
                     border-style: dashed;
                 }
                 &.playing {
+                    @extend %active;
                     border-color: var(--color-good);
                 }
                 &:hover {
+                    @extend %active;
                     border-color: var(--color-text-primary);
-                }
-
-                > img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
+                    border-style: solid;
                 }
             }
         }

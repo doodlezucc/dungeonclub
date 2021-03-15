@@ -24,7 +24,6 @@ int _maxScene = 0;
 class Scene {
   final HtmlElement e;
   final int id;
-  ImageElement _img;
 
   bool get playing => e.classes.contains('playing');
   set playing(bool playing) => e.classes.toggle('playing', playing);
@@ -32,13 +31,11 @@ class Scene {
   bool get editing => e.classes.contains('editing');
   set editing(bool playing) => e.classes.toggle('editing', playing);
 
-  String get image => _img.src;
-  set image(String src) => _img.src = src;
+  set image(String src) => e.style.backgroundImage = 'url($src)';
 
   Scene(this.id) : e = DivElement() {
-    e
-      ..append(_img = ImageElement(src: getSceneImage(id)))
-      ..onClick.listen((event) => enterEdit());
+    image = getSceneImage(id);
+    e.onClick.listen((event) => enterEdit());
     _scenesContainer.insertBefore(e, _addScene);
     _maxScene = id;
   }
