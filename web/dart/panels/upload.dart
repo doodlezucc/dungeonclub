@@ -3,6 +3,7 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:meta/meta.dart';
 
 import '../communication.dart';
 
@@ -214,8 +215,8 @@ bool _isSquare(String type) {
 }
 
 Future<dynamic> display({
-  String action,
-  String type = IMAGE_TYPE_PC,
+  @required String action,
+  @required String type,
   Map<String, dynamic> extras,
   Blob initialImg,
 }) async {

@@ -108,6 +108,7 @@ class _EditChar {
 
   Future<void> _changeIcon([Blob initialFile]) async {
     var url = await uploader.display(
+      action: GAME_CHARACTER_UPLOAD,
       type: IMAGE_TYPE_PC,
       initialImg: initialFile,
       extras: {
