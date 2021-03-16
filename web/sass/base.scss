@@ -100,10 +100,15 @@ button {
     @extend %clickable;
 }
 button.icon {
-    padding: 0;
-    width: 25px;
+    padding: 4px;
+    box-sizing: border-box;
+    min-width: 25px;
     height: 25px;
     font-size: 16px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
 }
 button.big {
     @extend %responsive;

@@ -21,6 +21,10 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       }
       return user.session?.board?.onImgChange();
 
+    case GAME_SCENE_PLAY:
+      int id = params['id'];
+      return user.session?.board?.fromJson(id, params);
+
     case GAME_JOIN_REQUEST:
       return await user.account?.displayPickCharacterDialog('joe');
 

@@ -146,12 +146,12 @@ class Game {
   int get online => _connections.length;
   int get sceneCount => _scenes.length;
   Scene get playingScene =>
-      _playingScene < _scenes.length ? _scenes[_playingScene] : null;
+      playingSceneId < _scenes.length ? _scenes[playingSceneId] : null;
 
   final _connections = <Connection>[];
   final List<PlayerCharacter> _characters;
   final List<Scene> _scenes;
-  int _playingScene = 0;
+  int playingSceneId = 0;
 
   static String _generateId() {
     String id;
@@ -162,9 +162,10 @@ class Game {
   }
 
   void notify(String action, Map<String, dynamic> params,
-      {Connection exclude}) {
+      {Connection exclude, bool allScenes = false}) {
     for (var c in _connections) {
-      if (exclude == null || (c != exclude && c.scene == exclude.scene)) {
+      if (exclude == null ||
+          (c != exclude && (allScenes || c.scene == exclude.scene))) {
         c.sendAction(action, params);
       }
     }
@@ -230,7 +231,7 @@ class Game {
   Game.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
-        _playingScene = json['scene'] ?? 0,
+        playingSceneId = json['scene'] ?? 0,
         _scenes = List.from(json['scenes']).map((e) => Scene(e)).toList(),
         _characters = List.from(json['pcs'])
             .map((e) => PlayerCharacter(e['name']))
@@ -240,7 +241,7 @@ class Game {
         'id': id,
         'name': name,
         'owner': owner.encryptedEmail.toString(),
-        'scene': _playingScene,
+        'scene': playingSceneId,
         'pcs': _characters.map((e) => e.toJson()).toList(),
         'scenes': _scenes.map((e) => e.toJson()).toList(),
       };
@@ -254,7 +255,7 @@ class Game {
   Map<String, dynamic> toSessionSnippet(Connection c, [int mine]) {
     return {
       'id': id,
-      'sceneId': _playingScene,
+      'sceneId': playingSceneId,
       'scene': playingScene.toJson(),
       'pcs': _characters.map((e) => e.toJson()).toList(),
       if (mine != null) 'mine': mine,

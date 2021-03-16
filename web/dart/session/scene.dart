@@ -4,6 +4,7 @@ import 'package:dnd_interactive/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../font_awesome.dart';
 import '../panels/upload.dart' as upload;
 
 final HtmlElement _scenesContainer = querySelector('#scenes');
@@ -35,9 +36,32 @@ class Scene {
 
   Scene(this.id) : e = DivElement() {
     image = getSceneImage(id);
-    e.onClick.listen((event) => enterEdit());
+    e
+      ..append(iconButton('wrench', label: 'Edit')
+        ..onClick.listen((_) => enterEdit()))
+      ..append(iconButton('play', className: 'play', label: 'Play')
+        ..onClick.listen((_) => enterPlay()))
+      ..onClick.listen((ev) {
+        if (ev.target is! ButtonElement) {
+          enterEdit();
+        }
+      });
     _scenesContainer.insertBefore(e, _addScene);
     _maxScene = id;
+  }
+
+  Future<void> enterPlay() async {
+    if (playing) return;
+
+    var json = await socket.request(GAME_SCENE_PLAY, {'id': id});
+    if (!editing) {
+      user.session.board
+        ..refScene = this
+        ..fromJson(id, json);
+    }
+    _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
+    _scenesContainer.querySelectorAll('.playing').classes.remove('playing');
+    playing = true;
   }
 
   Future<void> enterEdit([Map<String, dynamic> json]) async {

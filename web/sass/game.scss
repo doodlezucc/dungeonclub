@@ -40,7 +40,7 @@
     }
 
     #sceneSelector {
-        @include base.hooked(150px);
+        @include base.hooked(172px);
         width: 100%;
         border-radius: 0%;
 
@@ -49,7 +49,7 @@
             overflow-x: auto;
             overflow-y: hidden;
             gap: 8px;
-            padding: 8px 0;
+            padding: 8px 0 32px 0;
 
             > div {
                 @include base.center-background;
@@ -57,10 +57,10 @@
                 max-width: 120px;
                 height: 80px;
                 border-radius: 8px;
-                overflow: hidden;
                 box-sizing: border-box;
                 cursor: pointer;
                 border: 2px solid transparent;
+                position: relative;
 
                 &.editing {
                     @extend %active;
@@ -75,6 +75,30 @@
                     @extend %active;
                     border-color: var(--color-text-primary);
                     border-style: solid;
+
+                    button {
+                        opacity: 0.75;
+                    }
+                }
+
+                button {
+                    width: 100%;
+                    height: 100%;
+                    opacity: 0;
+                    background-color: var(--color-not-intense);
+                    &:hover {
+                        opacity: 0.8 !important;
+                    }
+                }
+
+                button.play {
+                    @extend .good;
+                    padding: 4px;
+                    margin-top: 2px;
+                    height: auto;
+                    left: 0;
+                    position: absolute;
+                    top: 100%;
                 }
             }
         }

@@ -19,13 +19,13 @@ class HtmlNotification {
 
   Future<bool> prompt() {
     var completer = Completer<bool>();
-    e.append(iconButton('check', 'good')
+    e.append(iconButton('check', className: 'good')
       ..onClick.listen((e) {
         completer.complete(true);
         remove();
       }));
 
-    e.append(iconButton('times', 'bad')
+    e.append(iconButton('times', className: 'bad')
       ..onClick.listen((e) {
         completer.complete(false);
         remove();

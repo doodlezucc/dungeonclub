@@ -98,7 +98,7 @@ class _EditChar {
       ..append(_nameInput = InputElement()
         ..placeholder = 'Name...'
         ..value = name)
-      ..append(iconButton('times', 'bad')
+      ..append(iconButton('times', className: 'bad')
         ..onClick.listen((event) {
           remove();
         }));

@@ -16,6 +16,7 @@ const GAME_SCENE_UPDATE = 'gameSceneUpdate';
 const GAME_SCENE_GET = 'gameSceneGet';
 const GAME_SCENE_ADD = 'gameSceneAdd';
 const GAME_SCENE_REMOVE = 'gameSceneRemove';
+const GAME_SCENE_PLAY = 'gameScenePlay';
 
 const IMAGE_TYPE_PC = 'pc';
 const IMAGE_TYPE_SCENE = 'scene';

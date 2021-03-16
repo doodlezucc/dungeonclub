@@ -174,6 +174,18 @@ class Connection extends Socket {
         _scene = scene;
         return scene.toJson();
 
+      case a.GAME_SCENE_PLAY:
+        var sceneId = params['id'];
+        var scene = _game?.getScene(sceneId);
+        if (scene == null) return null;
+
+        _scene = scene;
+        _game.playingSceneId = sceneId;
+        var result = scene.toJson();
+        _game.notify(action, {'id': sceneId, ...result},
+            exclude: this, allScenes: true);
+        return result;
+
       case a.GAME_SCENE_ADD:
         var id = _game.sceneCount;
         var scene = _game?.addScene();
