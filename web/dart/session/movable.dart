@@ -26,16 +26,18 @@ class Movable {
     e.style.top = '${position.y}px';
   }
 
-  void onMove(Point pos) {
-    print('i was told to move lol');
-    position = pos;
+  int _size;
+  int get size => _size;
+  set size(int size) {
+    _size = size;
+    e.style.setProperty('--size', '$size');
   }
 
   Movable({this.board, String img, this.id, Point pos})
-      : e = DivElement()
-          ..className = 'movable'
-          ..append(ImageElement(src: img)) {
+      : e = DivElement()..className = 'movable' {
+    onImageChange(img);
     position = pos ?? Point(0, 0);
+    size = 1;
 
     if (board.session.isGM) {
       accessible = true;
@@ -68,14 +70,25 @@ class Movable {
       if (drag && !board.grid.editingGrid) {
         offset += event.movement * (1 / board.scaledZoom);
 
-        var cell = board.grid.cellSize;
-
-        var pos = start + offset;
-        position = Point(
-          (pos.x / cell).floor() * cell,
-          (pos.y / cell).floor() * cell,
-        );
+        snapToGrid(start + offset);
       }
     });
+  }
+
+  void onMove(Point pos) {
+    position = pos;
+  }
+
+  void onImageChange(String img) {
+    e.style.backgroundImage = 'url($img)';
+  }
+
+  void snapToGrid([Point pos]) {
+    pos = pos ?? position;
+    var cell = board.grid.cellSize;
+    position = Point(
+      (pos.x / cell).floor() * cell,
+      (pos.y / cell).floor() * cell,
+    );
   }
 }

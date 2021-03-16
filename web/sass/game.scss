@@ -52,6 +52,7 @@
             padding: 8px 0;
 
             > div {
+                @include base.center-background;
                 min-width: 120px;
                 max-width: 120px;
                 height: 80px;
@@ -60,9 +61,6 @@
                 box-sizing: border-box;
                 cursor: pointer;
                 border: 2px solid transparent;
-                background-size: cover;
-                background-origin: border-box;
-                background-position: center;
 
                 &.editing {
                     @extend %active;
@@ -97,21 +95,18 @@
 }
 
 .movable {
+    @include base.center-background;
     position: absolute;
     border: 2px solid slateblue;
     border-radius: 50%;
-    width: 100px;
-    height: 100px;
+    width: calc(var(--size) * 100%);
+    height: calc(var(--size) * 100%);
     overflow: hidden;
     box-sizing: border-box;
 
+    --size: 1;
+
     &.accessible {
         cursor: move;
-    }
-
-    > img {
-        width: inherit;
-        height: inherit;
-        pointer-events: none;
     }
 }

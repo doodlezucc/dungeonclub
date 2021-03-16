@@ -3,6 +3,7 @@ import 'dart:html';
 import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/point_json.dart';
 
+import '../../main.dart';
 import '../communication.dart';
 
 final HtmlElement _controls = querySelector('#boardContainer .controls');
@@ -20,6 +21,9 @@ class Grid {
   set cellSize(num cellSize) {
     _cellSize = cellSize;
     _clampOffset();
+    e.style.width = '${_cellSize}px';
+    e.style.height = '${_cellSize}px';
+    user.session.board.movables.forEach((m) => m.snapToGrid());
     redrawCanvas();
   }
 
@@ -70,13 +74,15 @@ class Grid {
     ctx.clearRect(0, 0, _canvas.width, _canvas.height);
     ctx.setStrokeColorRgb(0, 0, 0);
     ctx.beginPath();
-    for (var x = 0.5 + offset.x; x <= _canvas.width; x += _cellSize) {
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, _canvas.height);
+    for (var x = offset.x; x <= _canvas.width; x += _cellSize) {
+      var xr = x.round() + 0.5;
+      ctx.moveTo(xr, 0);
+      ctx.lineTo(xr, _canvas.height);
     }
     for (var y = 0.5 + offset.y; y <= _canvas.height; y += _cellSize) {
-      ctx.moveTo(0, y);
-      ctx.lineTo(_canvas.width, y);
+      var yr = y.round() + 0.5;
+      ctx.moveTo(0, yr);
+      ctx.lineTo(_canvas.width, yr);
     }
     ctx.closePath();
     ctx.stroke();

@@ -285,6 +285,12 @@ li {
     top: 8px;
 }
 
+@mixin center-background {
+    background-size: cover;
+    background-origin: border-box;
+    background-position: center;
+}
+
 %vertical {
     display: flex;
     flex-direction: column;
