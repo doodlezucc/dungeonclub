@@ -62,6 +62,7 @@
                 border: 2px solid transparent;
                 background-size: cover;
                 background-origin: border-box;
+                background-position: center;
 
                 &.editing {
                     @extend %active;
