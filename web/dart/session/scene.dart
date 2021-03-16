@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
 
@@ -16,50 +17,81 @@ final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
     );
 
     if (json != null) {
-      return Scene(_maxScene + 1).enterEdit(json);
+      if (_allScenes.length == 1) {
+        _allScenes.first.enableRemove = true;
+      }
+      return Scene(_allScenes.length).enterEdit(json);
     }
   });
 
-int _maxScene = 0;
+List<Scene> _allScenes = [];
 
 class Scene {
   final HtmlElement e;
-  final int id;
+  int id;
+  HtmlElement _bg;
+  ButtonElement _remove;
 
-  bool get playing => e.classes.contains('playing');
-  set playing(bool playing) => e.classes.toggle('playing', playing);
+  bool get playing => _bg.classes.contains('playing');
+  set playing(bool playing) => _bg.classes.toggle('playing', playing);
 
-  bool get editing => e.classes.contains('editing');
-  set editing(bool playing) => e.classes.toggle('editing', playing);
+  bool get editing => _bg.classes.contains('editing');
+  set editing(bool playing) => _bg.classes.toggle('editing', playing);
 
-  set image(String src) => e.style.backgroundImage = 'url($src)';
+  set image(String src) => _bg.style.backgroundImage = 'url($src)';
+
+  set enableRemove(bool enable) => _remove.disabled = !enable;
 
   Scene(this.id) : e = DivElement() {
-    image = getSceneImage(id);
     e
-      ..append(iconButton('wrench', label: 'Edit')
-        ..onClick.listen((_) => enterEdit()))
-      ..append(iconButton('play', className: 'play', label: 'Play')
-        ..onClick.listen((_) => enterPlay()))
-      ..onClick.listen((ev) {
-        if (ev.target is! ButtonElement) {
-          enterEdit();
-        }
-      });
+      ..append(_bg = DivElement()
+        ..append(iconButton('wrench', label: 'Edit')
+          ..onClick.listen((_) => enterEdit())))
+      ..append(SpanElement()
+        ..append(iconButton('play', className: 'play', label: 'Play')
+          ..onClick.listen((_) => enterPlay()))
+        ..append(_remove = iconButton('trash', className: 'bad')
+          ..onClick.listen((_) => remove())));
+    image = getSceneImage(id, cacheBreak: true);
     _scenesContainer.insertBefore(e, _addScene);
-    _maxScene = id;
+    _allScenes.add(this);
   }
 
-  Future<void> enterPlay() async {
+  Future<void> remove() async {
+    var result = await socket.request(GAME_SCENE_REMOVE, {'id': id});
+
+    if (result == null) return print('this one stays');
+
+    for (var i = id + 1; i < _allScenes.length; i++) {
+      _allScenes[i].id = i - 1;
+    }
+    _allScenes.remove(this);
+
+    var next = _allScenes[max(0, id - 1)];
+    if (playing) {
+      await next.enterPlay();
+    } else if (editing) {
+      await next.enterEdit();
+    }
+    print(_allScenes.map((e) => e.id).toList());
+    e.remove();
+
+    if (_allScenes.length == 1) {
+      _allScenes.first.enableRemove = false;
+    }
+  }
+
+  Future<void> enterPlay([Map<String, dynamic> json]) async {
     if (playing) return;
 
-    var json = await socket.request(GAME_SCENE_PLAY, {'id': id});
+    json = json ?? await socket.request(GAME_SCENE_PLAY, {'id': id});
     if (!editing) {
       user.session.board
         ..refScene = this
         ..fromJson(id, json);
     }
     _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
+    editing = true;
     _scenesContainer.querySelectorAll('.playing').classes.remove('playing');
     playing = true;
   }
@@ -75,7 +107,7 @@ class Scene {
     editing = true;
   }
 
-  static String getSceneImage(int id) {
-    return getGameFile('scene$id.png', cacheBreak: false);
+  static String getSceneImage(int id, {bool cacheBreak = false}) {
+    return getGameFile('scene$id.png', cacheBreak: cacheBreak);
   }
 }

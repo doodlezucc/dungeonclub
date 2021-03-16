@@ -20,8 +20,7 @@ class Connection extends Socket {
   final Stream broadcastStream;
   Game _game;
 
-  Scene _scene;
-  Scene get scene => _scene;
+  Scene scene;
 
   Account _account;
   Account get account => _account;
@@ -70,7 +69,7 @@ class Connection extends Socket {
         if (account == null) return false;
 
         _game = Game(account, params['name']);
-        _scene = _game.playingScene;
+        scene = _game.playingScene;
         data.games.add(_game);
         account.enteredGames.add(_game);
         return _game.toSessionSnippet(this);
@@ -117,14 +116,14 @@ class Connection extends Socket {
             game.assignPC(id, this);
           }
           _game = game..connect(this, true);
-          _scene = game.playingScene;
+          scene = game.playingScene;
           return game.toSessionSnippet(this, id);
         }
         return 'Game not found!';
 
       case a.GAME_MOVABLE_CREATE:
-        if (_scene != null) {
-          var m = _scene.addMovable(params);
+        if (scene != null) {
+          var m = scene.addMovable(params);
           notifyOthers(action, {
             'id': m.id,
             'x': m.x,
@@ -136,7 +135,7 @@ class Connection extends Socket {
         return null;
 
       case a.GAME_MOVABLE_MOVE:
-        var m = _scene?.getMovable(params['id']);
+        var m = scene?.getMovable(params['id']);
         if (m != null) {
           m
             ..x = params['x']
@@ -148,11 +147,11 @@ class Connection extends Socket {
         return await _uploadGameImageJson(params);
 
       case a.GAME_SCENE_UPDATE:
-        if (_game?.gm != this || _scene == null) return;
+        if (_game?.gm != this || scene == null) return;
 
         var grid = params['grid'];
         if (grid != null) {
-          _scene.applyGrid(grid);
+          scene.applyGrid(grid);
           return notifyOthers(action, params);
         }
 
@@ -168,19 +167,18 @@ class Connection extends Socket {
 
       case a.GAME_SCENE_GET:
         var sceneId = params['id'];
-        var scene = _game?.getScene(sceneId);
-        if (scene == null) return null;
+        var s = _game?.getScene(sceneId);
+        if (s == null) return null;
 
-        _scene = scene;
-        return scene.toJson();
+        scene = s;
+        return s.toJson();
 
       case a.GAME_SCENE_PLAY:
         var sceneId = params['id'];
         var scene = _game?.getScene(sceneId);
         if (scene == null) return null;
 
-        _scene = scene;
-        _game.playingSceneId = sceneId;
+        _game.playScene(sceneId);
         var result = scene.toJson();
         _game.notify(action, {'id': sceneId, ...result},
             exclude: this, allScenes: true);
@@ -188,16 +186,38 @@ class Connection extends Socket {
 
       case a.GAME_SCENE_ADD:
         var id = _game.sceneCount;
-        var scene = _game?.addScene();
-        if (scene == null) return null;
+        var s = _game?.addScene();
+        if (s == null) return null;
 
         await _uploadGameImage(
           type: a.IMAGE_TYPE_SCENE,
           id: id,
           base64: params['data'],
         );
-        _scene = scene;
-        return scene.toJson();
+        scene = s;
+        return s.toJson();
+
+      case a.GAME_SCENE_REMOVE:
+        int id = params['id'];
+        if (_game == null ||
+            _account == null ||
+            _game.owner != _account ||
+            id == null) return;
+
+        var doNotifyOthers = _game.playingSceneId == id;
+
+        var removed = await _game.removeScene(id);
+        if (!removed) return;
+
+        print('Removed $id');
+
+        var result = _game.playingScene.toJson();
+        if (doNotifyOthers) {
+          print('Notifying everyone of this tragic event');
+          _game.notify(action, {'id': _game.playingSceneId, ...result},
+              exclude: this, allScenes: true);
+        }
+        return result;
     }
   }
 

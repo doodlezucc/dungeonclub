@@ -27,12 +27,17 @@ class Session extends Game {
       _board.fromJson(playingId, json['scene']);
 
       if (isGM) {
-        for (var i = 0; i < json['gm']['scenes']; i++) {
+        int sceneCount = json['gm']['scenes'];
+        for (var i = 0; i < sceneCount; i++) {
           var scene = Scene(i);
           if (i == playingId) {
             _board.refScene = scene
               ..editing = true
               ..playing = true;
+
+            if (sceneCount == 1) {
+              scene.enableRemove = false;
+            }
           }
         }
       }

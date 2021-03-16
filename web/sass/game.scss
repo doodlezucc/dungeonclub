@@ -52,53 +52,63 @@
             padding: 8px 0 32px 0;
 
             > div {
-                @include base.center-background;
-                min-width: 120px;
-                max-width: 120px;
-                height: 80px;
-                border-radius: 8px;
-                box-sizing: border-box;
-                cursor: pointer;
-                border: 2px solid transparent;
-                position: relative;
-
-                &.editing {
-                    @extend %active;
-                    border-color: var(--color-text-primary);
-                    border-style: dashed;
-                }
-                &.playing {
-                    @extend %active;
-                    border-color: var(--color-good);
-                }
-                &:hover {
-                    @extend %active;
-                    border-color: var(--color-text-primary);
-                    border-style: solid;
-
+                > div {
+                    @include base.center-background;
+                    min-width: 120px;
+                    max-width: 120px;
+                    height: 80px;
+                    border-radius: 8px;
+                    box-sizing: border-box;
+                    cursor: pointer;
+                    border: 2px solid transparent;
+                    position: relative;
+    
+                    &.editing {
+                        @extend %active;
+                        border-color: var(--color-text-primary);
+                        border-style: dashed;
+                    }
+                    &.playing {
+                        @extend %active;
+                        border-color: var(--color-good) !important;
+                    }
+    
                     button {
-                        opacity: 0.75;
+                        width: 100%;
+                        height: 100%;
+                        opacity: 0;
+                        background-color: var(--color-not-intense);
+                        &:hover {
+                            opacity: 0.8 !important;
+                        }
                     }
                 }
 
-                button {
-                    width: 100%;
-                    height: 100%;
+                > span {
+                    padding: 2px 0;
+                    display: flex;
+                    justify-content: space-between;
                     opacity: 0;
-                    background-color: var(--color-not-intense);
-                    &:hover {
-                        opacity: 0.8 !important;
+                    transition-duration: 0.1s;
+
+                    button.play:hover {
+                        color: var(--color-good);
                     }
                 }
+                
+                &:hover {
+                    > div {
+                        @extend %active;
+                        border-color: var(--color-text-primary);
+                        border-style: solid;
+                        button {
+                            opacity: 0.75;
+                        }
+                    }
 
-                button.play {
-                    @extend .good;
-                    padding: 4px;
-                    margin-top: 2px;
-                    height: auto;
-                    left: 0;
-                    position: absolute;
-                    top: 100%;
+                    > span {
+                        opacity: 1;
+                    }
                 }
             }
         }

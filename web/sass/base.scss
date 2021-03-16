@@ -106,6 +106,7 @@ button.icon {
     height: 25px;
     font-size: 16px;
     display: flex;
+    flex-direction: row-reverse;
     gap: 4px;
     align-items: center;
     justify-content: center;

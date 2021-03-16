@@ -195,6 +195,14 @@ class Game {
     _connections.add(connection);
   }
 
+  void playScene(int id) {
+    playingSceneId = id;
+    var scene = playingScene;
+    for (var c in connections) {
+      c.scene = scene;
+    }
+  }
+
   void addPC(String name) {
     _characters.add(PlayerCharacter(name));
   }
@@ -216,12 +224,40 @@ class Game {
     owner.enteredGames.remove(this);
   }
 
-  Scene getScene(int id) => id < _scenes.length ? _scenes[id] : null;
+  Scene getScene(int id) =>
+      (id != null && id < _scenes.length) ? _scenes[id] : null;
 
   Scene addScene() {
     var scene = Scene({});
     _scenes.add(scene);
     return scene;
+  }
+
+  Future<bool> removeScene(int id) async {
+    if (_scenes.length <= 1) return false;
+
+    if (id != null && id < _scenes.length) {
+      var img = await getSceneFile(id);
+      await img.delete();
+      for (var i = id + 1; i < _scenes.length; i++) {
+        var file = await getSceneFile(i);
+        await file.rename((await getSceneFile(i - 1)).path);
+      }
+      _scenes.removeAt(id);
+
+      // update playing scene id
+      if (id == playingSceneId) {
+        playScene(max(0, id - 1));
+      } else if (playingSceneId > id) {
+        playingSceneId = max(0, playingSceneId - 1);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  Future<File> getSceneFile(int id) async {
+    return await getFile('${a.IMAGE_TYPE_SCENE}$id.png');
   }
 
   PlayerCharacter assignPC(int index, Connection c) {
