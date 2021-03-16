@@ -38,7 +38,7 @@ body {
         --color-primary: #9683ff;
         --color-text-primary: white;
         --color-text-inverse: black;
-        --color-not-intense: #222;
+        --color-not-intense: #24252b;
         --color-button-hover: #333;
         --color-button-active: #383838;
         --color-button-big: #444;
@@ -143,8 +143,13 @@ input {
     }
 
     &[type=number] {
-        width: 80px;
+        width: 70px;
     }
+}
+input[type=color] {
+    border: none;
+    margin: 0;
+    width: 100%;
 }
 
 .disabled {

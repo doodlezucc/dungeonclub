@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/point_json.dart';
@@ -10,6 +11,7 @@ final HtmlElement _controls = querySelector('#boardContainer .controls');
 final ButtonElement _editGrid = _controls.querySelector('#editGrid');
 final HtmlElement _gridControls = _controls.querySelector('#gridControls');
 final InputElement _gridCellSize = _controls.querySelector('#gridSize');
+final InputElement _gridColor = _controls.querySelector('#gridColor');
 
 class Grid {
   final HtmlElement e;
@@ -19,7 +21,7 @@ class Grid {
   num _cellSize = 100;
   num get cellSize => _cellSize;
   set cellSize(num cellSize) {
-    _cellSize = cellSize;
+    _cellSize = max(8, cellSize);
     _clampOffset();
     e.style.width = '${_cellSize}px';
     e.style.height = '${_cellSize}px';
@@ -51,6 +53,10 @@ class Grid {
       cellSize = _gridCellSize.valueAsNumber;
     });
 
+    _gridColor.onInput.listen((event) {
+      redrawCanvas();
+    });
+
     _editGrid.onClick.listen((event) {
       var enable = _editGrid.classes.toggle('active');
       _gridControls.classes.toggle('disabled', !enable);
@@ -72,7 +78,7 @@ class Grid {
   void redrawCanvas() {
     var ctx = _canvas.context2D;
     ctx.clearRect(0, 0, _canvas.width, _canvas.height);
-    ctx.setStrokeColorRgb(0, 0, 0);
+    ctx.strokeStyle = _gridColor.value;
     ctx.beginPath();
     for (var x = offset.x; x <= _canvas.width; x += _cellSize) {
       var xr = x.round() + 0.5;
@@ -91,11 +97,13 @@ class Grid {
   Map<String, dynamic> toJson() => {
         'offset': writePoint(offset),
         'cellSize': cellSize,
+        'color': _gridColor.value,
       };
 
   void fromJson(Map<String, dynamic> json) {
     cellSize = json['cellSize'];
     _gridCellSize.valueAsNumber = cellSize;
+    _gridColor.value = json['color'];
     offset = parsePoint(json['offset']);
   }
 }

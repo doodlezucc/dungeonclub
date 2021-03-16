@@ -326,6 +326,7 @@ class Scene {
   int _countMIDs;
   Point gridOffset;
   num cellSize;
+  String gridColor;
 
   Scene(Map<String, dynamic> json)
       : _movables = List.from(json['movables'] ?? [])
@@ -348,12 +349,14 @@ class Scene {
   void applyGrid(Map<String, dynamic> json) {
     gridOffset = parsePoint(json['offset']) ?? Point(0, 0);
     cellSize = json['cellSize'] ?? 100;
+    gridColor = json['color'] ?? '#000000';
   }
 
   Map<String, dynamic> toJson() => {
         'grid': {
           'offset': writePoint(gridOffset),
           'cellSize': cellSize,
+          'color': gridColor,
         },
         'movables': _movables.map((e) => e.toJson()).toList(),
       };
