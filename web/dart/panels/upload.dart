@@ -290,7 +290,12 @@ void _loadFileAsImage(Blob blob) async {
   _img.height = height;
   _canvas.width = width;
   _canvas.height = height;
-  setPosAndSize(Point(0, 0), Point(max.toDouble(), max.toDouble()));
+  setPosAndSize(
+      Point(0, 0),
+      Point(
+        _square ? max.toDouble() : width,
+        _square ? max.toDouble() : height,
+      ));
   _dragText.classes.add('hide');
   _crop.classes.remove('hide');
   _uploadButton.disabled = false;
