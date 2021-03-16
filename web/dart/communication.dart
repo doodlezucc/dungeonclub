@@ -29,7 +29,6 @@ class FrontSocket extends Socket {
   final _waitForOpen = Completer();
 
   void connect() {
-    print(getFile('path.png'));
     _webSocket =
         WebSocket(getFile('ws', cacheBreak: false).replaceFirst('http', 'ws'))
           ..onOpen.listen((e) => _waitForOpen.complete())

@@ -60,7 +60,7 @@ class Scene {
   Future<void> remove() async {
     var result = await socket.request(GAME_SCENE_REMOVE, {'id': id});
 
-    if (result == null) return print('this one stays');
+    if (result == null) return;
 
     for (var i = id + 1; i < _allScenes.length; i++) {
       _allScenes[i].id = i - 1;
@@ -73,7 +73,6 @@ class Scene {
     } else if (editing) {
       await next.enterEdit();
     }
-    print(_allScenes.map((e) => e.id).toList());
     e.remove();
 
     if (_allScenes.length == 1) {

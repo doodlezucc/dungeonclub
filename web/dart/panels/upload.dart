@@ -254,7 +254,6 @@ Future<dynamic> display({
     }),
     document.onPaste.listen((e) {
       e.preventDefault();
-      print('paste');
       for (var file in e.clipboardData.files) {
         return _loadFileAsImage(file);
       }

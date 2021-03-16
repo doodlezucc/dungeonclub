@@ -209,11 +209,8 @@ class Connection extends Socket {
         var removed = await _game.removeScene(id);
         if (!removed) return;
 
-        print('Removed $id');
-
         var result = _game.playingScene.toJson();
         if (doNotifyOthers) {
-          print('Notifying everyone of this tragic event');
           _game.notify(action, {'id': _game.playingSceneId, ...result},
               exclude: this, allScenes: true);
         }
@@ -228,8 +225,6 @@ class Connection extends Socket {
     String gameId,
   }) async {
     if (base64 == null || type == null || id == null) return 'Missing info';
-
-    print('lol i have data');
 
     var game = gameId != null
         ? account.ownedGames

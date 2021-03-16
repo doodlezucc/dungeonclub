@@ -5,8 +5,6 @@ import 'package:dnd_interactive/actions.dart';
 import '../main.dart';
 
 Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
-  print('Action $action incoming');
-
   switch (action) {
     case GAME_MOVABLE_CREATE:
       return user.session.board.onMovableCreate(params);

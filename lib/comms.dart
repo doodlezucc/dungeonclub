@@ -21,7 +21,6 @@ abstract class Socket {
 
             var id = json['id'];
             if (id != null) {
-              print('Processed a job called $id or summin idk');
               await send('r' + jsonEncode({'id': id, 'result': result}));
             }
           }

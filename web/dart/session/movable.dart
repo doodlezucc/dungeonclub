@@ -57,7 +57,6 @@ class Movable {
       await window.onMouseUp.first;
       drag = false;
       if (startPos != position) {
-        print('log this pos');
         return socket.sendAction(GAME_MOVABLE_MOVE, {
           'id': id,
           'x': position.x,
