@@ -18,5 +18,7 @@ const GAME_SCENE_ADD = 'gameSceneAdd';
 const GAME_SCENE_REMOVE = 'gameSceneRemove';
 const GAME_SCENE_PLAY = 'gameScenePlay';
 
+const GAME_ROLL_DICE = 'gameRollDice';
+
 const IMAGE_TYPE_PC = 'pc';
 const IMAGE_TYPE_SCENE = 'scene';

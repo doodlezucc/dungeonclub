@@ -121,6 +121,44 @@
             }
         }
     }
+
+    #playerControls {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+
+        button {
+            position: relative;
+        }
+
+        #dice {
+            position: absolute;
+            top: 0;
+            left: calc(100% + 4px);
+            background-color: var(--color-not-intense);
+            padding: 4px;
+            border-collapse: collapse;
+            pointer-events: none;
+            opacity: 0;
+            transition-duration: 0.1s;
+            overflow: hidden;
+
+            td {
+                @extend %clickable;
+                padding: 4px;
+                min-width: 20px;
+                border: 1px solid var(--color-input-active);
+                transition-duration: 0s;
+            }
+        }
+
+        &:hover {
+            #dice {
+                pointer-events: all;
+                opacity: 1;
+            }
+        }
+    }
 }
 
 #board {

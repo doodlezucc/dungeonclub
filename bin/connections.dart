@@ -215,6 +215,22 @@ class Connection extends Socket {
               exclude: this, allScenes: true);
         }
         return result;
+
+      case a.GAME_ROLL_DICE:
+        List<dynamic> dice = params['dice'];
+        if (dice == null || _game == null) return;
+
+        var results = {
+          'results': dice
+              .map((e) => {
+                    'sides': e,
+                    'result': data.rng.nextInt(e) + 1,
+                  })
+              .toList()
+        };
+
+        _game.notify(action, results, exclude: this, allScenes: true);
+        return results;
     }
   }
 

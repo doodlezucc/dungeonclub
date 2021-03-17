@@ -8,6 +8,7 @@ import '../communication.dart';
 import '../panels/upload.dart' as upload;
 import 'grid.dart';
 import 'movable.dart';
+import 'roll_dice.dart';
 import 'scene.dart';
 import 'session.dart';
 
@@ -15,7 +16,7 @@ final HtmlElement _container = querySelector('#boardContainer');
 final HtmlElement _e = querySelector('#board');
 final ImageElement _ground = _e.querySelector('#ground');
 
-final HtmlElement _controls = _container.querySelector('.controls');
+final HtmlElement _controls = _container.querySelector('#sceneEditor');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
 class Board {
@@ -61,6 +62,8 @@ class Board {
     });
 
     _changeImage.onClick.listen((_) => _changeImageDialog());
+
+    initDiceTable();
   }
 
   void _initDragControls() {

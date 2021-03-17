@@ -7,7 +7,7 @@ import 'package:dnd_interactive/point_json.dart';
 import '../../main.dart';
 import '../communication.dart';
 
-final HtmlElement _controls = querySelector('#boardContainer .controls');
+final HtmlElement _controls = querySelector('#sceneEditor');
 final ButtonElement _editGrid = _controls.querySelector('#editGrid');
 final HtmlElement _gridControls = _controls.querySelector('#gridControls');
 final InputElement _gridCellSize = _controls.querySelector('#gridSize');

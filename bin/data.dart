@@ -20,6 +20,7 @@ class ServerData {
 
   final accounts = <Account>[];
   final games = <Game>[];
+  final Random rng = Random();
 
   void init() {
     load().then((_) {
