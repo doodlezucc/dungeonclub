@@ -19,7 +19,7 @@ body {
 
     --color-background: white;
     --color-primary: #4933c3;
-    --color-text-primary: black;
+    --color-text-primary: #111;
     --color-text-inverse: white;
     --color-not-intense: #f8f8f8;
     --color-button-hover: #ddd;
@@ -48,8 +48,12 @@ body {
         --color-good: #62ffa9;
         --color-bad: #ff7676;
     
-        --weight-thick: normal;
+        --weight-thick: 600;
     }
+}
+
+b {
+    font-weight: var(--weight-thick);
 }
 
 %heading {
@@ -119,10 +123,10 @@ button.big {
 }
 
 .good:not(:disabled) {
-    color: var(--color-good);
+    color: var(--color-good) !important;
 }
 .bad:not(:disabled) {
-    color: var(--color-bad);
+    color: var(--color-bad) !important;
 }
 
 input {
@@ -209,29 +213,6 @@ li {
     }
 }
 
-#charPick {
-    max-width: 70%;
-    align-items: center;
-
-    .char {
-        @extend %responsive;
-        display: flex;
-        flex-direction: column;
-        text-align: center;
-        align-items: center;
-        cursor: pointer;
-        transition-duration: 0.1s;
-
-        img {
-            width: 80px;
-            height: 80px;
-        }
-    }
-    .char:hover {
-        text-decoration: underline;
-    }
-}
-
 .roster {
     display: flex;
     flex-wrap: wrap;
@@ -300,6 +281,7 @@ li {
     background-size: cover;
     background-origin: border-box;
     background-position: center;
+    background-clip: content-box;
 }
 
 %vertical {

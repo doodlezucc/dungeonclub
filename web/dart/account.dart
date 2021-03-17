@@ -53,7 +53,7 @@ class MyAccount extends Account {
       var ch = chars[i];
       roster.append(DivElement()
         ..className = 'char'
-        ..append(ImageElement())
+        ..append(ImageElement(src: getGameFile('$IMAGE_TYPE_PC$i.png')))
         ..append(SpanElement()..text = ch.name)
         ..onClick.listen((e) => completer.complete(i)));
     }
