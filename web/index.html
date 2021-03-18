@@ -13,21 +13,24 @@
 </head>
 
 <body class="dark-mode">
-    <h1>D&D Interactive</h1>
+    <header>
+        <h1>D&D Interactive</h1>
 
-    <span>
-        <input type="email" id="loginEmail" value="dummy@email.com">
-        <input type="password" id="loginPassword" value="wowzer">
-        <button id="login">Log in</button>
-        <button id="signup">Sign up</button>
-        <button id="joinDemo">Join session</button>
-        <button id="save">Save server data</button>
-    </span>
+        <span>
+            <input type="email" id="loginEmail" value="dummy@email.com">
+            <input type="password" id="loginPassword" value="wowzer">
+            <button id="login">Log in</button>
+            <button id="signup">Sign up</button>
+            <button id="joinDemo">Join session</button>
+            <button id="save">Save server data</button>
+        </span>
+    </header>
 
     <div id="content">
         <section id="home" class="show">
+            <h2>Your Campaigns</h2>
             <div id="gamesContainer">
-                <button id="create" class="big">Create new game</button>
+                <button id="create" class="big acc-enable" disabled>Create new campaign</button>
             </div>
         </section>
 

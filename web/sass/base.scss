@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&family=Lato&display=swap');
 
-$radius: 8px;
+$radius: 4px;
 
 html, body {
     margin: 0;
@@ -14,6 +14,7 @@ body {
     font-family: 'Lato', sans-serif;
     display: flex;
     flex-direction: column;
+    gap: 16px;
     color: var(--color-text-primary);
     background-color: var(--color-background);
 
@@ -48,9 +49,15 @@ body {
         --color-selected: #ccc;
         --color-good: #62ffa9;
         --color-bad: #ff7676;
-        --color-panel-shadow: #000c;
+        --color-panel-shadow: #000a;
     
-        --weight-thick: 600;
+        --weight-thick: 500;
+    }
+
+    &:not(.logged-in) {
+        .acc {
+            display: none;
+        }
     }
 }
 
@@ -75,7 +82,6 @@ h1 {
 }
 h2 {
     @extend %heading;
-    text-align: center;
 }
 h3 {
     @extend %heading;
@@ -85,7 +91,7 @@ h3 {
 %clickable {
     outline: none;
     border: none;
-    border-radius: 8px;
+    border-radius: $radius;
     background-color: transparent;
     color: var(--color-button-text);
     padding: 6px;
@@ -93,6 +99,10 @@ h3 {
     transition-timing-function: ease-out;
     font-family: inherit;
     font-size: 16px;
+
+    &:disabled {
+        opacity: 0.5;
+    }
 }
 %clickable:not(:disabled) {
     cursor: pointer;
@@ -323,6 +333,9 @@ li {
             opacity: 0;
         }
     }
+    &:not(:hover) {
+        box-shadow: none !important;
+    }
 }
 
 .panel {
@@ -332,6 +345,10 @@ li {
     border-radius: $radius;
     padding: 24px 32px 16px 32px;
     gap: 16px;
+
+    h2 {
+        text-align: center;
+    }
 
     > div {
         @extend %vertical;
@@ -405,4 +422,11 @@ section {
 section.show {
     pointer-events: all;
     opacity: 1;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--color-not-intense);
 }

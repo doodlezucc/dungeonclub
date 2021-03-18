@@ -12,6 +12,9 @@ final ButtonElement _createGameButton = querySelector('#create');
 void init() {
   if (user.registered) {
     _displayEnteredGames();
+    querySelectorAll('.acc-enable').forEach((element) {
+      (element as ButtonElement).disabled = false;
+    });
   }
 
   _createGameButton.onClick.listen((event) async {

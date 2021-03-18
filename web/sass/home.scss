@@ -1,10 +1,15 @@
 @use 'base.scss';
 
+#home {
+    h2 {
+        margin-bottom: 8px;
+    }
+}
+
 #gamesContainer {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 8px;
 
     .game {
         display: flex;
