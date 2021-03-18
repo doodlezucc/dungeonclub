@@ -166,6 +166,12 @@
     display: flex;
     flex-direction: row;
     gap: 8px;
+
+    &:not(.is-gm) {
+        .gm {
+            display: none !important;
+        }
+    }
 }
 
 .dice {

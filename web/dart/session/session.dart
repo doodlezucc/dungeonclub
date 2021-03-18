@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import '../game.dart';
 import 'board.dart';
 import 'character.dart';
@@ -27,6 +29,8 @@ class Session extends Game {
     Future.microtask(() {
       int playingId = json['sceneId'];
       _board.fromJson(playingId, json['scene']);
+
+      querySelector('#session').classes.toggle('is-gm', isGM);
 
       if (isGM) {
         int sceneCount = json['gm']['scenes'];
