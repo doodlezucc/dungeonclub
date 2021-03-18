@@ -15,6 +15,7 @@
     justify-content: center;
     align-items: center;
     border: 1px solid black;
+    box-sizing: border-box;
 
     > .controls {
         position: absolute;
@@ -157,6 +158,50 @@
                 pointer-events: all;
                 opacity: 1;
             }
+        }
+    }
+}
+
+#session {
+    display: flex;
+    flex-direction: row;
+}
+
+.dice {
+    color: var(--color-primary);
+}
+.roll {
+    font-family: 'Courier New', Courier, monospace;
+    padding: 0 2px;
+}
+
+#log {
+    display: flex;
+    flex-direction: column;
+    min-width: 15vw;
+    width: 25vw;
+    max-width: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 2;
+
+    > * {
+        padding: 2px 8px;
+        text-shadow: 0 0 10px #000a;
+        font-size: 1.1em;
+
+        > span {
+            display: inline-flex;
+        }
+
+        &.hidden {
+            opacity: 0.6;
+        }
+        &:hover {
+            opacity: 1;
+        }
+        &:last-child {
+            background-color: var(--color-not-intense);
         }
     }
 }

@@ -217,19 +217,20 @@ class Connection extends Socket {
         return result;
 
       case a.GAME_ROLL_DICE:
-        List<dynamic> dice = params['dice'];
-        if (dice == null || _game == null) return;
+        int charId = params['id'];
+        int sides = params['sides'];
+        int repeat = params['repeat'];
+        if (sides == null || repeat == null || _game == null) return;
 
         var results = {
-          'results': dice
-              .map((e) => {
-                    'sides': e,
-                    'result': data.rng.nextInt(e) + 1,
-                  })
-              .toList()
+          'sides': sides,
+          'results': List.generate(repeat, (_) => data.rng.nextInt(sides) + 1),
+          'id': charId,
         };
 
-        _game.notify(action, results, exclude: this, allScenes: true);
+        if (charId != null) {
+          _game.notify(action, results, exclude: this, allScenes: true);
+        }
         return results;
     }
   }

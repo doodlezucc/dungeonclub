@@ -9,6 +9,7 @@ class Session extends Game {
   Board _board;
   Board get board => _board;
   int _charId;
+  int get charId => _charId;
   Character get myCharacter => _charId != null ? characters[_charId] : null;
 
   Session(String id, String name, this.isGM) : super(id, name, null) {
