@@ -3,6 +3,7 @@ import 'dart:html';
 import 'package:dnd_interactive/actions.dart';
 
 import '../main.dart';
+import 'session/log.dart';
 import 'session/roll_dice.dart';
 
 Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
@@ -44,8 +45,8 @@ void _onConnectionChange(Map<String, dynamic> params) {
   var name = pc != null ? user.session.characters[pc].name : 'GM';
 
   if (join) {
-    print('$name joined the game');
+    gameLog('$name joined the game.');
   } else {
-    print('$name left the game');
+    gameLog('$name left the game.');
   }
 }

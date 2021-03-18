@@ -1,6 +1,7 @@
 import '../game.dart';
 import 'board.dart';
 import 'character.dart';
+import 'log.dart';
 import 'scene.dart';
 
 class Session extends Game {
@@ -20,7 +21,7 @@ class Session extends Game {
     characters.clear();
     characters.addAll(List.from(json['pcs']).map((e) => Character.fromJson(e)));
     _charId = json['mine'];
-    print('Hello, ' + (myCharacter?.name ?? 'GM') + '!');
+    gameLog('Hello, ' + (myCharacter?.name ?? 'GM') + '!');
 
     // Depends on global session object
     Future.microtask(() {
