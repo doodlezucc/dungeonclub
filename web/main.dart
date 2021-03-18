@@ -30,6 +30,10 @@ void main() {
     user.joinSession('pog');
   });
 
+  querySelector('button#brightness').onClick.listen((_) {
+    document.body.classes.toggle('dark-mode');
+  });
+
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
 
