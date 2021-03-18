@@ -30,6 +30,7 @@ body {
     --color-selected: #555;
     --color-good: #009c46;
     --color-bad: #e24b4b;
+    --color-panel-shadow: #0006;
 
     --weight-thick: bold;
 
@@ -47,6 +48,7 @@ body {
         --color-selected: #ccc;
         --color-good: #62ffa9;
         --color-bad: #ff7676;
+        --color-panel-shadow: #000c;
     
         --weight-thick: 600;
     }
@@ -54,6 +56,10 @@ body {
 
 b {
     font-weight: var(--weight-thick);
+}
+
+p {
+    margin: 0;
 }
 
 %heading {
@@ -322,7 +328,7 @@ li {
 .panel {
     @extend %vertical;
     background-color: var(--color-not-intense);
-    box-shadow: 0 0 8px #0006;
+    box-shadow: 0 0 12px var(--color-panel-shadow);
     border-radius: $radius;
     padding: 24px 32px 16px 32px;
     gap: 16px;
@@ -335,6 +341,10 @@ li {
     > span {
         display: flex;
         justify-content: space-evenly;
+    }
+
+    &.dialog {
+        max-width: 500px;
     }
 }
 #editGamePanel {

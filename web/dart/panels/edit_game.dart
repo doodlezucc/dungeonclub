@@ -6,6 +6,7 @@ import 'package:dnd_interactive/actions.dart';
 import '../communication.dart';
 import '../font_awesome.dart';
 import '../game.dart';
+import 'dialog.dart';
 import 'upload.dart' as uploader;
 
 final HtmlElement _panel = querySelector('#editGamePanel');
@@ -57,7 +58,7 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
     }),
     _cancelButton.onClick.listen((event) => closer.complete()),
     _deleteButton.onClick.listen((event) async {
-      if (await _delete(game.id)) {
+      if (await _delete(game)) {
         refEl.remove();
         closer.complete();
       }
@@ -148,7 +149,15 @@ Future<bool> _saveChanges(String id) async {
   });
 }
 
-Future<bool> _delete(String id) async {
-  var confirmed = true;
-  return confirmed && await socket.request(GAME_DELETE, {'id': id});
+Future<bool> _delete(Game game) async {
+  var confirmed = await Dialog<bool>(
+    'Delete Campaign?',
+    onClose: () => false,
+    okText: 'Delete forever',
+    okClass: 'bad',
+  ).addParagraph('''
+    All of <b>${game.name}</b>'s characters, maps and scenes,
+    along with their uploaded images, will be immediately removed from the
+    server. This action can't be undone.''').display();
+  return confirmed && await socket.request(GAME_DELETE, {'id': game.id});
 }

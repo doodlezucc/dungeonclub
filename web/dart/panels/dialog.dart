@@ -9,12 +9,16 @@ final HtmlElement _overlay = querySelector('#overlay');
 
 class Dialog<T> {
   final HtmlElement _e;
-  final _completer = Completer();
+  final _completer = Completer<T>();
   InputElement _input;
   ButtonElement _okButton;
 
-  Dialog(String title, {T Function() onClose, String okText = 'OK'})
-      : _e = DivElement()..className = 'panel' {
+  Dialog(
+    String title, {
+    T Function() onClose,
+    String okText = 'OK',
+    String okClass,
+  }) : _e = DivElement()..className = 'panel dialog' {
     _e
       ..append(HeadingElement.h2()..text = title)
       ..append(iconButton('times')
@@ -23,11 +27,16 @@ class Dialog<T> {
           _completer.complete(onClose());
         }))
       ..append(_okButton = ButtonElement()
-        ..className = 'big'
+        ..className = 'big' + (okClass != null ? ' $okClass' : '')
         ..text = okText
         ..onClick.listen((event) {
           _completer.complete(_input?.value ?? true);
         }));
+  }
+
+  Dialog addParagraph(String html) {
+    _e.insertBefore(ParagraphElement()..innerHtml = html, _okButton);
+    return this;
   }
 
   Dialog withInput({String type = 'text', String placeholder}) {
@@ -35,7 +44,7 @@ class Dialog<T> {
       ..placeholder = placeholder
       ..onKeyDown.listen((event) {
         if (event.keyCode == 13) {
-          _completer.complete(_input.value);
+          _completer.complete(_input.value as T);
         }
       });
     _e.insertBefore(_input, _okButton);
