@@ -30,9 +30,7 @@ void main() {
     user.joinSession('pog');
   });
 
-  querySelector('button#brightness').onClick.listen((_) {
-    document.body.classes.toggle('dark-mode');
-  });
+  _initBrightnessSwitch();
 
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
@@ -49,6 +47,18 @@ Future<void> testFlow() async {
   } else {
     await user.joinSession(user.account.games.first.id);
   }
+}
+
+void _initBrightnessSwitch() {
+  var key = 'darkMode';
+  var cl = 'dark-mode';
+
+  document.body.classes.toggle(cl, window.localStorage[key] != 'false');
+
+  querySelector('button#brightness').onClick.listen((_) {
+    var dark = document.body.classes.toggle(cl);
+    window.localStorage[key] = '$dark';
+  });
 }
 
 void _listenToCssReload() {
