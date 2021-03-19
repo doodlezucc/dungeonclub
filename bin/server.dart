@@ -9,6 +9,7 @@ import 'package:shelf_web_socket/shelf_web_socket.dart' as ws;
 
 import 'connections.dart';
 import 'data.dart';
+import 'mail.dart';
 
 // For Google Cloud Run, set _hostname to '0.0.0.0'.
 const _hostname = 'localhost';
@@ -51,6 +52,8 @@ void main(List<String> args) async {
   var server = await io.serve(handler, _hostname, port);
   _address = 'http://${server.address.host}:${server.port}';
   print('Serving at $address');
+
+  await initializeMailServer();
 }
 
 String getMimeType(File f) {
