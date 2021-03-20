@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'dart/communication.dart';
 import 'dart/panels/edit_game.dart' as edit_game;
+import 'dart/panels/register.dart' as register;
 import 'dart/user.dart';
 
 final user = User();
@@ -19,7 +20,7 @@ void main() {
     await user.login(loginEmail.value, loginPassword.value);
   });
   querySelector('button#signup').onClick.listen((_) {
-    user.login(loginEmail.value, loginPassword.value, signUp: true);
+    register.display();
   });
 
   querySelector('button#save').onClick.listen((_) {

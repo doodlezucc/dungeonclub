@@ -3,12 +3,15 @@ import 'dart:io';
 
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/comms.dart';
+import 'package:random_string/random_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'data.dart';
+import 'mail.dart';
 import 'server.dart';
 
 final connections = <Connection>[];
+final activationCodes = <Connection, String>{};
 
 void onConnect(WebSocketChannel ws) {
   print('New connection!');
@@ -29,6 +32,7 @@ class Connection extends Socket {
     listen(
       onDone: () {
         print('Lost connection (${ws.closeCode})');
+        activationCodes.remove(this);
         _game?.connect(this, false);
         connections.remove(this);
       },
@@ -53,12 +57,22 @@ class Connection extends Socket {
       case 'manualSave': // don't know about the safety of this one, chief
         return data.manualSave();
 
-      case a.ACCOUNT_CREATE:
+      case a.ACCOUNT_REGISTER:
         var email = params['email'];
-        if (data.getAccount(email) != null) {
-          return false;
-        }
+        if (data.getAccount(email) != null) return false;
+
         _account = Account(email, params['password']);
+        var code = randomAlphaNumeric(5);
+        activationCodes[this] = code;
+        return await sendVerifyCreationMail(email, code);
+
+      case a.ACCOUNT_ACTIVATE:
+        var actualCode = activationCodes[this];
+        String code = params['code'];
+        if (actualCode == null || code != actualCode) return false;
+
+        activationCodes.remove(this);
+        print('New account activated!');
         data.accounts.add(_account);
         return _account.toSnippet();
 

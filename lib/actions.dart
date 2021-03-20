@@ -1,4 +1,5 @@
-const ACCOUNT_CREATE = 'accountCreate';
+const ACCOUNT_REGISTER = 'accountRegister';
+const ACCOUNT_ACTIVATE = 'accountActivate';
 const ACCOUNT_LOGIN = 'userLogin';
 
 const GAME_CREATE_NEW = 'gameCreateNew';

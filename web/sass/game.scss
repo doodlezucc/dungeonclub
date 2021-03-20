@@ -1,4 +1,5 @@
 @use 'base.scss';
+@use 'panels.scss';
 
 %active {
     box-shadow: 0 0 6px var(--color-text-inverse) inset;
@@ -46,7 +47,7 @@
     }
 
     #sceneSelector {
-        @include base.hooked(172px);
+        @include panels.hooked(172px);
         width: 100%;
         border-radius: 0%;
 

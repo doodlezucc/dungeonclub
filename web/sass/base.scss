@@ -27,6 +27,7 @@ body {
     --color-button-active: #bbb;
     --color-button-big: #d0d0d0;
     --color-button-text: #111;
+    --color-input-underline: #bbb;
     --color-input-active: #555;
     --color-selected: #555;
     --color-good: #009c46;
@@ -41,10 +42,11 @@ body {
         --color-text-primary: white;
         --color-text-inverse: black;
         --color-not-intense: #24252b;
-        --color-button-hover: #333;
-        --color-button-active: #383838;
+        --color-button-hover: #40394b;
+        --color-button-active: #342c3d;
         --color-button-big: #444;
         --color-button-text: #ddd;
+        --color-input-underline: #444;
         --color-input-active: #777;
         --color-selected: #ccc;
         --color-good: #62ffa9;
@@ -67,6 +69,13 @@ b {
 
 p {
     margin: 0;
+
+    &.note {
+        color: var(--color-input-active);
+        word-wrap: break-word;
+        white-space: normal;
+        max-width: fit-content;
+    }
 }
 
 %heading {
@@ -150,12 +159,13 @@ input {
     font-size: inherit;
     outline: none;
     border: none;
-    border-bottom: 1px solid var(--color-button-active);
+    border-bottom: 1px solid var(--color-input-underline);
     transition-property: border-bottom-color;
     transition-duration: 0.1s;
     margin-bottom: 1px;
     background-color: inherit;
     color: inherit;
+    padding: 0 0 3px 0;
 
     &:focus {
         border-bottom: 2px solid #555;
@@ -305,81 +315,6 @@ li {
     flex-direction: column;
 }
 
-@mixin hooked($height) {
-    bottom: -$height;
-    min-height: $height;
-    max-height: $height;
-    transition-duration: 0.2s;
-    transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
-
-    > .top-hook {
-        position: absolute;
-        bottom: 100%;
-        width: 100%;
-        left: 0;
-        align-items: center;
-        transition-duration: 0.2s;
-
-        > div {
-            @extend %vertical;
-            align-items: center;
-            text-shadow: 0 0 8px #000;
-            padding: 8px 0;
-        }
-    }
-    &:hover {
-        bottom: 0;
-        > .top-hook {
-            opacity: 0;
-        }
-    }
-    &:not(:hover) {
-        box-shadow: none !important;
-    }
-}
-
-.panel {
-    @extend %vertical;
-    background-color: var(--color-not-intense);
-    box-shadow: 0 0 12px var(--color-panel-shadow);
-    border-radius: $radius;
-    padding: 24px 32px 16px 32px;
-    gap: 16px;
-
-    h2 {
-        text-align: center;
-    }
-
-    > div {
-        @extend %vertical;
-        gap: 4px;
-    }
-
-    > span {
-        display: flex;
-        justify-content: space-evenly;
-    }
-
-    &.dialog {
-        max-width: 500px;
-    }
-}
-#editGamePanel {
-    #editChars {
-        display: grid;
-        grid-template-columns: auto auto;
-        gap: 4px;
-        max-height: 50vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-
-        img {
-            width: 64px;
-            height: 64px;
-        }
-    }
-}
-
 .file-upload {
     @extend %responsive;
     @extend %clickable;
@@ -390,22 +325,6 @@ li {
 
     > input {
         display: none;
-    }
-}
-
-#uploadPanel {
-    > div {
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        min-width: 300px;
-        min-height: 300px;
-        position: relative;
-        box-shadow: 0 0 4px #0006;
-
-        > *:not(img) {
-            position: absolute;
-        }
     }
 }
 

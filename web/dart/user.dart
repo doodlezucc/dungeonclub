@@ -24,10 +24,14 @@ class User {
     return true;
   }
 
-  Future<void> login(String email, String password,
-      {bool signUp = false}) async {
+  void onActivate([Map<String, dynamic> accJson]) {
+    _account = MyAccount(accJson);
+    home.init();
+  }
+
+  Future<void> login(String email, String password) async {
     var response = await socket.request(
-      signUp ? ACCOUNT_CREATE : ACCOUNT_LOGIN,
+      ACCOUNT_LOGIN,
       {
         'email': email,
         'password': password,

@@ -1,0 +1,127 @@
+@use 'base.scss';
+
+@mixin hooked($height) {
+    bottom: -$height;
+    min-height: $height;
+    max-height: $height;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+
+    > .top-hook {
+        position: absolute;
+        bottom: 100%;
+        width: 100%;
+        left: 0;
+        align-items: center;
+        transition-duration: 0.2s;
+
+        > div {
+            @extend %vertical;
+            align-items: center;
+            text-shadow: 0 0 8px #000;
+            padding: 8px 0;
+        }
+    }
+    &:hover {
+        bottom: 0;
+        > .top-hook {
+            opacity: 0;
+        }
+    }
+    &:not(:hover) {
+        box-shadow: none !important;
+    }
+}
+
+.panel {
+    @extend %vertical;
+    background-color: var(--color-not-intense);
+    box-shadow: 0 0 12px var(--color-panel-shadow);
+    border-radius: base.$radius;
+    padding: 24px 32px 16px 32px;
+    gap: 16px;
+
+    h2 {
+        text-align: center;
+    }
+
+    > div {
+        @extend %vertical;
+        gap: 4px;
+    }
+
+    > span {
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    &.dialog {
+        max-width: 500px;
+    }
+}
+
+#editGamePanel {
+    #editChars {
+        display: grid;
+        grid-template-columns: auto auto;
+        gap: 4px;
+        max-height: 50vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        img {
+            width: 64px;
+            height: 64px;
+        }
+    }
+}
+
+#uploadPanel {
+    > div {
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        min-width: 300px;
+        min-height: 300px;
+        position: relative;
+        box-shadow: 0 0 4px #0006;
+
+        > *:not(img) {
+            position: absolute;
+        }
+    }
+}
+
+#registerPanel {
+    min-width: 320px;
+
+    section {
+        position: initial;
+        overflow: hidden;
+        display: none;
+        gap: inherit;
+        flex-direction: inherit;
+        align-items: center;
+
+        &.show {
+            height: 100%;
+            display: inherit;
+        }
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: max-content auto;
+        gap: 12px 16px;
+
+        input {
+            min-width: 300px;
+        }
+    }
+
+    #regCode {
+        width: 160px;
+        font-size: 24px;
+        text-align: center;
+    }
+}

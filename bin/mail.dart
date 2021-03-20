@@ -19,7 +19,7 @@ Future<void> initializeMailServer() async {
   _mailAddress = lines[0] + '@gmail.com';
 }
 
-Future<void> sendVerifyCreationMail(String email, String code) async {
+Future<bool> sendVerifyCreationMail(String email, String code) async {
   var content = await File('mail/activate.html').readAsString();
   content = content.replaceAll('\$CODE', code);
 
@@ -32,11 +32,13 @@ Future<void> sendVerifyCreationMail(String email, String code) async {
   try {
     final sendReport = await send(message, smtpServer);
     print('Message sent: ' + sendReport.toString());
+    return true;
   } on MailerException catch (e) {
     print('Message not sent.');
     print(e.message);
     for (var p in e.problems) {
       print('Problem: ${p.code}: ${p.msg}');
     }
+    return false;
   }
 }

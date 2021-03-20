@@ -152,6 +152,45 @@
                 </div>
             </div>
         </div>
+
+        <div class="panel" id="registerPanel">
+            <h2>Sign Up</h2>
+            <button class="close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <section id="register">
+                <div class="grid">
+                    Email address
+                    <input type="email" id="regEmail" placeholder="e.g. sweetlilly93@hotmail.com...">
+                    Password
+                    <input type="password" id="regPassword" placeholder="Password...">
+                    Password (again)
+                    <input type="password" id="regConfirm" placeholder="Confirm password...">
+                </div>
+
+                <p class="note">
+                    Your email address is exclusively used for identifying yourself.
+                    No messages unrelated to your specific account are going to appear in your inbox.
+                </p>
+                <p class="note">
+                    Both your email and password will be encrypted and never viewed, transferred or sold in any way.
+                </p>
+
+                <button id="regSend">Register Account</button>
+            </section>
+
+            <section id="activate">
+                <p class="note">
+                    A confirmation code was sent to <span id="regActEmail"></span>.
+                    Enter it below to activate your account.
+                </p>
+
+                <input type="text" id="regCode" maxlength="5" placeholder="CODE">
+
+                <button id="regActivate">Activate Account</button>
+            </section>
+        </div>
     </div>
 </body>
 
