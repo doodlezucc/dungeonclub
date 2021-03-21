@@ -286,7 +286,7 @@ class Connection extends Socket {
 
   dynamic login(String email, String password) {
     var acc = data.getAccount(email);
-    if (acc == null) {
+    if (acc == null || !acc.encryptedPassword.match(password)) {
       return false;
     }
     _account = acc;
