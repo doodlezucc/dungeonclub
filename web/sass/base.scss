@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans&family=Lato&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Lato&display=swap');
 
 $radius: 4px;
 
@@ -19,14 +19,14 @@ body {
     background-color: var(--color-background);
 
     --color-background: white;
-    --color-primary: #4933c3;
+    --color-primary: #335ac3;
     --color-text-primary: #111;
     --color-text-inverse: white;
-    --color-not-intense: #f8f8f8;
+    --color-not-intense: #f0f0f0;
     --color-button-hover: #ddd;
     --color-button-active: #bbb;
     --color-button-big: #d0d0d0;
-    --color-button-text: #111;
+    --color-button-text: #333;
     --color-input-underline: #bbb;
     --color-input-active: #555;
     --color-selected: #555;
@@ -38,14 +38,14 @@ body {
 
     &.dark-mode {
         --color-background: #16161a;
-        --color-primary: #9683ff;
+        --color-primary: #4b8aff;
         --color-text-primary: white;
         --color-text-inverse: black;
         --color-not-intense: #24252b;
         --color-button-hover: #393c4b;
-        --color-button-active: #2e2c3d;
+        --color-button-active: #2c303d;
         --color-button-big: #444;
-        --color-button-text: #ddd;
+        --color-button-text: #ccc;
         --color-input-underline: #444;
         --color-input-active: #777;
         --color-selected: #ccc;
@@ -89,7 +89,7 @@ p {
 }
 
 %heading {
-    font-family: 'Josefin Sans', sans-serif;
+    font-family: 'Merriweather', sans-serif;
     margin: 0;
     font-weight: var(--weight-thick);
 }
@@ -113,8 +113,8 @@ h3 {
     border-radius: $radius;
     background-color: transparent;
     color: var(--color-button-text);
-    padding: 6px;
-    transition-duration: 0.1s;
+    padding: 8px 12px;
+    transition-duration: 0.05s;
     transition-timing-function: ease-out;
     font-family: inherit;
     font-size: 16px;
@@ -139,10 +139,10 @@ button {
     @extend %clickable;
 }
 button.icon {
-    padding: 4px;
+    padding: 8px;
     box-sizing: border-box;
-    min-width: 25px;
-    height: 25px;
+    min-width: 36px;
+    height: 36px;
     font-size: 16px;
     display: inline-flex;
     flex-direction: row-reverse;
@@ -309,8 +309,8 @@ li {
     @extend .icon;
     border-radius: 50%;
     position: absolute;
-    right: 8px;
-    top: 8px;
+    right: 4px;
+    top: 4px;
 }
 
 @mixin center-background {
@@ -358,6 +358,7 @@ header {
     justify-content: space-between;
     padding-bottom: 8px;
     border-bottom: 2px solid var(--color-not-intense);
+    align-items: center;
 }
 
 .dropdown {
@@ -402,5 +403,9 @@ header {
             opacity: 1;
             pointer-events: all;
         }
+    }
+
+    &.hidden {
+        display: none;
     }
 }

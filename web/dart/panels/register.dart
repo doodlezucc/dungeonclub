@@ -26,10 +26,12 @@ final ButtonElement _registerButton = _panel.querySelector('#regSend');
 final ButtonElement _activateButton = _panel.querySelector('#regActivate');
 
 final ButtonElement _cancelButton = _panel.querySelector('button.close');
+final ButtonElement _loginButton = querySelector('button#login');
 
 const pwLengthMin = 7;
 
 Future<void> display() async {
+  _loginButton.classes.add('disabled');
   _emailInput.value = '';
   _passwordInput.value = '';
   _confirmInput.value = '';
@@ -72,6 +74,7 @@ Future<void> display() async {
 
   await closer.future;
   _panel.classes.remove('show');
+  _loginButton.classes.remove('disabled');
   subs.forEach((s) => s.cancel());
 }
 
