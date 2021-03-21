@@ -9,7 +9,7 @@ html, body {
 }
 
 body {
-    padding: 20px;
+    padding: 16px;
     box-sizing: border-box;
     font-family: 'Lato', sans-serif;
     display: flex;
@@ -42,8 +42,8 @@ body {
         --color-text-primary: white;
         --color-text-inverse: black;
         --color-not-intense: #24252b;
-        --color-button-hover: #40394b;
-        --color-button-active: #342c3d;
+        --color-button-hover: #393c4b;
+        --color-button-active: #2e2c3d;
         --color-button-big: #444;
         --color-button-text: #ddd;
         --color-input-underline: #444;
@@ -60,6 +60,16 @@ body {
         .acc {
             display: none;
         }
+    }
+}
+
+a {
+    color: var(--color-button-text);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--color-text-primary);
     }
 }
 
@@ -121,7 +131,7 @@ h3 {
     color: var(--color-text-primary);
 }
 %clickable:not(:disabled):active {
-    background-color: var(--color-button-active) !important;
+    background-color: var(--color-button-active);
     transition-duration: 0s;
 }
 
@@ -348,4 +358,49 @@ header {
     justify-content: space-between;
     padding-bottom: 8px;
     border-bottom: 2px solid var(--color-not-intense);
+}
+
+.dropdown {
+    @extend %clickable;
+    display: inline-block;
+    position: relative;
+    border-radius: $radius $radius 0 0;
+
+    > div {
+        @extend %vertical;
+        gap: 12px;
+        background-color: var(--color-not-intense);
+        padding: 16px 20px;
+        position: absolute;
+        z-index: 4;
+        top: 100%;
+        right: 0;
+        opacity: 0;
+        pointer-events: none;
+        cursor: default;
+        transition-duration: 0.1s;
+
+        > div {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        > span {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: center;
+            white-space: nowrap;
+        }
+    }
+
+    &:hover {
+        background-color: var(--color-button-hover) !important;
+
+        > div {
+            opacity: 1;
+            pointer-events: all;
+        }
+    }
 }

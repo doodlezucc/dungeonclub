@@ -17,10 +17,22 @@
         <h1>D&D Interactive</h1>
 
         <span>
-            <input type="email" id="loginEmail" value="dummy@email.com">
-            <input type="password" id="loginPassword" value="wowzer">
-            <button id="login">Log in</button>
-            <button id="signup">Sign up</button>
+            <div id="tabLogin" class="dropdown">Log In
+                <div>
+                    <div>
+                        <p class="note">Email address</p>
+                        <input type="email" id="loginEmail" placeholder="">
+                    </div>
+                    <div>
+                        <p class="note">Password</p>
+                        <input type="password" id="loginPassword" placeholder="">
+                    </div>
+                    <span>
+                        <button id="login" class="big">Log In</button>
+                        <a id="signup">Don't have an account?</a>
+                    </span>
+                </div>
+            </div>
             <button id="joinDemo">Join session</button>
             <button id="save">Save server data</button>
             <button id="brightness" class="icon" title="Toggle light/dark mode">

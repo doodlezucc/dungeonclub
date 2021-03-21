@@ -19,7 +19,7 @@ void main() {
   querySelector('button#login').onClick.listen((_) async {
     await user.login(loginEmail.value, loginPassword.value);
   });
-  querySelector('button#signup').onClick.listen((_) {
+  querySelector('#signup').onClick.listen((_) {
     register.display();
   });
 
