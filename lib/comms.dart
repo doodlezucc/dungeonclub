@@ -12,7 +12,12 @@ abstract class Socket {
       messageStream.listen((data) async {
         var ds = data.toString();
         var cut = 200;
-        print(ds.length <= cut ? ds : ds.substring(0, cut));
+        var short = ds.length <= cut ? ds : ds.substring(0, cut);
+
+        if (!short.contains('email') && !short.contains('password')) {
+          print(short);
+        }
+
         if (data is String) {
           if (data[0] == '{') {
             var json = jsonDecode(data);
