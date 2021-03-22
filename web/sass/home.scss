@@ -22,12 +22,20 @@
         border-radius: base.$radius;
         transition-duration: 0.3s;
 
-        h3 { margin-top: 3px; }
+        h3 {
+            margin: 0;
+        }
 
         span {
             display: flex;
             align-items: center;
             justify-content: space-between;
+
+            button {
+                min-width: 25px;
+                height: 25px;
+                padding: 4px;
+            }
         }
     }
 }

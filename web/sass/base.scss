@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather&family=Lato&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kreon&family=Lato&display=swap');
 
 $radius: 4px;
 
@@ -33,6 +33,7 @@ body {
     --color-good: #009c46;
     --color-bad: #e24b4b;
     --color-panel-shadow: #0006;
+    --color-note: #888;
 
     --weight-thick: bold;
 
@@ -44,7 +45,7 @@ body {
         --color-not-intense: #24252b;
         --color-button-hover: #393c4b;
         --color-button-active: #2c303d;
-        --color-button-big: #444;
+        --color-button-big: #444755;
         --color-button-text: #ccc;
         --color-input-underline: #444;
         --color-input-active: #777;
@@ -52,6 +53,7 @@ body {
         --color-good: #62ffa9;
         --color-bad: #ff7676;
         --color-panel-shadow: #000a;
+        --color-note: #aaa;
     
         --weight-thick: 500;
     }
@@ -71,6 +73,9 @@ a {
     &:hover {
         color: var(--color-text-primary);
     }
+    &:active {
+        color: var(--color-button-text);
+    }
 }
 
 b {
@@ -79,17 +84,14 @@ b {
 
 p {
     margin: 0;
-
-    &.note {
-        color: var(--color-input-active);
-        word-wrap: break-word;
-        white-space: normal;
-        max-width: fit-content;
-    }
+    color: var(--color-note);
+    word-wrap: break-word;
+    white-space: normal;
+    max-width: fit-content;
 }
 
 %heading {
-    font-family: 'Merriweather', sans-serif;
+    font-family: 'Kreon', sans-serif;
     margin: 0;
     font-weight: var(--weight-thick);
 }
@@ -177,8 +179,12 @@ input {
     color: inherit;
     padding: 0 0 3px 0;
 
+    &:hover {
+        border-bottom: 2px solid var(--color-input-underline);
+        margin-bottom: 0;
+    }
     &:focus {
-        border-bottom: 2px solid #555;
+        border-bottom: 2px solid var(--color-input-active);
         margin-bottom: 0;
     }
 
@@ -379,7 +385,8 @@ header {
         opacity: 0;
         pointer-events: none;
         cursor: default;
-        transition-duration: 0.1s;
+        transition-duration: 0.2s;
+        border-radius: $radius 0 $radius $radius;
 
         > div {
             display: flex;

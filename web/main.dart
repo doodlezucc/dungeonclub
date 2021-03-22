@@ -6,8 +6,6 @@ import 'dart/panels/register.dart' as register;
 import 'dart/user.dart';
 
 final user = User();
-final InputElement loginEmail = querySelector('#loginEmail');
-final InputElement loginPassword = querySelector('#loginPassword');
 const appName = 'D&D Interactive';
 
 void main() {
@@ -16,9 +14,8 @@ void main() {
 
   print('Ready!');
 
-  querySelector('button#login').onClick.listen((_) async {
-    await user.login(loginEmail.value, loginPassword.value);
-  });
+  _initLogInTab();
+
   querySelector('#signup').onClick.listen((_) {
     register.display();
   });
@@ -42,12 +39,27 @@ void main() {
 Future<void> testFlow() async {
   var edit = true;
 
-  await user.login(loginEmail.value, loginPassword.value);
+  await user.login('dummy@email.com', 'wowzer');
   if (edit) {
     await edit_game.display(user.account.games.first);
   } else {
     await user.joinSession(user.account.games.first.id);
   }
+}
+
+void _initLogInTab() {
+  InputElement loginEmail = querySelector('#loginEmail');
+  InputElement loginPassword = querySelector('#loginPassword');
+  ButtonElement loginButton = querySelector('button#login');
+  HtmlElement loginError = querySelector('#loginError');
+
+  loginButton.onClick.listen((_) async {
+    if (!await user.login(loginEmail.value, loginPassword.value)) {
+      loginError.text = 'Failed to log in.';
+    } else {
+      loginError.text = null;
+    }
+  });
 }
 
 void _initBrightnessSwitch() {

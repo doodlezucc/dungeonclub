@@ -29,7 +29,7 @@ class User {
     home.init();
   }
 
-  Future<void> login(String email, String password) async {
+  Future<bool> login(String email, String password) async {
     var response = await socket.request(
       ACCOUNT_LOGIN,
       {
@@ -38,10 +38,9 @@ class User {
       },
     );
     if (response != false) {
-      _account = MyAccount(response);
-      home.init();
-    } else {
-      print('Login failed!');
+      onActivate(response);
+      return true;
     }
+    return false;
   }
 }

@@ -20,13 +20,14 @@
             <div id="tabLogin" class="dropdown">Log In
                 <div>
                     <div>
-                        <p class="note">Email address</p>
-                        <input type="email" id="loginEmail" placeholder="">
+                        <p>Email address</p>
+                        <input type="email" id="loginEmail" placeholder="Enter your email address...">
                     </div>
                     <div>
-                        <p class="note">Password</p>
-                        <input type="password" id="loginPassword" placeholder="">
+                        <p>Password</p>
+                        <input type="password" id="loginPassword" placeholder="Enter your password...">
                     </div>
+                    <p id="loginError" class="bad"></p>
                     <span>
                         <button id="login" class="big">Log In</button>
                         <a id="signup">Don't have an account?</a>
@@ -182,11 +183,11 @@
                     <input type="password" id="regConfirm" placeholder="Confirm password...">
                 </div>
 
-                <p class="note">
+                <p>
                     Your email address is exclusively used for identifying yourself.
                     No messages unrelated to your specific account are going to appear in your inbox.
                 </p>
-                <p class="note">
+                <p>
                     Both your email and password will be encrypted and never viewed, transferred or sold in any way.
                 </p>
 
@@ -194,7 +195,7 @@
             </section>
 
             <section id="activate">
-                <p class="note">
+                <p>
                     A confirmation code was sent to <span id="regActEmail"></span>.
                     Enter it below to activate your account.
                 </p>
