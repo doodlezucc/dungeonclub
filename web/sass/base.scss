@@ -9,7 +9,7 @@ html, body {
 }
 
 body {
-    padding: 16px;
+    padding: 0;
     box-sizing: border-box;
     font-family: 'Lato', sans-serif;
     display: flex;
@@ -22,18 +22,18 @@ body {
     --color-primary: #335ac3;
     --color-text-primary: #111;
     --color-text-inverse: white;
-    --color-not-intense: #f0f0f0;
+    --color-not-intense: #eee;
     --color-button-hover: #ddd;
     --color-button-active: #bbb;
     --color-button-big: #d0d0d0;
     --color-button-text: #333;
     --color-input-underline: #bbb;
-    --color-input-active: #555;
+    --color-input-active: var(--color-primary);
     --color-selected: #555;
     --color-good: #009c46;
     --color-bad: #e24b4b;
     --color-panel-shadow: #0006;
-    --color-note: #888;
+    --color-note: #777;
 
     --weight-thick: bold;
 
@@ -48,7 +48,7 @@ body {
         --color-button-big: #444755;
         --color-button-text: #ccc;
         --color-input-underline: #444;
-        --color-input-active: #777;
+        // --color-input-active: #777;
         --color-selected: #ccc;
         --color-good: #62ffa9;
         --color-bad: #ff7676;
@@ -74,7 +74,7 @@ a {
         color: var(--color-text-primary);
     }
     &:active {
-        color: var(--color-button-text);
+        color: var(--color-note);
     }
 }
 
@@ -235,8 +235,8 @@ li {
 #notifications {
     @extend %vertical;
     position: fixed;
-    top: 0;
-    left: 0;
+    top: 16px;
+    left: 16px;
     margin: 24px;
     gap: 10px;
 }
@@ -353,6 +353,7 @@ section {
     pointer-events: none;
     opacity: 0;
     transition-duration: 0.5s;
+    transition-property: opacity;
 }
 section.show {
     pointer-events: all;
@@ -362,7 +363,7 @@ section.show {
 header {
     display: flex;
     justify-content: space-between;
-    padding-bottom: 8px;
+    padding: 10px 12px 8px 12px;
     border-bottom: 2px solid var(--color-not-intense);
     align-items: center;
 }
@@ -387,20 +388,6 @@ header {
         cursor: default;
         transition-duration: 0.2s;
         border-radius: $radius 0 $radius $radius;
-
-        > div {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        > span {
-            display: flex;
-            justify-content: space-between;
-            gap: 16px;
-            align-items: center;
-            white-space: nowrap;
-        }
     }
 
     &:hover {

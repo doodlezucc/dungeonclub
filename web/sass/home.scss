@@ -1,8 +1,47 @@
 @use 'base.scss';
+@use 'panels.scss';
 
 #home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    padding: 32px;
+
+    > h1 {
+        font-size: 2em;
+    }
+
     h2 {
-        margin: 4px 0 8px 0;
+        padding-top: 16px;
+        margin-bottom: 8px;
+        border-top: 2px solid var(--color-not-intense);
+    }
+
+    span {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    > .panel {
+        gap: 16px;
+        padding: 30px 36px;
+        box-shadow: none;
+        min-width: 200px;
+        width: 16vw;
+
+        > div {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+    }
+
+    > .stretch {
+        width: 100%;
     }
 }
 

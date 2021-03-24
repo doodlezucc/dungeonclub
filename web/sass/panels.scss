@@ -102,11 +102,10 @@
         gap: inherit;
         flex-direction: inherit;
         align-items: center;
-
-        &.show {
-            height: 100%;
-            display: inherit;
-        }
+    }
+    &.show section.show {
+        height: 100%;
+        display: inherit;
     }
 
     .grid {
