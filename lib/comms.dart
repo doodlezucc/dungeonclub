@@ -1,6 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'dart:math';
+
+final confidentialRegex = RegExp(r'email|password|token');
+const msgPrintLength = 200;
+const maxMsgLength = 1024 * 1024 * 1;
+
 abstract class Socket {
   int _jobId = 0;
 
@@ -11,15 +17,24 @@ abstract class Socket {
   StreamSubscription listen({void Function() onDone, Function onError}) =>
       messageStream.listen((data) async {
         var ds = data.toString();
-        var cut = 200;
-        var short = ds.length <= cut ? ds : ds.substring(0, cut);
+        var short =
+            ds.length <= msgPrintLength ? ds : ds.substring(0, msgPrintLength);
 
-        if (!short.contains('email') && !short.contains('password')) {
+        if (!confidentialRegex.hasMatch(short)) {
           print(short);
         }
 
         if (data is String) {
           if (data[0] == '{') {
+            if (data.length >= maxMsgLength) {
+              print('Warning: Long websocket message (${data.length} chars)');
+
+              if (!short.startsWith('{"id"')) return;
+
+              // Shorten json string to only contain message id
+              data = short.substring(0, min(1, short.indexOf(',') - 1)) + '}';
+            }
+
             var json = jsonDecode(data);
 
             var result = await handleAction(json['action'], json['params']);

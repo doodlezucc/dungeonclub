@@ -312,11 +312,10 @@ CanvasElement _imgToCanvas(int maxRes) {
   var dw = (w * nw).round();
   var dh = (h * nh).round();
 
-  if (dw >= dh && dw > maxRes) {
+  if (dw >= dh) {
     dh = (dh * maxRes / dw).round();
     dw = maxRes;
-  }
-  if (dh >= dw && dh > maxRes) {
+  } else {
     dw = (dw * maxRes / dh).round();
     dh = maxRes;
   }
