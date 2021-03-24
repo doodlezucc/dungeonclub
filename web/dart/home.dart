@@ -9,6 +9,11 @@ import 'panels/edit_game.dart' as edit_game;
 final HtmlElement _gamesContainer = querySelector('#gamesContainer');
 final ButtonElement _createGameButton = querySelector('#create');
 final HtmlElement _loginTab = querySelector('#loginTab');
+final ButtonElement _logout = querySelector('#logOut')
+  ..onClick.listen((_) {
+    window.localStorage.remove('token');
+    window.location.reload();
+  });
 
 void init() {
   _initLogInTab();
@@ -55,6 +60,7 @@ void _initLogInTab() async {
 
 void onLogin() {
   _loginTab.classes.add('hidden');
+  _logout.classes.remove('hidden');
   _displayEnteredGames();
   querySelectorAll('.acc-enable').forEach((element) {
     (element as ButtonElement).disabled = false;

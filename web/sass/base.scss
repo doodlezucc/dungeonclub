@@ -365,6 +365,16 @@ header {
     padding: 10px 12px 8px 12px;
     border-bottom: 2px solid var(--color-not-intense);
     align-items: center;
+
+    > span > * {
+        opacity: 1;
+        transition-duration: 0.2s;
+
+        &.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    }
 }
 
 .dropdown {
