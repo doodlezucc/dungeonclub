@@ -14,7 +14,6 @@ body {
     font-family: 'Lato', sans-serif;
     display: flex;
     flex-direction: column;
-    gap: 8px;
     color: var(--color-text-primary);
     background-color: var(--color-background);
 
@@ -177,7 +176,7 @@ input {
     margin-bottom: 1px;
     background-color: inherit;
     color: inherit;
-    padding: 0 0 3px 0;
+    padding: 0 1px 3px 1px;
 
     &:hover {
         border-bottom: 2px solid var(--color-input-underline);

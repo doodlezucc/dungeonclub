@@ -8,9 +8,11 @@ import 'panels/edit_game.dart' as edit_game;
 
 final HtmlElement _gamesContainer = querySelector('#gamesContainer');
 final ButtonElement _createGameButton = querySelector('#create');
+final HtmlElement _loginTab = querySelector('#loginTab');
 
 void init() {
   if (user.registered) {
+    _loginTab.classes.add('hidden');
     _displayEnteredGames();
     querySelectorAll('.acc-enable').forEach((element) {
       (element as ButtonElement).disabled = false;

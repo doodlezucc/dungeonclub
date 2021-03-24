@@ -28,34 +28,39 @@
 
     <div id="content">
         <section id="home" class="show">
-            <h1>Sign in to D&D Interactive</h1>
+            <div id="loginTab">
+                <h1>Sign in to D&D Interactive</h1>
 
-            <p>You don't need an account to join games, only to create one!</p>
+                <p>
+                    An account gives you the possibility to create and lead your own campaigns.
+                    <br>It's not needed for joining games!
+                </p>
 
-            <form action="javascript:void(0);" class="panel">
-                <div>
-                    <p>Email address</p>
-                    <input type="email" id="loginEmail">
-                </div>
-                <div>
-                    <span>
-                        <p>Password</p>
-                        <a id="resetPassword">Forgot password?</a>
-                    </span>
-                    <input type="password" id="loginPassword">
-                </div>
-                <p id="loginError" class="bad"></p>
-                <button id="login" class="big">Log In</button>
-            </form>
-            <span>
-                or
-                <button id="signup" class="big">Create a new account</button>
-            </span>
+                <form action="javascript:void(0);" class="panel">
+                    <div>
+                        <p>Email address</p>
+                        <input type="email" id="loginEmail">
+                    </div>
+                    <div>
+                        <span>
+                            <p>Password</p>
+                            <a id="resetPassword">Forgot password?</a>
+                        </span>
+                        <input type="password" id="loginPassword">
+                    </div>
+                    <p id="loginError" class="bad"></p>
+                    <button id="login" class="big">Log In</button>
+                </form>
+                <span>
+                    or
+                    <button id="signup" class="big">Create a new account</button>
+                </span>
+            </div>
 
-            <div class="stretch">
+            <div>
                 <h2>Saved Campaigns</h2>
                 <div id="gamesContainer">
-                    <button id="create" class="big acc-enable" disabled>Create new campaign</button>
+                    <button id="create" class="big acc-enable smooth" disabled>Create new campaign</button>
                 </div>
             </div>
         </section>

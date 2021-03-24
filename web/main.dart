@@ -54,8 +54,11 @@ void _initLogInTab() {
   HtmlElement loginError = querySelector('#loginError');
 
   loginButton.onClick.listen((_) async {
+    loginButton.disabled = true;
+    loginError.text = null;
     if (!await user.login(loginEmail.value, loginPassword.value)) {
       loginError.text = 'Failed to log in.';
+      loginButton.disabled = false;
     } else {
       loginError.text = null;
     }

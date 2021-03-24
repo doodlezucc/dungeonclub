@@ -4,18 +4,9 @@
 #home {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 28px;
-    padding: 32px;
 
-    > h1 {
+    h1 {
         font-size: 2em;
-    }
-
-    h2 {
-        padding-top: 16px;
-        margin-bottom: 8px;
-        border-top: 2px solid var(--color-not-intense);
     }
 
     span {
@@ -26,22 +17,44 @@
         white-space: nowrap;
     }
 
-    > .panel {
+    > div {
+        display: flex;
+        flex-direction: column;
         gap: 16px;
-        padding: 30px 36px;
-        box-shadow: none;
-        min-width: 200px;
-        width: 16vw;
-
-        > div {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        padding: 32px;
     }
 
-    > .stretch {
-        width: 100%;
+    #loginTab {
+        align-items: center;
+        gap: 28px;
+        border-bottom: 2px solid var(--color-not-intense);
+        text-align: center;
+        overflow: hidden;
+        max-height: 100vh;
+        transition: max-height 0.5s 0.25s,
+                    padding 0.5s 0.25s,
+                    border-bottom 0.5s 0.25s;
+
+        > .panel {
+            gap: 16px;
+            padding: 30px 36px;
+            box-shadow: none;
+            min-width: 200px;
+            width: 16vw;
+    
+            > div {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        &.hidden {
+            max-height: 0;
+            padding: 0;
+            border-bottom: 0 solid transparent;
+            pointer-events: none;
+        }
     }
 }
 
@@ -54,12 +67,13 @@
         display: flex;
         flex-direction: column;
         background-color: var(--color-not-intense);
-        box-shadow: 0 0 4px #000a;
+        box-shadow: 0 0 4px var(--color-panel-shadow);
         padding: 8px;
         gap: 16px;
         width: 200px;
         border-radius: base.$radius;
         transition-duration: 0.3s;
+        animation: popup 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) backwards;
 
         h3 {
             margin: 0;
@@ -77,6 +91,11 @@
             }
         }
     }
+}
+
+@keyframes popup {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 #charPick {

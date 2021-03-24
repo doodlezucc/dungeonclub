@@ -47,7 +47,7 @@
     }
 
     #sceneSelector {
-        @include panels.hooked(172px);
+        @include panels.hooked(186px);
         width: 100%;
         border-radius: 0%;
 
@@ -56,7 +56,7 @@
             overflow-x: auto;
             overflow-y: hidden;
             gap: 8px;
-            padding: 8px 0 32px 0;
+            padding: 8px 0 44px 0;
 
             > div {
                 > div {
@@ -165,7 +165,6 @@
 #session {
     display: flex;
     flex-direction: row;
-    gap: 8px;
 
     &:not(.is-gm) {
         .gm {
@@ -173,8 +172,8 @@
         }
     }
 
-    > * {
-        border: 2px solid var(--color-not-intense);
+    > *:not(:last-child) {
+        border-right: 2px solid var(--color-not-intense);
     }
 }
 
