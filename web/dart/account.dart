@@ -20,7 +20,13 @@ class MyAccount extends Account {
       : email = json['email'],
         games = List.from(json['games'])
             .map((e) => Game(e['id'], e['name'], e['mine']))
-            .toList();
+            .toList() {
+    var token = json['token'];
+    if (token != null) {
+      print('Saving token $token');
+      window.localStorage['token'] = token;
+    }
+  }
 
   Future<Game> createNewGame(String name) async {
     var snippet = await socket.request(GAME_CREATE_NEW, {'name': name});

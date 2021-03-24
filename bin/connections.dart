@@ -12,6 +12,7 @@ import 'server.dart';
 
 final connections = <Connection>[];
 final activationCodes = <Connection, String>{};
+final tokenAccounts = <String, Account>{};
 
 void onConnect(WebSocketChannel ws) {
   print('New connection!');
@@ -77,6 +78,16 @@ class Connection extends Socket {
         return _account.toSnippet();
 
       case a.ACCOUNT_LOGIN:
+        String email = params['email'];
+        String password = params['password'];
+        String token = params['token'];
+        if (email == null || password == null) {
+          if (token == null || tokenAccounts[token] == null) return false;
+
+          print('this dude has a token!');
+          return loginAccount(tokenAccounts[token]);
+        }
+
         return login(params['email'], params['password']);
 
       case a.GAME_CREATE_NEW:
@@ -284,11 +295,29 @@ class Connection extends Socket {
     _game?.notify(action, params, exclude: this);
   }
 
-  dynamic login(String email, String password) {
+  dynamic login(String email, String password, {bool provideToken = true}) {
     var acc = data.getAccount(email);
     if (acc == null || !acc.encryptedPassword.match(password)) {
       return false;
     }
+
+    var result = loginAccount(acc);
+    if (provideToken) {
+      for (var entry in tokenAccounts.entries) {
+        if (entry.value == acc) {
+          tokenAccounts.remove(entry.key);
+          break;
+        }
+      }
+      var token = randomAlphaNumeric(16);
+      tokenAccounts[token] = acc;
+      result.addAll({'token': token});
+    }
+
+    return result;
+  }
+
+  Map<String, dynamic> loginAccount(Account acc) {
     _account = acc;
     print('Connection logged in with account ' + acc.encryptedEmail.hash);
     return acc.toSnippet();

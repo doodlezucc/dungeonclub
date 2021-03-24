@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'dart/communication.dart';
+import 'dart/home.dart' as home;
 import 'dart/panels/edit_game.dart' as edit_game;
 import 'dart/panels/register.dart' as register;
 import 'dart/user.dart';
@@ -14,7 +15,7 @@ void main() {
 
   print('Ready!');
 
-  _initLogInTab();
+  home.init();
 
   querySelector('#signup').onClick.listen((_) {
     register.display();
@@ -45,24 +46,6 @@ Future<void> testFlow() async {
   } else {
     await user.joinSession(user.account.games.first.id);
   }
-}
-
-void _initLogInTab() {
-  InputElement loginEmail = querySelector('#loginEmail');
-  InputElement loginPassword = querySelector('#loginPassword');
-  ButtonElement loginButton = querySelector('button#login');
-  HtmlElement loginError = querySelector('#loginError');
-
-  loginButton.onClick.listen((_) async {
-    loginButton.disabled = true;
-    loginError.text = null;
-    if (!await user.login(loginEmail.value, loginPassword.value)) {
-      loginError.text = 'Failed to log in.';
-      loginButton.disabled = false;
-    } else {
-      loginError.text = null;
-    }
-  });
 }
 
 void _initBrightnessSwitch() {

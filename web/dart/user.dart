@@ -26,7 +26,7 @@ class User {
 
   void onActivate([Map<String, dynamic> accJson]) {
     _account = MyAccount(accJson);
-    home.init();
+    home.onLogin();
   }
 
   Future<bool> login(String email, String password) async {
@@ -37,6 +37,15 @@ class User {
         'password': password,
       },
     );
+    if (response != false) {
+      onActivate(response);
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> loginToken(String token) async {
+    var response = await socket.request(ACCOUNT_LOGIN, {'token': token});
     if (response != false) {
       onActivate(response);
       return true;

@@ -11,13 +11,7 @@ final ButtonElement _createGameButton = querySelector('#create');
 final HtmlElement _loginTab = querySelector('#loginTab');
 
 void init() {
-  if (user.registered) {
-    _loginTab.classes.add('hidden');
-    _displayEnteredGames();
-    querySelectorAll('.acc-enable').forEach((element) {
-      (element as ButtonElement).disabled = false;
-    });
-  }
+  _initLogInTab();
 
   _createGameButton.onClick.listen((event) async {
     if (!user.registered) return print('No permissions to create a new game!');
@@ -32,6 +26,38 @@ void init() {
 
     var game = await user.account.createNewGame(name);
     _addEnteredGame(game, instantEdit: true);
+  });
+}
+
+void _initLogInTab() async {
+  InputElement loginEmail = querySelector('#loginEmail');
+  InputElement loginPassword = querySelector('#loginPassword');
+  ButtonElement loginButton = querySelector('button#login');
+  HtmlElement loginError = querySelector('#loginError');
+
+  loginButton.onClick.listen((_) async {
+    loginButton.disabled = true;
+    loginError.text = null;
+    if (!await user.login(loginEmail.value, loginPassword.value)) {
+      loginError.text = 'Failed to log in.';
+      loginButton.disabled = false;
+    } else {
+      loginError.text = null;
+    }
+  });
+
+  var token = window.localStorage['token'];
+  if (token != null) {
+    if (await user.loginToken(token)) return print('Logged in with token');
+  }
+  _loginTab.classes.remove('hidden');
+}
+
+void onLogin() {
+  _loginTab.classes.add('hidden');
+  _displayEnteredGames();
+  querySelectorAll('.acc-enable').forEach((element) {
+    (element as ButtonElement).disabled = false;
   });
 }
 
