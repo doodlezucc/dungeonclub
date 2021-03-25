@@ -56,11 +56,16 @@
             > .prefab {
                 @extend %responsive;
                 @include base.center-background;
-                width: 24px;
-                height: 24px;
+                width: 32px;
+                height: 32px;
                 cursor: pointer;
             }
         }
+    }
+
+    #selectionProperties {
+        min-width: 100px;
+        left: 16px;
     }
 
     #sceneSelector {

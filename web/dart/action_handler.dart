@@ -4,6 +4,7 @@ import 'package:dnd_interactive/actions.dart';
 
 import '../main.dart';
 import 'session/log.dart';
+import 'session/prefab_palette.dart';
 import 'session/roll_dice.dart';
 
 Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
@@ -33,6 +34,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
 
     case GAME_ROLL_DICE:
       return onDiceRoll(params);
+
+    case GAME_PREFAB_CREATE:
+      return onPrefabCreate(params);
   }
 
   window.console.warn('Unhandled action!');

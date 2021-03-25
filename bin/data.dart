@@ -281,7 +281,7 @@ class Game {
         _characters = List.from(json['pcs'])
             .map((j) => PlayerCharacter.fromJson(j))
             .toList(),
-        _prefabs = List.from(json['customPrefabs'] ?? [])
+        _prefabs = List.from(json['prefabs'] ?? [])
             .map((e) => CustomPrefab.fromJson(e))
             .toList();
 
@@ -335,6 +335,7 @@ class PlayerCharacter {
 
   Map<String, dynamic> toJson() => {
         'name': name,
+        'prefab': prefab.toJson(),
       };
 }
 

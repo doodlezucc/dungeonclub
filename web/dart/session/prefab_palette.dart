@@ -3,7 +3,7 @@ import 'dart:html';
 import 'package:dnd_interactive/actions.dart';
 
 import '../../main.dart';
-import '../communication.dart';
+import '../panels/upload.dart' as upload;
 import 'prefab.dart';
 
 final HtmlElement _palette = querySelector('#prefabPalette');
@@ -29,12 +29,16 @@ void _initPrefabPalette() {
   }
 
   _addPref.onClick.listen((event) {
-    addPrefab();
+    createPrefab();
   });
 }
 
-Future<void> addPrefab() async {
-  var result = await socket.request(GAME_PREFAB_CREATE);
+Future<void> createPrefab() async {
+  var result = await upload.display(
+    action: GAME_PREFAB_CREATE,
+    type: IMAGE_TYPE_ENTITY,
+  );
+
   if (result == null) return null;
 
   onPrefabCreate(result);

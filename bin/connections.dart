@@ -149,6 +149,7 @@ class Connection extends Socket {
       case a.GAME_PREFAB_CREATE:
         if (_game != null) {
           var p = _game.addPrefab();
+          await _uploadGameImageJson(params, id: p.id);
           var json = p.toJson();
           notifyOthers(action, json);
           return json;
@@ -223,11 +224,7 @@ class Connection extends Socket {
         var s = _game?.addScene();
         if (s == null) return null;
 
-        await _uploadGameImage(
-          type: a.IMAGE_TYPE_SCENE,
-          id: id,
-          base64: params['data'],
-        );
+        await _uploadGameImageJson(params, id: id);
         scene = s;
         return s.toJson();
 
@@ -291,11 +288,11 @@ class Connection extends Socket {
     return 'Missing game info';
   }
 
-  Future<String> _uploadGameImageJson(Map<String, dynamic> json) {
+  Future<String> _uploadGameImageJson(Map<String, dynamic> json, {int id}) {
     return _uploadGameImage(
       base64: json['data'],
       type: json['type'],
-      id: json['id'],
+      id: id ?? json['id'],
       gameId: json['gameId'],
     );
   }

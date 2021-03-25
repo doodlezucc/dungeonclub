@@ -20,9 +20,6 @@ String getFile(String path, {bool cacheBreak = true}) {
 }
 
 String getGameFile(String path, {String gameId, bool cacheBreak = true}) {
-  print(user);
-  print(user?.session);
-  print(user?.session?.id);
   gameId = gameId ?? user?.session?.id;
   return getFile('database/games/$gameId/$path', cacheBreak: cacheBreak);
 }
