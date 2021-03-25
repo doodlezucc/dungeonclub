@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../communication.dart';
 import 'character.dart';
+import 'prefab_palette.dart';
 
 abstract class EntityBase {
   int _size;
@@ -20,7 +21,13 @@ abstract class Prefab extends EntityBase {
 
   String get img;
 
-  Prefab() : e = DivElement()..className = 'prefab';
+  Prefab() : e = DivElement() {
+    e
+      ..className = 'prefab'
+      ..onClick.listen((_) {
+        selectedPrefab = this;
+      });
+  }
 
   void _updateImage() {
     e.style.backgroundImage = 'url($img)';

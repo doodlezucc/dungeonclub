@@ -52,13 +52,33 @@
         > .prefab-container {
             flex-direction: row;
             flex-wrap: wrap;
+            gap: 0;
 
             > .prefab {
-                @extend %responsive;
                 @include base.center-background;
-                width: 32px;
-                height: 32px;
+                width: 40px;
+                height: 40px;
                 cursor: pointer;
+                opacity: 0.5;
+                transition-duration: 0.2s;
+                transition-timing-function: cubic-bezier(0.23, 1, 0.320, 1);
+                box-sizing: border-box;
+                border: 2px solid transparent;
+
+                &.selected {
+                    opacity: 1;
+                    border: 2px solid var(--color-note);
+                }
+                &:not(.selected) {
+                    transform: scale(0.95);
+
+                    &:hover {
+                        opacity: 0.7;
+                    }
+                }
+                &:active {
+                    transform: scale(0.9);
+                }
             }
         }
     }
