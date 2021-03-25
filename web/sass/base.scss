@@ -276,6 +276,7 @@ li {
     @extend %center;
     position: fixed;
     pointer-events: none;
+    z-index: 10;
 
     > * {
         position: fixed;
@@ -307,6 +308,12 @@ li {
     }
     > div:hover {
         opacity: 1;
+    }
+
+    > img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
     }
 }
 

@@ -156,6 +156,22 @@ class Connection extends Socket {
         }
         return null;
 
+      case a.GAME_PREFAB_UPDATE:
+        var pid = params['prefab'];
+        var data = params['data'];
+        if (_game == null || pid == null) return null;
+
+        var prefab = _game.getPrefab(pid);
+        if (prefab == null) return null;
+
+        String src;
+        if (data != null) {
+          src = await _uploadGameImageJson(params, id: pid);
+        }
+
+        notifyOthers(action, params);
+        return src ?? json;
+
       case a.GAME_MOVABLE_CREATE:
         if (scene != null) {
           var m = scene.addMovable(params);

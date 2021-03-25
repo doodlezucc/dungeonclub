@@ -37,6 +37,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
 
     case GAME_PREFAB_CREATE:
       return onPrefabCreate(params);
+
+    case GAME_PREFAB_UPDATE:
+      return onPrefabUpdate(params);
   }
 
   window.console.warn('Unhandled action!');

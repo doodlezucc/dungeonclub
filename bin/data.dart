@@ -220,6 +220,10 @@ class Game {
     return p;
   }
 
+  CustomPrefab getPrefab(int id) {
+    return _prefabs.firstWhere((p) => p.id == id, orElse: () => null);
+  }
+
   Future<String> uploadImage(String type, int id, String base64) async {
     var file = await (await getFile('$type$id.png')).create();
     return '$address/${file.path}';

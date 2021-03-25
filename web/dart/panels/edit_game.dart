@@ -4,6 +4,7 @@ import 'dart:html';
 import 'package:dnd_interactive/actions.dart';
 
 import '../communication.dart';
+import '../edit_image.dart';
 import '../font_awesome.dart';
 import '../game.dart';
 import 'dialog.dart';
@@ -79,23 +80,18 @@ void _updateAddButton() {
 class _EditChar {
   final HtmlElement e;
   final int id;
-  ImageElement _iconImg;
   InputElement _nameInput;
   String get name => _nameInput.value;
 
   _EditChar(this.id, String name, String imgUrl) : e = LIElement() {
     e
-      ..append(DivElement()
-        ..className = 'edit-img'
-        ..append(DivElement()..text = 'Change')
-        ..append(_iconImg = ImageElement(src: imgUrl))
-        ..onClick.listen((_) => _changeIcon())
-        ..onDrop.listen((e) {
-          e.preventDefault();
-          if (e.dataTransfer.files != null && e.dataTransfer.files.isNotEmpty) {
-            _changeIcon(e.dataTransfer.files[0]);
-          }
-        }))
+      ..append(registerEditImage(
+        DivElement()
+          ..className = 'edit-img'
+          ..append(DivElement()..text = 'Change')
+          ..append(ImageElement(src: imgUrl)),
+        upload: _changeIcon,
+      ))
       ..append(_nameInput = InputElement()
         ..placeholder = 'Name...'
         ..value = name)
@@ -107,8 +103,8 @@ class _EditChar {
     _roster.append(e);
   }
 
-  Future<void> _changeIcon([Blob initialFile]) async {
-    var url = await uploader.display(
+  Future<String> _changeIcon([Blob initialFile]) async {
+    return await uploader.display(
       action: GAME_CHARACTER_UPLOAD,
       type: IMAGE_TYPE_PC,
       initialImg: initialFile,
@@ -117,10 +113,6 @@ class _EditChar {
         'gameId': _gameId,
       },
     );
-    if (url != null) {
-      // Cachebreaker suffix for forced reloading
-      _iconImg.src = '$url?${DateTime.now().millisecondsSinceEpoch}';
-    }
   }
 
   void remove() {

@@ -29,8 +29,10 @@ abstract class Prefab extends EntityBase {
       });
   }
 
-  void _updateImage() {
-    e.style.backgroundImage = 'url($img)';
+  String updateImage() {
+    var src = img;
+    e.style.backgroundImage = 'url($src)';
+    return src;
   }
 
   void fromJson(Map<String, dynamic> json) {
@@ -43,7 +45,7 @@ class CharacterPrefab extends Prefab {
   Character get character => _character;
   set character(Character c) {
     _character = c;
-    _updateImage();
+    updateImage();
   }
 
   @override
@@ -51,12 +53,14 @@ class CharacterPrefab extends Prefab {
 }
 
 class CustomPrefab extends Prefab {
+  String name = 'Enemy';
+
   @override
   String get img => getGameFile('$IMAGE_TYPE_ENTITY$id.png');
 
   CustomPrefab({int size = 1, @required int id}) {
     _size = size;
     this.id = id;
-    _updateImage();
+    updateImage();
   }
 }
