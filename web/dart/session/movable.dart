@@ -2,14 +2,17 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:meta/meta.dart';
 
 import '../communication.dart';
 import 'board.dart';
+import 'prefab.dart';
 
-class Movable {
+class Movable extends EntityBase {
   int id;
   final HtmlElement e;
   final Board board;
+  final Prefab prefab;
 
   bool _accessible = false;
   bool get accessible => _accessible;
@@ -26,16 +29,15 @@ class Movable {
     e.style.top = '${position.y}px';
   }
 
-  int _size;
-  int get size => _size;
+  @override
   set size(int size) {
-    _size = size;
+    super.size = size;
     e.style.setProperty('--size', '$size');
   }
 
-  Movable({this.board, String img, this.id, Point pos})
+  Movable({@required this.board, @required this.prefab, this.id, Point pos})
       : e = DivElement()..className = 'movable' {
-    onImageChange(img);
+    onImageChange(prefab.img);
     position = pos ?? Point(0, 0);
     size = 1;
 

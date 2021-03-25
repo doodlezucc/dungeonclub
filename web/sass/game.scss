@@ -46,6 +46,23 @@
         right: 16px;
     }
 
+    #prefabPalette {
+        right: 16px;
+
+        > .prefab-container {
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            > .prefab {
+                @extend %responsive;
+                @include base.center-background;
+                width: 24px;
+                height: 24px;
+                cursor: pointer;
+            }
+        }
+    }
+
     #sceneSelector {
         @include panels.hooked(186px);
         width: 100%;

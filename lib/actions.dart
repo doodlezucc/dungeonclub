@@ -10,8 +10,11 @@ const GAME_DELETE = 'gameDelete';
 const GAME_JOIN_REQUEST = 'gameJoinRequest';
 const GAME_JOIN = 'gameJoin';
 const GAME_CONNECTION = 'gameConnection';
+
 const GAME_MOVABLE_CREATE = 'gameMovableCreate';
 const GAME_MOVABLE_MOVE = 'gameMovableMove';
+const GAME_PREFAB_CREATE = 'gamePrefabCreate';
+const GAME_PREFAB_UPDATE = 'gamePrefabUpdate';
 
 const GAME_SCENE_UPDATE = 'gameSceneUpdate';
 const GAME_SCENE_GET = 'gameSceneGet';
@@ -23,3 +26,4 @@ const GAME_ROLL_DICE = 'gameRollDice';
 
 const IMAGE_TYPE_PC = 'pc';
 const IMAGE_TYPE_SCENE = 'scene';
+const IMAGE_TYPE_ENTITY = 'entity';

@@ -19,7 +19,8 @@ class User {
     var s = await socket.request(GAME_JOIN, {'id': id});
     if (s is String) return false;
 
-    _session = Session(id, s['name'], s['gm'] != null)..fromJson(s);
+    _session = Session(id, s['name'], s['gm'] != null);
+    _session.fromJson(s);
     showPage('session');
     return true;
   }

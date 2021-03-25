@@ -8,6 +8,8 @@ import '../communication.dart';
 import '../panels/upload.dart' as upload;
 import 'grid.dart';
 import 'movable.dart';
+import 'prefab.dart';
+import 'prefab_palette.dart';
 import 'roll_dice.dart';
 import 'scene.dart';
 import 'session.dart';
@@ -129,12 +131,12 @@ class Board {
     movables.clear();
   }
 
-  Future<Movable> addMovable(String img) async {
-    var m = Movable(board: this, img: img);
+  Future<Movable> addMovable(Prefab prefab) async {
+    var m = Movable(board: this, prefab: prefab);
     var id = await socket.request(a.GAME_MOVABLE_CREATE, {
       'x': m.position.x,
       'y': m.position.y,
-      'img': img,
+      'prefab': prefab.id,
     });
     m.id = id;
     movables.add(m);
@@ -145,7 +147,7 @@ class Board {
   void onMovableCreate(Map<String, dynamic> json) {
     var m = Movable(
       board: this,
-      img: json['img'],
+      prefab: prefabs[json['prefab']],
       id: json['id'],
       pos: parsePoint(json),
     );

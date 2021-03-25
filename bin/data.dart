@@ -152,6 +152,7 @@ class Game {
   final _connections = <Connection>[];
   final List<PlayerCharacter> _characters;
   final List<Scene> _scenes;
+  final List<CustomPrefab> _prefabs;
   int playingSceneId = 0;
 
   static String _generateId() {
@@ -182,7 +183,8 @@ class Game {
   Game(this.owner, this.name)
       : id = _generateId(),
         _scenes = [Scene({})],
-        _characters = [];
+        _characters = [],
+        _prefabs = [];
 
   void connect(Connection connection, bool join) {
     notify(a.GAME_CONNECTION, {
@@ -210,6 +212,12 @@ class Game {
 
   void removePC(int index) {
     _characters.removeAt(index);
+  }
+
+  CustomPrefab addPrefab() {
+    var p = CustomPrefab(_prefabs.length, 1);
+    _prefabs.add(p);
+    return p;
   }
 
   Future<String> uploadImage(String type, int id, String base64) async {
@@ -271,7 +279,10 @@ class Game {
         playingSceneId = json['scene'] ?? 0,
         _scenes = List.from(json['scenes']).map((e) => Scene(e)).toList(),
         _characters = List.from(json['pcs'])
-            .map((e) => PlayerCharacter(e['name']))
+            .map((j) => PlayerCharacter.fromJson(j))
+            .toList(),
+        _prefabs = List.from(json['customPrefabs'] ?? [])
+            .map((e) => CustomPrefab.fromJson(e))
             .toList();
 
   Map<String, dynamic> toJson() => {
@@ -281,6 +292,7 @@ class Game {
         'scene': playingSceneId,
         'pcs': _characters.map((e) => e.toJson()).toList(),
         'scenes': _scenes.map((e) => e.toJson()).toList(),
+        'prefabs': _prefabs.map((e) => e.toJson()).toList(),
       };
 
   Map<String, dynamic> toSnippet(Account acc) => {
@@ -296,6 +308,7 @@ class Game {
       'scene': playingScene.toJson(),
       'pcs': _characters.map((e) => e.toJson()).toList(),
       if (mine != null) 'mine': mine,
+      'prefabs': _prefabs.map((e) => e.toJson()).toList(),
       if (owner == c.account) 'gm': {'scenes': _scenes.length},
     };
   }
@@ -313,9 +326,12 @@ class Game {
 class PlayerCharacter {
   Connection connection;
   String name;
+  final CharacterPrefab prefab;
 
-  PlayerCharacter(this.name);
-  PlayerCharacter.fromJson(Map<String, dynamic> json) : name = json['name'];
+  PlayerCharacter(this.name) : prefab = CharacterPrefab();
+  PlayerCharacter.fromJson(Map<String, dynamic> json)
+      : name = json['name'],
+        prefab = CharacterPrefab()..fromJson(json['prefab'] ?? {});
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -363,22 +379,61 @@ class Scene {
       };
 }
 
-class Movable {
-  final int id;
+abstract class EntityBase {
+  int size = 0;
 
-  String img;
+  EntityBase({this.size});
+
+  void fromJson(Map<String, dynamic> json) {
+    size = json['size'] ?? 1;
+  }
+
+  Map<String, dynamic> toJson() => {
+        'size': size,
+      };
+}
+
+class CharacterPrefab extends EntityBase {
+  CharacterPrefab({int size}) : super(size: size);
+  CharacterPrefab.fromJson(Map<String, dynamic> json) {
+    fromJson(json);
+  }
+}
+
+class CustomPrefab extends EntityBase {
+  final int id;
+  CustomPrefab(this.id, int size) : super(size: size);
+  CustomPrefab.fromJson(Map<String, dynamic> json) : id = json['id'] {
+    fromJson(json);
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        ...super.toJson(),
+      };
+}
+
+class Movable extends EntityBase {
+  final int id;
+  int prefab;
   num x;
   num y;
 
-  Movable(this.id, Map<String, dynamic> json)
-      : img = json['img'],
+  Movable(int id, Map<String, dynamic> json)
+      : id = id,
+        prefab = json['prefab'],
         x = json['x'],
-        y = json['y'];
+        y = json['y'] {
+    fromJson(json);
+  }
 
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
-        'img': img,
+        'prefab': prefab,
         'x': x,
         'y': y,
+        ...super.toJson(),
       };
 }

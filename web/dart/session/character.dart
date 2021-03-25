@@ -1,7 +1,20 @@
+import 'package:dnd_interactive/actions.dart';
+
+import '../communication.dart';
+import 'prefab.dart';
+
 class Character {
   final String name;
+  final int id;
+  final CharacterPrefab prefab;
 
-  Character(this.name);
+  String get img => getGameFile('$IMAGE_TYPE_PC$id.png', cacheBreak: false);
 
-  Character.fromJson(json) : this(json['name']);
+  Character(this.id, Map<String, dynamic> json)
+      : name = json['name'],
+        prefab = CharacterPrefab() {
+    prefab
+      ..fromJson(json['prefab'] ?? {})
+      ..character = this;
+  }
 }

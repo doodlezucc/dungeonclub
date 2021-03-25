@@ -146,6 +146,15 @@ class Connection extends Socket {
         }
         return 'Game not found!';
 
+      case a.GAME_PREFAB_CREATE:
+        if (_game != null) {
+          var p = _game.addPrefab();
+          var json = p.toJson();
+          notifyOthers(action, json);
+          return json;
+        }
+        return null;
+
       case a.GAME_MOVABLE_CREATE:
         if (scene != null) {
           var m = scene.addMovable(params);
@@ -153,7 +162,7 @@ class Connection extends Socket {
             'id': m.id,
             'x': m.x,
             'y': m.y,
-            'img': m.img,
+            'prefab': m.prefab,
           });
           return m.id;
         }

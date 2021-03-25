@@ -34,13 +34,13 @@ void main() {
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
 
-  //testFlow();
+  testFlow();
 }
 
 Future<void> testFlow() async {
-  var edit = true;
+  var edit = false;
 
-  await user.login('dummy@email.com', 'wowzer');
+  await Future.delayed(Duration(milliseconds: 200));
   if (edit) {
     await edit_game.display(user.account.games.first);
   } else {

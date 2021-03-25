@@ -4,6 +4,7 @@ import '../game.dart';
 import 'board.dart';
 import 'character.dart';
 import 'log.dart';
+import 'prefab_palette.dart';
 import 'scene.dart';
 
 class Session extends Game {
@@ -21,7 +22,11 @@ class Session extends Game {
 
   void fromJson(Map<String, dynamic> json) {
     characters.clear();
-    characters.addAll(List.from(json['pcs']).map((e) => Character.fromJson(e)));
+    var pcs = List.from(json['pcs']);
+    for (var i = 0; i < pcs.length; i++) {
+      characters.add(Character(i, pcs[i]));
+    }
+
     _charId = json['mine'];
     gameLog('Hello, ' + (myCharacter?.name ?? 'GM') + '!');
 
@@ -29,6 +34,7 @@ class Session extends Game {
     Future.microtask(() {
       int playingId = json['sceneId'];
       _board.fromJson(playingId, json['scene']);
+      initMovableManager(json['prefabs']);
 
       querySelector('#session').classes.toggle('is-gm', isGM);
 
