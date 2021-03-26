@@ -17,8 +17,8 @@ abstract class EntityBase {
 
 abstract class Prefab extends EntityBase {
   final HtmlElement e;
-  int id;
 
+  String get id;
   String get img;
 
   Prefab() : e = DivElement() {
@@ -49,18 +49,25 @@ class CharacterPrefab extends Prefab {
   }
 
   @override
+  String get id => 'c${_character.id}';
+
+  @override
   String get img => character.img;
 }
 
 class CustomPrefab extends Prefab {
+  int _id;
   String name = 'Enemy';
+
+  @override
+  String get id => '$_id';
 
   @override
   String get img => getGameFile('$IMAGE_TYPE_ENTITY$id.png');
 
   CustomPrefab({int size = 1, @required int id}) {
     _size = size;
-    this.id = id;
+    _id = id;
     updateImage();
   }
 }

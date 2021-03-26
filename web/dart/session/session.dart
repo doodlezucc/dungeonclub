@@ -33,8 +33,8 @@ class Session extends Game {
     // Depends on global session object
     Future.microtask(() {
       int playingId = json['sceneId'];
-      _board.fromJson(playingId, json['scene']);
       initMovableManager(json['prefabs']);
+      _board.fromJson(playingId, json['scene']);
 
       querySelector('#session').classes.toggle('is-gm', isGM);
 

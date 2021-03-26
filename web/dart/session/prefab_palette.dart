@@ -29,7 +29,7 @@ Prefab get selectedPrefab => _selectedPrefab;
 set selectedPrefab(Prefab p) {
   _selectedPrefab = p;
   _palette.querySelectorAll('.prefab.selected').classes.remove('selected');
-  p.e.classes.add('selected');
+  p?.e?.classes?.add('selected');
   _prefabProperties.classes.toggle('disabled', p == null);
 
   var isPC = p is CharacterPrefab;
@@ -37,11 +37,17 @@ set selectedPrefab(Prefab p) {
   _prefabImage.classes.toggle('disabled', isPC);
   _prefabName.disabled = isPC;
 
-  _prefabName.value =
-      isPC ? (p as CharacterPrefab).character.name : (p as CustomPrefab).name;
-  _prefabSize.valueAsNumber = p.size;
+  if (p != null) {
+    _prefabName.value =
+        isPC ? (p as CharacterPrefab).character.name : (p as CustomPrefab).name;
+    _prefabSize.valueAsNumber = p.size;
 
-  _prefabImageImg.src = p.img;
+    _prefabImageImg.src = p.img;
+  } else {
+    _prefabName.value = '';
+    _prefabSize.value = '';
+    _prefabImageImg.src = '';
+  }
 }
 
 void initMovableManager(Iterable jList) {

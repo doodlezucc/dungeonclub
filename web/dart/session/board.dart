@@ -58,6 +58,7 @@ class Board {
 
   void _initBoard() {
     _initDragControls();
+    initDiceTable();
 
     _container.onMouseWheel.listen((event) {
       zoom -= event.deltaY / 300;
@@ -65,7 +66,17 @@ class Board {
 
     _changeImage.onClick.listen((_) => _changeImageDialog());
 
-    initDiceTable();
+    _container.onClick.listen((event) async {
+      if (!event.path.contains(_e)) return;
+
+      print('CLICK');
+      var gridPos = event.offset - grid.offset;
+      print(gridPos);
+      if (selectedPrefab != null) {
+        await addMovable(selectedPrefab, pos: gridPos);
+        selectedPrefab = null;
+      }
+    });
   }
 
   void _initDragControls() {
@@ -131,8 +142,8 @@ class Board {
     movables.clear();
   }
 
-  Future<Movable> addMovable(Prefab prefab) async {
-    var m = Movable(board: this, prefab: prefab);
+  Future<Movable> addMovable(Prefab prefab, {Point pos}) async {
+    var m = Movable(board: this, prefab: prefab, pos: pos);
     var id = await socket.request(a.GAME_MOVABLE_CREATE, {
       'x': m.position.x,
       'y': m.position.y,
@@ -147,7 +158,7 @@ class Board {
   void onMovableCreate(Map<String, dynamic> json) {
     var m = Movable(
       board: this,
-      prefab: prefabs[json['prefab']],
+      prefab: prefabs[json['prefab'] ?? 0],
       id: json['id'],
       pos: parsePoint(json),
     );
