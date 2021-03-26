@@ -69,10 +69,8 @@ class Board {
     _container.onClick.listen((event) async {
       if (!event.path.contains(_e)) return;
 
-      print('CLICK');
-      var gridPos = event.offset - grid.offset;
-      print(gridPos);
       if (selectedPrefab != null) {
+        var gridPos = event.offset - grid.offset;
         await addMovable(selectedPrefab, pos: gridPos);
         selectedPrefab = null;
       }
@@ -156,9 +154,14 @@ class Board {
   }
 
   void onMovableCreate(Map<String, dynamic> json) {
+    String pref = json['prefab'];
+    var isPC = pref.startsWith('c');
+
     var m = Movable(
       board: this,
-      prefab: prefabs[json['prefab'] ?? 0],
+      prefab: isPC
+          ? pcPrefabs[int.parse(pref.substring(1))]
+          : prefabs[int.parse(pref)],
       id: json['id'],
       pos: parsePoint(json),
     );

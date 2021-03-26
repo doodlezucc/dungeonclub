@@ -421,7 +421,7 @@ class CustomPrefab extends EntityBase {
 
 class Movable extends EntityBase {
   final int id;
-  int prefab;
+  String prefab;
   num x;
   num y;
 
