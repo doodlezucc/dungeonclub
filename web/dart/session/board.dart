@@ -21,6 +21,8 @@ final ImageElement _ground = _e.querySelector('#ground');
 final HtmlElement _controls = _container.querySelector('#sceneEditor');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
+final HtmlElement movableGhost = querySelector('#movableGhost');
+
 class Board {
   final Session session;
   final grid = Grid();
@@ -70,8 +72,15 @@ class Board {
       if (!event.path.contains(_e)) return;
 
       if (selectedPrefab != null) {
-        var gridPos = event.offset - grid.offset;
+        var gridPos = _evToGridSpace(event, selectedPrefab);
         await addMovable(selectedPrefab, pos: gridPos);
+        selectedPrefab = null;
+      }
+    });
+
+    window.onKeyDown.listen((ev) {
+      if (ev.keyCode == 27 && selectedPrefab != null) {
+        ev.preventDefault();
         selectedPrefab = null;
       }
     });
@@ -101,8 +110,31 @@ class Board {
         } else {
           grid.offset += delta;
         }
+      } else if (selectedPrefab != null) {
+        if (!event.path.contains(_e)) return;
+
+        var p = _evToGridSpace(event, selectedPrefab);
+        movableGhost.style.left = '${p.x}px';
+        movableGhost.style.top = '${p.y}px';
       }
     });
+  }
+
+  Point _evToGridSpace(
+    MouseEvent event,
+    EntityBase entity, {
+    bool round = true,
+  }) {
+    var size =
+        Point(entity.size * grid.cellSize / 2, entity.size * grid.cellSize / 2);
+
+    var p = event.offset - grid.offset - size;
+
+    if (round) {
+      var cs = grid.cellSize;
+      p = Point((p.x / cs).round() * cs, (p.y / cs).round() * cs);
+    }
+    return p;
   }
 
   Future<void> _changeImageDialog() async {

@@ -8,6 +8,8 @@ import '../edit_image.dart';
 import '../panels/upload.dart' as upload;
 import 'prefab.dart';
 
+final HtmlElement _board = querySelector('#board');
+
 final HtmlElement _palette = querySelector('#prefabPalette');
 final HtmlElement _pcPrefs = _palette.querySelector('#pcPrefabs');
 final HtmlElement _otherPrefs = _palette.querySelector('#otherPrefabs');
@@ -30,7 +32,9 @@ set selectedPrefab(Prefab p) {
   _selectedPrefab = p;
   _palette.querySelectorAll('.prefab.selected').classes.remove('selected');
   p?.e?.classes?.add('selected');
+
   _prefabProperties.classes.toggle('disabled', p == null);
+  _board.classes.toggle('drag', p != null);
 
   var isPC = p is CharacterPrefab;
 
@@ -124,7 +128,7 @@ void onPrefabCreate(Map<String, dynamic> json) {
 }
 
 void onPrefabUpdate(Map<String, dynamic> json) {
-  int id = json['prefab'];
+  String id = json['prefab'];
 
   var prefab = prefabs.firstWhere((p) => p.id == id, orElse: () => null);
 

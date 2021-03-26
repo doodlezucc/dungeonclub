@@ -157,16 +157,18 @@ class Connection extends Socket {
         return null;
 
       case a.GAME_PREFAB_UPDATE:
-        var pid = params['prefab'];
+        String pid = params['prefab'];
         var data = params['data'];
         if (_game == null || pid == null) return null;
 
-        var prefab = _game.getPrefab(pid);
+        var parsedId = int.parse(pid);
+
+        var prefab = _game.getPrefab(parsedId);
         if (prefab == null) return null;
 
         String src;
         if (data != null) {
-          src = await _uploadGameImageJson(params, id: pid);
+          src = await _uploadGameImageJson(params, id: parsedId);
         }
 
         notifyOthers(action, params);

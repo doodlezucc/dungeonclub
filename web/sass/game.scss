@@ -271,6 +271,20 @@
     border: 2px solid black;
     box-sizing: border-box;
     outline: 1px solid transparent;
+
+    #movableGhost {
+        opacity: 1;
+        background-color: white;
+    }
+
+    &:not(.drag) #movableGhost {
+        display: none;
+    }
+    &.drag {
+        * {
+            pointer-events: none;
+        }
+    }
 }
 
 #grid, canvas {
