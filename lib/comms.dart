@@ -5,7 +5,7 @@ import 'dart:math';
 
 final confidentialRegex = RegExp(r'email|password|token');
 const msgPrintLength = 200;
-const maxMsgLength = 1024 * 1024 * 1;
+const maxMsgLength = 1024 * 1024 * 20;
 
 abstract class Socket {
   int _jobId = 0;
@@ -31,8 +31,12 @@ abstract class Socket {
 
               if (!short.startsWith('{"id"')) return;
 
+              print('shortening');
               // Shorten json string to only contain message id
-              data = short.substring(0, min(1, short.indexOf(',') - 1)) + '}';
+              data =
+                  short.substring(0, max(1, short.indexOf('"params"') + 10)) +
+                      '}}';
+              print(data);
             }
 
             var json = jsonDecode(data);
