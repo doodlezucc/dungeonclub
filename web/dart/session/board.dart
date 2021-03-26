@@ -21,8 +21,6 @@ final ImageElement _ground = _e.querySelector('#ground');
 final HtmlElement _controls = _container.querySelector('#sceneEditor');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
-final HtmlElement movableGhost = querySelector('#movableGhost');
-
 class Board {
   final Session session;
   final grid = Grid();

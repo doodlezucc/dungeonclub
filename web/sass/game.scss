@@ -273,11 +273,12 @@
     outline: 1px solid transparent;
 
     #movableGhost {
-        opacity: 1;
-        background-color: white;
+        opacity: 0.75;
+        z-index: 2;
+        box-shadow: 0 0 10px #000a;
     }
 
-    &:not(.drag) #movableGhost {
+    &:not(:hover.drag) #movableGhost {
         display: none;
     }
     &.drag {
@@ -300,6 +301,7 @@
     height: calc(var(--size) * 100%);
     overflow: hidden;
     box-sizing: border-box;
+    box-shadow: 0 0 6px #0007;
 
     --size: 1;
 

@@ -14,6 +14,7 @@ final HtmlElement _palette = querySelector('#prefabPalette');
 final HtmlElement _pcPrefs = _palette.querySelector('#pcPrefabs');
 final HtmlElement _otherPrefs = _palette.querySelector('#otherPrefabs');
 final HtmlElement _addPref = _palette.querySelector('#addPrefab');
+final HtmlElement movableGhost = querySelector('#movableGhost');
 
 final HtmlElement _prefabProperties = querySelector('#prefabProperties');
 final HtmlElement _selectionProperties = querySelector('#selectionProperties');
@@ -47,6 +48,7 @@ set selectedPrefab(Prefab p) {
     _prefabSize.valueAsNumber = p.size;
 
     _prefabImageImg.src = p.img;
+    movableGhost.style.backgroundImage = 'url(${p.img})';
   } else {
     _prefabName.value = '';
     _prefabSize.value = '';
