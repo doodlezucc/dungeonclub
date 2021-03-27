@@ -49,8 +49,10 @@ set selectedPrefab(Prefab p) {
         : (p as CharacterPrefab).character.name;
     _prefabSize.valueAsNumber = p.size;
 
-    _prefabImageImg.src = p.img;
-    movableGhost.style.backgroundImage = 'url(${p.img})';
+    var img = p.img;
+    _prefabImageImg.src = img;
+    movableGhost.style.backgroundImage = 'url(${img})';
+    movableGhost.style.setProperty('--size', '${p.size}');
   }
 }
 
@@ -101,6 +103,7 @@ void _initPrefabProperties() {
   });
   _listenLazyUpdate(_prefabSize, onChange: (pref, input) {
     pref.size = input.valueAsNumber;
+    movableGhost.style.setProperty('--size', '${pref.size}');
   });
 }
 
