@@ -47,6 +47,7 @@
     }
 
     #prefabPalette {
+        top: 240px;
         right: 16px;
 
         > .prefab-container {
@@ -86,6 +87,16 @@
             width: 80px;
             height: 80px;
             align-self: center;
+        }
+
+        #prefabProperties {
+            transition-duration: 0.3s;
+            overflow: hidden;
+            max-height: 600px;
+
+            &.disabled {
+                max-height: 0;
+            }
         }
     }
 

@@ -37,22 +37,19 @@ set selectedPrefab(Prefab p) {
   _prefabProperties.classes.toggle('disabled', p == null);
   _board.classes.toggle('drag', p != null);
 
-  var isPC = p is CharacterPrefab;
+  var isCustom = p is CustomPrefab;
 
-  _prefabImage.classes.toggle('disabled', isPC);
-  _prefabName.disabled = isPC;
+  _prefabImage.classes.toggle('disabled', !isCustom);
+  _prefabName.disabled = isCustom;
 
   if (p != null) {
-    _prefabName.value =
-        isPC ? (p as CharacterPrefab).character.name : (p as CustomPrefab).name;
+    _prefabName.value = isCustom
+        ? (p as CustomPrefab).name
+        : (p as CharacterPrefab).character.name;
     _prefabSize.valueAsNumber = p.size;
 
     _prefabImageImg.src = p.img;
     movableGhost.style.backgroundImage = 'url(${p.img})';
-  } else {
-    _prefabName.value = '';
-    _prefabSize.value = '';
-    _prefabImageImg.src = '';
   }
 }
 
@@ -140,7 +137,6 @@ void onPrefabUpdate(Map<String, dynamic> json) {
   print(prefab);
 
   if (json['size'] == null) {
-    print('Updating');
     user.session.board.updatePrefabImage(prefab, prefab.updateImage());
   } else {
     prefab.fromJson(json);

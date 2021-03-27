@@ -205,7 +205,6 @@ class Board {
     for (var movable in movables) {
       if (movable.prefab == p) {
         movable.onImageChange(img);
-        print('Updated movable image');
       }
     }
   }

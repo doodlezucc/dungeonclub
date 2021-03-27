@@ -25,7 +25,11 @@ abstract class Prefab extends EntityBase {
     e
       ..className = 'prefab'
       ..onClick.listen((_) {
-        selectedPrefab = this;
+        if (selectedPrefab == this) {
+          selectedPrefab = null;
+        } else {
+          selectedPrefab = this;
+        }
       });
   }
 
