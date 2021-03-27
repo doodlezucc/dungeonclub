@@ -178,13 +178,16 @@ input {
     color: inherit;
     padding: 0 1px 3px 1px;
 
-    &:hover {
+    &:enabled:hover {
         border-bottom: 2px solid var(--color-input-underline);
         margin-bottom: 0;
     }
-    &:focus {
+    &:enabled:focus {
         border-bottom: 2px solid var(--color-input-active);
         margin-bottom: 0;
+    }
+    &:disabled {
+        opacity: 0.5;
     }
 
     &[type=number] {

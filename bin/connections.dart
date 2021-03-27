@@ -171,8 +171,8 @@ class Connection extends Socket {
           src = await _uploadGameImageJson(params, id: parsedId);
         }
 
-        notifyOthers(action, params);
-        return src ?? json;
+        notifyOthers(action, params..remove('data'));
+        return src ?? params;
 
       case a.GAME_MOVABLE_CREATE:
         if (scene != null) {

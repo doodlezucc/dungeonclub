@@ -201,6 +201,15 @@ class Board {
     grid.e.append(m.e);
   }
 
+  void updatePrefabImage(Prefab p, String img) {
+    for (var movable in movables) {
+      if (movable.prefab == p) {
+        movable.onImageChange(img);
+        print('Updated movable image');
+      }
+    }
+  }
+
   void onAllMovablesMove(Iterable jsons) {
     for (var mj in jsons) {
       onMovableMove(mj);

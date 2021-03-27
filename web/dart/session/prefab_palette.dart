@@ -90,8 +90,11 @@ void _initPrefabProperties() {
             'prefab': selectedPrefab.id,
           });
     },
-    onSuccess: (src) {
-      _prefabImageImg.src = selectedPrefab.updateImage();
+    onSuccess: (_) {
+      var src = selectedPrefab.updateImage();
+      _prefabImageImg.src = src;
+      movableGhost.style.backgroundImage = 'url($src)';
+      user.session.board.updatePrefabImage(selectedPrefab, src);
     },
   );
 
@@ -131,11 +134,14 @@ void onPrefabCreate(Map<String, dynamic> json) {
 
 void onPrefabUpdate(Map<String, dynamic> json) {
   String id = json['prefab'];
+  print(id);
 
   var prefab = prefabs.firstWhere((p) => p.id == id, orElse: () => null);
+  print(prefab);
 
   if (json['size'] == null) {
-    prefab.updateImage();
+    print('Updating');
+    user.session.board.updatePrefabImage(prefab, prefab.updateImage());
   } else {
     prefab.fromJson(json);
   }
