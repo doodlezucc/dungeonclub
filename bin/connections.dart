@@ -161,14 +161,14 @@ class Connection extends Socket {
         var data = params['data'];
         if (_game == null || pid == null) return null;
 
-        var parsedId = int.parse(pid);
-
-        var prefab = _game.getPrefab(parsedId);
+        var prefab = _game.getPrefab(pid);
         if (prefab == null) return null;
 
         String src;
         if (data != null) {
-          src = await _uploadGameImageJson(params, id: parsedId);
+          src = await _uploadGameImageJson(params, id: pid);
+        } else {
+          prefab.fromJson(params);
         }
 
         notifyOthers(action, params..remove('data'));
@@ -288,7 +288,7 @@ class Connection extends Socket {
   Future<String> _uploadGameImage({
     String base64,
     String type,
-    int id,
+    dynamic id,
     String gameId,
   }) async {
     if (base64 == null || type == null || id == null) return 'Missing info';
@@ -307,7 +307,7 @@ class Connection extends Socket {
     return 'Missing game info';
   }
 
-  Future<String> _uploadGameImageJson(Map<String, dynamic> json, {int id}) {
+  Future<String> _uploadGameImageJson(Map<String, dynamic> json, {dynamic id}) {
     return _uploadGameImage(
       base64: json['data'],
       type: json['type'],

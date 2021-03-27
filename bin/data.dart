@@ -220,8 +220,14 @@ class Game {
     return p;
   }
 
-  CustomPrefab getPrefab(int id) {
-    return _prefabs.firstWhere((p) => p.id == id, orElse: () => null);
+  EntityBase getPrefab(String id) {
+    var isPC = id[0] == 'c';
+    if (isPC) {
+      return _characters[int.parse(id.substring(1))].prefab;
+    }
+
+    return _prefabs.firstWhere((p) => p.id == int.parse(id),
+        orElse: () => null);
   }
 
   Future<String> uploadImage(String type, int id, String base64) async {
@@ -419,14 +425,23 @@ class CharacterPrefab extends EntityBase {
 
 class CustomPrefab extends EntityBase {
   final int id;
+  String name;
+
   CustomPrefab(this.id, int size) : super(size: size);
   CustomPrefab.fromJson(Map<String, dynamic> json) : id = json['id'] {
     fromJson(json);
   }
 
   @override
+  void fromJson(Map<String, dynamic> json) {
+    super.fromJson(json);
+    name = json['name'];
+  }
+
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
+        'name': name,
         ...super.toJson(),
       };
 }

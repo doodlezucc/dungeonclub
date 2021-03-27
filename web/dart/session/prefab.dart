@@ -61,7 +61,7 @@ class CharacterPrefab extends Prefab {
 
 class CustomPrefab extends Prefab {
   int _id;
-  String name = 'Enemy';
+  String name;
 
   @override
   String get id => '$_id';
@@ -69,7 +69,7 @@ class CustomPrefab extends Prefab {
   @override
   String get img => getGameFile('$IMAGE_TYPE_ENTITY$id.png');
 
-  CustomPrefab({int size = 1, @required int id}) {
+  CustomPrefab({int size = 1, this.name = 'Enemy', @required int id}) {
     _size = size;
     _id = id;
     updateImage();

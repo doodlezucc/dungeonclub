@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:meta/meta.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -40,7 +41,7 @@ set selectedPrefab(Prefab p) {
   var isCustom = p is CustomPrefab;
 
   _prefabImage.classes.toggle('disabled', !isCustom);
-  _prefabName.disabled = isCustom;
+  _prefabName.disabled = !isCustom;
 
   if (p != null) {
     _prefabName.value = isCustom
@@ -95,17 +96,39 @@ void _initPrefabProperties() {
     },
   );
 
-  void sendUpdate() {
-    socket.sendAction(GAME_PREFAB_UPDATE, {
-      'prefab': selectedPrefab.id,
-      'name': _prefabName.value,
-      'size': _prefabSize.valueAsNumber,
-    });
+  _listenLazyUpdate(_prefabName, onChange: (pref, input) {
+    (pref as CustomPrefab).name = input.value;
+  });
+  _listenLazyUpdate(_prefabSize, onChange: (pref, input) {
+    pref.size = input.valueAsNumber;
+  });
+}
+
+void _listenLazyUpdate(
+  InputElement input, {
+  @required void Function(Prefab prefab, InputElement self) onChange,
+}) {
+  var bufferedValue = input.value;
+
+  void update() {
+    if (bufferedValue != input.value) {
+      bufferedValue = input.value;
+      onChange(selectedPrefab, input);
+      _sendUpdate();
+    }
   }
 
-  _prefabName.onChange.listen((_) {
-    (selectedPrefab as CustomPrefab).name = _prefabName.value;
-    sendUpdate();
+  input.onFocus.listen((_) {
+    bufferedValue = input.value;
+  });
+  input.onChange.listen((_) => update());
+}
+
+void _sendUpdate() {
+  socket.sendAction(GAME_PREFAB_UPDATE, {
+    'prefab': selectedPrefab.id,
+    'size': selectedPrefab.size,
+    if (selectedPrefab is CustomPrefab) 'name': _prefabName.value,
   });
 }
 
@@ -124,6 +147,7 @@ void onPrefabCreate(Map<String, dynamic> json) {
   var p = CustomPrefab(
     id: json['id'],
     size: json['size'],
+    name: json['name'],
   );
   prefabs.add(p);
   _otherPrefs.insertBefore(p.e, _addPref);
