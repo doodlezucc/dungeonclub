@@ -90,7 +90,9 @@ class Board {
     _container.onMouseDown.listen((event) async {
       var movable = (event.target as HtmlElement).classes.contains('movable');
 
-      if (event.path.contains(_controls) || (!grid.editingGrid && movable)) {
+      if ((!grid.editingGrid && movable) ||
+          event.path
+              .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
         return;
       }
 
@@ -197,6 +199,12 @@ class Board {
     );
     movables.add(m);
     grid.e.append(m.e);
+  }
+
+  void onAllMovablesMove(Iterable jsons) {
+    for (var mj in jsons) {
+      onMovableMove(mj);
+    }
   }
 
   void onMovableMove(json) {

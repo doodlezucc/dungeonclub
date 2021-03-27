@@ -374,6 +374,18 @@ class Scene {
     gridColor = json['color'] ?? '#000000';
   }
 
+  void applyMovables(Iterable jsons) {
+    for (var mj in jsons) {
+      var id = mj['id'];
+      var m = _movables.firstWhere((m) => m.id == id, orElse: () => null);
+      if (m != null) {
+        var point = parsePoint(mj);
+        m.x = point.x;
+        m.y = point.y;
+      }
+    }
+  }
+
   Map<String, dynamic> toJson() => {
         'grid': {
           'offset': writePoint(gridOffset),

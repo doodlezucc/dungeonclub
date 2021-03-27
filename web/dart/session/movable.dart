@@ -71,7 +71,7 @@ class Movable extends EntityBase {
       if (drag && !board.grid.editingGrid) {
         offset += event.movement * (1 / board.scaledZoom);
 
-        snapToGrid(start + offset);
+        snapToGrid(pos: start + offset);
       }
     });
   }
@@ -84,12 +84,15 @@ class Movable extends EntityBase {
     e.style.backgroundImage = 'url($img)';
   }
 
-  void snapToGrid([Point pos]) {
+  void snapToGrid({Point pos, bool roundInsteadOfFloor = false}) {
     pos = pos ?? position;
     var cell = board.grid.cellSize;
-    position = Point(
-      (pos.x / cell).floor() * cell,
-      (pos.y / cell).floor() * cell,
-    );
+
+    num modify(num v) {
+      var smol = v / cell;
+      return (roundInsteadOfFloor ? smol.round() : smol.floor()) * cell;
+    }
+
+    position = Point(modify(pos.x), modify(pos.y));
   }
 }

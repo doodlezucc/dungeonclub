@@ -25,7 +25,8 @@ class Grid {
     _clampOffset();
     e.style.width = '${_cellSize}px';
     e.style.height = '${_cellSize}px';
-    user.session.board.movables.forEach((m) => m.snapToGrid());
+    user.session.board.movables
+        .forEach((m) => m.snapToGrid(roundInsteadOfFloor: true));
     redrawCanvas();
   }
 
@@ -64,6 +65,12 @@ class Grid {
       if (!enable) {
         socket.sendAction(GAME_SCENE_UPDATE, {
           'grid': toJson(),
+          'movables': user.session.board.movables
+              .map((e) => {
+                    'id': e.id,
+                    ...writePoint(e.position),
+                  })
+              .toList()
         });
       }
     });
@@ -81,12 +88,12 @@ class Grid {
     ctx.strokeStyle = _gridColor.value;
     ctx.beginPath();
     for (var x = offset.x; x <= _canvas.width; x += _cellSize) {
-      var xr = x.round() + 0.5;
+      var xr = x.round() - 0.5;
       ctx.moveTo(xr, 0);
       ctx.lineTo(xr, _canvas.height);
     }
     for (var y = 0.5 + offset.y; y <= _canvas.height; y += _cellSize) {
-      var yr = y.round() + 0.5;
+      var yr = y.round() - 0.5;
       ctx.moveTo(0, yr);
       ctx.lineTo(_canvas.width, yr);
     }

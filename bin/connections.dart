@@ -205,6 +205,7 @@ class Connection extends Socket {
         var grid = params['grid'];
         if (grid != null) {
           scene.applyGrid(grid);
+          scene.applyMovables(params['movables']);
           return notifyOthers(action, params);
         }
 

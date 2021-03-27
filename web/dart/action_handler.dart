@@ -18,7 +18,8 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_SCENE_UPDATE:
       var grid = params['grid'];
       if (grid != null) {
-        return user.session?.board?.grid?.fromJson(grid);
+        user.session?.board?.grid?.fromJson(grid);
+        user.session?.board?.onAllMovablesMove(params['movables']);
       }
       return user.session?.board?.onImgChange();
 
