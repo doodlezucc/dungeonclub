@@ -18,7 +18,6 @@ final HtmlElement _addPref = _palette.querySelector('#addPrefab');
 final HtmlElement movableGhost = querySelector('#movableGhost');
 
 final HtmlElement _prefabProperties = querySelector('#prefabProperties');
-final HtmlElement _selectionProperties = querySelector('#selectionProperties');
 
 final HtmlElement _prefabImage = querySelector('#prefabImage');
 final ImageElement _prefabImageImg = _prefabImage.querySelector('img');
@@ -70,8 +69,6 @@ void _initPrefabPalette() {
     pcPrefabs.add(pc.prefab);
     _pcPrefs.append(pc.prefab.e);
   }
-
-  selectedPrefab = pcPrefabs.first;
 
   _addPref.onClick.listen((event) {
     createPrefab();

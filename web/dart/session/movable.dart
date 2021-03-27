@@ -32,17 +32,22 @@ class Movable extends EntityBase {
   @override
   set size(int size) {
     super.size = size;
-    e.style.setProperty('--size', '$size');
+    e.style.setProperty('--size', '$displaySize');
   }
 
   int get displaySize => size != 0 ? size : prefab.size;
 
-  Movable({@required this.board, @required this.prefab, this.id, Point pos})
-      : e = DivElement()..className = 'movable' {
+  Movable({
+    @required this.board,
+    @required this.prefab,
+    this.id,
+    Point pos,
+    int size = 0,
+  }) : e = DivElement()..className = 'movable' {
     prefab.movables.add(this);
     onImageChange(prefab.img);
     position = pos ?? Point(0, 0);
-    size = 0;
+    this.size = size;
 
     if (board.session.isGM) {
       accessible = true;
@@ -54,7 +59,7 @@ class Movable extends EntityBase {
     Point offset;
 
     e.onMouseDown.listen((event) async {
-      if (!accessible) return;
+      if (!accessible || event.button != 0 || event.target != e) return;
       startPos = position;
 
       var inset = board.grid.cellSize * displaySize / 2;

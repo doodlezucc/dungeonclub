@@ -36,7 +36,6 @@
             > span {
                 display: flex;
                 gap: 8px;
-                align-items: center;
             }
         }
     }
@@ -102,7 +101,17 @@
 
     #selectionProperties {
         min-width: 100px;
-        left: 16px;
+        position: absolute;
+        top: 0;
+        right: calc(100% + 3px);
+        padding: 8px;
+        gap: 8px;
+        cursor: default;
+        animation: popup 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+        > span {
+            gap: 8px;
+        }
     }
 
     #sceneSelector {
@@ -306,17 +315,23 @@
 .movable {
     @include base.center-background;
     position: absolute;
-    border: 2px solid slateblue;
+    border: 0 solid transparent;
     border-radius: 50%;
     width: calc(var(--size) * 100%);
     height: calc(var(--size) * 100%);
-    overflow: hidden;
     box-sizing: border-box;
-    box-shadow: 0 0 6px #0007;
+    box-shadow: 0 0 8px #000a;
+    transition-duration: 0.1s;
+    transition-property: border-color, border-width;
 
     --size: 1;
 
     &.accessible {
         cursor: move;
+    }
+    &.selected {
+        border: 2px solid var(--color-primary);
+        box-shadow: 0 0 20px 20px #fffa,
+                    0 0 8px #000a inset;
     }
 }

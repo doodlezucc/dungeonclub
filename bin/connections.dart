@@ -196,6 +196,11 @@ class Connection extends Socket {
         }
         return notifyOthers(action, params);
 
+      case a.GAME_MOVABLE_UPDATE:
+        var m = scene?.getMovable(params['movable']);
+        m?.fromJson(params);
+        return notifyOthers(action, params);
+
       case a.GAME_CHARACTER_UPLOAD:
         return await _uploadGameImageJson(params);
 

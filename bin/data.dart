@@ -461,6 +461,11 @@ class Movable extends EntityBase {
   }
 
   @override
+  void fromJson(Map<String, dynamic> json) {
+    size = json['size'] ?? 0;
+  }
+
+  @override
   Map<String, dynamic> toJson() => {
         'id': id,
         'prefab': prefab,

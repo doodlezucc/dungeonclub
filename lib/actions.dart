@@ -13,6 +13,7 @@ const GAME_CONNECTION = 'gameConnection';
 
 const GAME_MOVABLE_CREATE = 'gameMovableCreate';
 const GAME_MOVABLE_MOVE = 'gameMovableMove';
+const GAME_MOVABLE_UPDATE = 'gameMovableUpdate';
 const GAME_PREFAB_CREATE = 'gamePrefabCreate';
 const GAME_PREFAB_UPDATE = 'gamePrefabUpdate';
 

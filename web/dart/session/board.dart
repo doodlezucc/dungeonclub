@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/point_json.dart';
+import 'package:meta/meta.dart';
 
 import '../communication.dart';
 import '../panels/upload.dart' as upload;
@@ -21,10 +22,35 @@ final ImageElement _ground = _e.querySelector('#ground');
 final HtmlElement _controls = _container.querySelector('#sceneEditor');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
+final HtmlElement _selectionProperties = querySelector('#selectionProperties');
+final InputElement _selectedSize = querySelector('#movableSize');
+
 class Board {
   final Session session;
   final grid = Grid();
   final movables = <Movable>[];
+
+  Movable _selectedMovable;
+  Movable get selectedMovable => _selectedMovable;
+  set selectedMovable(Movable selectedMovable) {
+    if (_selectedMovable == selectedMovable) return;
+
+    _selectedMovable?.e?.classes?.remove('selected');
+
+    if (selectedMovable != null && !selectedMovable.accessible) {
+      selectedMovable = null;
+    }
+    _selectedMovable = selectedMovable;
+
+    if (selectedMovable != null) {
+      selectedMovable.e.classes.add('selected');
+
+      _selectedSize.valueAsNumber = selectedMovable.size;
+      selectedMovable.e.append(_selectionProperties);
+    } else {
+      _selectionProperties.remove();
+    }
+  }
 
   Point _position;
   Point get position => _position;
@@ -82,18 +108,60 @@ class Board {
         selectedPrefab = null;
       }
     });
+
+    _listenSelectedLazyUpdate(_selectedSize, onChange: (input) {
+      selectedMovable.size = input.valueAsNumber;
+    });
+    _selectionProperties.remove();
+  }
+
+  void _listenSelectedLazyUpdate(
+    InputElement input, {
+    @required void Function(InputElement self) onChange,
+  }) {
+    var bufferedValue = input.value;
+
+    void update() async {
+      if (bufferedValue != input.value) {
+        bufferedValue = input.value;
+        onChange(input);
+        await socket.sendAction(a.GAME_MOVABLE_UPDATE, {
+          'movable': selectedMovable.id,
+          'size': selectedMovable.size,
+        });
+      }
+    }
+
+    input.onFocus.listen((_) {
+      bufferedValue = input.value;
+    });
+    input.onChange.listen((_) => update());
   }
 
   void _initDragControls() {
     var isBoardDrag = false;
     var drag = false;
     _container.onMouseDown.listen((event) async {
-      var movable = (event.target as HtmlElement).classes.contains('movable');
+      var movable = event.path
+          .any((e) => e is HtmlElement && e.classes.contains('movable'));
 
-      if ((!grid.editingGrid && movable) ||
-          event.path
-              .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
-        return;
+      if (event.button == 0) {
+        if (movable) {
+          for (var mv in movables) {
+            if (mv.e == event.target) {
+              selectedMovable = mv;
+              break;
+            }
+          }
+        } else if (selectedMovable != null) {
+          selectedMovable = null;
+        }
+
+        if ((!grid.editingGrid && movable) ||
+            event.path.any(
+                (e) => e is HtmlElement && e.classes.contains('controls'))) {
+          return;
+        }
       }
 
       isBoardDrag = event.path.contains(_e);
@@ -196,6 +264,7 @@ class Board {
           : prefabs[int.parse(pref)],
       id: json['id'],
       pos: parsePoint(json),
+      size: json['size'],
     );
     movables.add(m);
     grid.e.append(m.e);
