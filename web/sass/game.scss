@@ -343,25 +343,47 @@
     position: absolute;
 }
 
+#grid {
+    --cell-size: 4;
+}
+
 .movable {
     @include base.center-background;
     position: absolute;
     border: 0 solid transparent;
     border-radius: 50%;
-    width: calc(var(--size) * 100%);
-    height: calc(var(--size) * 100%);
+    width: calc(var(--size) * var(--cell-size) * 1px);
+    height: calc(var(--size) * var(--cell-size) * 1px);
     box-sizing: border-box;
     box-shadow: 0 0 8px #000a;
-    transition-duration: 0.05s;
-    transition-property: border-color, border-width;
+    transition: border-color 0.25s,
+                border-width 0.05s;
 
     --size: 1;
 
     &.accessible {
         cursor: move;
     }
+    &.empty {
+        border-width: 3px;
+        border-color: var(--color-bad);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #222;
+
+        > span {
+            pointer-events: none;
+            display: flex;
+            font-family: monospace;
+            font-size: calc(var(--size) * var(--cell-size) * 0.8px);
+            color: var(--color-bad);
+            text-align: center;
+        }
+    }
     &.selected {
-        border: 3px solid white;
+        border-width: 3px;
+        border-color: white;
         box-shadow: 0 0 16px 4px #000a,
                     0 0 8px #0008 inset;
         z-index: 3;

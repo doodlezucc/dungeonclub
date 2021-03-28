@@ -23,10 +23,8 @@ class Grid {
   set cellSize(num cellSize) {
     _cellSize = max(8, cellSize);
     _clampOffset();
-    e.style.width = '${_cellSize}px';
-    e.style.height = '${_cellSize}px';
-    user.session.board.movables
-        .forEach((m) => m.snapToGrid(roundInsteadOfFloor: true));
+    e.style.setProperty('--cell-size', '$_cellSize');
+    user.session.board.movables.forEach((m) => m.snapToGrid());
     redrawCanvas();
   }
 

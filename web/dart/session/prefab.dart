@@ -10,7 +10,7 @@ import 'movable.dart';
 import 'prefab_palette.dart';
 
 abstract class EntityBase {
-  int _size;
+  int _size = 1;
   int get size => _size;
   set size(int size) {
     _size = min(max(size, 0), 25);
@@ -59,6 +59,21 @@ abstract class Prefab extends EntityBase {
 
   void fromJson(Map<String, dynamic> json) {
     size = json['size'] ?? 1;
+  }
+}
+
+class EmptyPrefab extends Prefab {
+  @override
+  String get id => 'e';
+
+  @override
+  String get img => '';
+
+  @override
+  String get name => 'Empty';
+
+  EmptyPrefab() {
+    updateName();
   }
 }
 

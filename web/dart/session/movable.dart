@@ -9,10 +9,11 @@ import 'board.dart';
 import 'prefab.dart';
 
 class Movable extends EntityBase {
-  int id;
   final HtmlElement e;
   final Board board;
   final Prefab prefab;
+  int id;
+  HtmlElement _text;
 
   bool _accessible = false;
   bool get accessible => _accessible;
@@ -79,11 +80,16 @@ class Movable extends EntityBase {
       }
     });
 
+    if (prefab is EmptyPrefab) {
+      e.classes.add('empty');
+      e.append(_text = SpanElement()..text = '1');
+    }
+
     window.onMouseMove.listen((event) {
       if (drag && !board.grid.editingGrid) {
         offset += event.movement * (1 / board.scaledZoom);
 
-        snapToGrid(pos: start + offset, roundInsteadOfFloor: true);
+        snapToGrid(pos: start + offset);
       }
     });
 
@@ -102,13 +108,12 @@ class Movable extends EntityBase {
     e.style.backgroundImage = 'url($img)';
   }
 
-  void snapToGrid({Point pos, bool roundInsteadOfFloor = false}) {
+  void snapToGrid({Point pos}) {
     pos = pos ?? position;
     var cell = board.grid.cellSize;
 
     num modify(num v) {
-      var smol = v / cell;
-      return (roundInsteadOfFloor ? smol.round() : smol.floor()) * cell;
+      return (v / cell).round() * cell;
     }
 
     position = Point(modify(pos.x), modify(pos.y));

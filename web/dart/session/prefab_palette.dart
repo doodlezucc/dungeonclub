@@ -27,6 +27,7 @@ final ButtonElement _prefabRemove = querySelector('#prefabRemove');
 
 final List<CharacterPrefab> pcPrefabs = [];
 final List<CustomPrefab> prefabs = [];
+final emptyPrefab = EmptyPrefab();
 
 Prefab _selectedPrefab;
 Prefab get selectedPrefab => _selectedPrefab;
@@ -39,15 +40,15 @@ set selectedPrefab(Prefab p) {
   _board.classes.toggle('drag', p != null);
 
   var isCustom = p is CustomPrefab;
+  var isEmpty = p is EmptyPrefab;
 
   _prefabImage.classes.toggle('disabled', !isCustom);
   _prefabName.disabled = !isCustom;
   _prefabRemove.disabled = !isCustom;
+  _prefabSize.disabled = isEmpty;
 
   if (p != null) {
-    _prefabName.value = isCustom
-        ? (p as CustomPrefab).name
-        : (p as CharacterPrefab).character.name;
+    _prefabName.value = p.name;
     _prefabSize.valueAsNumber = p.size;
 
     var img = p.img;
@@ -72,9 +73,9 @@ void _initPrefabPalette() {
     _pcPrefs.append(pc.prefab.e);
   }
 
-  _addPref.onClick.listen((event) {
-    createPrefab();
-  });
+  _otherPrefs.nodes.insert(0, emptyPrefab.e);
+
+  _addPref.onClick.listen((_) => createPrefab());
 }
 
 void _initPrefabProperties() {

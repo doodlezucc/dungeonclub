@@ -280,13 +280,16 @@ class Board {
 
   void onMovableCreate(Map<String, dynamic> json) {
     String pref = json['prefab'];
+    var isEmpty = pref[0] == 'e';
     var isPC = pref[0] == 'c';
 
     var m = Movable(
       board: this,
-      prefab: isPC
-          ? pcPrefabs[int.parse(pref.substring(1))]
-          : prefabs[int.parse(pref)],
+      prefab: isEmpty
+          ? emptyPrefab
+          : (isPC
+              ? pcPrefabs[int.parse(pref.substring(1))]
+              : prefabs[int.parse(pref)]),
       id: json['id'],
       pos: parsePoint(json),
       size: json['size'],
