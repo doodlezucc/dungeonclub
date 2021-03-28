@@ -15,13 +15,8 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_MOVABLE_MOVE:
       return user.session.board.onMovableMove(params);
 
-    case GAME_SCENE_UPDATE:
-      var grid = params['grid'];
-      if (grid != null) {
-        user.session?.board?.grid?.fromJson(grid);
-        user.session?.board?.onAllMovablesMove(params['movables']);
-      }
-      return user.session?.board?.onImgChange();
+    case GAME_MOVABLE_UPDATE:
+      return user.session.board.onMovableUpdate(params);
 
     case GAME_MOVABLE_REMOVE:
       return user.session.board.onMovableRemove(params);
@@ -29,6 +24,14 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_SCENE_PLAY:
       int id = params['id'];
       return user.session?.board?.fromJson(id, params);
+
+    case GAME_SCENE_UPDATE:
+      var grid = params['grid'];
+      if (grid != null) {
+        user.session?.board?.grid?.fromJson(grid);
+        user.session?.board?.onAllMovablesMove(params['movables']);
+      }
+      return user.session?.board?.onImgChange();
 
     case GAME_JOIN_REQUEST:
       return await user.account?.displayPickCharacterDialog('joe');

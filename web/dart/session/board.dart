@@ -299,21 +299,22 @@ class Board {
     }
   }
 
-  void onMovableMove(json) {
+  void _movableEvent(json, void Function(Movable m) action) {
     for (var m in movables) {
       if (m.id == json['movable']) {
-        return m.onMove(parsePoint(json));
+        return action(m);
       }
     }
   }
 
-  void onMovableRemove(json) {
-    for (var m in movables) {
-      if (m.id == json['movable']) {
-        return m.remove();
-      }
-    }
-  }
+  void onMovableMove(json) =>
+      _movableEvent(json, (m) => m.onMove(parsePoint(json)));
+
+  void onMovableRemove(json) => _movableEvent(json, (m) => m.remove());
+
+  void onMovableUpdate(json) => _movableEvent(json, (m) {
+        m.size = json['size'];
+      });
 
   void fromJson(int id, Map<String, dynamic> json) {
     clear();
