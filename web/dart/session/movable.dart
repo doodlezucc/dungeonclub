@@ -42,7 +42,7 @@ class Movable extends EntityBase {
     @required this.prefab,
     this.id,
     Point pos,
-    int size,
+    int size = 0,
   }) : e = DivElement()..className = 'movable' {
     prefab.movables.add(this);
     onImageChange(prefab.img);
@@ -114,7 +114,7 @@ class Movable extends EntityBase {
     position = Point(modify(pos.x), modify(pos.y));
   }
 
-  void remove() {
+  void onRemove() {
     prefab.movables.remove(this);
     e.remove();
   }

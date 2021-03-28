@@ -151,7 +151,7 @@ class Connection extends Socket {
           var p = _game.addPrefab();
           await _uploadGameImageJson(params, id: p.id);
           var json = p.toJson();
-          notifyOthers(action, json);
+          notifyOthers(action, json, true);
           return json;
         }
         return null;
@@ -171,8 +171,14 @@ class Connection extends Socket {
           prefab.fromJson(params);
         }
 
-        notifyOthers(action, params..remove('data'));
+        notifyOthers(action, params..remove('data'), true);
         return src ?? params;
+
+      case a.GAME_PREFAB_REMOVE:
+        if (_game == null) return null;
+
+        _game.removePrefab(params['prefab']);
+        return notifyOthers(action, params, true);
 
       case a.GAME_MOVABLE_CREATE:
         if (scene != null) {
@@ -325,8 +331,12 @@ class Connection extends Socket {
     );
   }
 
-  void notifyOthers(String action, [Map<String, dynamic> params]) {
-    _game?.notify(action, params, exclude: this);
+  void notifyOthers(
+    String action, [
+    Map<String, dynamic> params,
+    bool allScenes = false,
+  ]) {
+    _game?.notify(action, params, exclude: this, allScenes: allScenes);
   }
 
   dynamic login(String email, String password, {bool provideToken = true}) {

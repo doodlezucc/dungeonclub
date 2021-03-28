@@ -18,6 +18,7 @@ const GAME_MOVABLE_REMOVE = 'gameMovableRemove';
 
 const GAME_PREFAB_CREATE = 'gamePrefabCreate';
 const GAME_PREFAB_UPDATE = 'gamePrefabUpdate';
+const GAME_PREFAB_REMOVE = 'gamePrefabRemove';
 
 const GAME_SCENE_UPDATE = 'gameSceneUpdate';
 const GAME_SCENE_GET = 'gameSceneGet';

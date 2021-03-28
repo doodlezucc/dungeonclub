@@ -148,6 +148,7 @@ class Game {
   int get sceneCount => _scenes.length;
   Scene get playingScene =>
       playingSceneId < _scenes.length ? _scenes[playingSceneId] : null;
+  int get nextPrefabId => _prefabs.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
 
   final _connections = <Connection>[];
   final List<PlayerCharacter> _characters;
@@ -215,7 +216,7 @@ class Game {
   }
 
   CustomPrefab addPrefab() {
-    var p = CustomPrefab(_prefabs.length, 1);
+    var p = CustomPrefab(nextPrefabId, 1);
     _prefabs.add(p);
     return p;
   }
@@ -226,8 +227,24 @@ class Game {
       return _characters[int.parse(id.substring(1))].prefab;
     }
 
-    return _prefabs.firstWhere((p) => p.id == int.parse(id),
-        orElse: () => null);
+    return getCustomPrefab(id);
+  }
+
+  CustomPrefab getCustomPrefab(String id) {
+    var parsed = int.tryParse(id) ?? -1;
+    return _prefabs.firstWhere((p) => p.id == parsed, orElse: () => null);
+  }
+
+  void removePrefab(String id) async {
+    var prefab = getCustomPrefab(id);
+    if (prefab == null) return null;
+
+    _prefabs.remove(prefab);
+    for (var scene in _scenes) {
+      scene.removeMovablesOfPrefab(id);
+    }
+    var file = await getPrefabFile(id);
+    await file.delete();
   }
 
   Future<String> uploadImage(String type, int id, String base64) async {
@@ -277,6 +294,10 @@ class Game {
 
   Future<File> getSceneFile(int id) async {
     return await getFile('${a.IMAGE_TYPE_SCENE}$id.png');
+  }
+
+  Future<File> getPrefabFile(dynamic id) async {
+    return await getFile('${a.IMAGE_TYPE_ENTITY}$id.png');
   }
 
   PlayerCharacter assignPC(int index, Connection c) {
@@ -351,7 +372,7 @@ class PlayerCharacter {
 
 class Scene {
   final List<Movable> _movables;
-  int _countMIDs;
+  int get nextMovableId => _movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
   Point gridOffset;
   num cellSize;
   String gridColor;
@@ -360,18 +381,21 @@ class Scene {
       : _movables = List.from(json['movables'] ?? [])
             .map((j) => Movable(j['id'], j))
             .toList() {
-    _countMIDs = _movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
     applyGrid(json['grid'] ?? {});
   }
 
   Movable addMovable(Map<String, dynamic> json) {
-    var m = Movable(_countMIDs++, json);
+    var m = Movable(nextMovableId, json);
     _movables.add(m);
     return m;
   }
 
   Movable getMovable(int id) {
     return _movables.singleWhere((m) => m.id == id, orElse: () => null);
+  }
+
+  void removeMovablesOfPrefab(String prefabId) {
+    _movables.removeWhere((m) => m.prefab == prefabId);
   }
 
   void removeMovable(int id) {

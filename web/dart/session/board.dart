@@ -129,7 +129,7 @@ class Board {
         await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
           'movable': selectedMovable.id,
         });
-        selectedMovable.remove();
+        selectedMovable.onRemove();
         selectedMovable = null;
       }
     });
@@ -320,7 +320,7 @@ class Board {
   void onMovableMove(json) =>
       _movableEvent(json, (m) => m.onMove(parsePoint(json)));
 
-  void onMovableRemove(json) => _movableEvent(json, (m) => m.remove());
+  void onMovableRemove(json) => _movableEvent(json, (m) => m.onRemove());
 
   void onMovableUpdate(json) => _movableEvent(json, (m) {
         m.size = json['size'];

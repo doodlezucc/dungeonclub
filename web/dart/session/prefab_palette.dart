@@ -23,6 +23,7 @@ final HtmlElement _prefabImage = querySelector('#prefabImage');
 final ImageElement _prefabImageImg = _prefabImage.querySelector('img');
 final InputElement _prefabName = querySelector('#prefabName');
 final InputElement _prefabSize = querySelector('#prefabSize');
+final ButtonElement _prefabRemove = querySelector('#prefabRemove');
 
 final List<CharacterPrefab> pcPrefabs = [];
 final List<CustomPrefab> prefabs = [];
@@ -41,6 +42,7 @@ set selectedPrefab(Prefab p) {
 
   _prefabImage.classes.toggle('disabled', !isCustom);
   _prefabName.disabled = !isCustom;
+  _prefabRemove.disabled = !isCustom;
 
   if (p != null) {
     _prefabName.value = isCustom
@@ -102,6 +104,17 @@ void _initPrefabProperties() {
     pref.size = input.valueAsNumber;
     movableGhost.style.setProperty('--size', '${pref.size}');
   });
+
+  _prefabRemove.onClick.listen((_) async {
+    var p = selectedPrefab;
+    if (p != null) {
+      selectedPrefab = null;
+      onPrefabRemove(p);
+      await socket.sendAction(GAME_PREFAB_REMOVE, {
+        'prefab': p.id,
+      });
+    }
+  });
 }
 
 void _listenLazyUpdate(
@@ -155,16 +168,26 @@ CustomPrefab onPrefabCreate(Map<String, dynamic> json) {
   return p;
 }
 
-void onPrefabUpdate(Map<String, dynamic> json) {
-  String id = json['prefab'];
-
+Prefab getPrefab(String id) {
   var allPrefabs = <Prefab>[...prefabs, ...pcPrefabs];
+  return allPrefabs.firstWhere((p) => p.id == id, orElse: () => null);
+}
 
-  var prefab = allPrefabs.firstWhere((p) => p.id == id, orElse: () => null);
+void onPrefabUpdate(Map<String, dynamic> json) {
+  var prefab = getPrefab(json['prefab']);
 
   if (json['size'] == null) {
     user.session.board.updatePrefabImage(prefab, prefab.updateImage());
   } else {
     prefab.fromJson(json);
   }
+}
+
+void onPrefabRemove(Prefab prefab) {
+  prefab?.e?.remove();
+  user.session.board.movables.forEach((m) {
+    if (m.prefab == prefab) {
+      m.onRemove();
+    }
+  });
 }
