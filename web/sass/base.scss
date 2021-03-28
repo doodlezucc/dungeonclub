@@ -157,6 +157,9 @@ button.big {
     color: var(--color-text-primary);
     padding: 8px 16px;
 }
+button.compact {
+    padding: 4px 8px;
+}
 
 .good:not(:disabled) {
     color: var(--color-good) !important;

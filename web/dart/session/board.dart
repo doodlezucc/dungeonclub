@@ -67,6 +67,7 @@ class Board {
   set zoom(double zoom) {
     _zoom = zoom;
     _scaledZoom = exp(zoom);
+    _selectionProperties.style.transform = 'scale(${1 / scaledZoom})';
     _transform();
   }
 
@@ -236,7 +237,7 @@ class Board {
 
   void _transform() {
     _e.style.transform =
-        'scale($_scaledZoom) translate(${position.x}px, ${position.y}px)';
+        'scale($scaledZoom) translate(${position.x}px, ${position.y}px)';
   }
 
   void onImgChange({String src, bool updateRef = true}) async {
