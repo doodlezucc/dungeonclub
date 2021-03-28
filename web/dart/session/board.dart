@@ -24,6 +24,7 @@ final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
 final HtmlElement _selectionProperties = querySelector('#selectionProperties');
 final InputElement _selectedSize = querySelector('#movableSize');
+final ButtonElement _selectedRemove = querySelector('#movableRemove');
 
 class Board {
   final Session session;
@@ -106,6 +107,20 @@ class Board {
       if (ev.keyCode == 27 && selectedPrefab != null) {
         ev.preventDefault();
         selectedPrefab = null;
+      }
+    });
+
+    _initSelectionHandler();
+  }
+
+  void _initSelectionHandler() {
+    _selectedRemove.onClick.listen((_) async {
+      if (selectedMovable != null) {
+        await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
+          'movable': selectedMovable.id,
+        });
+        selectedMovable.remove();
+        selectedMovable = null;
       }
     });
 
@@ -286,8 +301,16 @@ class Board {
 
   void onMovableMove(json) {
     for (var m in movables) {
-      if (m.id == json['id']) {
+      if (m.id == json['movable']) {
         return m.onMove(parsePoint(json));
+      }
+    }
+  }
+
+  void onMovableRemove(json) {
+    for (var m in movables) {
+      if (m.id == json['movable']) {
+        return m.remove();
       }
     }
   }

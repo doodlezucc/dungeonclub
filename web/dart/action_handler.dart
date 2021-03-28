@@ -23,6 +23,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       }
       return user.session?.board?.onImgChange();
 
+    case GAME_MOVABLE_REMOVE:
+      return user.session.board.onMovableRemove(params);
+
     case GAME_SCENE_PLAY:
       int id = params['id'];
       return user.session?.board?.fromJson(id, params);

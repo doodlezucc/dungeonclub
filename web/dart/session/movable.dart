@@ -42,12 +42,12 @@ class Movable extends EntityBase {
     @required this.prefab,
     this.id,
     Point pos,
-    int size = 0,
+    int size,
   }) : e = DivElement()..className = 'movable' {
     prefab.movables.add(this);
     onImageChange(prefab.img);
     position = pos ?? Point(0, 0);
-    this.size = size;
+    this.size = size ?? 0;
 
     if (board.session.isGM) {
       accessible = true;
@@ -72,7 +72,7 @@ class Movable extends EntityBase {
       drag = false;
       if (startPos != position) {
         return socket.sendAction(GAME_MOVABLE_MOVE, {
-          'id': id,
+          'movable': id,
           'x': position.x,
           'y': position.y,
         });
@@ -112,5 +112,10 @@ class Movable extends EntityBase {
     }
 
     position = Point(modify(pos.x), modify(pos.y));
+  }
+
+  void remove() {
+    prefab.movables.remove(this);
+    e.remove();
   }
 }

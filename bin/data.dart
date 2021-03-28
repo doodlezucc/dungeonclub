@@ -374,6 +374,10 @@ class Scene {
     return _movables.singleWhere((m) => m.id == id, orElse: () => null);
   }
 
+  void removeMovable(int id) {
+    _movables.removeWhere((m) => m.id == id);
+  }
+
   void applyGrid(Map<String, dynamic> json) {
     gridOffset = parsePoint(json['offset']) ?? Point(0, 0);
     cellSize = json['cellSize'] ?? 100;

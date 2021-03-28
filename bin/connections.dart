@@ -188,7 +188,7 @@ class Connection extends Socket {
         return null;
 
       case a.GAME_MOVABLE_MOVE:
-        var m = scene?.getMovable(params['id']);
+        var m = scene?.getMovable(params['movable']);
         if (m != null) {
           m
             ..x = params['x']
@@ -199,6 +199,10 @@ class Connection extends Socket {
       case a.GAME_MOVABLE_UPDATE:
         var m = scene?.getMovable(params['movable']);
         m?.fromJson(params);
+        return notifyOthers(action, params);
+
+      case a.GAME_MOVABLE_REMOVE:
+        scene?.removeMovable(params['movable']);
         return notifyOthers(action, params);
 
       case a.GAME_CHARACTER_UPLOAD:
