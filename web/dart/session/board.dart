@@ -65,8 +65,8 @@ class Board {
   double get zoom => _zoom;
   double get scaledZoom => _scaledZoom;
   set zoom(double zoom) {
-    _zoom = zoom;
-    _scaledZoom = exp(zoom);
+    _zoom = min(max(zoom, -1), 1.5);
+    _scaledZoom = exp(_zoom);
     _selectionProperties.style.transform = 'scale(${1 / scaledZoom})';
     _transform();
   }
@@ -89,7 +89,14 @@ class Board {
     initDiceTable();
 
     _container.onMouseWheel.listen((event) {
-      zoom -= event.deltaY / 300;
+      if (event.target is InputElement) {
+        if (event.target != document.activeElement) {
+          (event.target as InputElement).focus();
+        }
+        return;
+      }
+
+      zoom -= event.deltaY.sign / 2;
     });
 
     _changeImage.onClick.listen((_) => _changeImageDialog());
