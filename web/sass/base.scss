@@ -31,10 +31,11 @@ body {
     --color-selected: #555;
     --color-good: #009c46;
     --color-bad: #e24b4b;
-    --color-panel-shadow: #0006;
     --color-note: #777;
 
     --weight-thick: bold;
+    --shadow-panel: 0 0 8px 2px #0004;
+    --shadow-text: none;
 
     &.dark-mode {
         --color-background: #16161a;
@@ -51,10 +52,11 @@ body {
         --color-selected: #ccc;
         --color-good: #62ffa9;
         --color-bad: #ff7676;
-        --color-panel-shadow: #000a;
         --color-note: #aaa;
     
         --weight-thick: 500;
+        --shadow-panel: 0 0 12px 6px #0006;
+        --shadow-text: 0 0 10px #000a;
     }
 
     &:not(.logged-in) {

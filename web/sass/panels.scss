@@ -36,11 +36,11 @@
 .panel {
     @extend %vertical;
     background-color: var(--color-not-intense);
-    box-shadow: 0 0 12px var(--color-panel-shadow);
+    box-shadow: var(--shadow-panel);
     border-radius: base.$radius;
     padding: 24px 32px 16px 32px;
     gap: 16px;
-    min-width: 240px;
+    min-width: 232px;
 
     h2 {
         text-align: center;

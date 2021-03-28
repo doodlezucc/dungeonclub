@@ -48,21 +48,30 @@
     #prefabPalette {
         top: 240px;
         right: 16px;
+        max-width: 232px;
 
         > .prefab-container {
-            flex-direction: row;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: min-content min-content min-content min-content min-content;
             gap: 0;
+            margin-bottom: 4px;
+
+            > * {
+                width: 40px;
+                height: 40px;
+                transition-duration: 0.2s;
+                transition-timing-function: cubic-bezier(0.23, 1, 0.320, 1);
+
+                &:active {
+                    transform: scale(0.9) !important;
+                }
+            }
 
             > .prefab {
                 @extend .with-tooltip;
                 @include base.center-background;
-                width: 40px;
-                height: 40px;
                 cursor: pointer;
                 opacity: 0.5;
-                transition-duration: 0.2s;
-                transition-timing-function: cubic-bezier(0.23, 1, 0.320, 1);
                 box-sizing: border-box;
                 border: 2px solid transparent;
 
@@ -76,9 +85,6 @@
                     &:hover {
                         opacity: 1;
                     }
-                }
-                &:active {
-                    transform: scale(0.9);
                 }
             }
         }
@@ -97,6 +103,16 @@
             &.disabled {
                 max-height: 0;
             }
+
+            span {
+                display: flex;
+                gap: 8px;
+                white-space: nowrap;
+
+                > input {
+                    width: 100%;
+                }
+            }
         }
     }
 
@@ -113,6 +129,7 @@
         transition-duration: 0.1s;
         transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
         opacity: 0.8;
+        box-shadow: none;
     
         > span {
             gap: 8px;
@@ -279,7 +296,7 @@
 
     > * {
         padding: 2px 8px;
-        text-shadow: 0 0 10px #000a;
+        text-shadow: var(--shadow-text);
         font-size: 1.1em;
 
         > span {
