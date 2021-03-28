@@ -96,7 +96,7 @@ class Board {
         return;
       }
 
-      zoom -= event.deltaY.sign / 2;
+      zoom -= event.deltaY.sign / 3;
     });
 
     _changeImage.onClick.listen((_) => _changeImageDialog());
@@ -110,6 +110,8 @@ class Board {
         selectedPrefab = null;
       }
     });
+
+    _e.onContextMenu.listen((ev) => ev.preventDefault());
 
     window.onKeyDown.listen((ev) {
       if (ev.keyCode == 27 && selectedPrefab != null) {
