@@ -270,7 +270,7 @@ class Board {
 
   void onMovableCreate(Map<String, dynamic> json) {
     String pref = json['prefab'];
-    var isPC = pref.startsWith('c');
+    var isPC = pref[0] == 'c';
 
     var m = Movable(
       board: this,

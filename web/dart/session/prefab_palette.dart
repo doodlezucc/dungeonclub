@@ -155,10 +155,10 @@ void onPrefabCreate(Map<String, dynamic> json) {
 
 void onPrefabUpdate(Map<String, dynamic> json) {
   String id = json['prefab'];
-  print(id);
 
-  var prefab = prefabs.firstWhere((p) => p.id == id, orElse: () => null);
-  print(prefab);
+  var allPrefabs = <Prefab>[...prefabs, ...pcPrefabs];
+
+  var prefab = allPrefabs.firstWhere((p) => p.id == id, orElse: () => null);
 
   if (json['size'] == null) {
     user.session.board.updatePrefabImage(prefab, prefab.updateImage());
