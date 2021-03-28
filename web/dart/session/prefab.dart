@@ -98,7 +98,7 @@ class CustomPrefab extends Prefab {
   @override
   String get img => getGameFile('$IMAGE_TYPE_ENTITY$id.png');
 
-  CustomPrefab({int size = 1, String name = 'Enemy', @required int id}) {
+  CustomPrefab({int size, String name, @required int id}) {
     _size = size;
     _id = id;
     _name = name;
