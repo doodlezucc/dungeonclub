@@ -422,3 +422,28 @@ header {
         display: none;
     }
 }
+
+.with-tooltip {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    
+    > span {
+        position: absolute;
+        bottom: 100%;
+        background-color: var(--color-background);
+        border-radius: $radius;
+        padding: 6px 8px;
+        pointer-events: none;
+        opacity: 0;
+        max-width: 180px;
+        width: max-content;
+        font-weight: var(--weight-thick);
+    }
+
+    &:hover {
+        > span {
+            opacity: 1;
+        }
+    }
+}
