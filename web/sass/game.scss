@@ -375,10 +375,11 @@
         > span {
             pointer-events: none;
             display: flex;
-            font-family: monospace;
-            font-size: calc(var(--size) * var(--cell-size) * 0.8px);
+            font-family: 'Fira Mono';
             color: var(--color-bad);
             text-align: center;
+            font-size: calc(var(--size) * var(--cell-size) * 1.5px / var(--length));
+            --length: 1;
         }
     }
     &:not(.empty) {

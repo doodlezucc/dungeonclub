@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math' as math;
 
 import 'package:dnd_interactive/actions.dart';
 import 'package:meta/meta.dart';
@@ -142,6 +143,11 @@ class EmptyMovable extends Movable {
   set label(String label) {
     _label = label;
     _labelSpan.text = label;
+
+    var lines = label.split(' ');
+
+    var length = lines.fold(0, (len, line) => math.max<int>(len, line.length));
+    _labelSpan.style.setProperty('--length', '${length + 1}');
   }
 
   EmptyMovable._({
