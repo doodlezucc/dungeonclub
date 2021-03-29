@@ -381,6 +381,11 @@
             text-align: center;
         }
     }
+    &:not(.empty) {
+        .on-empty {
+            display: none;
+        }
+    }
     &.selected {
         border-width: 3px;
         border-color: white;

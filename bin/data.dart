@@ -379,13 +379,13 @@ class Scene {
 
   Scene(Map<String, dynamic> json)
       : _movables = List.from(json['movables'] ?? [])
-            .map((j) => Movable(j['id'], j))
+            .map((j) => Movable.create(j['id'], j))
             .toList() {
     applyGrid(json['grid'] ?? {});
   }
 
   Movable addMovable(Map<String, dynamic> json) {
-    var m = Movable(nextMovableId, json);
+    var m = Movable.create(nextMovableId, json);
     _movables.add(m);
     return m;
   }
@@ -479,18 +479,28 @@ class Movable extends EntityBase {
   String prefab;
   num x;
   num y;
+  List<int> accessIds;
 
-  Movable(int id, Map<String, dynamic> json)
+  Movable._(int id, Map<String, dynamic> json)
       : id = id,
         prefab = json['prefab'],
         x = json['x'],
-        y = json['y'] {
+        y = json['y'],
+        accessIds = List.from(json['access'] ?? []) {
     fromJson(json);
+  }
+
+  static Movable create(int id, Map<String, dynamic> json) {
+    if (json['prefab'] == 'e') {
+      return EmptyMovable._(id, json);
+    }
+    return Movable._(id, json);
   }
 
   @override
   void fromJson(Map<String, dynamic> json) {
     size = json['size'] ?? 0;
+    accessIds = List.from(json['access'] ?? []);
   }
 
   @override
@@ -499,6 +509,29 @@ class Movable extends EntityBase {
         'prefab': prefab,
         'x': x,
         'y': y,
+        ...super.toJson(),
+      };
+}
+
+class EmptyMovable extends Movable {
+  String label;
+
+  EmptyMovable._(int id, Map<String, dynamic> json) : super._(id, json);
+
+  @override
+  void fromJson(Map<String, dynamic> json) {
+    size = json['size'] ?? 0;
+    accessIds = List.from(json['access'] ?? []);
+    label = json['label'] ?? 'missingno';
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'prefab': prefab,
+        'x': x,
+        'y': y,
+        'label': label,
         ...super.toJson(),
       };
 }

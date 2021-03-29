@@ -15,6 +15,14 @@ abstract class EntityBase {
   set size(int size) {
     _size = min(max(size, 0), 25);
   }
+
+  Map<String, dynamic> toJson() => {
+        'size': size,
+      };
+
+  void fromJson(Map<String, dynamic> json) {
+    size = json['size'] ?? 1;
+  }
 }
 
 abstract class Prefab extends EntityBase {
@@ -55,10 +63,6 @@ abstract class Prefab extends EntityBase {
 
   void updateName() {
     _nameSpan.text = name;
-  }
-
-  void fromJson(Map<String, dynamic> json) {
-    size = json['size'] ?? 1;
   }
 }
 

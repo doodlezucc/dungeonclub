@@ -1,5 +1,4 @@
 import 'dart:html';
-import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
 import 'package:meta/meta.dart';
@@ -12,8 +11,7 @@ class Movable extends EntityBase {
   final HtmlElement e;
   final Board board;
   final Prefab prefab;
-  int id;
-  HtmlElement _text;
+  final int id;
 
   bool _accessible = false;
   bool get accessible => _accessible;
@@ -38,17 +36,15 @@ class Movable extends EntityBase {
 
   int get displaySize => size != 0 ? size : prefab.size;
 
-  Movable({
+  Movable._({
     @required this.board,
     @required this.prefab,
-    this.id,
-    Point pos,
-    int size = 0,
+    @required this.id,
+    @required Point pos,
   }) : e = DivElement()..className = 'movable' {
     prefab.movables.add(this);
     onImageChange(prefab.img);
     position = pos ?? Point(0, 0);
-    this.size = size ?? 0;
 
     if (board.session.isGM) {
       accessible = true;
@@ -80,11 +76,6 @@ class Movable extends EntityBase {
       }
     });
 
-    if (prefab is EmptyPrefab) {
-      e.classes.add('empty');
-      e.append(_text = SpanElement()..text = '1');
-    }
-
     window.onMouseMove.listen((event) {
       if (drag && !board.grid.editingGrid) {
         offset += event.movement * (1 / board.scaledZoom);
@@ -94,6 +85,18 @@ class Movable extends EntityBase {
     });
 
     onPrefabUpdate();
+  }
+
+  static Movable create({
+    @required Board board,
+    @required Prefab prefab,
+    @required int id,
+    @required Point pos,
+  }) {
+    if (prefab is EmptyPrefab) {
+      return EmptyMovable._(board: board, prefab: prefab, id: id, pos: pos);
+    }
+    return Movable._(board: board, prefab: prefab, id: id, pos: pos);
   }
 
   void onPrefabUpdate() {
@@ -122,5 +125,45 @@ class Movable extends EntityBase {
   void onRemove() {
     prefab.movables.remove(this);
     e.remove();
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'movable': id,
+        ...super.toJson(),
+      };
+}
+
+class EmptyMovable extends Movable {
+  SpanElement _labelSpan;
+
+  String _label;
+  String get label => _label;
+  set label(String label) {
+    _label = label;
+    _labelSpan.text = label;
+  }
+
+  EmptyMovable._({
+    @required Board board,
+    @required EmptyPrefab prefab,
+    @required int id,
+    @required Point pos,
+  }) : super._(board: board, prefab: prefab, id: id, pos: pos) {
+    e
+      ..classes.add('empty')
+      ..append(_labelSpan = SpanElement());
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        ...super.toJson(),
+        'label': label,
+      };
+
+  @override
+  void fromJson(Map<String, dynamic> json) {
+    super.fromJson(json);
+    label = json['label'] ?? 'AAAH';
   }
 }

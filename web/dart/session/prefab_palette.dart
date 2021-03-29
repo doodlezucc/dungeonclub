@@ -53,6 +53,7 @@ set selectedPrefab(Prefab p) {
 
     var img = p.img;
     _prefabImageImg.src = img;
+    movableGhost.classes.toggle('empty', isEmpty);
     movableGhost.style.backgroundImage = 'url(${img})';
     movableGhost.style.setProperty('--size', '${p.size}');
   }

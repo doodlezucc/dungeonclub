@@ -23,6 +23,7 @@ final HtmlElement _controls = _container.querySelector('#sceneEditor');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
 final HtmlElement _selectionProperties = querySelector('#selectionProperties');
+final InputElement _selectedLabel = querySelector('#movableLabel');
 final InputElement _selectedSize = querySelector('#movableSize');
 final ButtonElement _selectedRemove = querySelector('#movableRemove');
 
@@ -45,6 +46,10 @@ class Board {
 
     if (selectedMovable != null) {
       selectedMovable.e.classes.add('selected');
+
+      if (selectedMovable is EmptyMovable) {
+        _selectedLabel.value = selectedMovable.label;
+      }
 
       _selectedSize.valueAsNumber = selectedMovable.size;
       selectedMovable.e.append(_selectionProperties);
@@ -134,31 +139,42 @@ class Board {
       }
     });
 
-    _listenSelectedLazyUpdate(_selectedSize, onChange: (input) {
-      selectedMovable.size = input.valueAsNumber;
+    _listenSelectedLazyUpdate(_selectedLabel, onChange: (m, value) {
+      (m as EmptyMovable).label = value;
+    });
+    _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
+      m.size = int.parse(value);
     });
     _selectionProperties.remove();
   }
 
   void _listenSelectedLazyUpdate(
     InputElement input, {
-    @required void Function(InputElement self) onChange,
+    @required void Function(Movable m, String value) onChange,
   }) {
-    var bufferedValue = input.value;
+    String startValue;
+    String typedValue;
+    Movable bufferedMovable;
 
     void update() async {
-      if (bufferedValue != input.value) {
-        bufferedValue = input.value;
-        onChange(input);
-        await socket.sendAction(a.GAME_MOVABLE_UPDATE, {
-          'movable': selectedMovable.id,
-          'size': selectedMovable.size,
-        });
+      if (startValue != typedValue) {
+        startValue = typedValue;
+        onChange(bufferedMovable, typedValue);
+        await socket.sendAction(
+          a.GAME_MOVABLE_UPDATE,
+          bufferedMovable.toJson(),
+        );
       }
     }
 
     input.onFocus.listen((_) {
-      bufferedValue = input.value;
+      startValue = input.value;
+      bufferedMovable = selectedMovable;
+      typedValue = input.value;
+    });
+    input.onInput.listen((_) {
+      typedValue = input.value;
+      onChange(bufferedMovable, typedValue);
     });
     input.onChange.listen((_) => update());
   }
@@ -266,13 +282,12 @@ class Board {
   }
 
   Future<Movable> addMovable(Prefab prefab, {Point pos}) async {
-    var m = Movable(board: this, prefab: prefab, pos: pos);
     var id = await socket.request(a.GAME_MOVABLE_CREATE, {
-      'x': m.position.x,
-      'y': m.position.y,
+      'x': pos.x,
+      'y': pos.y,
       'prefab': prefab.id,
     });
-    m.id = id;
+    var m = Movable.create(board: this, prefab: prefab, id: id, pos: pos);
     movables.add(m);
     grid.e.append(m.e);
     return m;
@@ -283,7 +298,7 @@ class Board {
     var isEmpty = pref[0] == 'e';
     var isPC = pref[0] == 'c';
 
-    var m = Movable(
+    var m = Movable.create(
       board: this,
       prefab: isEmpty
           ? emptyPrefab
@@ -292,8 +307,7 @@ class Board {
               : prefabs[int.parse(pref)]),
       id: json['id'],
       pos: parsePoint(json),
-      size: json['size'],
-    );
+    )..fromJson(json);
     movables.add(m);
     grid.e.append(m.e);
   }
@@ -325,9 +339,7 @@ class Board {
 
   void onMovableRemove(json) => _movableEvent(json, (m) => m.onRemove());
 
-  void onMovableUpdate(json) => _movableEvent(json, (m) {
-        m.size = json['size'];
-      });
+  void onMovableUpdate(json) => _movableEvent(json, (m) => m.fromJson(json));
 
   void fromJson(int id, Map<String, dynamic> json) {
     clear();
