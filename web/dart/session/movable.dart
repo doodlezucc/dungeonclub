@@ -85,6 +85,7 @@ class Movable extends EntityBase {
       }
     });
 
+    super.size = 0;
     onPrefabUpdate();
   }
 
