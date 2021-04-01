@@ -454,9 +454,12 @@ class CharacterPrefab extends EntityBase {
 class CustomPrefab extends EntityBase {
   final int id;
   String name;
+  List<int> accessIds;
 
   CustomPrefab(this.id, int size) : super(size: size);
-  CustomPrefab.fromJson(Map<String, dynamic> json) : id = json['id'] {
+  CustomPrefab.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        accessIds = List.from(json['access'] ?? []) {
     fromJson(json);
   }
 
@@ -464,12 +467,14 @@ class CustomPrefab extends EntityBase {
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
     name = json['name'];
+    accessIds = List.from(json['access'] ?? []);
   }
 
   @override
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
+        'access': accessIds,
         ...super.toJson(),
       };
 }
@@ -479,14 +484,12 @@ class Movable extends EntityBase {
   String prefab;
   num x;
   num y;
-  List<int> accessIds;
 
   Movable._(int id, Map<String, dynamic> json)
       : id = id,
         prefab = json['prefab'],
         x = json['x'],
-        y = json['y'],
-        accessIds = List.from(json['access'] ?? []) {
+        y = json['y'] {
     fromJson(json);
   }
 
@@ -500,7 +503,6 @@ class Movable extends EntityBase {
   @override
   void fromJson(Map<String, dynamic> json) {
     size = json['size'] ?? 0;
-    accessIds = List.from(json['access'] ?? []);
   }
 
   @override
@@ -521,7 +523,6 @@ class EmptyMovable extends Movable {
   @override
   void fromJson(Map<String, dynamic> json) {
     size = json['size'] ?? 0;
-    accessIds = List.from(json['access'] ?? []);
     label = json['label'] ?? 'missingno';
   }
 

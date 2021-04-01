@@ -118,13 +118,8 @@ class CustomPrefab extends Prefab {
   @override
   String get img => getGameFile('$IMAGE_TYPE_ENTITY$id.png');
 
-  CustomPrefab({int size, String name, @required int id}) {
-    _size = size;
+  CustomPrefab({@required int id}) {
     _id = id;
-    _name = name;
-
-    updateImage();
-    updateName();
   }
 
   @override
@@ -140,5 +135,8 @@ class CustomPrefab extends Prefab {
     name = json['name'];
     accessIds.clear();
     accessIds.addAll(Set.from(json['access']));
+
+    updateImage();
+    updateName();
   }
 }

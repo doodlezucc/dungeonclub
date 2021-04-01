@@ -197,11 +197,7 @@ Future<void> createPrefab() async {
 }
 
 CustomPrefab onPrefabCreate(Map<String, dynamic> json) {
-  var p = CustomPrefab(
-    id: json['id'],
-    size: json['size'],
-    name: json['name'],
-  );
+  var p = CustomPrefab(id: json['id'])..fromJson(json);
   prefabs.add(p);
   _otherPrefs.insertBefore(p.e, _addPref);
   return p;
