@@ -127,7 +127,7 @@
             z-index: 10;
             opacity: 1;
             overflow-y: auto;
-            max-height: 100px;
+            max-height: 180px;
             transition-duration: 0.2s;
             
             > li {
@@ -447,5 +447,13 @@
         #selectionProperties {
             opacity: 0.9 !important;
         }
+    }
+}
+
+#session:not(.is-gm) {
+    .movable.accessible {
+        border-width: 3px;
+        border-color: var(--color-good);
+        box-shadow: 0 0 8px #0008 inset;
     }
 }

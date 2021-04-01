@@ -14,11 +14,17 @@ class Movable extends EntityBase {
   final Prefab prefab;
   final int id;
 
-  bool _accessible = false;
-  bool get accessible => _accessible;
-  set accessible(bool accessible) {
-    _accessible = accessible;
-    e.classes.toggle('accessible', accessible);
+  bool get accessible {
+    if (board.session.isGM) return true;
+
+    var charId = board.session.charId;
+    if (prefab is CharacterPrefab) {
+      return (prefab as CharacterPrefab).character.id == charId;
+    }
+    if (prefab is CustomPrefab) {
+      return (prefab as CustomPrefab).accessIds.contains(charId);
+    }
+    return false;
   }
 
   Point _position;
@@ -46,10 +52,6 @@ class Movable extends EntityBase {
     prefab.movables.add(this);
     onImageChange(prefab.img);
     position = pos ?? Point(0, 0);
-
-    if (board.session.isGM) {
-      accessible = true;
-    }
 
     var drag = false;
     Point startPos;
@@ -103,6 +105,7 @@ class Movable extends EntityBase {
 
   void onPrefabUpdate() {
     e.style.setProperty('--size', '$displaySize');
+    e.classes.toggle('accessible', accessible);
   }
 
   void onMove(Point pos) {

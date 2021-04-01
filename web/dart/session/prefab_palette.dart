@@ -215,6 +215,7 @@ void onPrefabUpdate(Map<String, dynamic> json) {
     user.session.board.updatePrefabImage(prefab, prefab.updateImage());
   } else {
     prefab.fromJson(json);
+    prefab.movables.forEach((m) => m.onPrefabUpdate());
   }
 }
 
