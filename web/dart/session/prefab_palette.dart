@@ -23,6 +23,8 @@ final HtmlElement _prefabImage = querySelector('#prefabImage');
 final ImageElement _prefabImageImg = _prefabImage.querySelector('img');
 final InputElement _prefabName = querySelector('#prefabName');
 final InputElement _prefabSize = querySelector('#prefabSize');
+final UListElement _prefabAccess = querySelector('#prefabAccess');
+final HtmlElement _prefabAccessSpan = querySelector('#prefabAccessSpan');
 final ButtonElement _prefabRemove = querySelector('#prefabRemove');
 
 final List<CharacterPrefab> pcPrefabs = [];
@@ -46,6 +48,8 @@ set selectedPrefab(Prefab p) {
   _prefabName.disabled = !isCustom;
   _prefabRemove.disabled = !isCustom;
   _prefabSize.disabled = isEmpty;
+  _prefabAccess.classes.toggle('disabled', !isCustom);
+  _updateAccessSpan();
 
   if (p != null) {
     _prefabName.value = p.name;
@@ -56,6 +60,23 @@ set selectedPrefab(Prefab p) {
     movableGhost.classes.toggle('empty', isEmpty);
     movableGhost.style.backgroundImage = 'url(${img})';
     movableGhost.style.setProperty('--size', '${p.size}');
+
+    if (isCustom) {
+      var children = _prefabAccess.children;
+      var ids = (selectedPrefab as CustomPrefab).accessIds;
+      for (var i = 0; i < children.length; i++) {
+        children[i].classes.toggle('active', ids.contains(i));
+      }
+    }
+  }
+}
+
+void _updateAccessSpan() {
+  if (selectedPrefab is CustomPrefab) {
+    var count = (selectedPrefab as CustomPrefab).accessIds.length;
+    _prefabAccessSpan.text = 'Access ($count selected)';
+  } else {
+    _prefabAccessSpan.text = '';
   }
 }
 
@@ -107,6 +128,25 @@ void _initPrefabProperties() {
     movableGhost.style.setProperty('--size', '${pref.size}');
   });
 
+  for (var ch in user.session.characters) {
+    var li = LIElement();
+    li
+      ..text = ch.name
+      ..onClick.listen((_) {
+        var active = li.classes.toggle('active');
+        var ids = (selectedPrefab as CustomPrefab).accessIds;
+        if (active) {
+          ids.add(ch.id);
+        } else {
+          ids.remove(ch.id);
+        }
+        _updateAccessSpan();
+        _sendUpdate();
+      });
+
+    _prefabAccess.append(li);
+  }
+
   _prefabRemove.onClick.listen((_) async {
     var p = selectedPrefab;
     if (p != null) {
@@ -133,17 +173,14 @@ void _listenLazyUpdate(
     }
   }
 
-  input.onFocus.listen((_) {
-    bufferedValue = input.value;
-  });
+  input.onFocus.listen((_) => bufferedValue = input.value);
   input.onChange.listen((_) => update());
 }
 
 void _sendUpdate() {
   socket.sendAction(GAME_PREFAB_UPDATE, {
     'prefab': selectedPrefab.id,
-    'size': selectedPrefab.size,
-    if (selectedPrefab is CustomPrefab) 'name': _prefabName.value,
+    ...selectedPrefab.toJson(),
   });
 }
 

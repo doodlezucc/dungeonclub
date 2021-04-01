@@ -49,6 +49,7 @@
         top: 240px;
         right: 16px;
         max-width: 232px;
+        z-index: 6;
 
         > .prefab-container {
             display: grid;
@@ -112,6 +113,53 @@
                 > input {
                     width: 100%;
                 }
+            }
+        }
+
+        #prefabAccess {
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+            gap: 1px;
+            border: 1px solid var(--color-input-underline);
+            background-color: var(--color-input-underline);
+            z-index: 10;
+            opacity: 1;
+            overflow-y: auto;
+            max-height: 100px;
+            transition-duration: 0.2s;
+            
+            > li {
+                border: none;
+                border-radius: 0;
+                color: var(--color-button-text);
+                align-items: baseline;
+                display: flex;
+                justify-content: space-between;
+                cursor: pointer;
+                opacity: 0.75;
+                background-color: var(--color-background);
+
+                &.active::after {
+                    content: '\f00c';
+                    font-family: 'Font Awesome 5 Free';
+                    font-weight: 900;
+                    text-rendering: auto;
+                    -webkit-font-smoothing: antialiased;
+                }
+                &.active {
+                    color: var(--color-text-primary);
+                }
+
+                &:hover {
+                    opacity: 1;
+                }
+            }
+
+            &.disabled {
+                max-height: 0;
+                border: 0 solid transparent;
             }
         }
     }

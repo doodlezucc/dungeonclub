@@ -103,6 +103,7 @@ class CharacterPrefab extends Prefab {
 class CustomPrefab extends Prefab {
   int _id;
   String _name;
+  final Set<int> accessIds = {};
 
   @override
   String get id => '$_id';
@@ -127,8 +128,17 @@ class CustomPrefab extends Prefab {
   }
 
   @override
+  Map<String, dynamic> toJson() => {
+        ...super.toJson(),
+        'name': name,
+        'access': accessIds.toList(),
+      };
+
+  @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
     name = json['name'];
+    accessIds.clear();
+    accessIds.addAll(Set.from(json['access']));
   }
 }
