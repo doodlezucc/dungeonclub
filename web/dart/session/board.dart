@@ -39,6 +39,13 @@ class Board {
 
     _selectedMovable?.e?.classes?.remove('selected');
 
+    if (_selectedMovable != null) {
+      // Firefox doesn't automatically blur inputs when their parent
+      // element gets moved or removed
+      _selectedLabel.blur();
+      _selectedSize.blur();
+    }
+
     if (selectedMovable != null && !selectedMovable.accessible) {
       selectedMovable = null;
     }
@@ -167,15 +174,27 @@ class Board {
       }
     }
 
-    input.onFocus.listen((_) {
+    void onFocus() {
       startValue = input.value;
       bufferedMovable = selectedMovable;
       typedValue = input.value;
+    }
+
+    input.onMouseDown.listen((_) {
+      // Firefox number inputs can trigger onInput without being focused
+      var isFocused = document.activeElement == input;
+      if (!isFocused) {
+        input.focus();
+        onFocus();
+      }
     });
+
+    input.onFocus.listen((_) => onFocus());
     input.onInput.listen((_) {
       typedValue = input.value;
       onChange(bufferedMovable, typedValue);
     });
+    input.onBlur.listen((_) => update());
     input.onChange.listen((_) => update());
   }
 
