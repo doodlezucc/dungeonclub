@@ -98,10 +98,10 @@ class Board {
         if (event.target != document.activeElement) {
           (event.target as InputElement).focus();
         }
-        return;
+      } else if (!event.path
+          .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
+        zoom -= event.deltaY.sign / 3;
       }
-
-      zoom -= event.deltaY.sign / 3;
     });
 
     _changeImage.onClick.listen((_) => _changeImageDialog());
