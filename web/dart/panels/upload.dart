@@ -214,6 +214,15 @@ bool _isSquare(String type) {
   }
 }
 
+bool _upscale(String type) {
+  switch (type) {
+    case IMAGE_TYPE_SCENE:
+      return true;
+    default:
+      return false;
+  }
+}
+
 Future<dynamic> display({
   @required String action,
   @required String type,
@@ -223,6 +232,7 @@ Future<dynamic> display({
   _initialize();
 
   var maxRes = _getMaxRes(type);
+  var upscale = _upscale(type);
   _square = _isSquare(type);
 
   if (initialImg == null) {
@@ -243,7 +253,13 @@ Future<dynamic> display({
   var subs = [
     _uploadButton.onClick.listen((_) async {
       _uploadButton.disabled = true;
-      var result = await _upload(action, type, extras, maxRes);
+      var result = await _upload(
+        action,
+        type,
+        extras,
+        maxRes,
+        upscale,
+      );
       if (result != null) {
         completer.complete(result);
       }
@@ -301,7 +317,7 @@ void _loadFileAsImage(Blob blob) async {
   _uploadButton.disabled = false;
 }
 
-CanvasElement _imgToCanvas(int maxRes) {
+CanvasElement _imgToCanvas(int maxRes, bool upscale) {
   var x = position.x / _imgSize.x;
   var y = position.y / _imgSize.y;
   var w = size.x / _imgSize.x;
@@ -312,10 +328,10 @@ CanvasElement _imgToCanvas(int maxRes) {
   var dw = (w * nw).round();
   var dh = (h * nh).round();
 
-  if (dw >= dh) {
+  if (dw >= dh && (dw > maxRes || upscale)) {
     dh = (dh * maxRes / dw).round();
     dw = maxRes;
-  } else {
+  } else if (dh >= dw && (dh > maxRes || upscale)) {
     dw = (dw * maxRes / dh).round();
     dh = maxRes;
   }
@@ -325,9 +341,9 @@ CanvasElement _imgToCanvas(int maxRes) {
         _img, x * nw, y * nh, w * nw, h * nh, 0, 0, dw, dh);
 }
 
-Future<dynamic> _upload(
-    String action, String type, Map<String, dynamic> extras, int maxRes) async {
-  var canvas = _imgToCanvas(maxRes);
+Future<dynamic> _upload(String action, String type, Map<String, dynamic> extras,
+    int maxRes, bool upscale) async {
+  var canvas = _imgToCanvas(maxRes, upscale);
   var blob = await canvas.toBlob('image/png');
 
   var reader = FileReader()..readAsDataUrl(blob);
