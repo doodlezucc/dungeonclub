@@ -93,7 +93,7 @@
     }
 }
 
-#registerPanel {
+#registerPanel, #resetPanel {
     min-width: 320px;
 
     section {
@@ -119,7 +119,7 @@
         }
     }
 
-    #regCode {
+    .code {
         width: 160px;
         font-size: 24px;
         text-align: center;

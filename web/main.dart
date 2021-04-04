@@ -2,8 +2,8 @@ import 'dart:html';
 
 import 'dart/communication.dart';
 import 'dart/home.dart' as home;
+import 'dart/panels/code_panel.dart';
 import 'dart/panels/edit_game.dart' as edit_game;
-import 'dart/panels/register.dart' as register;
 import 'dart/user.dart';
 
 final user = User();
@@ -18,7 +18,7 @@ void main() {
   home.init();
 
   querySelector('#signup').onClick.listen((_) {
-    register.display();
+    registerPanel.display();
   });
 
   querySelector('button#save').onClick.listen((_) {
@@ -34,7 +34,7 @@ void main() {
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
 
-  testFlow();
+  //testFlow();
 }
 
 Future<void> testFlow() async {

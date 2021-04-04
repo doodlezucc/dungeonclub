@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/comms.dart';
 import 'package:random_string/random_string.dart';
@@ -12,11 +13,20 @@ import 'server.dart';
 
 final connections = <Connection>[];
 final activationCodes = <Connection, String>{};
+final resets = <Connection, PasswordReset>{};
 final tokenAccounts = <String, Account>{};
 
 void onConnect(WebSocketChannel ws) {
   print('New connection!');
   connections.add(Connection(ws));
+}
+
+class PasswordReset {
+  final String email;
+  final String password;
+  final String code;
+
+  PasswordReset(this.email, this.password, this.code);
 }
 
 class Connection extends Socket {
@@ -34,6 +44,7 @@ class Connection extends Socket {
       onDone: () {
         print('Lost connection (${ws.closeCode})');
         activationCodes.remove(this);
+        resets.remove(this);
         _game?.connect(this, false);
         connections.remove(this);
       },
@@ -89,6 +100,29 @@ class Connection extends Socket {
         }
 
         return login(params['email'], params['password']);
+
+      case a.ACCOUNT_RESET_PASSWORD:
+        var email = params['email'];
+        var password = params['password'];
+        if (password == null || data.getAccount(email) == null) return false;
+
+        var code = randomAlphaNumeric(5);
+        resets[this] = PasswordReset(email, password, code);
+        return await sendResetPasswordMail(email, code);
+
+      case a.ACCOUNT_RESET_PASSWORD_ACTIVATE:
+        var reset = resets[this];
+        String code = params['code'];
+        if (reset == null || code != reset.code) return false;
+
+        var acc = data.getAccount(reset.email);
+        if (acc == null) return false;
+
+        acc.encryptedPassword = Crypt.sha256(reset.password);
+
+        resets.remove(this);
+        print('Password changed!');
+        return loginAccount(acc);
 
       case a.GAME_CREATE_NEW:
         if (account == null) return false;
@@ -344,8 +378,14 @@ class Connection extends Socket {
     if (acc == null || !acc.encryptedPassword.match(password)) {
       return false;
     }
+    return loginAccount(acc, provideToken: provideToken);
+  }
 
-    var result = loginAccount(acc);
+  Map<String, dynamic> loginAccount(Account acc, {bool provideToken = false}) {
+    _account = acc;
+    print('Connection logged in with account ' + acc.encryptedEmail.hash);
+    var result = acc.toSnippet();
+
     if (provideToken) {
       for (var entry in tokenAccounts.entries) {
         if (entry.value == acc) {
@@ -359,11 +399,5 @@ class Connection extends Socket {
     }
 
     return result;
-  }
-
-  Map<String, dynamic> loginAccount(Account acc) {
-    _account = acc;
-    print('Connection logged in with account ' + acc.encryptedEmail.hash);
-    return acc.toSnippet();
   }
 }

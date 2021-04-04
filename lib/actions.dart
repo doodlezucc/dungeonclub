@@ -1,6 +1,8 @@
 const ACCOUNT_REGISTER = 'accountRegister';
 const ACCOUNT_ACTIVATE = 'accountActivate';
-const ACCOUNT_LOGIN = 'userLogin';
+const ACCOUNT_LOGIN = 'accountLogin';
+const ACCOUNT_RESET_PASSWORD = 'accountResetPassword';
+const ACCOUNT_RESET_PASSWORD_ACTIVATE = 'accountResetPasswordActivate';
 
 const GAME_CREATE_NEW = 'gameCreateNew';
 const GAME_EDIT = 'gameEdit';

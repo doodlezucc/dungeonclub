@@ -3,6 +3,7 @@ import 'dart:html';
 import '../main.dart';
 import 'font_awesome.dart';
 import 'game.dart';
+import 'panels/code_panel.dart';
 import 'panels/dialog.dart';
 import 'panels/edit_game.dart' as edit_game;
 
@@ -39,6 +40,9 @@ void _initLogInTab() async {
   InputElement loginPassword = querySelector('#loginPassword');
   ButtonElement loginButton = querySelector('button#login');
   HtmlElement loginError = querySelector('#loginError');
+  AnchorElement resetPassword = querySelector('#resetPassword');
+
+  resetPassword.onClick.listen((_) => resetPanel.display());
 
   loginButton.onClick.listen((_) async {
     loginButton.disabled = true;

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
+import 'package:meta/meta.dart';
 
 String _mailAddress;
 SmtpServer _smtpServer;
@@ -19,14 +20,37 @@ Future<void> initializeMailServer() async {
   _mailAddress = lines[0] + '@gmail.com';
 }
 
-Future<bool> sendVerifyCreationMail(String email, String code) async {
-  var content = await File('mail/activate.html').readAsString();
+Future<bool> sendVerifyCreationMail(String email, String code) {
+  return sendMailWithCode(
+    subject: 'Activate your D&D Interactive Account',
+    email: email,
+    layoutFile: 'activate.html',
+    code: code,
+  );
+}
+
+Future<bool> sendResetPasswordMail(String email, String code) {
+  return sendMailWithCode(
+    subject: 'Reset Password',
+    email: email,
+    layoutFile: 'reset.html',
+    code: code,
+  );
+}
+
+Future<bool> sendMailWithCode({
+  @required String email,
+  @required String code,
+  @required String subject,
+  @required String layoutFile,
+}) async {
+  var content = await File('mail/$layoutFile').readAsString();
   content = content.replaceAll('\$CODE', code);
 
   final message = Message()
     ..from = Address(_mailAddress, 'D&D Interactive')
     ..recipients.add(email)
-    ..subject = 'Activate your D&D Interactive Account'
+    ..subject = subject
     ..html = content;
 
   try {

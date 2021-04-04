@@ -218,14 +218,14 @@
                 <i class="fas fa-times"></i>
             </button>
 
-            <section id="register">
+            <section class="credentials">
                 <div class="grid">
                     Email address
-                    <input type="email" id="regEmail" placeholder="e.g. sweetlilly93@hotmail.com...">
+                    <input type="email" class="email" placeholder="e.g. sweetlilly93@hotmail.com...">
                     Password
-                    <input type="password" id="regPassword" placeholder="Password...">
+                    <input type="password" class="password" placeholder="Password...">
                     Password (again)
-                    <input type="password" id="regConfirm" placeholder="Confirm password...">
+                    <input type="password" class="confirm" placeholder="Confirm password...">
                 </div>
 
                 <p>
@@ -236,18 +236,53 @@
                     Both your email and password will be encrypted and never viewed, transferred or sold in any way.
                 </p>
 
-                <button id="regSend">Register Account</button>
+                <button class="send">Register Account</button>
             </section>
 
-            <section id="activate">
+            <section class="activate">
                 <p>
-                    A confirmation code was sent to <span id="regActEmail"></span>.
+                    A confirmation code was sent to <span class="email-reader"></span>.
                     Enter it below to activate your account.
                 </p>
 
-                <input type="text" id="regCode" maxlength="5" placeholder="CODE">
+                <input type="text" class="code" maxlength="5" placeholder="CODE">
 
-                <button id="regActivate">Activate Account</button>
+                <button class="activate-code">Activate Account</button>
+            </section>
+        </div>
+
+        <div class="panel" id="resetPanel">
+            <h2>Reset password</h2>
+            <button class="close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <section class="credentials">
+                <p>
+                    When submitting the new password, a verification code will be sent to your email address.
+                </p>
+
+                <div class="grid">
+                    Email address
+                    <input type="email" class="email" placeholder="Email address...">
+                    New Password
+                    <input type="password" class="password" placeholder="New password...">
+                    New Password (again)
+                    <input type="password" class="confirm" placeholder="Confirm new password...">
+                </div>
+
+                <button class="send">Send Verification Code</button>
+            </section>
+
+            <section class="activate">
+                <p>
+                    A confirmation code was sent to <span class="email-reader"></span>.
+                    Enter it below to activate your account.
+                </p>
+
+                <input type="text" class="code" maxlength="5" placeholder="CODE">
+
+                <button class="activate-code">Activate New Password</button>
             </section>
         </div>
     </div>
