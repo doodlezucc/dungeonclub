@@ -6,6 +6,7 @@ import 'package:dnd_interactive/point_json.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import 'prefab.dart';
 
 final HtmlElement _controls = querySelector('#sceneEditor');
 final ButtonElement _editGrid = _controls.querySelector('#editGrid');
@@ -72,6 +73,22 @@ class Grid {
         });
       }
     });
+  }
+
+  Point evToGridSpace(
+    MouseEvent event,
+    EntityBase entity, {
+    bool round = true,
+  }) {
+    var size = Point(entity.size * cellSize / 2, entity.size * cellSize / 2);
+
+    var p = event.offset - offset - size;
+
+    if (round) {
+      var cs = cellSize;
+      p = Point((p.x / cs).round() * cs, (p.y / cs).round() * cs);
+    }
+    return p;
   }
 
   void resize(int width, int height) {

@@ -51,11 +51,16 @@
         max-width: 232px;
         z-index: 6;
 
-        > .prefab-container {
+        > .prefab-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .prefab-container {
             display: grid;
             grid-template-columns: min-content min-content min-content min-content min-content;
             gap: 0;
-            margin-bottom: 4px;
 
             > * {
                 width: 40px;
@@ -375,15 +380,7 @@
         opacity: 0.75;
         z-index: 2;
         box-shadow: 0 0 10px #000a;
-    }
-
-    &:not(:hover.drag) #movableGhost {
-        display: none;
-    }
-    &.drag {
-        * {
-            pointer-events: none;
-        }
+        pointer-events: none;
     }
 }
 

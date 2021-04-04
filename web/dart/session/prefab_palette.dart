@@ -9,13 +9,12 @@ import '../edit_image.dart';
 import '../panels/upload.dart' as upload;
 import 'prefab.dart';
 
-final HtmlElement _board = querySelector('#board');
-
 final HtmlElement _palette = querySelector('#prefabPalette');
 final HtmlElement _pcPrefs = _palette.querySelector('#pcPrefabs');
 final HtmlElement _otherPrefs = _palette.querySelector('#otherPrefabs');
 final HtmlElement _addPref = _palette.querySelector('#addPrefab');
-final HtmlElement movableGhost = querySelector('#movableGhost');
+
+final HtmlElement _movableGhost = querySelector('#movableGhost');
 
 final HtmlElement _prefabProperties = querySelector('#prefabProperties');
 
@@ -39,7 +38,6 @@ set selectedPrefab(Prefab p) {
   p?.e?.classes?.add('selected');
 
   _prefabProperties.classes.toggle('disabled', p == null);
-  _board.classes.toggle('drag', p != null);
 
   var isCustom = p is CustomPrefab;
   var isEmpty = p is EmptyPrefab;
@@ -57,9 +55,10 @@ set selectedPrefab(Prefab p) {
 
     var img = p.img;
     _prefabImageImg.src = img;
-    movableGhost.classes.toggle('empty', isEmpty);
-    movableGhost.style.backgroundImage = 'url(${img})';
-    movableGhost.style.setProperty('--size', '${p.size}');
+    _movableGhost.classes.toggle('empty', isEmpty);
+    _movableGhost.style.backgroundImage = 'url(${img})';
+    _movableGhost.style.setProperty('--size', '${p.size}');
+    user.session.board.grid.e.append(_movableGhost);
 
     if (isCustom) {
       var children = _prefabAccess.children;
@@ -68,7 +67,16 @@ set selectedPrefab(Prefab p) {
         children[i].classes.toggle('active', ids.contains(i));
       }
     }
+  } else {
+    _movableGhost.remove();
   }
+}
+
+void alignMovableGhost(MouseEvent event, EntityBase entity) {
+  var p = user.session.board.grid.evToGridSpace(event, entity);
+
+  _movableGhost.style.left = '${p.x}px';
+  _movableGhost.style.top = '${p.y}px';
 }
 
 void _updateAccessSpan() {
@@ -81,6 +89,7 @@ void _updateAccessSpan() {
 }
 
 void initMovableManager(Iterable jList) {
+  _movableGhost.remove();
   _initPrefabPalette();
   _initPrefabProperties();
 
@@ -115,7 +124,7 @@ void _initPrefabProperties() {
     onSuccess: (_) {
       var src = selectedPrefab.updateImage();
       _prefabImageImg.src = src;
-      movableGhost.style.backgroundImage = 'url($src)';
+      _movableGhost.style.backgroundImage = 'url($src)';
       user.session.board.updatePrefabImage(selectedPrefab, src);
     },
   );
@@ -125,7 +134,7 @@ void _initPrefabProperties() {
   });
   _listenLazyUpdate(_prefabSize, onChange: (pref, input) {
     pref.size = input.valueAsNumber;
-    movableGhost.style.setProperty('--size', '${pref.size}');
+    _movableGhost.style.setProperty('--size', '${pref.size}');
   });
 
   for (var ch in user.session.characters) {

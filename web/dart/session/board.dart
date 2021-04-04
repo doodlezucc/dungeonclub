@@ -52,6 +52,7 @@ class Board {
     _selectedMovable = selectedMovable;
 
     if (selectedMovable != null) {
+      selectedPrefab = selectedMovable.prefab;
       selectedMovable.e.classes.add('selected');
 
       if (selectedMovable is EmptyMovable) {
@@ -113,26 +114,24 @@ class Board {
 
     _changeImage.onClick.listen((_) => _changeImageDialog());
 
-    _container.onClick.listen((event) async {
-      if (!event.path.contains(_e)) return;
-
-      if (selectedPrefab != null) {
-        var gridPos = _evToGridSpace(event, selectedPrefab);
-        await addMovable(selectedPrefab, pos: gridPos);
-        selectedPrefab = null;
-      }
+    _e.onContextMenu.listen((ev) {
+      ev.preventDefault();
+      _deselectAll();
     });
-
-    _e.onContextMenu.listen((ev) => ev.preventDefault());
 
     window.onKeyDown.listen((ev) {
       if (ev.keyCode == 27 && selectedPrefab != null) {
         ev.preventDefault();
-        selectedPrefab = null;
+        _deselectAll();
       }
     });
 
     _initSelectionHandler();
+  }
+
+  void _deselectAll() {
+    selectedMovable = null;
+    selectedPrefab = null;
   }
 
   void _initSelectionHandler() {
@@ -204,17 +203,22 @@ class Board {
     _container.onMouseDown.listen((event) async {
       var movable = event.path
           .any((e) => e is HtmlElement && e.classes.contains('movable'));
+      isBoardDrag = event.path.contains(_e);
 
       if (event.button == 0) {
         if (movable) {
           for (var mv in movables) {
             if (mv.e == event.target) {
+              alignMovableGhost(event, mv);
               selectedMovable = mv;
               break;
             }
           }
-        } else if (selectedMovable != null) {
-          selectedMovable = null;
+        } else if (isBoardDrag) {
+          if (selectedPrefab != null) {
+            var gridPos = grid.evToGridSpace(event, selectedPrefab);
+            selectedMovable = await addMovable(selectedPrefab, pos: gridPos);
+          }
         }
 
         if ((!grid.editingGrid && movable) ||
@@ -224,7 +228,6 @@ class Board {
         }
       }
 
-      isBoardDrag = event.path.contains(_e);
       drag = true;
       await window.onMouseUp.first;
       drag = false;
@@ -240,29 +243,9 @@ class Board {
         }
       } else if (selectedPrefab != null) {
         if (!event.path.contains(_e)) return;
-
-        var p = _evToGridSpace(event, selectedPrefab);
-        movableGhost.style.left = '${p.x}px';
-        movableGhost.style.top = '${p.y}px';
+        alignMovableGhost(event, selectedPrefab);
       }
     });
-  }
-
-  Point _evToGridSpace(
-    MouseEvent event,
-    EntityBase entity, {
-    bool round = true,
-  }) {
-    var size =
-        Point(entity.size * grid.cellSize / 2, entity.size * grid.cellSize / 2);
-
-    var p = event.offset - grid.offset - size;
-
-    if (round) {
-      var cs = grid.cellSize;
-      p = Point((p.x / cs).round() * cs, (p.y / cs).round() * cs);
-    }
-    return p;
   }
 
   Future<void> _changeImageDialog() async {
