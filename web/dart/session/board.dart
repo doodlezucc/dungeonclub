@@ -69,7 +69,10 @@ class Board {
   Point _position;
   Point get position => _position;
   set position(Point pos) {
-    _position = pos;
+    var max = Point(_ground.naturalWidth / 2, _ground.naturalHeight / 2);
+    var min = Point(-max.x, -max.y);
+
+    _position = upload.clamp(pos, min, max);
     _transform();
   }
 
