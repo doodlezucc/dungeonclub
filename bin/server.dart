@@ -67,27 +67,34 @@ String getMimeType(File f) {
     case '.png':
       return 'image/png';
   }
-  return '';
+  return 'text/plain';
 }
 
 Future<Response> _echoRequest(Request request) async {
   var path = request.url.path;
 
-  if (path.isEmpty) {
-    return Response.seeOther('index.html');
-  } else if (path == 'ws') {
+  if (path == 'ws') {
     return await ws.webSocketHandler(onConnect)(request);
   }
 
-  var file = path.startsWith('database') ? File(path) : File('web/' + path);
-  if (await file.exists()) {
-    var type = getMimeType(file);
-    return Response(
-      200,
-      body: file.openRead(),
-      headers: {'Content-Type': type},
-    );
+  var file = path.startsWith('database')
+      ? File(path)
+      : (path.startsWith('game')
+          ? File('web/' + path.substring(5))
+          : File('web/' + path));
+
+  if (!await file.exists()) {
+    if (!path.startsWith('game/') && path.isNotEmpty) {
+      return Response.notFound('Request for "${request.url}"');
+    }
+
+    file = File('web/index.html');
   }
 
-  return Response.notFound('Request for "${request.url}"');
+  var type = getMimeType(file);
+  return Response(
+    200,
+    body: file.openRead(),
+    headers: {'Content-Type': type},
+  );
 }

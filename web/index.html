@@ -27,7 +27,7 @@
     </header>
 
     <div id="content">
-        <section id="home" class="show">
+        <section id="home">
             <div id="loginTab" class="hidden">
                 <h1>Sign in to D&D Interactive</h1>
 
@@ -164,11 +164,11 @@
                 (This name will be forwarded to the DM only and is not saved anywhere.)
             </p>
 
-            <input id="sessionName" placeholder="Name..." maxlength="25">
-
-            <p id="joinError" class="bad"></p>
-
-            <button id="join">Join</button>
+            <div>
+                <input id="sessionName" placeholder="Name..." maxlength="25">
+                <p id="joinError"></p>
+                <button id="join">Join</button>
+            </div>
         </div>
 
         <div class="panel" id="editGamePanel">

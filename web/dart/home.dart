@@ -6,6 +6,7 @@ import 'game.dart';
 import 'panels/code_panel.dart';
 import 'panels/dialog.dart';
 import 'panels/edit_game.dart' as edit_game;
+import 'section_page.dart';
 
 final HtmlElement _gamesContainer = querySelector('#gamesContainer');
 final ButtonElement _createGameButton = querySelector('#create');
@@ -33,6 +34,8 @@ void init() {
     var game = await user.account.createNewGame(name);
     _addEnteredGame(game, instantEdit: true);
   });
+
+  showPage('home');
 }
 
 void _initLogInTab() async {

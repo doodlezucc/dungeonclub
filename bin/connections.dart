@@ -164,13 +164,14 @@ class Connection extends Socket {
 
       case a.GAME_JOIN:
         var id = params['id'];
+        var name = params['name'];
         var game = data.games.firstWhere((g) => g.id == id, orElse: () => null);
         if (game != null) {
           int id;
           if (game.owner != account) {
             if (!game.gmOnline) return 'Your DM is not online!';
 
-            id = await game.gm.request(a.GAME_JOIN_REQUEST);
+            id = await game.gm.request(a.GAME_JOIN_REQUEST, {'name': name});
             if (id == null) return "You're not allowed to enter!";
             game.assignPC(id, this);
           }

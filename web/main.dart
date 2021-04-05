@@ -16,8 +16,6 @@ void main() {
 
   print('Ready!');
 
-  home.init();
-
   querySelector('#signup').onClick.listen((_) {
     registerPanel.display();
   });
@@ -26,23 +24,20 @@ void main() {
     socket.send('{"action":"manualSave"}');
   });
 
-  querySelector('button#joinDemo').onClick.listen((_) {
-    user.joinSession('pog');
-  });
-
   _initBrightnessSwitch();
 
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
 
-  processUrlPath();
+  if (!processUrlPath()) {
+    home.init();
+  }
 
   testFlow();
 }
 
-void processUrlPath() {
+bool processUrlPath() {
   if (window.location.href.contains('game')) {
-    print(window.location.search);
     var gameId = window.location.pathname;
 
     if (gameId.contains('game/')) {
@@ -56,11 +51,12 @@ void processUrlPath() {
       }
     }
 
-    print(gameId);
     if (gameId.length >= 3) {
       join_session.display(gameId);
+      return true;
     }
   }
+  return false;
 }
 
 Future<void> testFlow() async {

@@ -34,7 +34,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session?.board?.onImgChange();
 
     case GAME_JOIN_REQUEST:
-      return await user.account?.displayPickCharacterDialog('joe');
+      return await user.account?.displayPickCharacterDialog(params['name']);
 
     case GAME_CONNECTION:
       return _onConnectionChange(params);

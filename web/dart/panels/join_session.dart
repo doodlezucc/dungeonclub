@@ -25,15 +25,19 @@ Future<void> display(String gameId) async {
   var subs = [
     _joinButton.onClick.listen((event) async {
       _joinButton.disabled = true;
-      _error.text = '';
+      _error
+        ..className = ''
+        ..text = 'Requesting access...';
 
-      var err = await user.joinSession(gameId);
+      var err = await user.joinSession(gameId, _sessionNameInput.value);
 
       if (err == null) {
         closer.complete();
       } else {
-        _error.text = err.message;
         _joinButton.disabled = false;
+        _error
+          ..className = 'bad'
+          ..text = err.message;
       }
     }),
     // _cancelButton.onClick.listen((event) => closer.complete()),

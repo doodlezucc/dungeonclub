@@ -15,8 +15,11 @@ class User {
   Session _session;
   Session get session => _session;
 
-  Future<StateError> joinSession(String id) async {
-    var s = await socket.request(GAME_JOIN, {'id': id});
+  Future<StateError> joinSession(String id, [String name]) async {
+    var s = await socket.request(GAME_JOIN, {
+      'id': id,
+      if (name != null) 'name': name,
+    });
     if (s is String) return StateError(s);
 
     _session = Session(id, s['name'], s['gm'] != null);

@@ -85,8 +85,9 @@
         text-align: center;
         align-self: center;
     }
-    #joinError {
+    #joinError:not(:empty) {
         align-self: center;
+        margin: 8px 0;
     }
 }
 

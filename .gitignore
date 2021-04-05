@@ -10,4 +10,5 @@ doc/api/
 
 database/
 web/style
+web/main.dart.*
 mail/gmail_credentials
