@@ -126,10 +126,22 @@ class Board {
       if (ev.keyCode == 27 && selectedPrefab != null) {
         ev.preventDefault();
         _deselectAll();
+      } else if (ev.keyCode == 46 && session.isGM && selectedMovable != null) {
+        _removeSelectedMovable();
       }
     });
 
     _initSelectionHandler();
+  }
+
+  void _removeSelectedMovable() async {
+    if (selectedMovable != null) {
+      await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
+        'movable': selectedMovable.id,
+      });
+      selectedMovable.onRemove();
+      selectedMovable = null;
+    }
   }
 
   void _deselectAll() {
@@ -139,13 +151,7 @@ class Board {
 
   void _initSelectionHandler() {
     _selectedRemove.onClick.listen((_) async {
-      if (selectedMovable != null) {
-        await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
-          'movable': selectedMovable.id,
-        });
-        selectedMovable.onRemove();
-        selectedMovable = null;
-      }
+      _removeSelectedMovable();
     });
 
     _listenSelectedLazyUpdate(_selectedLabel, onChange: (m, value) {
