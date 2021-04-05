@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Kreon&family=Lato&family=Fira+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Recursive&family=Lato&family=Fira+Mono&display=swap');
 
 $radius: 4px;
 
@@ -21,7 +21,7 @@ body {
     --color-primary: #335ac3;
     --color-text-primary: #111;
     --color-text-inverse: white;
-    --color-not-intense: #eee;
+    --color-not-intense: #ddd;
     --color-button-hover: #ddd;
     --color-button-active: #bbb;
     --color-button-big: #d0d0d0;
@@ -32,13 +32,14 @@ body {
     --color-good: #009c46;
     --color-bad: #e24b4b;
     --color-note: #777;
+    --color-panel-border: #333;
 
     --weight-thick: bold;
-    --shadow-panel: 0 0 8px 2px #0004;
+    --shadow-panel: 0 0 8px 2px #0000;
     --shadow-text: none;
 
     &.dark-mode {
-        --color-background: #16161a;
+        --color-background: #0d1117;
         --color-primary: #4b8aff;
         --color-text-primary: white;
         --color-text-inverse: black;
@@ -48,11 +49,11 @@ body {
         --color-button-big: #444755;
         --color-button-text: #ccc;
         --color-input-underline: #444;
-        // --color-input-active: #777;
         --color-selected: #ccc;
         --color-good: #62ffa9;
         --color-bad: #ff7676;
         --color-note: #aaa;
+        --color-panel-border: #777;
     
         --weight-thick: 500;
         --shadow-panel: 0 0 12px 6px #0006;
@@ -92,13 +93,14 @@ p {
 }
 
 %heading {
-    font-family: 'Kreon', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     margin: 0;
     font-weight: var(--weight-thick);
 }
 
 h1 {
     @extend %heading;
+    font-family: 'Recursive', serif;
     font-weight: normal;
     color: var(--color-primary);
 }
@@ -202,6 +204,7 @@ input {
 input[type=color] {
     border: none !important;
     margin: 0 !important;
+    padding: 0 !important;
     width: 100%;
 }
 
@@ -436,14 +439,14 @@ header {
     > span {
         position: absolute;
         bottom: 100%;
-        background-color: var(--color-background);
+        background-color: var(--color-not-intense);
         border-radius: $radius;
         padding: 6px 8px;
         pointer-events: none;
         opacity: 0;
         max-width: 180px;
         width: max-content;
-        font-weight: var(--weight-thick);
+        // font-weight: var(--weight-thick);
     }
 
     &:hover {

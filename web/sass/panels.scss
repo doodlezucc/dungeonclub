@@ -6,6 +6,9 @@
     max-height: $height;
     transition-duration: 0.2s;
     transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+    border-right: none;
+    border-bottom: none;
+    border-left: none;
 
     > .top-hook {
         position: absolute;
@@ -18,7 +21,9 @@
         > div {
             @extend %vertical;
             align-items: center;
-            text-shadow: 0 0 8px #000;
+            color: white;
+            text-shadow: 0 0 3px #000,
+                         0 0 8px #000a;
             padding: 8px 0;
         }
     }
@@ -35,12 +40,13 @@
 
 .panel {
     @extend %vertical;
-    background-color: var(--color-not-intense);
+    background-color: var(--color-background);
     box-shadow: var(--shadow-panel);
+    border: 1px solid var(--color-panel-border);
     border-radius: base.$radius;
     padding: 24px 32px 16px 32px;
     gap: 16px;
-    min-width: 232px;
+    min-width: 222px;
 
     h2 {
         text-align: center;
