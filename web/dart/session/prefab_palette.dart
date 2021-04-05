@@ -60,7 +60,6 @@ set selectedPrefab(Prefab p) {
     _movableGhost.classes.toggle('empty', isEmpty);
     _movableGhost.style.backgroundImage = 'url(${img})';
     _movableGhost.style.setProperty('--size', '${p.size}');
-    user.session.board.grid.e.append(_movableGhost);
 
     if (isCustom) {
       var children = _prefabAccess.children;
@@ -69,6 +68,13 @@ set selectedPrefab(Prefab p) {
         children[i].classes.toggle('active', ids.contains(i));
       }
     }
+  }
+  toggleMovableGhostVisible(p != null);
+}
+
+void toggleMovableGhostVisible(bool v) {
+  if (v) {
+    user.session.board.grid.e.append(_movableGhost);
   } else {
     _movableGhost.remove();
   }

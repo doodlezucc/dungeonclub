@@ -251,8 +251,12 @@ class Board {
           grid.offset += delta;
         }
       } else if (selectedPrefab != null) {
-        if (!event.path.contains(_e)) return;
-        alignMovableGhost(event, selectedPrefab);
+        if ((event.target as HtmlElement).parent != _e) {
+          toggleMovableGhostVisible(false);
+        } else {
+          alignMovableGhost(event, selectedPrefab);
+          toggleMovableGhostVisible(true);
+        }
       }
     });
   }
