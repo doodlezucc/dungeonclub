@@ -15,14 +15,14 @@ class User {
   Session _session;
   Session get session => _session;
 
-  Future<bool> joinSession(String id) async {
+  Future<StateError> joinSession(String id) async {
     var s = await socket.request(GAME_JOIN, {'id': id});
-    if (s is String) return false;
+    if (s is String) return StateError(s);
 
     _session = Session(id, s['name'], s['gm'] != null);
     _session.fromJson(s);
     showPage('session');
-    return true;
+    return null;
   }
 
   void onActivate([Map<String, dynamic> accJson]) {

@@ -77,6 +77,19 @@
     }
 }
 
+#joinPanel {
+    width: 32vw;
+
+    input {
+        width: 240px;
+        text-align: center;
+        align-self: center;
+    }
+    #joinError {
+        align-self: center;
+    }
+}
+
 #uploadPanel {
     > div {
         justify-content: center;

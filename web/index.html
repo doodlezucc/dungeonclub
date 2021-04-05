@@ -153,6 +153,24 @@
     <div id="notifications"></div>
 
     <div id="overlay">
+        <div class="panel" id="joinPanel">
+            <h2>Join Session</h2>
+
+            <p>
+                You're invited to join this session! Enter your name so the Dungeon Master can assign you the right
+                character.
+            </p>
+            <p>
+                (This name will be forwarded to the DM only and is not saved anywhere.)
+            </p>
+
+            <input id="sessionName" placeholder="Name..." maxlength="25">
+
+            <p id="joinError" class="bad"></p>
+
+            <button id="join">Join</button>
+        </div>
+
         <div class="panel" id="editGamePanel">
             <h2>Campaign Settings</h2>
             <button class="close">

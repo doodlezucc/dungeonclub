@@ -4,6 +4,7 @@ import 'dart/communication.dart';
 import 'dart/home.dart' as home;
 import 'dart/panels/code_panel.dart';
 import 'dart/panels/edit_game.dart' as edit_game;
+import 'dart/panels/join_session.dart' as join_session;
 import 'dart/user.dart';
 
 final user = User();
@@ -34,7 +35,32 @@ void main() {
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
 
+  processUrlPath();
+
   testFlow();
+}
+
+void processUrlPath() {
+  if (window.location.href.contains('game')) {
+    print(window.location.search);
+    var gameId = window.location.pathname;
+
+    if (gameId.contains('game/')) {
+      gameId = gameId.substring(gameId.indexOf('game/') + 5);
+    } else {
+      gameId = window.location.search;
+      gameId = gameId.substring(gameId.indexOf('?game=') + 6);
+
+      if (gameId.contains('&')) {
+        gameId = gameId.substring(0, gameId.indexOf('&'));
+      }
+    }
+
+    print(gameId);
+    if (gameId.length >= 3) {
+      join_session.display(gameId);
+    }
+  }
 }
 
 Future<void> testFlow() async {

@@ -168,17 +168,17 @@ class Connection extends Socket {
         if (game != null) {
           int id;
           if (game.owner != account) {
-            if (!game.gmOnline) return 'GM is not online!';
+            if (!game.gmOnline) return 'Your DM is not online!';
 
             id = await game.gm.request(a.GAME_JOIN_REQUEST);
-            if (id == null) return 'Access denied!';
+            if (id == null) return "You're not allowed to enter!";
             game.assignPC(id, this);
           }
           _game = game..connect(this, true);
           scene = game.playingScene;
           return game.toSessionSnippet(this, id);
         }
-        return 'Game not found!';
+        return 'Game "$id" not found!';
 
       case a.GAME_PREFAB_CREATE:
         if (_game != null) {
