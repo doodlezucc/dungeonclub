@@ -376,7 +376,7 @@ class Scene {
   Point gridOffset;
   num cellSize;
   String gridColor;
-  double gridAlpha;
+  num gridAlpha;
 
   Scene(Map<String, dynamic> json)
       : _movables = List.from(json['movables'] ?? [])
