@@ -376,6 +376,7 @@ class Scene {
   Point gridOffset;
   num cellSize;
   String gridColor;
+  double gridAlpha;
 
   Scene(Map<String, dynamic> json)
       : _movables = List.from(json['movables'] ?? [])
@@ -406,6 +407,7 @@ class Scene {
     gridOffset = parsePoint(json['offset']) ?? Point(0, 0);
     cellSize = json['cellSize'] ?? 100;
     gridColor = json['color'] ?? '#000000';
+    gridAlpha = json['alpha'] ?? 0.5;
   }
 
   void applyMovables(Iterable jsons) {
@@ -425,6 +427,7 @@ class Scene {
           'offset': writePoint(gridOffset),
           'cellSize': cellSize,
           'color': gridColor,
+          'alpha': gridAlpha,
         },
         'movables': _movables.map((e) => e.toJson()).toList(),
       };

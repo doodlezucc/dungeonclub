@@ -13,6 +13,7 @@ final ButtonElement _editGrid = _controls.querySelector('#editGrid');
 final HtmlElement _gridControls = _controls.querySelector('#gridControls');
 final InputElement _gridCellSize = _controls.querySelector('#gridSize');
 final InputElement _gridColor = _controls.querySelector('#gridColor');
+final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
 
 class Grid {
   final HtmlElement e;
@@ -53,9 +54,8 @@ class Grid {
       cellSize = _gridCellSize.valueAsNumber;
     });
 
-    _gridColor.onInput.listen((event) {
-      redrawCanvas();
-    });
+    _gridColor.onInput.listen((_) => redrawCanvas());
+    _gridAlpha.onInput.listen((_) => redrawCanvas());
 
     _editGrid.onClick.listen((event) {
       var enable = _editGrid.classes.toggle('active');
@@ -100,6 +100,7 @@ class Grid {
   void redrawCanvas() {
     var ctx = _canvas.context2D;
     ctx.clearRect(0, 0, _canvas.width, _canvas.height);
+    ctx.globalAlpha = _gridAlpha.valueAsNumber;
     ctx.strokeStyle = _gridColor.value;
     ctx.beginPath();
     for (var x = offset.x; x <= _canvas.width; x += _cellSize) {
@@ -120,12 +121,14 @@ class Grid {
         'offset': writePoint(offset),
         'cellSize': cellSize,
         'color': _gridColor.value,
+        'alpha': _gridAlpha.valueAsNumber,
       };
 
   void fromJson(Map<String, dynamic> json) {
     cellSize = json['cellSize'];
     _gridCellSize.valueAsNumber = cellSize;
     _gridColor.value = json['color'];
+    _gridAlpha.valueAsNumber = json['alpha'];
     offset = parsePoint(json['offset']);
   }
 }

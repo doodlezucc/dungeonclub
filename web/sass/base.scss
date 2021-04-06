@@ -18,7 +18,7 @@ body {
     background-color: var(--color-background);
 
     --color-background: white;
-    --color-primary: #335ac3;
+    --color-primary: #3a6eff;
     --color-text-primary: #111;
     --color-text-inverse: white;
     --color-not-intense: #ddd;
@@ -43,7 +43,7 @@ body {
         --color-primary: #4b8aff;
         --color-text-primary: white;
         --color-text-inverse: black;
-        --color-not-intense: #24252b;
+        --color-not-intense: #2e2f38;
         --color-button-hover: #393c4b;
         --color-button-active: #2c303d;
         --color-button-big: #444755;
@@ -200,12 +200,52 @@ input {
     &[type=number] {
         width: 70px;
     }
-}
-input[type=color] {
-    border: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100%;
+    &[type=color], &[type=range] {
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100%;
+    }
+    &[type=range] {
+        -webkit-appearance: none;  /* Override default CSS styles */
+        width: 100%; /* Full-width */
+        height: 4px; /* Specified height */
+        margin: 8px 0 !important;
+        background: var(--color-button-active); /* Grey background */
+        outline: none; /* Remove outline */
+        -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+        transition: opacity .2s;
+
+        &:hover {
+            opacity: 1; /* Fully shown on mouse-over */
+        }
+
+        &::-webkit-slider-thumb {
+            -webkit-appearance: none; /* Override default look */
+            appearance: none;
+            width: 16px; /* Set a specific slider handle width */
+            height: 16px; /* Slider handle height */
+            border-radius: 50%;
+            background: var(--color-button-text);
+            cursor: pointer; /* Cursor on hover */
+            transition-duration: 0.1s;
+
+            &:hover {
+                background: var(--color-primary);
+            }
+            &:active {
+                background: var(--color-primary);
+            }
+        }
+        
+        &::-moz-range-thumb {
+            width: 16px; /* Set a specific slider handle width */
+            height: 16px; /* Slider handle height */
+            border-radius: 50%;
+            background: white;
+            cursor: pointer; /* Cursor on hover */
+        }
+    }
 }
 
 .disabled {
