@@ -19,6 +19,9 @@ final HtmlElement _container = querySelector('#boardContainer');
 final HtmlElement _e = querySelector('#board');
 final ImageElement _ground = _e.querySelector('#ground');
 
+final ButtonElement _editScene = _container.querySelector('#editScene');
+final ButtonElement _exitEdit = _container.querySelector('#exitEdit');
+
 final HtmlElement _controls = _container.querySelector('#sceneEditor');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
@@ -31,6 +34,8 @@ class Board {
   final Session session;
   final grid = Grid();
   final movables = <Movable>[];
+
+  bool get editingGrid => _container.classes.contains('edit');
 
   Movable _selectedMovable;
   Movable get selectedMovable => _selectedMovable;
@@ -116,6 +121,23 @@ class Board {
     });
 
     _changeImage.onClick.listen((_) => _changeImageDialog());
+    _editScene.onClick.listen((_) {
+      _container.classes.add('edit');
+      selectedMovable = null;
+      selectedPrefab = null;
+    });
+    _exitEdit.onClick.listen((_) {
+      socket.sendAction(a.GAME_SCENE_UPDATE, {
+        'grid': grid.toJson(),
+        'movables': movables
+            .map((e) => {
+                  'id': e.id,
+                  ...writePoint(e.position),
+                })
+            .toList()
+      });
+      _container.classes.remove('edit');
+    });
 
     _e.onContextMenu.listen((ev) {
       ev.preventDefault();
@@ -209,12 +231,15 @@ class Board {
   void _initDragControls() {
     var isBoardDrag = false;
     var drag = false;
+    var button = -1;
     _container.onMouseDown.listen((event) async {
       var movable = event.path
           .any((e) => e is HtmlElement && e.classes.contains('movable'));
       isBoardDrag = event.path.contains(_e);
 
-      if (event.button == 0) {
+      button = event.button;
+
+      if (button == 0 && !editingGrid) {
         if (movable) {
           for (var mv in movables) {
             if (mv.e == event.target) {
@@ -223,18 +248,18 @@ class Board {
               break;
             }
           }
+          return;
         } else if (isBoardDrag) {
           if (selectedPrefab != null) {
             var gridPos = grid.evToGridSpace(event, selectedPrefab);
             selectedMovable = await addMovable(selectedPrefab, pos: gridPos);
           }
         }
+      }
 
-        if ((!grid.editingGrid && movable) ||
-            event.path.any(
-                (e) => e is HtmlElement && e.classes.contains('controls'))) {
-          return;
-        }
+      if (event.path
+          .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
+        return;
       }
 
       drag = true;
@@ -245,10 +270,10 @@ class Board {
       if (drag) {
         var delta = event.movement * (1 / _scaledZoom);
 
-        if (!grid.editingGrid || !isBoardDrag) {
-          position += delta;
-        } else {
+        if (editingGrid && button == 0 && isBoardDrag) {
           grid.offset += delta;
+        } else {
+          position += delta;
         }
       } else if (selectedPrefab != null) {
         if ((event.target as HtmlElement).parent != _e) {

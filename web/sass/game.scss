@@ -47,11 +47,11 @@
 
     #sceneEditor {
         top: 16px;
-        right: 16px;
+        left: 16px;
     }
 
     #prefabPalette {
-        top: 240px;
+        top: 16px;
         right: 16px;
         max-width: 222px;
         z-index: 6;
@@ -142,7 +142,7 @@
             overflow-y: auto;
             max-height: 180px;
             transition-duration: 0.2s;
-            
+
             > li {
                 border: none;
                 border-radius: 0;
@@ -190,11 +190,11 @@
         transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
         opacity: 0.8;
         box-shadow: none;
-    
+
         > span {
             gap: 8px;
             justify-content: flex-start;
-    
+
             > input {
                 width: 100%;
             }
@@ -229,7 +229,7 @@
                     cursor: pointer;
                     border: 2px solid transparent;
                     position: relative;
-    
+
                     &.editing {
                         @extend %active;
                         border-color: var(--color-text-primary);
@@ -239,7 +239,7 @@
                         @extend %active;
                         border-color: var(--color-good) !important;
                     }
-    
+
                     button {
                         border-radius: 0%;
                         width: 100%;
@@ -286,40 +286,77 @@
         position: absolute;
         top: 16px;
         left: 16px;
+        display: flex;
+        flex-direction: column;
 
-        button {
+        button:not(:hover) {
+            background-color: var(--color-not-intense);
+        }
+
+        .tab {
             position: relative;
-            background-color: var(--color-background);
-        }
+            
+            .content {
+                position: absolute;
+                top: 0;
+                left: calc(100%);
+                background-color: var(--color-background);
+                border-collapse: collapse;
+                pointer-events: none;
+                opacity: 0;
+                transition-duration: 0.1s;
+                overflow: hidden;
 
-        #dice {
-            position: absolute;
-            top: 0;
-            left: calc(100% + 4px);
-            background-color: var(--color-background);
-            padding: 4px;
-            border-collapse: collapse;
-            pointer-events: none;
-            opacity: 0;
-            transition-duration: 0.1s;
-            overflow: hidden;
-
-            td {
-                @extend %clickable;
-                padding: 4px;
-                min-width: 20px;
-                border: 1px solid var(--color-not-intense);
-                transition-duration: 0s;
+                td {
+                    @extend %clickable;
+                    padding: 4px;
+                    min-width: 20px;
+                    border: 1px solid var(--color-not-intense);
+                    border-radius: 0%;
+                    transition-duration: 0s;
+                }
             }
-        }
 
-        &:hover {
-            #dice {
-                pointer-events: all;
-                opacity: 1;
+            &:hover {
+                border-radius: base.$radius 0 0 base.$radius;
+                background-color: var(--color-button-hover);
+
+                .content {
+                    pointer-events: all;
+                    opacity: 1;
+                }
             }
         }
     }
+
+    .no-edit, .edit-only {
+        transition-duration: 0.2s;
+    }
+
+    &.edit {
+        .no-edit {
+            @extend .invisible;
+        }
+
+        #board > canvas:hover {
+            animation: blink 1s infinite;
+        }
+    }
+    &:not(.edit) {
+        .edit-only {
+            @extend .invisible;
+        }
+
+        .movable.accessible {
+            cursor: move;
+        }
+    }
+}
+
+@keyframes blink {
+    0%   { opacity: 1; }
+    50%  { opacity: 0.2; }
+    100% { opacity: 1; }
 }
 
 #session {
@@ -329,6 +366,12 @@
     &:not(.is-gm) {
         .gm {
             display: none !important;
+        }
+
+        .movable.accessible {
+            border-width: 3px;
+            border-color: var(--color-good);
+            box-shadow: 0 0 8px #0008 inset;
         }
     }
 
@@ -413,10 +456,6 @@
                 border-width 0.05s;
 
     --size: 1;
-
-    &.accessible {
-        cursor: move;
-    }
     &.empty {
         border-width: 3px;
         border-color: var(--color-bad);
@@ -452,13 +491,5 @@
         #selectionProperties {
             opacity: 0.9 !important;
         }
-    }
-}
-
-#session:not(.is-gm) {
-    .movable.accessible {
-        border-width: 3px;
-        border-color: var(--color-good);
-        box-shadow: 0 0 8px #0008 inset;
     }
 }

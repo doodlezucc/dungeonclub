@@ -1,16 +1,12 @@
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/point_json.dart';
 
 import '../../main.dart';
-import '../communication.dart';
 import 'prefab.dart';
 
 final HtmlElement _controls = querySelector('#sceneEditor');
-final ButtonElement _editGrid = _controls.querySelector('#editGrid');
-final HtmlElement _gridControls = _controls.querySelector('#gridControls');
 final InputElement _gridCellSize = _controls.querySelector('#gridSize');
 final InputElement _gridColor = _controls.querySelector('#gridColor');
 final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
@@ -18,7 +14,6 @@ final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
 class Grid {
   final HtmlElement e;
   final CanvasElement _canvas = querySelector('#board canvas');
-  bool get editingGrid => _editGrid.classes.contains('active');
 
   num _cellSize = 100;
   num get cellSize => _cellSize;
@@ -56,23 +51,6 @@ class Grid {
 
     _gridColor.onInput.listen((_) => redrawCanvas());
     _gridAlpha.onInput.listen((_) => redrawCanvas());
-
-    _editGrid.onClick.listen((event) {
-      var enable = _editGrid.classes.toggle('active');
-      _gridControls.classes.toggle('disabled', !enable);
-
-      if (!enable) {
-        socket.sendAction(GAME_SCENE_UPDATE, {
-          'grid': toJson(),
-          'movables': user.session.board.movables
-              .map((e) => {
-                    'id': e.id,
-                    ...writePoint(e.position),
-                  })
-              .toList()
-        });
-      }
-    });
   }
 
   Point evToGridSpace(

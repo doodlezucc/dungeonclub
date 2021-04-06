@@ -417,6 +417,11 @@ section.show {
     opacity: 1;
 }
 
+.invisible {
+    opacity: 0;
+    pointer-events: none;
+}
+
 header {
     display: flex;
     justify-content: space-between;
@@ -429,8 +434,7 @@ header {
         transition-duration: 0.2s;
 
         &.hidden {
-            opacity: 0;
-            pointer-events: none;
+            @extend .invisible;
         }
     }
 }

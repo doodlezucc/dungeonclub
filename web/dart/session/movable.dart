@@ -80,7 +80,7 @@ class Movable extends EntityBase {
     });
 
     window.onMouseMove.listen((event) {
-      if (drag && !board.grid.editingGrid) {
+      if (drag && !board.editingGrid) {
         offset += event.movement * (1 / board.scaledZoom);
 
         snapToGrid(pos: start + offset);
