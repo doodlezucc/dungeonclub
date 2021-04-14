@@ -270,11 +270,11 @@ class Board {
       if (drag) {
         var delta = event.movement * (1 / _scaledZoom);
 
-        if (editingGrid && button == 0 && isBoardDrag) {
-          grid.offset += delta;
-        } else {
-          position += delta;
-        }
+        // if (editingGrid && button == 0 && isBoardDrag) {
+        //   grid.offset += delta;
+        // } else {
+        // }
+        position += delta;
       } else if (selectedPrefab != null) {
         if ((event.target as HtmlElement).parent != _e) {
           toggleMovableGhostVisible(false);

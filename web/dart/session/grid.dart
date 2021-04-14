@@ -7,7 +7,7 @@ import '../../main.dart';
 import 'prefab.dart';
 
 final HtmlElement _controls = querySelector('#sceneEditor');
-final InputElement _gridCellSize = _controls.querySelector('#gridSize');
+final InputElement _gridTiles = _controls.querySelector('#gridTiles');
 final InputElement _gridColor = _controls.querySelector('#gridColor');
 final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
 
@@ -15,15 +15,17 @@ class Grid {
   final HtmlElement e;
   final CanvasElement _canvas = querySelector('#board canvas');
 
-  num _cellSize = 100;
-  num get cellSize => _cellSize;
-  set cellSize(num cellSize) {
-    _cellSize = max(8, cellSize);
+  int _tiles = 16;
+  int get tiles => _tiles;
+  set tiles(int tiles) {
+    _tiles = max(8, tiles);
     _clampOffset();
-    e.style.setProperty('--cell-size', '$_cellSize');
+    _updateCellSize();
     user.session.board.movables.forEach((m) => m.snapToGrid());
     redrawCanvas();
   }
+
+  num get cellSize => _canvas.width / _tiles;
 
   Point _offset = Point(0, 0);
   Point get offset => _offset;
@@ -36,8 +38,8 @@ class Grid {
   }
 
   void _clampOffset() {
-    _offset = Point(
-        (offset.x + _cellSize) % _cellSize, (offset.y + _cellSize) % _cellSize);
+    var size = cellSize;
+    _offset = Point((offset.x + size) % size, (offset.y + size) % size);
   }
 
   Grid() : e = querySelector('#grid') {
@@ -45,12 +47,25 @@ class Grid {
   }
 
   void _initGridEditor() {
-    _gridCellSize.onInput.listen((event) {
-      cellSize = _gridCellSize.valueAsNumber;
-    });
+    _gridTiles
+      ..onInput.listen((event) {
+        tiles = _gridTiles.valueAsNumber;
+      })
+      ..onMouseEnter.listen((_) {
+        _canvas.classes.add('blink');
+        redrawCanvas(forceVisibility: true);
+      })
+      ..onMouseLeave.listen((_) {
+        _canvas.classes.remove('blink');
+        redrawCanvas();
+      });
 
     _gridColor.onInput.listen((_) => redrawCanvas());
     _gridAlpha.onInput.listen((_) => redrawCanvas());
+  }
+
+  void _updateCellSize() {
+    e.style.setProperty('--cell-size', '$cellSize');
   }
 
   Point evToGridSpace(
@@ -73,20 +88,21 @@ class Grid {
     _canvas.width = width;
     _canvas.height = height;
     redrawCanvas();
+    _updateCellSize();
   }
 
-  void redrawCanvas() {
+  void redrawCanvas({bool forceVisibility = false}) {
     var ctx = _canvas.context2D;
     ctx.clearRect(0, 0, _canvas.width, _canvas.height);
-    ctx.globalAlpha = _gridAlpha.valueAsNumber;
-    ctx.strokeStyle = _gridColor.value;
+    ctx.globalAlpha = forceVisibility ? 1 : _gridAlpha.valueAsNumber;
+    ctx.strokeStyle = forceVisibility ? '#ffffff' : _gridColor.value;
     ctx.beginPath();
-    for (var x = offset.x; x <= _canvas.width; x += _cellSize) {
+    for (var x = offset.x; x < _canvas.width; x += cellSize) {
       var xr = x.round() - 0.5;
       ctx.moveTo(xr, 0);
       ctx.lineTo(xr, _canvas.height);
     }
-    for (var y = 0.5 + offset.y; y <= _canvas.height; y += _cellSize) {
+    for (var y = offset.y; y < _canvas.height; y += cellSize) {
       var yr = y.round() - 0.5;
       ctx.moveTo(0, yr);
       ctx.lineTo(_canvas.width, yr);
@@ -97,16 +113,16 @@ class Grid {
 
   Map<String, dynamic> toJson() => {
         'offset': writePoint(offset),
-        'cellSize': cellSize,
+        'tiles': tiles,
         'color': _gridColor.value,
         'alpha': _gridAlpha.valueAsNumber,
       };
 
   void fromJson(Map<String, dynamic> json) {
-    cellSize = json['cellSize'];
-    _gridCellSize.valueAsNumber = cellSize;
+    tiles = json['tiles'];
+    _gridTiles.valueAsNumber = tiles;
     _gridColor.value = json['color'];
     _gridAlpha.valueAsNumber = json['alpha'];
-    offset = parsePoint(json['offset']);
+    offset = Point(0, 0) ?? parsePoint(json['offset']);
   }
 }

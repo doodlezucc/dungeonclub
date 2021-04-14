@@ -65,7 +65,7 @@
         </section>
 
         <section id="session">
-            <div id="boardContainer" class="edit">
+            <div id="boardContainer">
                 <div id="playerControls" class="controls no-edit">
                     <button class="icon tab" id="diceTab">
                         Roll Dice
@@ -81,10 +81,11 @@
                     <h3>Scene Editor</h3>
                     <button id="changeImage">Change image</button>
                     <div id="gridControls">
-                        <span>Cell size:
-                            <input id="gridSize" placeholder="Cell size in pixels..." type="number" min="8" value="100">
+                        <span>Tiles in each row:
+                            <input id="gridTiles" placeholder="Total tiles in width..." type="number" min="2"
+                                value="16">
                         </span>
-                        <span>Color:
+                        <span>Grid color:
                             <input id="gridColor" type="color" value="#000000">
                         </span>
                         <span>Transparency:
@@ -208,7 +209,7 @@
             </button>
 
             <div>
-                <div id="crop">
+                <div id="crop" class="crop-container">
                     <div class="width top" style="cursor: n-resize;"></div>
                     <div class="height right" style="cursor: e-resize;"></div>
                     <div class="width bottom" style="cursor: s-resize;"></div>

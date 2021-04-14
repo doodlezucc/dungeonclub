@@ -41,6 +41,7 @@
             > span {
                 display: flex;
                 gap: 8px;
+                white-space: nowrap;
             }
         }
     }
@@ -338,8 +339,13 @@
             @extend .invisible;
         }
 
-        #board > canvas:hover {
-            animation: blink 1s infinite;
+        #board canvas {
+            &.blink {
+                animation: blink 1s infinite linear;
+            }
+            &:hover {
+                opacity: 0;
+            }
         }
     }
     &:not(.edit) {
@@ -354,9 +360,9 @@
 }
 
 @keyframes blink {
-    0%   { opacity: 1; }
-    50%  { opacity: 0.2; }
-    100% { opacity: 1; }
+    0%   { opacity: 0.9; filter: brightness(1); }
+    50%  { opacity: 1; filter: brightness(0); }
+    100% { opacity: 0.9; filter: brightness(1); }
 }
 
 #session {
@@ -433,13 +439,15 @@
         box-shadow: 0 0 10px #000a;
         pointer-events: none;
     }
-}
 
-#grid, canvas {
-    position: absolute;
+    canvas {
+        position: absolute;
+        transition-duration: 0.2s;
+    }
 }
 
 #grid {
+    position: absolute;
     --cell-size: 4;
 }
 

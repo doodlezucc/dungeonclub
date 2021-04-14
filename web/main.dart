@@ -33,7 +33,20 @@ void main() {
     home.init();
   }
 
-  testFlow();
+  //testFlow();
+}
+
+Future<void> testFlow() async {
+  var edit = false;
+
+  await Future.delayed(Duration(milliseconds: 200));
+  if (!user.registered) return print('No login token provided');
+
+  if (edit) {
+    await edit_game.display(user.account.games.first);
+  } else {
+    await user.joinSession(user.account.games.first.id);
+  }
 }
 
 bool processUrlPath() {
@@ -57,19 +70,6 @@ bool processUrlPath() {
     }
   }
   return false;
-}
-
-Future<void> testFlow() async {
-  var edit = false;
-
-  await Future.delayed(Duration(milliseconds: 200));
-  if (!user.registered) return print('No login token provided');
-
-  if (edit) {
-    await edit_game.display(user.account.games.first);
-  } else {
-    await user.joinSession(user.account.games.first.id);
-  }
 }
 
 void _initBrightnessSwitch() {

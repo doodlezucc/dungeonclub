@@ -8,7 +8,7 @@
     }
 }
 
-#crop {
+.crop-container {
     background-color: transparent;
     position: absolute;
     --resizer-size: 16px;
@@ -51,11 +51,11 @@
     > .right { right: var(--inset); }
     > .bottom { bottom: var(--inset); }
     > .left { left: var(--inset); }
-}
 
-#crop:active, #crop:not(:hover) {
-    > .corner:not(:active) {
-        border-color: #fff0;
-        box-shadow: 0 0 10px #0000;
+    &:active, &:not(:hover) {
+        > .corner:not(:active) {
+            border-color: #fff0;
+            box-shadow: 0 0 10px #0000;
+        }
     }
 }

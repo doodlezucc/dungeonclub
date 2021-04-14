@@ -18,7 +18,7 @@ body {
     background-color: var(--color-background);
 
     --color-background: white;
-    --color-primary: #8d3b2c;
+    --color-primary: #bd571b;
     --color-text-primary: #111;
     --color-text-inverse: white;
     --color-not-intense: #ddd;
@@ -40,7 +40,7 @@ body {
 
     &.dark-mode {
         --color-background: #0e0e0e;
-        --color-primary: #ff907c;
+        --color-primary: #ffb77c;
         --color-text-primary: white;
         --color-text-inverse: black;
         --color-not-intense: #38322e;
