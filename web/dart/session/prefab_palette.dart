@@ -69,7 +69,7 @@ set selectedPrefab(Prefab p) {
       }
     }
   }
-  toggleMovableGhostVisible(p != null);
+  toggleMovableGhostVisible(false);
 }
 
 void toggleMovableGhostVisible(bool v) {
