@@ -18,7 +18,7 @@ body {
     background-color: var(--color-background);
 
     --color-background: white;
-    --color-primary: #3a6eff;
+    --color-primary: #8d3b2c;
     --color-text-primary: #111;
     --color-text-inverse: white;
     --color-not-intense: #ddd;
@@ -39,14 +39,14 @@ body {
     --shadow-text: none;
 
     &.dark-mode {
-        --color-background: #0d1117;
-        --color-primary: #4b8aff;
+        --color-background: #0e0e0e;
+        --color-primary: #ff907c;
         --color-text-primary: white;
         --color-text-inverse: black;
-        --color-not-intense: #2e2f38;
-        --color-button-hover: #393c4b;
-        --color-button-active: #2c303d;
-        --color-button-big: #444755;
+        --color-not-intense: #38322e;
+        --color-button-hover: #4b3d39;
+        --color-button-active: #3d302c;
+        --color-button-big: #524c49;
         --color-button-text: #ccc;
         --color-input-underline: #444;
         --color-selected: #ccc;
