@@ -15,6 +15,9 @@ class Grid {
   final HtmlElement e;
   final CanvasElement _canvas = querySelector('#board canvas');
 
+  bool get blink => _canvas.classes.contains('blink');
+  set blink(bool blink) => _canvas.classes.toggle('blink', blink);
+
   int _tiles = 16;
   int get tiles => _tiles;
   set tiles(int tiles) {
@@ -52,11 +55,11 @@ class Grid {
         tiles = _gridTiles.valueAsNumber;
       })
       ..onMouseEnter.listen((_) {
-        _canvas.classes.add('blink');
-        redrawCanvas(forceVisibility: true);
+        blink = true;
+        redrawCanvas();
       })
       ..onMouseLeave.listen((_) {
-        _canvas.classes.remove('blink');
+        blink = false;
         redrawCanvas();
       });
 
@@ -91,11 +94,11 @@ class Grid {
     _updateCellSize();
   }
 
-  void redrawCanvas({bool forceVisibility = false}) {
+  void redrawCanvas() {
     var ctx = _canvas.context2D;
     ctx.clearRect(0, 0, _canvas.width, _canvas.height);
-    ctx.globalAlpha = forceVisibility ? 1 : _gridAlpha.valueAsNumber;
-    ctx.strokeStyle = forceVisibility ? '#ffffff' : _gridColor.value;
+    ctx.globalAlpha = blink ? 1 : _gridAlpha.valueAsNumber;
+    ctx.strokeStyle = blink ? '#ffffff' : _gridColor.value;
     ctx.beginPath();
     for (var x = offset.x; x < _canvas.width; x += cellSize) {
       var xr = x.round() - 0.5;
