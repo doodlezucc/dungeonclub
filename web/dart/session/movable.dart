@@ -50,7 +50,7 @@ class Movable extends EntityBase {
     @required Point pos,
   }) : e = DivElement()..className = 'movable' {
     prefab.movables.add(this);
-    onImageChange(prefab.img);
+    onImageChange(prefab.img(cacheBreak: false));
     position = pos ?? Point(0, 0);
 
     var drag = false;

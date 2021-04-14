@@ -55,7 +55,7 @@ set selectedPrefab(Prefab p) {
     _prefabName.value = p.name;
     _prefabSize.valueAsNumber = p.size;
 
-    var img = p.img;
+    var img = p.img();
     _prefabImageImg.src = img;
     _movableGhost.classes.toggle('empty', isEmpty);
     _movableGhost.style.backgroundImage = 'url($img)';

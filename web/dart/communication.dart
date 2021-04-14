@@ -15,8 +15,9 @@ final String _serverAddress =
 
 String getFile(String path, {bool cacheBreak = true}) {
   var out = join(_serverAddress, path);
-  if (cacheBreak) return '$out?${DateTime.now().millisecondsSinceEpoch}';
-  return out;
+  if (!cacheBreak) return out;
+
+  return '$out?${DateTime.now().millisecondsSinceEpoch ~/ 1000}';
 }
 
 String getGameFile(String path, {String gameId, bool cacheBreak = true}) {

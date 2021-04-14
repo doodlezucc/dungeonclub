@@ -31,7 +31,7 @@ abstract class Prefab extends EntityBase {
   final List<Movable> movables = [];
 
   String get id;
-  String get img;
+  String img({bool cacheBreak = true});
   String get name;
 
   @override
@@ -55,8 +55,8 @@ abstract class Prefab extends EntityBase {
       ..append(_nameSpan);
   }
 
-  String updateImage() {
-    var src = img;
+  String updateImage({bool cacheBreak = true}) {
+    var src = img(cacheBreak: cacheBreak);
     e.style.backgroundImage = 'url($src)';
     return src;
   }
@@ -71,7 +71,7 @@ class EmptyPrefab extends Prefab {
   String get id => 'e';
 
   @override
-  String get img => '';
+  String img({bool cacheBreak = true}) => '';
 
   @override
   String get name => 'Empty';
@@ -97,7 +97,7 @@ class CharacterPrefab extends Prefab {
   String get name => character.name;
 
   @override
-  String get img => character.img;
+  String img({bool cacheBreak = true}) => character.img;
 }
 
 class CustomPrefab extends Prefab {
@@ -114,9 +114,6 @@ class CustomPrefab extends Prefab {
     _name = name;
     updateName();
   }
-
-  @override
-  String get img => getGameFile('$IMAGE_TYPE_ENTITY$id.png');
 
   CustomPrefab({@required int id}) {
     _id = id;
@@ -136,7 +133,11 @@ class CustomPrefab extends Prefab {
     accessIds.clear();
     accessIds.addAll(Set.from(json['access']));
 
-    updateImage();
+    updateImage(cacheBreak: false);
     updateName();
   }
+
+  @override
+  String img({bool cacheBreak = true}) =>
+      getGameFile('$IMAGE_TYPE_ENTITY$id.png', cacheBreak: cacheBreak);
 }
