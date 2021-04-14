@@ -180,7 +180,7 @@
     #selectionProperties {
         min-width: 100px;
         position: absolute;
-        top: 0;
+        top: -3px;
         right: calc(100% + 3px);
         padding: 8px;
         gap: 8px;
@@ -487,17 +487,21 @@
             display: none;
         }
     }
+    &:hover {
+        &.accessible {
+            border-width: 3px;
+            border-color: var(--color-primary);
+        }
+
+        #selectionProperties {
+            opacity: 0.9 !important;
+        }
+    }
     &.selected {
         border-width: 3px;
         border-color: white;
         box-shadow: 0 0 16px 4px #000a,
                     0 0 8px #0008 inset;
         z-index: 3;
-    }
-
-    &:hover {
-        #selectionProperties {
-            opacity: 0.9 !important;
-        }
     }
 }
