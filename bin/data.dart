@@ -459,7 +459,9 @@ class CustomPrefab extends EntityBase {
   String name;
   List<int> accessIds;
 
-  CustomPrefab(this.id, int size) : super(size: size);
+  CustomPrefab(this.id, int size)
+      : accessIds = [],
+        super(size: size);
   CustomPrefab.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         accessIds = List.from(json['access'] ?? []) {
