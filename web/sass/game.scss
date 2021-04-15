@@ -382,7 +382,7 @@
     }
 
     > *:not(:last-child) {
-        border-right: 2px solid var(--color-not-intense);
+        border-right: 2px solid var(--color-separator);
     }
 }
 
@@ -429,8 +429,9 @@
     position: absolute;
     display: flex;
     transition-duration: 0.05s;
-    border: 2px solid black;
+    border: 2px solid var(--color-separator);
     box-sizing: border-box;
+    box-shadow: 0 0 20px #0003;
     outline: 1px solid transparent;
 
     #movableGhost {
@@ -499,7 +500,7 @@
     }
     &.selected {
         border-width: 3px;
-        border-color: white;
+        border-color: white !important;
         box-shadow: 0 0 16px 4px #000a,
                     0 0 8px #0008 inset;
         z-index: 3;

@@ -40,9 +40,9 @@
 
 .panel {
     @extend %vertical;
-    background-color: var(--color-background);
+    background-color: var(--color-header);
     box-shadow: var(--shadow-panel);
-    border: 1px solid var(--color-panel-border);
+    border: 2px solid var(--color-panel-border);
     border-radius: base.$radius;
     padding: 24px 32px 16px 32px;
     gap: 16px;
@@ -105,7 +105,7 @@
         min-width: 300px;
         min-height: 300px;
         position: relative;
-        box-shadow: 0 0 4px #0006;
+        box-shadow: 0 0 4px #0009;
 
         > *:not(img) {
             position: absolute;
