@@ -375,6 +375,7 @@ class Scene {
   int get nextMovableId => _movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
   Point gridOffset;
   int tiles;
+  String tileUnit;
   String gridColor;
   num gridAlpha;
 
@@ -406,6 +407,7 @@ class Scene {
   void applyGrid(Map<String, dynamic> json) {
     gridOffset = parsePoint(json['offset']) ?? Point(0, 0);
     tiles = json['tiles'] ?? 16;
+    tileUnit = json['tileUnit'] ?? '5ft';
     gridColor = json['color'] ?? '#000000';
     gridAlpha = json['alpha'] ?? 0.5;
   }
@@ -426,6 +428,7 @@ class Scene {
         'grid': {
           'offset': writePoint(gridOffset),
           'tiles': tiles,
+          'tileUnit': tileUnit,
           'color': gridColor,
           'alpha': gridAlpha,
         },

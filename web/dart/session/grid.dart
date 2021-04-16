@@ -8,6 +8,7 @@ import 'prefab.dart';
 
 final HtmlElement _controls = querySelector('#sceneEditor');
 final InputElement _gridTiles = _controls.querySelector('#gridTiles');
+final InputElement _gridTileUnit = _controls.querySelector('#gridTileUnit');
 final InputElement _gridColor = _controls.querySelector('#gridColor');
 final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
 
@@ -45,8 +46,42 @@ class Grid {
     _offset = Point((offset.x + size) % size, (offset.y + size) % size);
   }
 
+  num _tileMultiply;
+  String _tileUnit;
+
   Grid() : e = querySelector('#grid') {
     _initGridEditor();
+  }
+
+  String tileUnitString([double distance = 1]) =>
+      '${distance * _tileMultiply}$_tileUnit';
+
+  void _validateTileUnit() {
+    var s = _gridTileUnit.value.replaceFirst(',', '.');
+
+    // Regex for real numbers (e.g. 0.125 | 10 | 420.69)
+    var regex = RegExp(r'\d+(\.\d*)?');
+    var match = regex.matchAsPrefix(s);
+
+    if (match != null) {
+      _tileMultiply = num.parse(match.group(0));
+
+      if (s.length == match.end) {
+        // No unit given
+        _tileUnit = ' ft';
+      } else {
+        var suffix = s.substring(match.end);
+        if (!suffix.startsWith(' ')) {
+          suffix = ' $suffix';
+        }
+        _tileUnit = suffix;
+      }
+    } else {
+      _tileMultiply = 5;
+      _tileUnit = ' ft';
+    }
+
+    _gridTileUnit.value = tileUnitString();
   }
 
   void _initGridEditor() {
@@ -62,6 +97,10 @@ class Grid {
         blink = false;
         redrawCanvas();
       });
+
+    _gridTileUnit.onChange.listen((_) {
+      _validateTileUnit();
+    });
 
     _gridColor.onInput.listen((_) => redrawCanvas());
     _gridAlpha.onInput.listen((_) => redrawCanvas());
@@ -117,6 +156,7 @@ class Grid {
   Map<String, dynamic> toJson() => {
         'offset': writePoint(offset),
         'tiles': tiles,
+        'tileUnit': _gridTileUnit.value,
         'color': _gridColor.value,
         'alpha': _gridAlpha.valueAsNumber,
       };
@@ -124,6 +164,8 @@ class Grid {
   void fromJson(Map<String, dynamic> json) {
     tiles = json['tiles'];
     _gridTiles.valueAsNumber = tiles;
+    _gridTileUnit.value = json['tileUnit'];
+    _validateTileUnit();
     _gridColor.value = json['color'];
     _gridAlpha.valueAsNumber = json['alpha'];
     offset = Point(0, 0) ?? parsePoint(json['offset']);

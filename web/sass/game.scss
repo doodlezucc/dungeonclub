@@ -40,8 +40,18 @@
 
             > span {
                 display: flex;
+                justify-content: space-between;
                 gap: 8px;
                 white-space: nowrap;
+
+                input {
+                    width: 160px;
+                }
+
+                #gridTileSize::after {
+                    content: 'ft';
+                    width: 100px;
+                }
             }
         }
     }
@@ -335,7 +345,7 @@
     }
 
     &.edit {
-        .no-edit {
+        .no-edit, .movable {
             @extend .invisible;
         }
 
@@ -360,9 +370,9 @@
 }
 
 @keyframes blink {
-    0%   { opacity: 0.9; filter: brightness(1); }
-    50%  { opacity: 1; filter: brightness(0); }
-    100% { opacity: 0.9; filter: brightness(1); }
+    0%   { opacity: 0.7; filter: brightness(0); }
+    50%  { opacity: 0.9; filter: brightness(1); }
+    100% { opacity: 0.7; filter: brightness(0); }
 }
 
 #session {
