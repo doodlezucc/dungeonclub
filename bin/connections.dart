@@ -131,7 +131,7 @@ class Connection extends Socket {
         scene = _game.playingScene;
         data.games.add(_game);
         account.enteredGames.add(_game);
-        return _game.toSessionSnippet(this);
+        return _game.id;
 
       case a.GAME_EDIT:
         if (account == null) return false;

@@ -29,10 +29,10 @@ class MyAccount extends Account {
   }
 
   Future<Game> createNewGame(String name) async {
-    var snippet = await socket.request(GAME_CREATE_NEW, {'name': name});
-    if (snippet == null) return null;
+    var id = await socket.request(GAME_CREATE_NEW, {'name': name});
+    if (id == null) return null;
 
-    var game = Game(snippet['id'], name, true);
+    var game = Game(id, name, true);
     games.add(game);
     return game;
   }
