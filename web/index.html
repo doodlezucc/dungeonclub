@@ -67,14 +67,18 @@
         <section id="session">
             <div id="boardContainer">
                 <div id="playerControls" class="controls no-edit">
+                    <button class="icon gm" id="editScene">
+                        Edit Scene
+                        <i class="fas fa-wrench"></i>
+                    </button>
                     <button class="icon tab" id="diceTab">
                         Roll Dice
                         <i class="fas fa-dice-d20"></i>
                         <table class="content" id="dice"></table>
                     </button>
-                    <button class="icon" id="editScene">
-                        Edit Scene
-                        <i class="fas fa-wrench"></i>
+                    <button class="icon toggle" id="measureDistance">
+                        Measuring
+                        <i class="fas fa-ruler"></i>
                     </button>
                 </div>
                 <div id="sceneEditor" class="controls panel gm edit-only">
@@ -153,10 +157,11 @@
                 </div>
                 <div id="board">
                     <img id="ground" src="https://via.placeholder.com/500">
-                    <canvas></canvas>
+                    <canvas id="gridCanvas"></canvas>
                     <div id="grid">
                         <div id="movableGhost" class="movable"></div>
                     </div>
+                    <canvas id="distanceCanvas" class="hidden"></canvas>
                 </div>
             </div>
             <div id="log"></div>

@@ -349,7 +349,7 @@
             @extend .invisible;
         }
 
-        #board canvas {
+        #gridCanvas {
             &.blink {
                 animation: blink 1s infinite linear;
             }
@@ -454,6 +454,15 @@
     canvas {
         position: absolute;
         transition-duration: 0.2s;
+    }
+
+    #distanceCanvas {
+        animation: blink 0.5s infinite linear;
+        z-index: 100;
+
+        &.hidden {
+            display: none;
+        }
     }
 }
 

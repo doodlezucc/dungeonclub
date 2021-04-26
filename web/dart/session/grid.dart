@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:dnd_interactive/point_json.dart';
 
 import '../../main.dart';
-import 'prefab.dart';
 
 final HtmlElement _controls = querySelector('#sceneEditor');
 final InputElement _gridTiles = _controls.querySelector('#gridTiles');
@@ -14,7 +13,7 @@ final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
 
 class Grid {
   final HtmlElement e;
-  final CanvasElement _canvas = querySelector('#board canvas');
+  final CanvasElement _canvas = querySelector('#gridCanvas');
 
   bool get blink => _canvas.classes.contains('blink');
   set blink(bool blink) => _canvas.classes.toggle('blink', blink);
@@ -110,12 +109,26 @@ class Grid {
     e.style.setProperty('--cell-size', '$cellSize');
   }
 
-  Point evToGridSpace(
-    MouseEvent event,
-    EntityBase entity, {
+  Point evToGridSpaceUnscaled(
+    MouseEvent event, {
     bool round = true,
   }) {
-    var size = Point(entity.size * cellSize / 2, entity.size * cellSize / 2);
+    var size = Point<num>(0.5, 0.5);
+
+    var p = ((event.offset - offset) * (1 / cellSize)) - size;
+
+    if (round) {
+      p = Point(p.x.round(), p.y.round());
+    }
+    return p;
+  }
+
+  Point evToGridSpace(
+    MouseEvent event,
+    num targetSize, {
+    bool round = true,
+  }) {
+    var size = Point(targetSize * cellSize / 2, targetSize * cellSize / 2);
 
     var p = event.offset - offset - size;
 
@@ -124,6 +137,14 @@ class Grid {
       p = Point((p.x / cs).round() * cs, (p.y / cs).round() * cs);
     }
     return p;
+  }
+
+  Point roundToCell(Point p) {
+    var cs = cellSize;
+
+    var off = Point(cs / 2, cs / 2);
+    p = p - off;
+    return Point((p.x / cs).round() * cs, (p.y / cs).round() * cs) + off;
   }
 
   void resize(int width, int height) {

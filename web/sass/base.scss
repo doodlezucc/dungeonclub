@@ -168,6 +168,10 @@ button.big {
 button.compact {
     padding: 4px 8px;
 }
+button.toggle.active {
+    background-color: var(--color-good) !important;
+    color: var(--color-text-inverse) !important;
+}
 
 .good:not(:disabled) {
     color: var(--color-good) !important;

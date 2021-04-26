@@ -33,7 +33,7 @@ void main() {
     home.init();
   }
 
-  //testFlow();
+  testFlow();
 }
 
 Future<void> testFlow() async {

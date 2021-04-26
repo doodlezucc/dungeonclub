@@ -30,12 +30,21 @@ final InputElement _selectedLabel = querySelector('#movableLabel');
 final InputElement _selectedSize = querySelector('#movableSize');
 final ButtonElement _selectedRemove = querySelector('#movableRemove');
 
+final ButtonElement _measureToggle = querySelector('#measureDistance');
+final CanvasElement _distanceCanvas = querySelector('#distanceCanvas');
+
 class Board {
   final Session session;
   final grid = Grid();
   final movables = <Movable>[];
 
   bool get editingGrid => _container.classes.contains('edit');
+
+  bool get measuring => _measureToggle.classes.contains('active');
+  set measuring(bool measuring) {
+    _distanceCanvas.classes.toggle('hidden', !measuring);
+    _measureToggle.classes.toggle('active', measuring);
+  }
 
   Movable _selectedMovable;
   Movable get selectedMovable => _selectedMovable;
@@ -108,6 +117,7 @@ class Board {
   void _initBoard() {
     _initDragControls();
     initDiceTable();
+    _measureToggle.onClick.listen((_) => measuring = !measuring);
 
     _container.onMouseWheel.listen((event) {
       if (event.target is InputElement) {
@@ -232,12 +242,21 @@ class Board {
     var isBoardDrag = false;
     var drag = false;
     var button = -1;
+    Point measureStart;
+    Point measureStartScaled;
     _container.onMouseDown.listen((event) async {
+      button = event.button;
+
+      if (measuring && button == 0) {
+        measureStart = grid.evToGridSpaceUnscaled(event);
+        measureStartScaled = grid.roundToCell(event.offset);
+        // _redrawDistanceCanvas(measureStartScaled, measureStartScaled);
+        return;
+      }
+
       var movable = event.path
           .any((e) => e is HtmlElement && e.classes.contains('movable'));
       isBoardDrag = event.path.contains(_e);
-
-      button = event.button;
 
       if (button == 0 && !editingGrid) {
         if (movable) {
@@ -251,7 +270,7 @@ class Board {
           return;
         } else if (isBoardDrag) {
           if (selectedPrefab != null) {
-            var gridPos = grid.evToGridSpace(event, selectedPrefab);
+            var gridPos = grid.evToGridSpace(event, selectedPrefab.size);
             selectedMovable = await addMovable(selectedPrefab, pos: gridPos);
           }
         }
@@ -270,11 +289,17 @@ class Board {
       if (drag) {
         var delta = event.movement * (1 / _scaledZoom);
 
-        // if (editingGrid && button == 0 && isBoardDrag) {
-        //   grid.offset += delta;
-        // } else {
-        // }
         position += delta;
+      } else if (measuring && measureStart != null) {
+        var measureEnd = grid.evToGridSpaceUnscaled(event);
+        // Using Chebychov method
+        var distance = max(
+          (measureEnd.x - measureStart.x).abs(),
+          (measureEnd.y - measureStart.y).abs(),
+        );
+
+        _redrawDistanceCanvas(
+            measureStartScaled, grid.roundToCell(event.offset));
       } else if (selectedPrefab != null) {
         if ((event.target as HtmlElement).parent != _e) {
           toggleMovableGhostVisible(false);
@@ -284,6 +309,24 @@ class Board {
         }
       }
     });
+    window.onMouseUp.listen((event) {
+      if (event.button == 0) {
+        measureStart = null;
+        _distanceCanvas.context2D
+            .clearRect(0, 0, _ground.naturalWidth, _ground.naturalHeight);
+      }
+    });
+  }
+
+  void _redrawDistanceCanvas(Point start, Point end) {
+    var ctx = _distanceCanvas.context2D;
+    ctx.clearRect(0, 0, _ground.naturalWidth, _ground.naturalHeight);
+    ctx.strokeStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(end.x, end.y);
+    ctx.closePath();
+    ctx.stroke();
   }
 
   Future<void> _changeImageDialog() async {
@@ -313,6 +356,8 @@ class Board {
       refScene?.image = src;
     }
     await _ground.onLoad.first;
+    _distanceCanvas.width = _ground.naturalWidth;
+    _distanceCanvas.height = _ground.naturalHeight;
     grid.resize(_ground.naturalWidth, _ground.naturalHeight);
   }
 
