@@ -50,7 +50,13 @@ void main(List<String> args) async {
       .addHandler(_echoRequest);
 
   var server = await io.serve(handler, _hostname, port);
-  _address = 'http://${server.address.host}:${server.port}';
+
+  var config = File('config');
+  if (await config.exists()) {
+    _address = await config.readAsString();
+  }
+
+  _address = _address?.trim() ?? 'http://${server.address.host}:${server.port}';
   print('Serving at $address');
 
   await initializeMailServer();
