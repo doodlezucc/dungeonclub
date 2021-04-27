@@ -83,7 +83,10 @@
                 </div>
                 <div id="sceneEditor" class="controls panel gm edit-only">
                     <h3>Scene Editor</h3>
-                    <button id="changeImage">Change image</button>
+                    <button id="changeImage" class="icon">
+                        Change scene image
+                        <i class="fas fa-image"></i>
+                    </button>
                     <div id="gridControls">
                         <span>Tiles in each row:
                             <input id="gridTiles" placeholder="Total tiles in width..." type="number" min="2"
@@ -99,12 +102,12 @@
                             <input id="gridAlpha" type="range" min="0" max="1" step="0.01">
                         </span>
                     </div>
-                    <button class="icon big" id="exitEdit">
+                    <button id="exitEdit" class="icon big">
                         Save changes
                         <i class="fas fa-save"></i>
                     </button>
                 </div>
-                <div id="prefabPalette" class="controls panel gm no-edit">
+                <div id="prefabPalette" class="controls panel gm no-edit no-measure">
                     <h3>Prefab Palette</h3>
                     <div class="prefab-selection">
                         <p>Players</p>
@@ -143,7 +146,7 @@
                     </span>
                     <button id="movableRemove" class="bad compact">Remove from scene</button>
                 </div>
-                <div id="sceneSelector" class="controls panel gm hooked no-edit">
+                <div id="sceneSelector" class="controls panel gm hooked no-edit no-measure">
                     <h3>Scene Selector</h3>
                     <span class="top-hook">
                         <div>

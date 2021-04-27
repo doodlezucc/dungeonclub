@@ -367,6 +367,11 @@
             cursor: move;
         }
     }
+    &.measuring {
+        .no-measure {
+            @extend .invisible;
+        }
+    }
 }
 
 @keyframes blink {
@@ -461,7 +466,7 @@
     }
 
     #distanceCanvas {
-        animation: blink 0.5s infinite linear;
+        animation: blink 1s infinite linear;
         z-index: 100;
     }
 
@@ -472,12 +477,12 @@
         border-radius: base.$radius;
         background-color: var(--color-not-intense);
         box-shadow: 0 0 8px 2px #0005;
-        margin-bottom: 12px;
         transform-origin: top left;
         transition-duration: 0.1s;
         transition-property: transform;
         transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
         pointer-events: none;
+        white-space: nowrap;
     }
 }
 
