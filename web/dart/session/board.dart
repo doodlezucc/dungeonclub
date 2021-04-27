@@ -168,7 +168,7 @@ class Board {
       if (ev.keyCode == 27 && selectedPrefab != null) {
         ev.preventDefault();
         _deselectAll();
-      } else if (ev.keyCode == 46 && session.isGM && selectedMovable != null) {
+      } else if (ev.keyCode == 46 && session.isDM && selectedMovable != null) {
         _removeSelectedMovable();
       }
     });

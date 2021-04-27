@@ -8,7 +8,7 @@ import 'prefab_palette.dart';
 import 'scene.dart';
 
 class Session extends Game {
-  final bool isGM;
+  final bool isDM;
   final characters = <Character>[];
   Board _board;
   Board get board => _board;
@@ -16,7 +16,7 @@ class Session extends Game {
   int get charId => _charId;
   Character get myCharacter => _charId != null ? characters[_charId] : null;
 
-  Session(String id, String name, this.isGM) : super(id, name, null) {
+  Session(String id, String name, this.isDM) : super(id, name, null) {
     _board = Board(this);
   }
 
@@ -36,9 +36,9 @@ class Session extends Game {
       initMovableManager(json['prefabs']);
       _board.fromJson(playingId, json['scene']);
 
-      querySelector('#session').classes.toggle('is-gm', isGM);
+      querySelector('#session').classes.toggle('is-gm', isDM);
 
-      if (isGM) {
+      if (isDM) {
         int sceneCount = json['gm']['scenes'];
         for (var i = 0; i < sceneCount; i++) {
           var scene = Scene(i);

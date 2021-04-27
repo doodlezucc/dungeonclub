@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:dnd_interactive/actions.dart';
 import 'package:meta/meta.dart';
 
+import '../../main.dart';
 import '../communication.dart';
 import 'character.dart';
 import 'movable.dart';
@@ -57,7 +58,9 @@ abstract class Prefab extends EntityBase {
 
   String updateImage({bool cacheBreak = true}) {
     var src = img(cacheBreak: cacheBreak);
-    e.style.backgroundImage = 'url($src)';
+    if (user.session.isDM) {
+      e.style.backgroundImage = 'url($src)';
+    }
     return src;
   }
 

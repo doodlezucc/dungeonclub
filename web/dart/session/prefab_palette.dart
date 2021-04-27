@@ -33,7 +33,7 @@ final emptyPrefab = EmptyPrefab();
 Prefab _selectedPrefab;
 Prefab get selectedPrefab => _selectedPrefab;
 set selectedPrefab(Prefab p) {
-  if (!user.session.isGM) return;
+  if (!user.session.isDM) return;
 
   _selectedPrefab = p;
   _palette.querySelectorAll('.prefab.selected').classes.remove('selected');

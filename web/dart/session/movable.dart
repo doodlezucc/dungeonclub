@@ -15,7 +15,7 @@ class Movable extends EntityBase {
   final int id;
 
   bool get accessible {
-    if (board.session.isGM) return true;
+    if (board.session.isDM) return true;
 
     var charId = board.session.charId;
     if (prefab is CharacterPrefab) {
