@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:html';
 
 import '../main.dart';
@@ -6,6 +7,7 @@ import 'game.dart';
 import 'panels/code_panel.dart';
 import 'panels/dialog.dart';
 import 'panels/edit_game.dart' as edit_game;
+import 'panels/join_session.dart' as join_session;
 import 'section_page.dart';
 
 final HtmlElement _gamesContainer = querySelector('#gamesContainer');
@@ -34,6 +36,8 @@ void init() {
     var game = await user.account.createNewGame(name);
     _addEnteredGame(game, instantEdit: true);
   });
+
+  _displayLocalEnteredGames();
 
   showPage('home');
 }
@@ -68,15 +72,24 @@ void _initLogInTab() async {
 void onLogin() {
   _loginTab.classes.add('hidden');
   _logout.classes.remove('hidden');
-  _displayEnteredGames();
+  _displayAccountEnteredGames();
   querySelectorAll('.acc-enable').forEach((element) {
     (element as ButtonElement).disabled = false;
   });
 }
 
-Future<void> _displayEnteredGames() async {
+Future<void> _displayAccountEnteredGames() async {
   for (var g in user.account.games) {
     _addEnteredGame(g);
+  }
+}
+
+Future<void> _displayLocalEnteredGames() async {
+  var idNames = Map<String, String>.from(
+      jsonDecode(window.localStorage['joined'] ?? '{}'));
+
+  for (var g in idNames.entries) {
+    _addEnteredGame(Game(g.key, g.value, false));
   }
 }
 
@@ -90,7 +103,11 @@ void _addEnteredGame(Game game, {bool instantEdit = false}) {
     ..append(ButtonElement()
       ..text = 'Join session'
       ..onClick.listen((event) {
-        user.joinSession(game.id);
+        if (game.owned) {
+          user.joinSession(game.id);
+        } else {
+          join_session.display(game.id);
+        }
       }));
 
   var displayEdit = () {

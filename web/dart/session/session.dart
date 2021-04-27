@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:html';
 
 import '../game.dart';
@@ -18,6 +19,19 @@ class Session extends Game {
 
   Session(String id, String name, this.isDM) : super(id, name, null) {
     _board = Board(this);
+
+    if (!isDM) {
+      _saveGameId();
+    }
+  }
+
+  void _saveGameId() {
+    var idNames = Map<String, String>.from(
+        jsonDecode(window.localStorage['joined'] ?? '{}'));
+
+    // Add joined game id and name to local storage
+    idNames[id] = name;
+    window.localStorage['joined'] = jsonEncode(idNames);
   }
 
   void fromJson(Map<String, dynamic> json) {
