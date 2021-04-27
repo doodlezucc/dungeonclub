@@ -293,23 +293,24 @@ li {
 #notifications {
     @extend %vertical;
     position: fixed;
-    top: 16px;
-    left: 16px;
+    top: 0;
+    left: 0; 
     margin: 24px;
     gap: 10px;
+    z-index: 5;
 }
 
 .notification {
     display: flex;
-    background-color: var(--color-not-intense);
+    background-color: var(--color-background);
     box-shadow: 0 0 8px #0008;
     border-radius: $radius;
-    padding: 8px;
-    align-items: center;
-    gap: 4px;
+    padding: 4px;
+    align-items: baseline;
+    gap: 2px;
 
     span {
-        margin-left: 4px;
+        margin: 0 4px;
     }
 }
 
