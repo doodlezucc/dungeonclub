@@ -141,9 +141,9 @@ class Game {
   String name;
   Account owner;
 
-  Connection get gm =>
+  Connection get dm =>
       _connections.firstWhere((c) => owner == c.account, orElse: () => null);
-  bool get gmOnline => gm != null;
+  bool get dmOnline => dm != null;
   int get online => _connections.length;
   int get sceneCount => _scenes.length;
   Scene get playingScene =>
@@ -340,7 +340,7 @@ class Game {
       'pcs': _characters.map((e) => e.toJson()).toList(),
       if (mine != null) 'mine': mine,
       'prefabs': _prefabs.map((e) => e.toJson()).toList(),
-      if (owner == c.account) 'gm': {'scenes': _scenes.length},
+      if (owner == c.account) 'dm': {'scenes': _scenes.length},
     };
   }
 

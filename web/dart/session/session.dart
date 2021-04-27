@@ -28,7 +28,7 @@ class Session extends Game {
     }
 
     _charId = json['mine'];
-    gameLog('Hello, ' + (myCharacter?.name ?? 'GM') + '!');
+    gameLog('Hello, ' + (myCharacter?.name ?? 'DM') + '!');
 
     // Depends on global session object
     Future.microtask(() {
@@ -36,10 +36,10 @@ class Session extends Game {
       initMovableManager(json['prefabs']);
       _board.fromJson(playingId, json['scene']);
 
-      querySelector('#session').classes.toggle('is-gm', isDM);
+      querySelector('#session').classes.toggle('is-dm', isDM);
 
       if (isDM) {
-        int sceneCount = json['gm']['scenes'];
+        int sceneCount = json['dm']['scenes'];
         for (var i = 0; i < sceneCount; i++) {
           var scene = Scene(i);
           if (i == playingId) {

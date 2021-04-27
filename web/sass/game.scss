@@ -384,8 +384,8 @@
     display: flex;
     flex-direction: row;
 
-    &:not(.is-gm) {
-        .gm {
+    &:not(.is-dm) {
+        .dm {
             display: none !important;
         }
 

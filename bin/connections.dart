@@ -169,9 +169,9 @@ class Connection extends Socket {
         if (game != null) {
           int id;
           if (game.owner != account) {
-            if (!game.gmOnline) return 'Your DM is not online!';
+            if (!game.dmOnline) return 'Your DM is not online!';
 
-            id = await game.gm.request(a.GAME_JOIN_REQUEST, {'name': name});
+            id = await game.dm.request(a.GAME_JOIN_REQUEST, {'name': name});
             if (id == null) return "You're not allowed to enter!";
             game.assignPC(id, this);
           }
@@ -250,7 +250,7 @@ class Connection extends Socket {
         return await _uploadGameImageJson(params);
 
       case a.GAME_SCENE_UPDATE:
-        if (_game?.gm != this || scene == null) return;
+        if (_game?.dm != this || scene == null) return;
 
         var grid = params['grid'];
         if (grid != null) {

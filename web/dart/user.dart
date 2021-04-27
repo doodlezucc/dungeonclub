@@ -22,7 +22,7 @@ class User {
     });
     if (s is String) return StateError(s);
 
-    _session = Session(id, s['name'], s['gm'] != null);
+    _session = Session(id, s['name'], s['dm'] != null);
     _session.fromJson(s);
     showPage('session');
     return null;

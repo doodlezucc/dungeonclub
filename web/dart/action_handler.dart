@@ -59,7 +59,7 @@ void _onConnectionChange(Map<String, dynamic> params) {
   bool join = params['join'];
   int pc = params['pc'];
 
-  var name = pc != null ? user.session.characters[pc].name : 'GM';
+  var name = pc != null ? user.session.characters[pc].name : 'DM';
 
   if (join) {
     gameLog('$name joined the game.');
