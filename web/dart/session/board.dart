@@ -32,6 +32,7 @@ final ButtonElement _selectedRemove = querySelector('#movableRemove');
 
 final ButtonElement _measureToggle = querySelector('#measureDistance');
 final CanvasElement _distanceCanvas = querySelector('#distanceCanvas');
+final HtmlElement _distanceText = querySelector('#distanceText');
 
 class Board {
   final Session session;
@@ -97,7 +98,11 @@ class Board {
   set zoom(double zoom) {
     _zoom = min(max(zoom, -1), 1.5);
     _scaledZoom = exp(_zoom);
-    _selectionProperties.style.transform = 'scale(${1 / scaledZoom})';
+
+    var invZoomScale = 'scale(${1 / scaledZoom})';
+    _selectionProperties.style.transform = invZoomScale;
+    _distanceText.style.transform = invZoomScale;
+
     _transform();
   }
 
@@ -239,6 +244,13 @@ class Board {
   }
 
   void _initDragControls() {
+    void alignDistanceText(MouseEvent event, num distance) {
+      var p = event.offset;
+      _distanceText.style.left = '${p.x}px';
+      _distanceText.style.top = '${p.y}px';
+      _distanceText.text = grid.tileUnitString(distance);
+    }
+
     var isBoardDrag = false;
     var drag = false;
     var button = -1;
@@ -250,7 +262,9 @@ class Board {
       if (measuring && button == 0) {
         measureStart = grid.evToGridSpaceUnscaled(event);
         measureStartScaled = grid.roundToCell(event.offset);
-        // _redrawDistanceCanvas(measureStartScaled, measureStartScaled);
+        _distanceText.classes.remove('hidden');
+        alignDistanceText(event, 0);
+        _redrawDistanceCanvas(measureStartScaled, measureStartScaled);
         return;
       }
 
@@ -297,6 +311,7 @@ class Board {
           (measureEnd.x - measureStart.x).abs(),
           (measureEnd.y - measureStart.y).abs(),
         );
+        alignDistanceText(event, distance);
 
         _redrawDistanceCanvas(
             measureStartScaled, grid.roundToCell(event.offset));
@@ -310,10 +325,11 @@ class Board {
       }
     });
     window.onMouseUp.listen((event) {
-      if (event.button == 0) {
+      if (measuring && event.button == 0) {
         measureStart = null;
         _distanceCanvas.context2D
             .clearRect(0, 0, _ground.naturalWidth, _ground.naturalHeight);
+        _distanceText.classes.add('hidden');
       }
     });
   }
