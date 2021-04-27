@@ -49,7 +49,7 @@ body {
         --color-button-hover: #4b3d39;
         --color-button-active: #493631;
         --color-button-big: #524c49;
-        --color-button-text: #ccc;
+        --color-button-text: #ddd;
         --color-input-underline: #6b534e;
         --color-selected: #ccc;
         --color-good: #62ffa9;
@@ -156,8 +156,12 @@ button.icon {
     display: inline-flex;
     flex-direction: row-reverse;
     gap: 4px;
-    align-items: center;
+    align-items: baseline;
     justify-content: center;
+
+    > i {
+        align-self: center;
+    }
 }
 button.big {
     @extend %responsive;
