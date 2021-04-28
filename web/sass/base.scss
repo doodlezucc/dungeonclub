@@ -18,8 +18,8 @@ body {
     background-color: var(--color-background);
 
     --color-background: white;
-    --color-primary: #97574c;
-    --color-text-primary: #111;
+    --color-primary: #5f4b46;
+    --color-text-primary: #302827;
     --color-text-inverse: white;
     --color-not-intense: #ddd;
     --color-button-hover: #bbb;
@@ -34,7 +34,7 @@ body {
     --color-note: #777;
     --color-panel-border: #af9b97aa;
     --color-header: white;
-    --color-separator: #ccc;
+    --color-separator: #ddd;
 
     --weight-thick: bold;
     --shadow-panel: 0 0 8px 2px #0000;
@@ -82,6 +82,14 @@ a {
     &:active {
         color: var(--color-note);
     }
+
+    &.title {
+        text-decoration: none;
+
+        &:hover > h1 {
+            color: var(--color-text-primary);
+        }
+    }
 }
 
 b {
@@ -107,6 +115,7 @@ h1 {
     font-family: 'Recursive', serif;
     font-weight: normal;
     color: var(--color-primary);
+    transition: color 0.1s;
 }
 h2 {
     @extend %heading;
