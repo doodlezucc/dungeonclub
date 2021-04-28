@@ -40,14 +40,14 @@
                 <form action="javascript:void(0);" class="panel">
                     <div>
                         <p>Email address</p>
-                        <input type="email" id="loginEmail">
+                        <input type="email" autocomplete="email" id="loginEmail">
                     </div>
                     <div>
                         <span>
                             <p>Password</p>
                             <a id="resetPassword">Forgot password?</a>
                         </span>
-                        <input type="password" id="loginPassword">
+                        <input type="password" autocomplete="current-password" id="loginPassword">
                     </div>
                     <p id="loginError" class="bad"></p>
                     <button id="login" class="big">Log In</button>
@@ -261,24 +261,30 @@
             </button>
 
             <section class="credentials">
-                <div class="grid">
-                    Email address
-                    <input type="email" class="email" placeholder="e.g. sweetlilly93@hotmail.com...">
-                    Password
-                    <input type="password" class="password" placeholder="Password...">
-                    Password (again)
-                    <input type="password" class="confirm" placeholder="Confirm password...">
-                </div>
+                <form>
+                    <div class="grid">
+                        Email address
+                        <input type="email" class="email" autocomplete="email"
+                            placeholder="e.g. sweetlilly93@hotmail.com...">
 
-                <p>
-                    Your email address is exclusively used for identifying yourself.
-                    No messages unrelated to your specific account are going to appear in your inbox.
-                </p>
-                <p>
-                    Both your email and password will be encrypted and never viewed, transferred or sold in any way.
-                </p>
+                        Password
+                        <input type="password" class="password" autocomplete="new-password" placeholder="Password...">
 
-                <button class="send">Register Account</button>
+                        Password (again)
+                        <input type="password" class="confirm" autocomplete="new-password"
+                            placeholder="Confirm password...">
+                    </div>
+
+                    <p>
+                        Your email address is exclusively used for identifying yourself.
+                        No messages unrelated to your specific account are going to appear in your inbox.
+                    </p>
+                    <p>
+                        Both your email and password will be encrypted and never viewed, transferred or sold in any way.
+                    </p>
+
+                    <button type="submit" class="send">Register Account</button>
+                </form>
             </section>
 
             <section class="activate">
@@ -304,16 +310,21 @@
                     When submitting the new password, a verification code will be sent to your email address.
                 </p>
 
-                <div class="grid">
-                    Email address
-                    <input type="email" class="email" placeholder="Email address...">
-                    New Password
-                    <input type="password" class="password" placeholder="New password...">
-                    New Password (again)
-                    <input type="password" class="confirm" placeholder="Confirm new password...">
-                </div>
+                <form>
+                    <div class="grid">
+                        Email address
+                        <input type="email" class="email" autocomplete="email" placeholder="Email address...">
 
-                <button class="send">Send Verification Code</button>
+                        New Password
+                        <input type="password" class="password" autocomplete="new-password"
+                            placeholder="New password...">
+
+                        New Password (again)
+                        <input type="password" class="confirm" autocomplete="new-password"
+                            placeholder="Confirm new password...">
+                    </div>
+                    <button type="submit" class="send">Send Verification Code</button>
+                </form>
             </section>
 
             <section class="activate">

@@ -129,6 +129,13 @@
         display: inherit;
     }
 
+    form {
+        display: inherit;
+        gap: inherit;
+        flex-direction: inherit;
+        align-items: center;
+    }
+
     .grid {
         display: grid;
         grid-template-columns: max-content auto;
