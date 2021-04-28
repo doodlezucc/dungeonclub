@@ -20,6 +20,10 @@ class Session extends Game {
   Session(String id, String name, this.isDM) : super(id, name, null) {
     _board = Board(this);
 
+    if (!window.location.href.contains(id)) {
+      window.history.pushState({}, '', 'game/$id');
+    }
+
     if (!isDM) {
       _saveGameId();
     }

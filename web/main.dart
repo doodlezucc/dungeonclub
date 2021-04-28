@@ -10,7 +10,7 @@ import 'dart/user.dart';
 final user = User();
 const appName = 'D&D Interactive';
 
-void main() {
+void main() async {
   _listenToCssReload();
   socket.connect();
 
@@ -28,12 +28,12 @@ void main() {
 
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
+  window.onPopState.listen((_) => window.location.reload());
 
-  if (!processUrlPath()) {
-    home.init();
-  }
+  await home.init();
+  processUrlPath();
 
-  testFlow();
+  //testFlow();
 }
 
 Future<void> testFlow() async {
@@ -49,7 +49,7 @@ Future<void> testFlow() async {
   }
 }
 
-bool processUrlPath() {
+void processUrlPath() {
   if (window.location.href.contains('game')) {
     var gameId = window.location.pathname;
 
@@ -65,11 +65,13 @@ bool processUrlPath() {
     }
 
     if (gameId.length >= 3) {
-      join_session.display(gameId);
-      return true;
+      if (user.registered && user.account.games.any((g) => g.id == gameId)) {
+        user.joinSession(gameId);
+      } else {
+        join_session.display(gameId);
+      }
     }
   }
-  return false;
 }
 
 void _initBrightnessSwitch() {

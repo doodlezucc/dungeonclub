@@ -19,9 +19,7 @@ final ButtonElement _logout = querySelector('#logOut')
     window.location.reload();
   });
 
-void init() {
-  _initLogInTab();
-
+Future<void> init() {
   _createGameButton.onClick.listen((event) async {
     if (!user.registered) return print('No permissions to create a new game!');
 
@@ -40,9 +38,10 @@ void init() {
   _displayLocalEnteredGames();
 
   showPage('home');
+  return _initLogInTab();
 }
 
-void _initLogInTab() async {
+Future<bool> _initLogInTab() async {
   InputElement loginEmail = querySelector('#loginEmail');
   InputElement loginPassword = querySelector('#loginPassword');
   ButtonElement loginButton = querySelector('button#login');
@@ -64,9 +63,10 @@ void _initLogInTab() async {
 
   var token = window.localStorage['token'];
   if (token != null) {
-    if (await user.loginToken(token)) return print('Logged in with token');
+    if (await user.loginToken(token)) return true;
   }
   _loginTab.classes.remove('hidden');
+  return false;
 }
 
 void onLogin() {
