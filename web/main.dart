@@ -1,5 +1,7 @@
 import 'dart:html';
 
+import 'package:path/path.dart';
+
 import 'dart/communication.dart';
 import 'dart/home.dart' as home;
 import 'dart/panels/code_panel.dart';
@@ -50,11 +52,13 @@ Future<void> testFlow() async {
 }
 
 void processUrlPath() {
+  var homeUrl = dirname(window.location.href);
   if (window.location.href.contains('game')) {
     var gameId = window.location.pathname;
 
     if (gameId.contains('game/')) {
       gameId = gameId.substring(gameId.indexOf('game/') + 5);
+      homeUrl = dirname(homeUrl);
     } else {
       gameId = window.location.search;
       gameId = gameId.substring(gameId.indexOf('?game=') + 6);
@@ -72,6 +76,8 @@ void processUrlPath() {
       }
     }
   }
+
+  (querySelector('a.title') as AnchorElement).href = homeUrl;
 }
 
 void _initBrightnessSwitch() {

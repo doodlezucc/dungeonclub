@@ -115,7 +115,7 @@ h1 {
     font-family: 'Recursive', serif;
     font-weight: normal;
     color: var(--color-primary);
-    transition: color 0.1s;
+    transition: color 0.2s;
 }
 h2 {
     @extend %heading;
