@@ -81,6 +81,8 @@ Future<Response> _echoRequest(Request request) async {
 
   if (path == 'ws') {
     return await ws.webSocketHandler(onConnect)(request);
+  } else if (path.isEmpty || path == 'home') {
+    path = 'index.html';
   }
 
   var file = path.startsWith('database')
