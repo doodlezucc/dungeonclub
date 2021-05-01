@@ -24,7 +24,7 @@ class Grid {
     _tiles = max(8, tiles);
     _clampOffset();
     _updateCellSize();
-    user.session.board.movables.forEach((m) => m.snapToGrid());
+    user.session.board.movables.forEach((m) => m.roundToGrid());
     redrawCanvas();
   }
 
@@ -134,7 +134,7 @@ class Grid {
 
     if (round) {
       var cs = cellSize;
-      p = Point((p.x / cs).round() * cs, (p.y / cs).round() * cs);
+      p = Point((p.x / cs).round(), (p.y / cs).round());
     }
     return p;
   }

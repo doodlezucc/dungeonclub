@@ -83,8 +83,8 @@ void toggleMovableGhostVisible(bool v) {
 void alignMovableGhost(MouseEvent event, EntityBase entity) {
   var p = user.session.board.grid.evToGridSpace(event, entity.size);
 
-  _movableGhost.style.left = '${p.x}px';
-  _movableGhost.style.top = '${p.y}px';
+  _movableGhost.style.setProperty('--x', '${p.x}');
+  _movableGhost.style.setProperty('--y', '${p.y}');
 }
 
 void _updateAccessSpan() {

@@ -31,8 +31,9 @@ class Movable extends EntityBase {
   Point get position => _position;
   set position(Point position) {
     _position = position;
-    e.style.left = '${position.x}px';
-    e.style.top = '${position.y}px';
+    e.style
+      ..setProperty('--x', '${position.x}')
+      ..setProperty('--y', '${position.y}');
   }
 
   @override
@@ -64,7 +65,9 @@ class Movable extends EntityBase {
 
       var inset = board.grid.cellSize * displaySize / 2;
 
-      start = startPos + event.offset - Point(inset, inset);
+      var posScaled = startPos * board.grid.cellSize;
+
+      start = posScaled + event.offset - Point(inset, inset);
 
       offset = Point(0, 0);
       drag = true;
@@ -83,7 +86,7 @@ class Movable extends EntityBase {
       if (drag && !board.editingGrid) {
         offset += event.movement * (1 / board.scaledZoom);
 
-        snapToGrid(pos: start + offset);
+        snapToGrid(start + offset);
       }
     });
 
@@ -116,15 +119,18 @@ class Movable extends EntityBase {
     e.style.backgroundImage = 'url($img)';
   }
 
-  void snapToGrid({Point pos}) {
-    pos = pos ?? position;
-    var cell = board.grid.cellSize;
+  void roundToGrid() {
+    position = Point(position.x.round(), position.y.round());
+  }
+
+  void snapToGrid(Point pos) {
+    var p = pos ?? position;
 
     num modify(num v) {
-      return (v / cell).round() * cell;
+      return (v / board.grid.cellSize).round();
     }
 
-    position = Point(modify(pos.x), modify(pos.y));
+    position = Point(modify(p.x), modify(p.y));
   }
 
   void onRemove() {

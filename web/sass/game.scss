@@ -345,8 +345,13 @@
     }
 
     &.edit {
-        .no-edit, .movable {
+        .no-edit {
             @extend .invisible;
+        }
+
+        .movable {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         #gridCanvas {
@@ -391,7 +396,7 @@
 
         .movable.accessible {
             border-width: 3px;
-            border-color: var(--color-good);
+            border-color: white;
             box-shadow: 0 0 8px #0008 inset;
         }
     }
@@ -456,6 +461,12 @@
         pointer-events: none;
     }
 
+    &:active {
+        #movableGhost {
+            opacity: 0;
+        }
+    }
+
     canvas {
         position: absolute;
         transition-duration: 0.2s;
@@ -498,12 +509,17 @@
     border-radius: 50%;
     width: calc(var(--size) * var(--cell-size) * 1px);
     height: calc(var(--size) * var(--cell-size) * 1px);
+    left: calc(var(--x) * var(--cell-size) * 1px);
+    top: calc(var(--y) * var(--cell-size) * 1px);
     box-sizing: border-box;
     box-shadow: 0 0 8px #000a;
     transition: border-color 0.25s,
                 border-width 0.05s;
 
     --size: 1;
+    --x: 0;
+    --y: 0;
+
     &.empty {
         border-width: 3px;
         border-color: var(--color-bad);
