@@ -257,6 +257,8 @@
                         height: 100%;
                         opacity: 0;
                         background-color: var(--color-not-intense);
+                        align-items: center;
+
                         &:hover {
                             opacity: 0.8 !important;
                         }
