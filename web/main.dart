@@ -35,7 +35,7 @@ void main() async {
   await home.init();
   processUrlPath();
 
-  //testFlow();
+  await testFlow();
 }
 
 Future<void> testFlow() async {

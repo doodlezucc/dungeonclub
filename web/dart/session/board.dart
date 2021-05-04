@@ -181,6 +181,7 @@ class Board {
     });
 
     _initSelectionHandler();
+    map.initMapControls();
   }
 
   void _removeSelectedMovable() async {
