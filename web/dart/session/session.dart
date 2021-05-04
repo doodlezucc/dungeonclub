@@ -20,7 +20,9 @@ class Session extends Game {
   Session(String id, String name, this.isDM) : super(id, name, null) {
     _board = Board(this);
 
-    if (!window.location.href.contains(id)) {
+    var url = window.location.href;
+
+    if (!url.contains(id) && !url.contains(':8080')) {
       window.history.pushState({}, '', 'game/$id');
     }
 

@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 import '../communication.dart';
 import '../panels/upload.dart' as upload;
 import 'grid.dart';
+import 'map.dart';
 import 'movable.dart';
 import 'prefab.dart';
 import 'prefab_palette.dart';
@@ -37,6 +38,7 @@ final HtmlElement _distanceText = querySelector('#distanceText');
 class Board {
   final Session session;
   final grid = Grid();
+  final map = GameMap();
   final movables = <Movable>[];
 
   bool get editingGrid => _container.classes.contains('edit');
@@ -60,7 +62,7 @@ class Board {
     _selectedMovable?.e?.classes?.remove('selected');
 
     if (_selectedMovable != null) {
-      // Firefox doesn't automatically blur inputs when their parent
+      // Firefox doesn't automatically blurrr inputs when their parent
       // element gets moved or removed
       _selectedLabel.blur();
       _selectedSize.blur();
@@ -134,8 +136,9 @@ class Board {
         if (event.target != document.activeElement) {
           (event.target as InputElement).focus();
         }
-      } else if (!event.path
-          .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
+      } else if (!map.visible &&
+          !event.path
+              .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
         zoom -= event.deltaY.sign / 3;
       }
     });
@@ -165,11 +168,15 @@ class Board {
     });
 
     window.onKeyDown.listen((ev) {
+      if (ev.target is InputElement) return;
+
       if (ev.keyCode == 27 && selectedPrefab != null) {
         ev.preventDefault();
         _deselectAll();
       } else if (ev.keyCode == 46 && session.isDM && selectedMovable != null) {
         _removeSelectedMovable();
+      } else if (ev.key == 'm') {
+        map.visible = !map.visible;
       }
     });
 
@@ -262,6 +269,8 @@ class Board {
     Point measureStart;
     Point measureStartScaled;
     _container.onMouseDown.listen((event) async {
+      if (map.visible) return;
+
       button = event.button;
       isBoardDrag = event.path.contains(_e);
 
