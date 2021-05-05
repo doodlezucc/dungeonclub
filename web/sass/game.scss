@@ -569,30 +569,58 @@
 }
 
 #map {
+    @extend %vertical;
+    justify-content: space-between;
     position: absolute;
     z-index: 10;
-    background-color: #000a;
+    background-color: #000d;
     transition-duration: 0.5s;
+    font-size: 23px;
+    padding: 20px 0;
+    gap: 12px;
 
     > button[type=reset] {
         @extend %responsive;
         position: absolute;
         left: 16px;
         top: 16px;
-        font-size: 23px;
-        align-items: center;
-        gap: 6px;
     }
 
-    > img {
+    > button {
+        font-size: inherit;
+        align-items: center;
+        gap: 8px;
+    }
+
+    > input {
+        text-align: center;
+    }
+
+    > #maps {
+        display: flex;
         position: relative;
-        $size: calc(100% - 100px);
-        width: $size;
-        height: $size;
-        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        left: 0;
         transition-duration: 0.4s;
         transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
-        transform: translateY(16px);
+    }
+
+    .map {
+        align-items: center;
+        min-width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        padding: 0 20px;
+
+        > .background {
+            width: 100%;
+            height: 100%;
+            background-image: url("https://via.placeholder.com/1000");
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
     }
 
     &:not(.show) {
@@ -600,7 +628,7 @@
         opacity: 0;
         transition-duration: 0.25s;
 
-        > img {
+        > #maps {
             transform: translateY(150%);
             transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
         }

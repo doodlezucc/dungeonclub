@@ -1,13 +1,24 @@
 import 'dart:html';
 
-final HtmlElement _e = querySelector('#map');
-final ImageElement _img = _e.querySelector('selectors');
-final ButtonElement _backButton = _e.querySelector('button[type=reset]');
+import 'package:dnd_interactive/actions.dart';
 
-class GameMap {
-  String get image => _img.src;
-  set image(String image) {
-    _img.src = image;
+import '../communication.dart';
+
+final HtmlElement _e = querySelector('#map');
+final HtmlElement _mapContainer = _e.querySelector('#maps');
+final ButtonElement _backButton = _e.querySelector('button[type=reset]');
+final ButtonElement _imgButton = _e.querySelector('#changeMap');
+final InputElement _name = _e.querySelector('#mapName');
+
+class MapTab {
+  final maps = <GameMap>[];
+
+  int _currentMap = 0;
+  int get currentMap => _currentMap;
+  set currentMap(int currentMap) {
+    _currentMap = currentMap;
+    _mapContainer.style.left = '${currentMap * -100}%';
+    _name.value = maps[currentMap].name;
   }
 
   bool get visible => _e.classes.contains('show');
@@ -17,5 +28,67 @@ class GameMap {
 
   void initMapControls() {
     _backButton.onClick.listen((_) => visible = false);
+    visible = true;
+
+    window.onKeyDown.listen((ev) {
+      if (!visible || ev.target is InputElement) return;
+
+      if (ev.keyCode == 27) {
+        ev.preventDefault();
+        visible = false;
+        // Arrow key controls
+      } else if (ev.keyCode == 37 && currentMap > 0) {
+        currentMap--;
+      } else if (ev.keyCode == 39 && currentMap < maps.length - 1) {
+        currentMap++;
+      }
+    });
+
+    _imgButton.onClick.listen((_) {
+      print('change image');
+    });
+  }
+
+  void fromJson(Iterable json) {
+    maps.removeWhere((m) {
+      m._em.remove();
+      return true;
+    });
+
+    json.forEach((jMap) => addMap(jMap['id'], jMap['name']));
+    addMap(0, 'joe mam');
+    addMap(1, 'argh');
+    addMap(3, 'rips it off');
+
+    currentMap = 0;
+  }
+
+  void addMap(int id, String name) {
+    maps.add(GameMap(0, name: name));
+  }
+}
+
+class GameMap {
+  final int id;
+  HtmlElement _em;
+  HtmlElement _img;
+
+  String name;
+
+  set image(String image) {
+    _img.style.backgroundImage = 'url($image)';
+  }
+
+  GameMap(this.id, {this.name = ''}) {
+    _em = DivElement()
+      ..className = 'map'
+      ..append(_img = DivElement()..className = 'background');
+
+    //reloadImage(cacheBreak: false);
+    _mapContainer.append(_em);
+  }
+
+  void reloadImage({bool cacheBreak = true}) {
+    image = getGameFile('$IMAGE_TYPE_MAP$id.png', cacheBreak: cacheBreak);
   }
 }

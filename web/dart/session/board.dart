@@ -38,7 +38,7 @@ final HtmlElement _distanceText = querySelector('#distanceText');
 class Board {
   final Session session;
   final grid = Grid();
-  final map = GameMap();
+  final mapTab = MapTab();
   final movables = <Movable>[];
 
   bool get editingGrid => _container.classes.contains('edit');
@@ -136,7 +136,7 @@ class Board {
         if (event.target != document.activeElement) {
           (event.target as InputElement).focus();
         }
-      } else if (!map.visible &&
+      } else if (!mapTab.visible &&
           !event.path
               .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
         zoom -= event.deltaY.sign / 3;
@@ -176,12 +176,12 @@ class Board {
       } else if (ev.keyCode == 46 && session.isDM && selectedMovable != null) {
         _removeSelectedMovable();
       } else if (ev.key == 'm') {
-        map.visible = !map.visible;
+        mapTab.visible = !mapTab.visible;
       }
     });
 
     _initSelectionHandler();
-    map.initMapControls();
+    mapTab.initMapControls();
   }
 
   void _removeSelectedMovable() async {
@@ -270,7 +270,7 @@ class Board {
     Point measureStart;
     Point measureStartScaled;
     _container.onMouseDown.listen((event) async {
-      if (map.visible) return;
+      if (mapTab.visible) return;
 
       button = event.button;
       isBoardDrag = event.path.contains(_e);
@@ -476,5 +476,7 @@ class Board {
     for (var m in json['movables']) {
       onMovableCreate(m);
     }
+
+    mapTab.fromJson(json['maps'] ?? []);
   }
 }
