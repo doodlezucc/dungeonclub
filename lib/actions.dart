@@ -30,6 +30,10 @@ const GAME_SCENE_PLAY = 'gameScenePlay';
 
 const GAME_ROLL_DICE = 'gameRollDice';
 
+const GAME_MAP_CREATE = 'gameMapCreate';
+const GAME_MAP_UPDATE = 'gameMapUpdate';
+const GAME_MAP_REMOVE = 'gameMapRemove';
+
 const IMAGE_TYPE_PC = 'pc';
 const IMAGE_TYPE_SCENE = 'scene';
 const IMAGE_TYPE_ENTITY = 'entity';

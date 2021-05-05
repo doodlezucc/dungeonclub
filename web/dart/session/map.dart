@@ -2,7 +2,9 @@ import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
 
+import '../../main.dart';
 import '../communication.dart';
+import '../panels/upload.dart' as uploader;
 
 final HtmlElement _e = querySelector('#map');
 final HtmlElement _mapContainer = _e.querySelector('#maps');
@@ -44,9 +46,36 @@ class MapTab {
       }
     });
 
-    _imgButton.onClick.listen((_) {
-      print('change image');
+    _imgButton.onClick.listen((_) async {
+      if (maps.isEmpty) {
+        var id = await uploader.display(
+          action: GAME_MAP_CREATE,
+          type: IMAGE_TYPE_MAP,
+        );
+
+        if (id != null) addMap(id, '');
+      } else {
+        var map = maps[currentMap];
+
+        var img = await uploader.display(
+          action: GAME_MAP_UPDATE,
+          type: IMAGE_TYPE_MAP,
+          extras: {'id': map.id},
+        );
+
+        if (img != null) {
+          map.reloadImage();
+        }
+      }
     });
+  }
+
+  void _onFirstUpload() {
+    currentMap = 0;
+    _imgButton.text = 'Change image';
+    if (user.session.isDM) {
+      _name.disabled = false;
+    }
   }
 
   void fromJson(Iterable json) {
@@ -56,15 +85,25 @@ class MapTab {
     });
 
     json.forEach((jMap) => addMap(jMap['id'], jMap['name']));
-    addMap(0, 'joe mam');
-    addMap(1, 'argh');
-    addMap(3, 'rips it off');
-
-    currentMap = 0;
+    if (maps.isNotEmpty) {
+      _onFirstUpload();
+    }
   }
 
   void addMap(int id, String name) {
     maps.add(GameMap(0, name: name));
+    if (maps.length == 1) _onFirstUpload();
+  }
+
+  void onMapUpdate(Map<String, dynamic> json) {
+    var map = maps.firstWhere((m) => m.id == json['id']);
+    var name = json['name'];
+    if (name != null) {
+      map.name = name;
+      if (maps[currentMap] == map) _name.value = map.name;
+    } else {
+      map.reloadImage();
+    }
   }
 }
 
@@ -84,7 +123,7 @@ class GameMap {
       ..className = 'map'
       ..append(_img = DivElement()..className = 'background');
 
-    //reloadImage(cacheBreak: false);
+    reloadImage(cacheBreak: false);
     _mapContainer.append(_em);
   }
 

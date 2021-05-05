@@ -58,6 +58,8 @@ class Session extends Game {
 
       querySelector('#session').classes.toggle('is-dm', isDM);
 
+      _board.mapTab.fromJson(json['maps'] ?? []);
+
       if (isDM) {
         int sceneCount = json['dm']['scenes'];
         for (var i = 0; i < sceneCount; i++) {

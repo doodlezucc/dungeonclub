@@ -332,6 +332,26 @@ class Connection extends Socket {
           _game.notify(action, results, exclude: this, allScenes: true);
         }
         return results;
+
+      case a.GAME_MAP_CREATE:
+        var id = _game.addMap();
+        await _uploadGameImageJson(params, id: id);
+        _game.notify(action, {'map': id}, exclude: this, allScenes: true);
+        return id;
+
+      case a.GAME_MAP_UPDATE:
+        int id = params['id'];
+        String name = params['name'];
+
+        if (name != null) {
+          _game.updateMap(id, name);
+          return true;
+        }
+
+        await _uploadGameImageJson(params);
+        _game.notify(action, {'map': id, 'name': name},
+            exclude: this, allScenes: true);
+        return true;
     }
   }
 

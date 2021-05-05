@@ -149,11 +149,13 @@ class Game {
   Scene get playingScene =>
       playingSceneId < _scenes.length ? _scenes[playingSceneId] : null;
   int get nextPrefabId => _prefabs.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
+  int get nextMapId => _maps.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
 
   final _connections = <Connection>[];
   final List<PlayerCharacter> _characters;
   final List<Scene> _scenes;
   final List<CustomPrefab> _prefabs;
+  final List<GameMap> _maps;
   int playingSceneId = 0;
 
   static String _generateId() {
@@ -185,7 +187,8 @@ class Game {
       : id = _generateId(),
         _scenes = [Scene({})],
         _characters = [],
-        _prefabs = [];
+        _prefabs = [],
+        _maps = [];
 
   void connect(Connection connection, bool join) {
     notify(a.GAME_CONNECTION, {
@@ -304,6 +307,15 @@ class Game {
     return _characters[index]..connection = c;
   }
 
+  int addMap() {
+    var map = GameMap(nextMapId, '');
+    _maps.add(map);
+    return map.id;
+  }
+
+  void updateMap(int id, String name) =>
+      _maps.firstWhere((m) => m.id == id).name = name;
+
   Game.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         name = json['name'],
@@ -313,7 +325,10 @@ class Game {
             .map((j) => PlayerCharacter.fromJson(j))
             .toList(),
         _prefabs = List.from(json['prefabs'] ?? [])
-            .map((e) => CustomPrefab.fromJson(e))
+            .map((j) => CustomPrefab.fromJson(j))
+            .toList(),
+        _maps = List.from(json['maps'] ?? [])
+            .map((j) => GameMap.fromJson(j))
             .toList();
 
   Map<String, dynamic> toJson() => {
@@ -324,6 +339,7 @@ class Game {
         'pcs': _characters.map((e) => e.toJson()).toList(),
         'scenes': _scenes.map((e) => e.toJson()).toList(),
         'prefabs': _prefabs.map((e) => e.toJson()).toList(),
+        'maps': _maps.map((e) => e.toJson()).toList(),
       };
 
   Map<String, dynamic> toSnippet(Account acc) => {
@@ -339,6 +355,7 @@ class Game {
       'sceneId': playingSceneId,
       'scene': playingScene.toJson(),
       'pcs': _characters.map((e) => e.toJson()).toList(),
+      'maps': _maps.map((e) => e.toJson()).toList(),
       if (mine != null) 'mine': mine,
       'prefabs': _prefabs.map((e) => e.toJson()).toList(),
       if (owner == c.account) 'dm': {'scenes': _scenes.length},
@@ -353,6 +370,16 @@ class Game {
     _characters.addAll(pcs.map((e) => PlayerCharacter.fromJson(e)));
     return true;
   }
+}
+
+class GameMap {
+  final int id;
+  String name;
+
+  GameMap(this.id, this.name);
+  GameMap.fromJson(json) : this(json['id'], json['name']);
+
+  Map<String, dynamic> toJson() => {'id': id, 'name': name};
 }
 
 class PlayerCharacter {

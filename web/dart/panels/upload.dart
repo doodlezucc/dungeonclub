@@ -197,6 +197,7 @@ void _resizeOutside() {
 
 int _getMaxRes(String type) {
   switch (type) {
+    case IMAGE_TYPE_MAP:
     case IMAGE_TYPE_SCENE:
       return 2048;
     case IMAGE_TYPE_PC:

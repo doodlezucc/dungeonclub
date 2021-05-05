@@ -476,7 +476,5 @@ class Board {
     for (var m in json['movables']) {
       onMovableCreate(m);
     }
-
-    mapTab.fromJson(json['maps'] ?? []);
   }
 }
