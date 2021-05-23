@@ -35,7 +35,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.5.0"
+    version: "2.7.0"
   bazel_worker:
     dependency: transitive
     description:
@@ -112,7 +112,7 @@ packages:
       name: built_value
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "8.0.4"
+    version: "8.0.6"
   charcode:
     dependency: transitive
     description:
@@ -456,6 +456,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
+  web_whiteboard:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "2c3565dc78957121d1d3f0fbb62dec455f44029a"
+      url: "https://github.com/doodlezucc/web_whiteboard.git"
+    source: git
+    version: "0.0.0"
   yaml:
     dependency: transitive
     description:

@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'dart:html';
+import 'dart:typed_data';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:web_whiteboard/whiteboard.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -84,14 +87,16 @@ class MapTab {
       return true;
     });
 
-    json.forEach((jMap) => addMap(jMap['id'], jMap['name']));
+    json.forEach((jMap) => addMap(jMap['id'], jMap['name'], jMap['data']));
     if (maps.isNotEmpty) {
       _onFirstUpload();
     }
   }
 
-  void addMap(int id, String name) {
-    maps.add(GameMap(0, name: name));
+  void addMap(int id, String name, [String encodedData]) {
+    var map = GameMap(0, name: name, encodedData: encodedData);
+    maps.add(map);
+
     if (maps.length == 1) _onFirstUpload();
   }
 
@@ -105,29 +110,55 @@ class MapTab {
       map.reloadImage();
     }
   }
+
+  void handleEvent(Uint8List bytes) {
+    maps[bytes.first].whiteboard.socket.handleEventBytes(bytes.sublist(1));
+  }
 }
 
 class GameMap {
   final int id;
   HtmlElement _em;
-  HtmlElement _img;
+  HtmlElement _container;
+  Whiteboard whiteboard;
 
   String name;
 
-  set image(String image) {
-    _img.style.backgroundImage = 'url($image)';
-  }
-
-  GameMap(this.id, {this.name = ''}) {
+  GameMap(this.id, {this.name = '', String encodedData}) {
     _em = DivElement()
       ..className = 'map'
-      ..append(_img = DivElement()..className = 'background');
+      ..append(_container = DivElement());
 
-    reloadImage(cacheBreak: false);
     _mapContainer.append(_em);
+
+    whiteboard = Whiteboard(_container)
+      ..mode = Whiteboard.modeDraw
+      ..socket.sendStream.listen(
+          (data) => socket.send(Uint8List.fromList([id, ...data]).buffer));
+
+    if (encodedData != null) {
+      whiteboard.fromBytes(base64.decode(encodedData));
+    } else {
+      for (var i = 0; i <= user.session.characters.length; i++) {
+        whiteboard.addDrawingLayer();
+      }
+    }
+
+    // Assign user their own exclusive drawing layer
+    whiteboard.layerIndex = 1 + (user.session.charId ?? -1);
+    reloadImage(cacheBreak: false);
   }
 
-  void reloadImage({bool cacheBreak = true}) {
-    image = getGameFile('$IMAGE_TYPE_MAP$id.png', cacheBreak: cacheBreak);
+  void reloadImage({bool cacheBreak = true}) async {
+    var src = getGameFile('$IMAGE_TYPE_MAP$id.png', cacheBreak: cacheBreak);
+
+    _container.style.width = '100%';
+    await whiteboard.changeBackground(src);
+    var img = _container.querySelector('image');
+
+    var bestWidth = img.getBoundingClientRect().width;
+    _container.style.width = '${bestWidth}px';
+    whiteboard.updateScaling();
+    whiteboard.updateScaling();
   }
 }

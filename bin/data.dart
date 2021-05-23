@@ -9,6 +9,9 @@ import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/point_json.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
+import 'package:web_whiteboard/communication/data_socket.dart';
+import 'package:web_whiteboard/layers/drawing_data.dart';
+import 'package:web_whiteboard/whiteboard_data.dart';
 
 import 'connections.dart';
 import 'server.dart';
@@ -210,14 +213,6 @@ class Game {
     }
   }
 
-  void addPC(String name) {
-    _characters.add(PlayerCharacter(name));
-  }
-
-  void removePC(int index) {
-    _characters.removeAt(index);
-  }
-
   CustomPrefab addPrefab() {
     var p = CustomPrefab(nextPrefabId, 1);
     _prefabs.add(p);
@@ -309,12 +304,27 @@ class Game {
 
   int addMap() {
     var map = GameMap(nextMapId, '');
+    for (var i = 0; i <= _characters.length; i++) {
+      map.data.layers.add(DrawingData());
+    }
     _maps.add(map);
     return map.id;
   }
 
   void updateMap(int id, String name) =>
       _maps.firstWhere((m) => m.id == id).name = name;
+
+  void handleMapEvent(List<int> bytes, Connection sender) {
+    var mapIndex = bytes[0];
+    var map = _maps[mapIndex];
+    if (map.dataSocket.handleEvent(bytes.sublist(1))) {
+      for (var conni in connections) {
+        if (conni != sender) {
+          conni.send(bytes);
+        }
+      }
+    }
+  }
 
   Game.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -363,23 +373,52 @@ class Game {
   }
 
   bool applyChanges(Map<String, dynamic> data) {
+    var charCount = _characters.length;
     _characters.clear();
     name = data['name'];
     var pcs = List.from(data['pcs']);
     if (pcs.length >= 20) return false;
     _characters.addAll(pcs.map((e) => PlayerCharacter.fromJson(e)));
+
+    if (charCount != pcs.length) {
+      for (var map in _maps) {
+        map.setLayers(pcs.length + 1);
+      }
+    }
+
     return true;
   }
 }
 
 class GameMap {
   final int id;
+  final dataSocket = WhiteboardDataSocket(WhiteboardData());
   String name;
 
-  GameMap(this.id, this.name);
-  GameMap.fromJson(json) : this(json['id'], json['name']);
+  WhiteboardData get data => dataSocket.whiteboard;
 
-  Map<String, dynamic> toJson() => {'id': id, 'name': name};
+  GameMap(this.id, this.name, [String encodedData]) {
+    if (encodedData != null) {
+      data.fromBytes(base64.decode(encodedData));
+    }
+  }
+
+  GameMap.fromJson(json) : this(json['id'], json['name'], json['data']);
+
+  void setLayers(int layerCount) {
+    while (data.layers.length > layerCount) {
+      data.layers.removeLast();
+    }
+    while (data.layers.length < layerCount) {
+      data.layers.add(DrawingData());
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'data': base64.encode(data.toBytes()),
+      };
 }
 
 class PlayerCharacter {

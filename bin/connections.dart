@@ -421,4 +421,11 @@ class Connection extends Socket {
 
     return result;
   }
+
+  @override
+  void handleBinary(data) {
+    if (_game != null) {
+      _game.handleMapEvent(data, this);
+    }
+  }
 }

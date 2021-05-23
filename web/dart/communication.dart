@@ -63,4 +63,9 @@ class FrontSocket extends Socket {
   @override
   Future handleAction(String action, [Map<String, dynamic> params]) =>
       handler.handleAction(action, params);
+
+  @override
+  void handleBinary(data) {
+    user.session?.board?.mapTab?.handleEvent(data);
+  }
 }

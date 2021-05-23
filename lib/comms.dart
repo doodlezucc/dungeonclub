@@ -48,8 +48,12 @@ abstract class Socket {
               await send('r' + jsonEncode({'id': id, 'result': result}));
             }
           }
+        } else {
+          handleBinary(data);
         }
       }, onDone: onDone, onError: onError);
+
+  void handleBinary(data);
 
   Future request(String action, [Map<String, dynamic> params]) async {
     var myId = _jobId++;

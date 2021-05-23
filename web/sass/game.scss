@@ -607,20 +607,40 @@
     }
 
     .map {
+        display: flex;
+        justify-content: center;
         align-items: center;
         min-width: 100%;
         height: 100%;
         box-sizing: border-box;
         padding: 0 20px;
 
-        > .background {
-            width: 100%;
+        > div {
             height: 100%;
-            background-image: url("https://via.placeholder.com/1000");
-            background-size: contain;
-            background-position: center;
+        }
+        
+        image {
             background-repeat: no-repeat;
         }
+
+        text {
+            cursor: default;
+            user-select: none;
+            paint-order: stroke;
+            stroke-linejoin: round;
+            fill: #222;
+            stroke: #fff;
+            stroke-width: 6px;
+        }
+
+        &[mode=text] text {
+            outline: 1px solid #0007;
+            cursor: move;
+        
+            &:hover {
+                outline: 1px solid #000d;
+            }
+          }
     }
 
     &:not(.show) {
@@ -634,3 +654,65 @@
         }
     }
 }
+  
+  #whiteboardPin {
+    fill: #fffa;
+    stroke: black;
+    stroke-width: 2px;
+    animation: pin-pulse 4s ease-in-out infinite;
+    opacity: 0;
+  }
+  #whiteboardPin.visible {
+    opacity: 1;
+  }
+  
+  @keyframes pin-pulse {
+      0% { r: 10 }
+     50% { r: 15 }
+    100% { r: 10 }
+  }
+  
+  svg 
+  
+  #whiteboardTextControls {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    gap: 6px;
+    transform: translate(-50%, calc(-100% - 24px));
+    background-color: white;
+    box-shadow: 0 0 4px #0005;
+    transition-property: opacity, transform;
+    transition-duration: 0.2s;
+  }
+  #whiteboardTextControls.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 8px));
+  }
+  
+  #whiteboardTextControls span {
+    display: flex;
+    gap: inherit;
+    align-items: center;
+  }
+  
+  #whiteboardTextControls textarea, #whiteboardTextControls input {
+    resize: none;
+    border: none;
+    outline: 1px solid #aaa;
+  }
+  
+  #whiteboardTextControls textarea {
+    width: 400px;
+    height: 60px;
+    overflow: auto;
+    white-space: nowrap;
+  }
+  
+  #whiteboardTextControls input {
+    padding: 4px;
+    width: 40px;
+    margin-right: auto;
+  }
