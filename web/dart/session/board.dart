@@ -168,7 +168,7 @@ class Board {
     });
 
     window.onKeyDown.listen((ev) {
-      if (ev.target is InputElement) return;
+      if (ev.target is InputElement || ev.target is TextAreaElement) return;
 
       if (ev.keyCode == 27 && selectedPrefab != null) {
         ev.preventDefault();

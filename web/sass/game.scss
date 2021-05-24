@@ -570,7 +570,7 @@
 
 #map {
     @extend %vertical;
-    justify-content: space-between;
+    justify-content: center;
     position: absolute;
     z-index: 10;
     background-color: #000d;
@@ -607,6 +607,43 @@
         transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
     }
 
+    #mapTools {
+        position: absolute;
+        left: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        > div {
+            display: grid;
+            grid-template-columns: auto auto;
+            background-color: #aaa;
+            border-radius: base.$radius;
+            border: 1px solid #ddd;
+            gap: 1px;
+            overflow: hidden;
+        }
+
+        button {
+            background-color: var(--color-background);
+            border-radius: 0;
+
+            &:hover {
+                background-color: var(--color-button-hover);
+            }
+            &.active {
+                background-color: var(--color-button-active);
+                color: var(--color-primary);
+            }
+
+            &[mode=text] {
+                font-weight: bold;
+                font-family: Georgia, 'Times New Roman', Times, serif;
+                font-size: 20px;
+            }
+        }
+    }
+
     .map {
         display: flex;
         justify-content: center;
@@ -619,30 +656,30 @@
 
         > div {
             height: 100%;
+
+            text {
+                cursor: default;
+                user-select: none;
+                paint-order: stroke;
+                stroke-linejoin: round;
+                fill: #fff;
+                stroke: #222;
+                stroke-width: 5px;
+            }
+
+            &[mode=text] text {
+                outline: 1px dashed #fffd;
+                cursor: move;
+
+                &:hover {
+                    outline: 1px solid #fffa;
+                }
+            }
         }
-        
+
         image {
             background-repeat: no-repeat;
         }
-
-        text {
-            cursor: default;
-            user-select: none;
-            paint-order: stroke;
-            stroke-linejoin: round;
-            fill: #222;
-            stroke: #fff;
-            stroke-width: 6px;
-        }
-
-        &[mode=text] text {
-            outline: 1px solid #0007;
-            cursor: move;
-        
-            &:hover {
-                outline: 1px solid #000d;
-            }
-          }
     }
 
     &:not(.show) {
@@ -682,10 +719,11 @@
     padding: 6px;
     gap: 6px;
     transform: translate(-50%, calc(-100% - 24px));
-    background-color: white;
+    background-color: var(--color-background);
     box-shadow: 0 0 4px #0005;
     transition-property: opacity, transform;
     transition-duration: 0.2s;
+    font-size: 16px;
 
     &.hidden {
         opacity: 0;
@@ -698,12 +736,6 @@
         gap: inherit;
         align-items: center;
     }
-
-    textarea, input {
-        resize: none;
-        border: none;
-        outline: 1px solid #aaa;
-    }
     
     textarea {
         width: 400px;
@@ -713,9 +745,6 @@
     }
     
     input {
-        padding: 4px;
-        width: 40px;
         margin-right: auto;
     }
-
 }

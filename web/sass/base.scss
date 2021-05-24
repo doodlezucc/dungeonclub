@@ -193,6 +193,32 @@ button.toggle.active {
     color: var(--color-bad) !important;
 }
 
+textarea {
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    border: 1px solid var(--color-input-underline);
+    transition-property: border-color;
+    transition-duration: 0.1s;
+    margin: 1px;
+    background-color: transparent;
+    color: inherit;
+    padding: 2px 3px;
+    resize: none;
+
+    &:enabled:hover {
+        border: 2px solid var(--color-input-underline);
+        margin: 0;
+    }
+    &:enabled:focus {
+        border: 2px solid var(--color-input-active);
+        margin: 0;
+    }
+    &:disabled {
+        opacity: 0.5;
+    }
+}
+
 input {
     font-family: inherit;
     font-size: inherit;

@@ -14,6 +14,7 @@ final HtmlElement _mapContainer = _e.querySelector('#maps');
 final ButtonElement _backButton = _e.querySelector('button[type=reset]');
 final ButtonElement _imgButton = _e.querySelector('#changeMap');
 final InputElement _name = _e.querySelector('#mapName');
+final HtmlElement _tools = _e.querySelector('#mapTools');
 
 class MapTab {
   final maps = <GameMap>[];
@@ -24,6 +25,26 @@ class MapTab {
     _currentMap = currentMap;
     _mapContainer.style.left = '${currentMap * -100}%';
     _name.value = maps[currentMap].name;
+    maps[currentMap].whiteboard.mode = mode;
+  }
+
+  String _mode;
+  String get mode => _mode;
+  set mode(String mode) {
+    _mode = mode;
+    _tools.querySelectorAll('.active').classes.remove('active');
+    _tools.querySelector('[mode=$mode]').classes.add('active');
+
+    if (maps.isNotEmpty) {
+      var wb = maps[currentMap].whiteboard;
+      if (mode == 'erase') {
+        wb.mode = 'draw';
+        wb.eraser = true;
+      } else {
+        wb.mode = mode;
+        wb.eraser = false;
+      }
+    }
   }
 
   bool get visible => _e.classes.contains('show');
@@ -36,7 +57,11 @@ class MapTab {
     visible = true;
 
     window.onKeyDown.listen((ev) {
-      if (!visible || ev.target is InputElement) return;
+      if (!visible ||
+          ev.target is InputElement ||
+          ev.target is TextAreaElement) {
+        return;
+      }
 
       if (ev.keyCode == 27) {
         ev.preventDefault();
@@ -71,6 +96,16 @@ class MapTab {
         }
       }
     });
+
+    _tools.children[0].children.forEach((element) {
+      if (element is ButtonElement) {
+        element.onClick.listen((_) {
+          mode = element.attributes['mode'];
+        });
+      }
+    });
+
+    mode = Whiteboard.modeDraw;
   }
 
   void _onFirstUpload() {
@@ -132,7 +167,6 @@ class GameMap {
     _mapContainer.append(_em);
 
     whiteboard = Whiteboard(_container)
-      ..mode = Whiteboard.modeDraw
       ..socket.sendStream.listen(
           (data) => socket.send(Uint8List.fromList([id, ...data]).buffer));
 
