@@ -147,18 +147,24 @@ class GameMap {
     // Assign user their own exclusive drawing layer
     whiteboard.layerIndex = 1 + (user.session.charId ?? -1);
     reloadImage(cacheBreak: false);
+
+    window.onResize.listen((_) => _fixScaling());
   }
 
-  void reloadImage({bool cacheBreak = true}) async {
-    var src = getGameFile('$IMAGE_TYPE_MAP$id.png', cacheBreak: cacheBreak);
-
+  void _fixScaling() {
     _container.style.width = '100%';
-    await whiteboard.changeBackground(src);
+    whiteboard.updateScaling();
     var img = _container.querySelector('image');
 
     var bestWidth = img.getBoundingClientRect().width;
     _container.style.width = '${bestWidth}px';
     whiteboard.updateScaling();
-    whiteboard.updateScaling();
+  }
+
+  void reloadImage({bool cacheBreak = true}) async {
+    var src = getGameFile('$IMAGE_TYPE_MAP$id.png', cacheBreak: cacheBreak);
+
+    await whiteboard.changeBackground(src);
+    _fixScaling();
   }
 }
