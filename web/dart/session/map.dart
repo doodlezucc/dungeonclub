@@ -3,6 +3,7 @@ import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:web_whiteboard/communication/web_socket.dart';
 import 'package:web_whiteboard/whiteboard.dart';
 
 import '../../main.dart';
@@ -24,9 +25,12 @@ class MapTab {
   set currentMap(int currentMap) {
     _currentMap = currentMap;
     _mapContainer.style.left = '${currentMap * -100}%';
-    _name.value = maps[currentMap].name;
-    maps[currentMap].whiteboard.mode = mode;
+    _name.value = map.name;
+    map.whiteboard.mode = mode;
+    _updateButtons();
   }
+
+  GameMap get map => maps.isNotEmpty ? maps[currentMap] : null;
 
   String _mode;
   String get mode => _mode;
@@ -50,6 +54,14 @@ class MapTab {
   bool get visible => _e.classes.contains('show');
   set visible(bool visible) {
     _e.classes.toggle('show', visible);
+  }
+
+  ButtonElement _toolBtn(String name) => _tools.querySelector('[action=$name]');
+
+  void _updateButtons() {
+    _toolBtn('clear').disabled = map.whiteboard.isClear;
+    _toolBtn('undo').disabled = map.whiteboard.history.positionInStack == 0;
+    _toolBtn('redo').disabled = !map.whiteboard.history.canRedo;
   }
 
   void initMapControls() {
@@ -82,18 +94,6 @@ class MapTab {
         );
 
         if (id != null) addMap(id, '');
-      } else {
-        var map = maps[currentMap];
-
-        var img = await uploader.display(
-          action: GAME_MAP_UPDATE,
-          type: IMAGE_TYPE_MAP,
-          extras: {'id': map.id},
-        );
-
-        if (img != null) {
-          map.reloadImage();
-        }
       }
     });
 
@@ -105,12 +105,38 @@ class MapTab {
       }
     });
 
+    void _registerAction(String name, void Function() action) {
+      _tools.querySelector('[action=$name]').onClick.listen((_) => action());
+    }
+
+    void _clearMap() {
+      map?.whiteboard?.clear();
+      _toolBtn('clear').disabled = true;
+    }
+
+    _registerAction('undo', () => map?.whiteboard?.history?.undo());
+    _registerAction('redo', () => map?.whiteboard?.history?.redo());
+    _registerAction('clear', () => _clearMap());
+    _registerAction('change', () async {
+      var img = await uploader.display(
+        action: GAME_MAP_UPDATE,
+        type: IMAGE_TYPE_MAP,
+        extras: {'id': map.id},
+      );
+
+      if (img != null) {
+        _clearMap();
+        map.reloadImage();
+      }
+    });
+
     mode = Whiteboard.modeDraw;
   }
 
   void _onFirstUpload() {
     currentMap = 0;
-    _imgButton.text = 'Change image';
+    _imgButton.remove();
+    _tools.classes.remove('hidden');
     if (user.session.isDM) {
       _name.disabled = false;
     }
@@ -129,14 +155,15 @@ class MapTab {
   }
 
   void addMap(int id, String name, [String encodedData]) {
-    var map = GameMap(0, name: name, encodedData: encodedData);
+    var map = GameMap(id, name: name, encodedData: encodedData);
+    map.whiteboard.history.onChange.listen((_) => _updateButtons());
     maps.add(map);
 
     if (maps.length == 1) _onFirstUpload();
   }
 
   void onMapUpdate(Map<String, dynamic> json) {
-    var map = maps.firstWhere((m) => m.id == json['id']);
+    var map = maps.firstWhere((m) => m.id == json['map']);
     var name = json['name'];
     if (name != null) {
       map.name = name;
@@ -146,7 +173,8 @@ class MapTab {
     }
   }
 
-  void handleEvent(Uint8List bytes) {
+  void handleEvent(Blob blob) async {
+    var bytes = await blobToBytes(blob);
     maps[bytes.first].whiteboard.socket.handleEventBytes(bytes.sublist(1));
   }
 }
