@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:typed_data';
 
+import 'package:async/async.dart';
 import 'package:dnd_interactive/actions.dart';
 import 'package:web_whiteboard/communication/web_socket.dart';
 import 'package:web_whiteboard/whiteboard.dart';
@@ -21,8 +22,8 @@ class MapTab {
   final maps = <GameMap>[];
 
   int _currentMap = 0;
-  int get currentMap => _currentMap;
-  set currentMap(int currentMap) {
+  int get mapIndex => _currentMap;
+  set mapIndex(int currentMap) {
     _currentMap = currentMap;
     _mapContainer.style.left = '${currentMap * -100}%';
     _name.value = map.name;
@@ -30,7 +31,7 @@ class MapTab {
     _updateButtons();
   }
 
-  GameMap get map => maps.isNotEmpty ? maps[currentMap] : null;
+  GameMap get map => maps.isNotEmpty ? maps[mapIndex] : null;
 
   String _mode;
   String get mode => _mode;
@@ -40,7 +41,7 @@ class MapTab {
     _tools.querySelector('[mode=$mode]').classes.add('active');
 
     if (maps.isNotEmpty) {
-      var wb = maps[currentMap].whiteboard;
+      var wb = maps[mapIndex].whiteboard;
       if (mode == 'erase') {
         wb.mode = 'draw';
         wb.eraser = true;
@@ -79,10 +80,10 @@ class MapTab {
         ev.preventDefault();
         visible = false;
         // Arrow key controls
-      } else if (ev.keyCode == 37 && currentMap > 0) {
-        currentMap--;
-      } else if (ev.keyCode == 39 && currentMap < maps.length - 1) {
-        currentMap++;
+      } else if (ev.keyCode == 37 && mapIndex > 0) {
+        mapIndex--;
+      } else if (ev.keyCode == 39 && mapIndex < maps.length - 1) {
+        mapIndex++;
       }
     });
 
@@ -105,36 +106,72 @@ class MapTab {
       }
     });
 
-    void _registerAction(String name, void Function() action) {
+    void registerAction(String name, void Function() action) {
       _tools.querySelector('[action=$name]').onClick.listen((_) => action());
     }
 
-    void _clearMap() {
+    void clearMap() {
       map?.whiteboard?.clear();
       _toolBtn('clear').disabled = true;
     }
 
-    _registerAction('undo', () => map?.whiteboard?.history?.undo());
-    _registerAction('redo', () => map?.whiteboard?.history?.redo());
-    _registerAction('clear', () => _clearMap());
-    _registerAction('change', () async {
+    registerAction('undo', () => map?.whiteboard?.history?.undo());
+    registerAction('redo', () => map?.whiteboard?.history?.redo());
+    registerAction('clear', () => clearMap());
+    registerAction('change', () async {
       var img = await uploader.display(
         action: GAME_MAP_UPDATE,
         type: IMAGE_TYPE_MAP,
-        extras: {'id': map.id},
+        extras: {'map': map.id},
       );
 
       if (img != null) {
-        _clearMap();
+        clearMap();
         map.reloadImage();
       }
     });
 
+    _initMapName();
+
     mode = Whiteboard.modeDraw;
   }
 
+  void _initMapName() {
+    ButtonElement confirmBtn = _name.nextElementSibling;
+    var nameConfirm = StreamGroup.merge(<Stream>[
+      _name.onKeyDown.where((ev) => ev.keyCode == 13),
+      confirmBtn.onMouseDown,
+    ]);
+
+    var focus = false;
+    String bufferedName;
+    _name.onFocus.listen((_) {
+      focus = true;
+      bufferedName = _name.value;
+    });
+    _name.onInput.listen((_) => confirmBtn.classes.remove('hidden'));
+    _name.onBlur.listen((_) async {
+      await Future.delayed(Duration(milliseconds: 50));
+      if (focus) {
+        _name.value = bufferedName;
+        confirmBtn.classes.add('hidden');
+        focus = false;
+      }
+    });
+
+    nameConfirm.listen((_) {
+      if (focus) {
+        focus = false;
+        confirmBtn.classes.add('hidden');
+        _name.blur();
+        socket.sendAction(
+            GAME_MAP_UPDATE, {'map': mapIndex, 'name': _name.value});
+      }
+    });
+  }
+
   void _onFirstUpload() {
-    currentMap = 0;
+    mapIndex = 0;
     _imgButton.remove();
     _tools.classes.remove('hidden');
     if (user.session.isDM) {
@@ -167,7 +204,7 @@ class MapTab {
     var name = json['name'];
     if (name != null) {
       map.name = name;
-      if (maps[currentMap] == map) _name.value = map.name;
+      if (maps[mapIndex] == map) _name.value = map.name;
     } else {
       map.reloadImage();
     }

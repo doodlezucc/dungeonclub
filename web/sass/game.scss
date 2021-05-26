@@ -593,8 +593,24 @@
         bottom: 16px;
     }
 
-    > input {
-        text-align: center;
+    > span {
+        position: relative;
+
+        > input {
+            text-align: center;
+            opacity: 1 !important;
+        }
+
+        > button {
+            position: absolute;
+            left: 100%;
+            margin-left: 4px;
+
+            &.hidden {
+                opacity: 0;
+                cursor: default;
+            }
+        }
     }
 
     > #maps {

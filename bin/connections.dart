@@ -340,17 +340,18 @@ class Connection extends Socket {
         return id;
 
       case a.GAME_MAP_UPDATE:
-        int id = params['id'];
+        int id = params['map'];
         String name = params['name'];
 
         if (name != null) {
           _game.updateMap(id, name);
+          _game.notify(action, {'map': id, 'name': name},
+              exclude: this, allScenes: true);
           return true;
         }
 
         await _uploadGameImageJson(params);
-        _game.notify(action, {'map': id, 'name': name},
-            exclude: this, allScenes: true);
+        _game.notify(action, {'map': id}, exclude: this, allScenes: true);
         return true;
     }
   }
