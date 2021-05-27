@@ -18,6 +18,9 @@ final ButtonElement _imgButton = _e.querySelector('#changeMap');
 final InputElement _name = _e.querySelector('#mapName');
 final HtmlElement _tools = _e.querySelector('#mapTools');
 
+final ButtonElement _navLeft = _name.previousElementSibling;
+final ButtonElement _navRight = _name.parent.children.last;
+
 class MapTab {
   final maps = <GameMap>[];
 
@@ -28,7 +31,9 @@ class MapTab {
     _mapContainer.style.left = '${currentMap * -100}%';
     _name.value = map.name;
     map.whiteboard.mode = mode;
-    _updateButtons();
+    map._fixScaling();
+    _updateHistoryButtons();
+    _updateNavigateButtons();
   }
 
   GameMap get map => maps.isNotEmpty ? maps[mapIndex] : null;
@@ -57,12 +62,36 @@ class MapTab {
     _e.classes.toggle('show', visible);
   }
 
+  void _updateNavigateButtons() {
+    _navLeft.disabled = mapIndex == 0;
+
+    if (user.session.isDM) {
+      var icon = mapIndex == maps.length - 1 ? 'plus' : 'chevron-right';
+      _navRight.children.first.className = 'fas fa-$icon';
+    } else {
+      _navLeft.disabled = mapIndex == maps.length - 1;
+    }
+  }
+
   ButtonElement _toolBtn(String name) => _tools.querySelector('[action=$name]');
 
-  void _updateButtons() {
+  void _updateHistoryButtons() {
     _toolBtn('clear').disabled = map.whiteboard.isClear;
     _toolBtn('undo').disabled = map.whiteboard.history.positionInStack == 0;
     _toolBtn('redo').disabled = !map.whiteboard.history.canRedo;
+  }
+
+  Future<bool> _uploadNewMap() async {
+    var id = await uploader.display(
+      action: GAME_MAP_CREATE,
+      type: IMAGE_TYPE_MAP,
+    );
+
+    if (id != null) {
+      addMap(id, '');
+      return true;
+    }
+    return false;
   }
 
   void initMapControls() {
@@ -87,14 +116,18 @@ class MapTab {
       }
     });
 
-    _imgButton.onClick.listen((_) async {
-      if (maps.isEmpty) {
-        var id = await uploader.display(
-          action: GAME_MAP_CREATE,
-          type: IMAGE_TYPE_MAP,
-        );
+    _navLeft.onClick.listen((_) => mapIndex--);
+    _navRight.onClick.listen((_) async {
+      if (user.session.isDM &&
+          mapIndex == maps.length - 1 &&
+          !await _uploadNewMap()) return;
 
-        if (id != null) addMap(id, '');
+      mapIndex++;
+    });
+
+    _imgButton.onClick.listen((_) {
+      if (maps.isEmpty) {
+        _uploadNewMap();
       }
     });
 
@@ -137,24 +170,23 @@ class MapTab {
   }
 
   void _initMapName() {
-    ButtonElement confirmBtn = _name.nextElementSibling;
+    HtmlElement parent = _name.parent;
+    ButtonElement confirmBtn = parent.querySelector('.dm');
     var nameConfirm = StreamGroup.merge(<Stream>[
       _name.onKeyDown.where((ev) => ev.keyCode == 13),
       confirmBtn.onMouseDown,
     ]);
 
     var focus = false;
-    String bufferedName;
     _name.onFocus.listen((_) {
       focus = true;
-      bufferedName = _name.value;
+      parent.classes.add('focus');
     });
-    _name.onInput.listen((_) => confirmBtn.classes.remove('hidden'));
     _name.onBlur.listen((_) async {
       await Future.delayed(Duration(milliseconds: 50));
       if (focus) {
-        _name.value = bufferedName;
-        confirmBtn.classes.add('hidden');
+        _name.value = map.name;
+        parent.classes.remove('focus');
         focus = false;
       }
     });
@@ -162,8 +194,9 @@ class MapTab {
     nameConfirm.listen((_) {
       if (focus) {
         focus = false;
-        confirmBtn.classes.add('hidden');
+        parent.classes.remove('focus');
         _name.blur();
+        map.name = _name.value;
         socket.sendAction(
             GAME_MAP_UPDATE, {'map': mapIndex, 'name': _name.value});
       }
@@ -193,7 +226,7 @@ class MapTab {
 
   void addMap(int id, String name, [String encodedData]) {
     var map = GameMap(id, name: name, encodedData: encodedData);
-    map.whiteboard.history.onChange.listen((_) => _updateButtons());
+    map.whiteboard.history.onChange.listen((_) => _updateHistoryButtons());
     maps.add(map);
 
     if (maps.length == 1) _onFirstUpload();

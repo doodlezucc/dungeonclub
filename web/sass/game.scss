@@ -579,6 +579,20 @@
     padding-top: 20px;
     gap: 12px;
 
+    button {
+        background-color: transparent;
+
+        > i {
+            transition-duration: 0.05s;
+        }
+
+        &:hover {
+            > .fa-chevron-left  { transform: translateX(-4px); }
+            > .fa-chevron-right { transform: translateX(4px); }
+            > .fa-plus          { transform: scale(1.1); }
+        }
+    }
+
     > button[type=reset] {
         @extend %responsive;
         left: 16px;
@@ -601,15 +615,22 @@
             opacity: 1 !important;
         }
 
-        > button {
-            position: absolute;
-            left: 100%;
-            margin-left: 4px;
-
-            &.hidden {
+        &.focus {
+            > .navigate {
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
+        &:not(.focus) {
+            > .dm {
                 opacity: 0;
                 cursor: default;
+                pointer-events: none;
             }
+        }
+
+        > button.dm {
+            position: absolute;
         }
     }
 
