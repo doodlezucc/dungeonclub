@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:html';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
@@ -21,13 +22,15 @@ final HtmlElement _tools = _e.querySelector('#mapTools');
 final ButtonElement _navLeft = _name.previousElementSibling;
 final ButtonElement _navRight = _name.parent.children.last;
 
+ButtonElement get _deleteButton => _e.querySelector('#mapDelete');
+
 class MapTab {
   final maps = <GameMap>[];
 
-  int _currentMap = 0;
-  int get mapIndex => _currentMap;
+  int _mapIndex = 0;
+  int get mapIndex => _mapIndex;
   set mapIndex(int currentMap) {
-    _currentMap = currentMap;
+    _mapIndex = currentMap;
     _mapContainer.style.left = '${currentMap * -100}%';
     _name.value = map.name;
     map.whiteboard.mode = mode;
@@ -46,9 +49,9 @@ class MapTab {
     _tools.querySelector('[mode=$mode]').classes.add('active');
 
     if (maps.isNotEmpty) {
-      var wb = maps[mapIndex].whiteboard;
+      var wb = map.whiteboard;
       if (mode == 'erase') {
-        wb.mode = 'draw';
+        wb.mode = Whiteboard.modeDraw;
         wb.eraser = true;
       } else {
         wb.mode = mode;
@@ -60,6 +63,9 @@ class MapTab {
   bool get visible => _e.classes.contains('show');
   set visible(bool visible) {
     _e.classes.toggle('show', visible);
+    if (visible) {
+      _updateNavigateButtons();
+    }
   }
 
   void _updateNavigateButtons() {
@@ -68,8 +74,9 @@ class MapTab {
     if (user.session.isDM) {
       var icon = mapIndex == maps.length - 1 ? 'plus' : 'chevron-right';
       _navRight.children.first.className = 'fas fa-$icon';
+      _navRight.disabled = maps.isEmpty;
     } else {
-      _navLeft.disabled = mapIndex == maps.length - 1;
+      _navRight.disabled = mapIndex >= maps.length - 1;
     }
   }
 
@@ -96,7 +103,6 @@ class MapTab {
 
   void initMapControls() {
     _backButton.onClick.listen((_) => visible = false);
-    visible = true;
 
     window.onKeyDown.listen((ev) {
       if (!visible ||
@@ -139,6 +145,8 @@ class MapTab {
       }
     });
 
+    _deleteButton.onClick.listen((_) => _deleteCurrentMap());
+
     void registerAction(String name, void Function() action) {
       _tools.querySelector('[action=$name]').onClick.listen((_) => action());
     }
@@ -169,6 +177,21 @@ class MapTab {
     mode = Whiteboard.modeDraw;
   }
 
+  void _deleteCurrentMap() {
+    socket.sendAction(GAME_MAP_REMOVE, {'map': map.id});
+    onMapRemove(map.id);
+  }
+
+  void onMapRemove(int id) {
+    var map = maps.firstWhere((m) => m.id == id).._dispose();
+    maps.remove(map);
+    if (maps.isEmpty) {
+      _onAllRemoved();
+    } else {
+      mapIndex = min(max(mapIndex, 0), maps.length - 1);
+    }
+  }
+
   void _initMapName() {
     HtmlElement parent = _name.parent;
     ButtonElement confirmBtn = parent.querySelector('.dm');
@@ -197,8 +220,8 @@ class MapTab {
         parent.classes.remove('focus');
         _name.blur();
         map.name = _name.value;
-        socket.sendAction(
-            GAME_MAP_UPDATE, {'map': mapIndex, 'name': _name.value});
+        socket
+            .sendAction(GAME_MAP_UPDATE, {'map': map.id, 'name': _name.value});
       }
     });
   }
@@ -206,9 +229,19 @@ class MapTab {
   void _onFirstUpload() {
     mapIndex = 0;
     _imgButton.remove();
-    _tools.classes.remove('hidden');
+    _e.querySelectorAll('.needs-map').classes.remove('hidden');
     if (user.session.isDM) {
       _name.disabled = false;
+    }
+  }
+
+  void _onAllRemoved() {
+    _updateNavigateButtons();
+    _e.append(_imgButton);
+    _e.querySelectorAll('.needs-map').classes.add('hidden');
+    _name.value = '';
+    if (user.session.isDM) {
+      _name.disabled = true;
     }
   }
 
@@ -218,10 +251,12 @@ class MapTab {
       return true;
     });
 
-    json.forEach((jMap) => addMap(jMap['id'], jMap['name'], jMap['data']));
+    json.forEach((jMap) => addMap(jMap['map'], jMap['name'], jMap['data']));
     if (maps.isNotEmpty) {
       _onFirstUpload();
     }
+
+    visible = true;
   }
 
   void addMap(int id, String name, [String encodedData]) {
@@ -230,6 +265,8 @@ class MapTab {
     maps.add(map);
 
     if (maps.length == 1) _onFirstUpload();
+
+    _updateNavigateButtons();
   }
 
   void onMapUpdate(Map<String, dynamic> json) {
@@ -245,7 +282,9 @@ class MapTab {
 
   void handleEvent(Blob blob) async {
     var bytes = await blobToBytes(blob);
-    maps[bytes.first].whiteboard.socket.handleEventBytes(bytes.sublist(1));
+    var map = maps.firstWhere((m) => m.id == bytes.first);
+
+    map.whiteboard.socket.handleEventBytes(bytes.sublist(1));
   }
 }
 
@@ -278,10 +317,12 @@ class GameMap {
 
     // Assign user their own exclusive drawing layer
     whiteboard.layerIndex = 1 + (user.session.charId ?? -1);
-    reloadImage(cacheBreak: false);
+    reloadImage();
 
     window.onResize.listen((_) => _fixScaling());
   }
+
+  void _dispose() => _em.remove();
 
   void _fixScaling() {
     _container.style.width = '100%';

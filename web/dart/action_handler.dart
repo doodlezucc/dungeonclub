@@ -52,10 +52,13 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return onPrefabRemove(getPrefab(params['prefab']));
 
     case GAME_MAP_CREATE:
-      return user.session?.board?.mapTab?.addMap(params['id'], '');
+      return user.session?.board?.mapTab?.addMap(params['map'], '');
 
     case GAME_MAP_UPDATE:
       return user.session?.board?.mapTab?.onMapUpdate(params);
+
+    case GAME_MAP_REMOVE:
+      return user.session?.board?.mapTab?.onMapRemove(params['map']);
   }
 
   window.console.warn('Unhandled action!');

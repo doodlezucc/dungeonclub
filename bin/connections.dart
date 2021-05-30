@@ -345,12 +345,19 @@ class Connection extends Socket {
 
         if (name != null) {
           _game.updateMap(id, name);
-          _game.notify(action, {'map': id, 'name': name},
-              exclude: this, allScenes: true);
+          _game.notify(action, params, exclude: this, allScenes: true);
           return true;
         }
 
         await _uploadGameImageJson(params);
+        _game.notify(action, {'map': id}, exclude: this, allScenes: true);
+        return true;
+
+      case a.GAME_MAP_REMOVE:
+        int id = params['map'];
+        if (id == null) return false;
+
+        _game.removeMap(id);
         _game.notify(action, {'map': id}, exclude: this, allScenes: true);
         return true;
     }

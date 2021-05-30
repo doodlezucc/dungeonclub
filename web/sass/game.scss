@@ -478,9 +478,7 @@
         transition-duration: 0.2s;
     }
 
-    > .hidden {
-        display: none;
-    }
+    > .hidden { display: none; }
 
     #distanceCanvas {
         animation: blink 1s infinite linear;
@@ -579,6 +577,8 @@
     padding-top: 20px;
     gap: 12px;
 
+    .needs-map.hidden { display: none !important; }
+
     button {
         background-color: transparent;
 
@@ -586,7 +586,7 @@
             transition-duration: 0.05s;
         }
 
-        &:hover {
+        &:enabled:hover {
             > .fa-chevron-left  { transform: translateX(-4px); }
             > .fa-chevron-right { transform: translateX(4px); }
             > .fa-plus          { transform: scale(1.1); }
@@ -604,7 +604,17 @@
         font-size: inherit;
         align-items: center;
         gap: 8px;
+    }
+
+    #changeMap {
+        @extend %responsive;
         bottom: 16px;
+    }
+
+    #mapDelete {
+        top: 16px;
+        right: 16px;
+        font-size: 18px;
     }
 
     > span {
@@ -678,10 +688,6 @@
                 font-family: Georgia, 'Times New Roman', Times, serif;
                 font-size: 20px;
             }
-        }
-
-        &.hidden {
-            display: none;
         }
     }
 

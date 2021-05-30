@@ -314,9 +314,15 @@ class Game {
   void updateMap(int id, String name) =>
       _maps.firstWhere((m) => m.id == id).name = name;
 
+  void removeMap(int id) async {
+    _maps.removeWhere((m) => m.id == id);
+    var file = await getFile('${a.IMAGE_TYPE_MAP}$id.png');
+    await file.delete();
+  }
+
   void handleMapEvent(List<int> bytes, Connection sender) {
     var mapIndex = bytes[0];
-    var map = _maps[mapIndex];
+    var map = _maps.firstWhere((m) => m.id == mapIndex);
     if (map.dataSocket.handleEvent(bytes.sublist(1))) {
       for (var conni in connections) {
         if (conni != sender) {
@@ -403,7 +409,7 @@ class GameMap {
     }
   }
 
-  GameMap.fromJson(json) : this(json['id'], json['name'], json['data']);
+  GameMap.fromJson(json) : this(json['map'], json['name'], json['data']);
 
   void setLayers(int layerCount) {
     while (data.layers.length > layerCount) {
@@ -415,7 +421,7 @@ class GameMap {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
+        'map': id,
         'name': name,
         'data': base64.encode(data.toBytes()),
       };
