@@ -625,6 +625,15 @@
             opacity: 1 !important;
         }
 
+        > .navigate > span {
+            bottom: auto;
+            top: 100%;
+            z-index: 10;
+        }
+        > .navigate:not(.add-map) > span {
+            display: none;
+        }
+
         &.focus {
             > .navigate {
                 opacity: 0;

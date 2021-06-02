@@ -72,7 +72,9 @@ class MapTab {
     _navLeft.disabled = mapIndex == 0;
 
     if (user.session.isDM) {
-      var icon = mapIndex == maps.length - 1 ? 'plus' : 'chevron-right';
+      var showAdd = mapIndex == maps.length - 1;
+      var icon = showAdd ? 'plus' : 'chevron-right';
+      _navRight.classes.toggle('add-map', showAdd);
       _navRight.children.first.className = 'fas fa-$icon';
       _navRight.disabled = maps.isEmpty;
     } else {
