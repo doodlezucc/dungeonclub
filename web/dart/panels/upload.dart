@@ -198,8 +198,9 @@ void _resizeOutside() {
 int _getMaxRes(String type) {
   switch (type) {
     case IMAGE_TYPE_MAP:
+      return 1000;
     case IMAGE_TYPE_SCENE:
-      return 2048;
+      return 1200;
     case IMAGE_TYPE_PC:
     default:
       return 256;
@@ -217,6 +218,7 @@ bool _isSquare(String type) {
 
 bool _upscale(String type) {
   switch (type) {
+    case IMAGE_TYPE_MAP:
     case IMAGE_TYPE_SCENE:
       return true;
     default:
