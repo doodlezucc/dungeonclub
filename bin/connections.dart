@@ -349,7 +349,7 @@ class Connection extends Socket {
           return true;
         }
 
-        await _uploadGameImageJson(params);
+        await _uploadGameImageJson(params, id: id);
         _game.notify(action, {'map': id}, exclude: this, allScenes: true);
         return true;
 

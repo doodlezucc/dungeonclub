@@ -261,7 +261,9 @@ class MapTab {
 
   void addMap(int id, String name, [String encodedData]) {
     var map = GameMap(id, name: name, encodedData: encodedData);
-    map.whiteboard.history.onChange.listen((_) => _updateHistoryButtons());
+    map.whiteboard
+      ..history.onChange.listen((_) => _updateHistoryButtons())
+      ..eraseAcrossLayers = user.session.isDM;
     maps.add(map);
 
     if (maps.length == 1) _onFirstUpload();
@@ -330,8 +332,10 @@ class GameMap {
     var img = _container.querySelector('image');
 
     var bestWidth = img.getBoundingClientRect().width;
-    _container.style.width = '${bestWidth}px';
-    whiteboard.updateScaling();
+    if (bestWidth > 0) {
+      _container.style.width = '${bestWidth}px';
+      whiteboard.updateScaling();
+    }
   }
 
   void reloadImage({bool cacheBreak = true}) async {

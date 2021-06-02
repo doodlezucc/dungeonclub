@@ -317,7 +317,8 @@ class Board {
       drag = false;
     });
     window.onMouseMove.listen((event) {
-      var parentIsBoard = (event.target as Element).parent == _e;
+      var parentIsBoard =
+          event.target is Element && (event.target as Element).parent == _e;
 
       if (drag) {
         var delta = event.movement * (1 / _scaledZoom);
