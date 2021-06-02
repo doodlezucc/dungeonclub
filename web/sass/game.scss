@@ -665,15 +665,28 @@
             display: grid;
             grid-template-columns: auto auto;
             background-color: #aaa;
-            border-radius: base.$radius;
             border: 1px solid #ddd;
             gap: 1px;
-            overflow: hidden;
+            background-clip: border-box;
         }
 
         button {
+            @extend .with-tooltip;
             background-color: var(--color-background);
             border-radius: 0;
+            align-items: center;
+
+            > span {
+                bottom: calc(100% + 4px);
+                font-family: var(--font-paragraph);
+                font-size: 16px;
+                font-weight: normal;
+                z-index: 5;
+            }
+            
+            &:nth-child(odd) > span {
+                left: -8px;
+            }
 
             &:hover {
                 background-color: var(--color-button-hover);

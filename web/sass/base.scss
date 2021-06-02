@@ -11,7 +11,7 @@ html, body {
 body {
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Lato', sans-serif;
+    font-family: var(--font-paragraph);
     display: flex;
     flex-direction: column;
     color: var(--color-text-primary);
@@ -39,6 +39,9 @@ body {
     --weight-thick: bold;
     --shadow-panel: 0 0 8px 2px #0000;
     --shadow-text: none;
+
+    --font-paragraph: 'Lato', sans-serif;
+    --font-title: 'Recursive', serif;
 
     &.dark-mode {
         --color-background: #1a1717;
@@ -112,7 +115,7 @@ p {
 
 h1 {
     @extend %heading;
-    font-family: 'Recursive', serif;
+    font-family: var(--font-title);
     font-weight: normal;
     color: var(--color-primary);
     transition: color 0.2s;
@@ -527,7 +530,7 @@ header {
     > span {
         position: absolute;
         bottom: 100%;
-        background-color: var(--color-not-intense);
+        background-color: var(--color-background);
         border-radius: $radius;
         padding: 6px 8px;
         pointer-events: none;
