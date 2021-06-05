@@ -21,7 +21,7 @@ String getToolInfo(String tool, bool dm) {
       return 'Upload a new image for this map.';
 
     case 'clear':
-      return 'Removes every text and drawn line from this map.';
+      return 'Removes every text and drawn line from this map. (No undo)';
   }
   return null;
 }

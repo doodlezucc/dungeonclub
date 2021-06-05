@@ -150,16 +150,13 @@ class MapTab {
       }
     });
 
-    _tools.children[0].children.forEach((element) {
-      if (element is ButtonElement) {
-        element.onClick.listen((_) {
-          mode = element.attributes['mode'];
-        });
-      }
-    });
-
     _deleteButton.onClick.listen((_) => _deleteCurrentMap());
 
+    _initTools();
+    _initMapName();
+  }
+
+  void _initTools() {
     void registerAction(String name, void Function() action) {
       ButtonElement button = _tools.querySelector('[action=$name]')
         ..onClick.listen((_) => action());
@@ -172,6 +169,14 @@ class MapTab {
       map?.whiteboard?.clear();
       _toolBtn('clear').disabled = true;
     }
+
+    _tools.children[0].children.forEach((element) {
+      if (element is ButtonElement) {
+        element.onClick.listen((_) {
+          mode = element.attributes['mode'];
+        });
+      }
+    });
 
     registerAction('undo', () => map?.whiteboard?.history?.undo());
     registerAction('redo', () => map?.whiteboard?.history?.redo());
@@ -189,7 +194,10 @@ class MapTab {
       }
     });
 
-    _initMapName();
+    _toolInfo.onClick.listen((_) => _tools.classes.add('collapsed'));
+    _e.querySelector('#infoShow').onClick.listen((_) {
+      _tools.classes.remove('collapsed');
+    });
   }
 
   void _deleteCurrentMap() {

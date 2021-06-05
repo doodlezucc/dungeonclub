@@ -712,21 +712,35 @@
                 font-size: 20px;
             }
         }
+
+        &.collapsed > #toolInfo, &:not(.collapsed) > #infoShow {
+            @extend .invisible;
+            transform: translateX(-8px);
+        }
+    }
+
+    #toolInfo, #infoShow {
+        position: absolute !important;
+        top: calc(100% + 16px);
+        background-color: #111e;
+        color: white;
+        font-size: 16px;
+        border-radius: base.$radius !important;
+        border: 1px solid white;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.4s;
+        box-sizing: border-box;
+
+        &:hover {
+            background-color: #1a1a1a;
+        }
     }
 
     #toolInfo {
-        position: absolute;
-        top: calc(100% + 16px);
         padding: 8px;
         width: 200px;
-        max-width: 300px;
+        max-width: 260px;
         width: max-content;
-        background-color: #111e;
-        border-radius: base.$radius;
-        border: 1px solid white;
-        color: white;
-        font-size: 16px;
-        font-style: normal;
 
         > i {
             font-style: normal;
