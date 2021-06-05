@@ -107,6 +107,6 @@ class Scene {
   }
 
   static String getSceneImage(int id, {bool cacheBreak = false}) {
-    return getGameFile('scene$id.png', cacheBreak: cacheBreak);
+    return getGameFile('scene$id', cacheBreak: cacheBreak);
   }
 }

@@ -374,7 +374,7 @@ class GameMap {
   }
 
   void reloadImage({bool cacheBreak = true}) async {
-    var src = getGameFile('$IMAGE_TYPE_MAP$id.png', cacheBreak: cacheBreak);
+    var src = getGameFile('$IMAGE_TYPE_MAP$id', cacheBreak: cacheBreak);
 
     await whiteboard.changeBackground(src);
     _fixScaling();

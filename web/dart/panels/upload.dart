@@ -198,9 +198,9 @@ void _resizeOutside() {
 int _getMaxRes(String type) {
   switch (type) {
     case IMAGE_TYPE_MAP:
-      return 1000;
-    case IMAGE_TYPE_SCENE:
       return 1200;
+    case IMAGE_TYPE_SCENE:
+      return 2000;
     case IMAGE_TYPE_PC:
     default:
       return 256;
@@ -347,14 +347,14 @@ CanvasElement _imgToCanvas(int maxRes, bool upscale) {
 Future<dynamic> _upload(String action, String type, Map<String, dynamic> extras,
     int maxRes, bool upscale) async {
   var canvas = _imgToCanvas(maxRes, upscale);
-  var blob = await canvas.toBlob('image/png');
+  var blob = await canvas.toBlob('image/jpeg', 0.85);
 
   var reader = FileReader()..readAsDataUrl(blob);
   await reader.onLoadEnd.first;
 
-  var png = (reader.result as String).substring(22);
+  var data = (reader.result as String).substring(23);
 
-  var json = <String, dynamic>{'type': type, 'data': png};
+  var json = <String, dynamic>{'type': type, 'data': data};
   if (extras != null) json.addAll(Map.from(extras));
 
   var result = await socket.request(action, json);

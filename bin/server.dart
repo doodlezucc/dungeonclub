@@ -72,6 +72,8 @@ String getMimeType(File f) {
       return 'text/javascript';
     case '.png':
       return 'image/png';
+    case '.jpg':
+      return 'image/jpeg';
   }
   return 'text/plain';
 }
@@ -85,7 +87,9 @@ Future<Response> _echoRequest(Request request) async {
     path = 'index.html';
   }
 
-  var file = path.startsWith('database')
+  var isDataFile = path.startsWith('database');
+
+  var file = isDataFile
       ? File(path)
       : (path.startsWith('game')
           ? File('web/' + path.substring(5))
@@ -99,7 +103,7 @@ Future<Response> _echoRequest(Request request) async {
     file = File('web/index.html');
   }
 
-  var type = getMimeType(file);
+  var type = isDataFile ? 'image/jpeg' : getMimeType(file);
   return Response(
     200,
     body: file.openRead(),

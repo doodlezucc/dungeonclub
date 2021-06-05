@@ -377,7 +377,7 @@ class Connection extends Socket {
         : _game;
 
     if (game != null) {
-      var file = await (await game.getFile('$type$id.png')).create();
+      var file = await (await game.getFile('$type$id')).create();
 
       await file.writeAsBytes(base64Decode(base64));
       return '$address/${file.path.replaceAll('\\', '/')}';

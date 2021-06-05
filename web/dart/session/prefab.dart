@@ -142,5 +142,5 @@ class CustomPrefab extends Prefab {
 
   @override
   String img({bool cacheBreak = true}) =>
-      getGameFile('$IMAGE_TYPE_ENTITY$id.png', cacheBreak: cacheBreak);
+      getGameFile('$IMAGE_TYPE_ENTITY$id', cacheBreak: cacheBreak);
 }

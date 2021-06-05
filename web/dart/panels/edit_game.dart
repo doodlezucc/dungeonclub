@@ -42,7 +42,7 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   var charJsons = List<Map>.from(result['pcs']);
   for (var i = 0; i < charJsons.length; i++) {
     _chars.add(_EditChar(
-        i, charJsons[i]['name'], getGameFile('pc$i.png', gameId: _gameId)));
+        i, charJsons[i]['name'], getGameFile('pc$i', gameId: _gameId)));
   }
   _idCounter = charJsons.length;
 

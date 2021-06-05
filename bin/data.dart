@@ -246,7 +246,7 @@ class Game {
   }
 
   Future<String> uploadImage(String type, int id, String base64) async {
-    var file = await (await getFile('$type$id.png')).create();
+    var file = await (await getFile('$type$id')).create();
     return '$address/${file.path}';
   }
 
@@ -291,11 +291,11 @@ class Game {
   }
 
   Future<File> getSceneFile(int id) async {
-    return await getFile('${a.IMAGE_TYPE_SCENE}$id.png');
+    return await getFile('${a.IMAGE_TYPE_SCENE}$id');
   }
 
   Future<File> getPrefabFile(dynamic id) async {
-    return await getFile('${a.IMAGE_TYPE_ENTITY}$id.png');
+    return await getFile('${a.IMAGE_TYPE_ENTITY}$id');
   }
 
   PlayerCharacter assignPC(int index, Connection c) {
@@ -316,7 +316,7 @@ class Game {
 
   void removeMap(int id) async {
     _maps.removeWhere((m) => m.id == id);
-    var file = await getFile('${a.IMAGE_TYPE_MAP}$id.png');
+    var file = await getFile('${a.IMAGE_TYPE_MAP}$id');
     await file.delete();
   }
 

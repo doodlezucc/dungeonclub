@@ -8,7 +8,7 @@ class Character {
   final int id;
   final CharacterPrefab prefab;
 
-  String get img => getGameFile('$IMAGE_TYPE_PC$id.png', cacheBreak: false);
+  String get img => getGameFile('$IMAGE_TYPE_PC$id', cacheBreak: false);
 
   Character(this.id, Map<String, dynamic> json)
       : name = json['name'],
