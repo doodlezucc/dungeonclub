@@ -225,13 +225,20 @@
                                 <span>Clear map</span>
                             </button>
                         </div>
+
+                        <span id="toolInfo" class="hidden">
+                            Player pin.<br>
+                            Click anywhere on the map to visualize where the players are.<br>
+                            Press <i>Delete</i> or <i>Backspace</i> to hide the pin.
+                        </span>
                     </div>
                     <button class="icon" type="reset">
                         Exit map view
                         <i class="fas fa-arrow-left"></i>
                     </button>
-                    <button class="icon dm needs-map hidden" id="mapDelete" title="Remove this map">
+                    <button class="icon dm needs-map hidden with-tooltip" id="mapDelete">
                         <i class="fas fa-trash"></i>
+                        <span>Remove this map</span>
                     </button>
                     <button class="icon dm" id="changeMap">
                         Create map

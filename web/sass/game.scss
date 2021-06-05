@@ -95,7 +95,7 @@
             }
 
             > .prefab {
-                @extend .with-tooltip;
+                @extend %with-tooltip;
                 @include base.center-background;
                 cursor: pointer;
                 opacity: 0.5;
@@ -617,6 +617,12 @@
         font-size: 18px;
     }
 
+    .with-tooltip > span {
+        bottom: auto;
+        top: 100%;
+        z-index: 10;
+    }
+
     > span {
         position: relative;
 
@@ -625,11 +631,6 @@
             opacity: 1 !important;
         }
 
-        > .navigate > span {
-            bottom: auto;
-            top: 100%;
-            z-index: 10;
-        }
         > .navigate:not(.add-map) > span {
             display: none;
         }
@@ -680,7 +681,7 @@
         }
 
         button {
-            @extend .with-tooltip;
+            @extend %with-tooltip;
             background-color: var(--color-background);
             border-radius: 0;
             align-items: center;
@@ -710,6 +711,29 @@
                 font-family: Georgia, 'Times New Roman', Times, serif;
                 font-size: 20px;
             }
+        }
+    }
+
+    #toolInfo {
+        position: absolute;
+        top: calc(100% + 16px);
+        padding: 8px;
+        width: 200px;
+        max-width: 300px;
+        width: max-content;
+        background-color: #111e;
+        border-radius: base.$radius;
+        border: 1px solid white;
+        color: white;
+        font-size: 16px;
+        font-style: normal;
+
+        > i {
+            font-style: normal;
+            color: var(--color-primary);
+            // background-color: black;
+            // padding: 3px 6px;
+            // border-radius: 4px;
         }
     }
 

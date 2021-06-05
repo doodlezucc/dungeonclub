@@ -522,7 +522,7 @@ header {
     }
 }
 
-.with-tooltip {
+%with-tooltip {
     position: relative;
     display: flex;
     justify-content: center;
@@ -545,4 +545,8 @@ header {
             opacity: 1;
         }
     }
+}
+
+.with-tooltip {
+    @extend %with-tooltip;
 }

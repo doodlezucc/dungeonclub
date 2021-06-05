@@ -11,6 +11,7 @@ import 'package:web_whiteboard/whiteboard.dart';
 import '../../main.dart';
 import '../communication.dart';
 import '../panels/upload.dart' as uploader;
+import 'map_tool_info.dart';
 
 final HtmlElement _e = querySelector('#map');
 final HtmlElement _mapContainer = _e.querySelector('#maps');
@@ -18,6 +19,7 @@ final ButtonElement _backButton = _e.querySelector('button[type=reset]');
 final ButtonElement _imgButton = _e.querySelector('#changeMap');
 final InputElement _name = _e.querySelector('#mapName');
 final HtmlElement _tools = _e.querySelector('#mapTools');
+final HtmlElement _toolInfo = _e.querySelector('#toolInfo');
 
 final ButtonElement _navLeft = _name.previousElementSibling;
 final ButtonElement _navRight = _name.parent.children.last;
@@ -47,6 +49,7 @@ class MapTab {
     _mode = mode;
     _tools.querySelectorAll('.active').classes.remove('active');
     _tools.querySelector('[mode=$mode]').classes.add('active');
+    _setToolInfo(mode);
 
     if (maps.isNotEmpty) {
       var wb = map.whiteboard;
@@ -88,6 +91,14 @@ class MapTab {
     _toolBtn('clear').disabled = map.whiteboard.isClear;
     _toolBtn('undo').disabled = map.whiteboard.history.positionInStack == 0;
     _toolBtn('redo').disabled = !map.whiteboard.history.canRedo;
+  }
+
+  void _setToolInfo(String id) {
+    var info = getToolInfo(id, user.session.isDM);
+
+    if (info != null) {
+      _toolInfo.innerHtml = info;
+    }
   }
 
   Future<bool> _uploadNewMap() async {
@@ -150,7 +161,11 @@ class MapTab {
     _deleteButton.onClick.listen((_) => _deleteCurrentMap());
 
     void registerAction(String name, void Function() action) {
-      _tools.querySelector('[action=$name]').onClick.listen((_) => action());
+      ButtonElement button = _tools.querySelector('[action=$name]')
+        ..onClick.listen((_) => action());
+
+      button.onMouseEnter.listen((_) => _setToolInfo(name));
+      button.onMouseLeave.listen((_) => _setToolInfo(mode));
     }
 
     void clearMap() {
@@ -175,8 +190,6 @@ class MapTab {
     });
 
     _initMapName();
-
-    mode = Whiteboard.modeDraw;
   }
 
   void _deleteCurrentMap() {
@@ -258,14 +271,13 @@ class MapTab {
       _onFirstUpload();
     }
 
+    mode = Whiteboard.modeDraw;
     visible = true;
   }
 
   void addMap(int id, String name, [String encodedData]) {
     var map = GameMap(id, name: name, encodedData: encodedData);
-    map.whiteboard
-      ..history.onChange.listen((_) => _updateHistoryButtons())
-      ..eraseAcrossLayers = user.session.isDM;
+    map.whiteboard.history.onChange.listen((_) => _updateHistoryButtons());
     maps.add(map);
 
     if (maps.length == 1) _onFirstUpload();
