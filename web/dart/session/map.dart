@@ -200,6 +200,15 @@ class MapTab {
     });
   }
 
+  void _listenToEraseAcross() {
+    window.onKeyDown.listen((ev) {
+      if (ev.keyCode == 16) map.whiteboard.eraseAcrossLayers = true;
+    });
+    window.onKeyUp.listen((ev) {
+      if (ev.keyCode == 16) map.whiteboard.eraseAcrossLayers = false;
+    });
+  }
+
   void _deleteCurrentMap() {
     socket.sendAction(GAME_MAP_REMOVE, {'map': map.id});
     onMapRemove(map.id);
@@ -281,6 +290,10 @@ class MapTab {
 
     mode = Whiteboard.modeDraw;
     visible = true;
+
+    if (user.session.isDM) {
+      _listenToEraseAcross();
+    }
   }
 
   void addMap(int id, String name, [String encodedData]) {
