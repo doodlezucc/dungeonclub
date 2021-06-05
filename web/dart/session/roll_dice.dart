@@ -37,17 +37,22 @@ Future<void> _rollDice(int sides, int repeat) async {
 }
 
 void onDiceRoll(Map<String, dynamic> json) {
-  var initiator = json['id'];
+  int initiator = json['id'];
   int sides = json['sides'];
   var rolls = List.from(json['results'] ?? []);
 
-  var name =
-      initiator == null ? 'You' : user.session.characters[initiator].name;
+  var mine = initiator == null || initiator == user.session.charId;
 
-  var results = rolls.map((r) => _resultString(sides, r)).join(', ');
+  var name = mine ? 'You' : user.session.characters[initiator].name;
+
+  var results = rolls.map((r) => _resultString(sides, r)).join(' + ');
+
+  var sum = rolls.fold(0, (x, roll) => x + roll);
+  var sumString = rolls.length == 1 ? '.</span>' : '</span><br>= $sum.';
+
   gameLog('''
     $name rolled <span class="dice d$sides">${rolls.length}d$sides</span>
-    and got <span>$results.</span>''');
+    and got <span>$results$sumString''', mine: mine);
 }
 
 String _resultString(int sides, int result) {

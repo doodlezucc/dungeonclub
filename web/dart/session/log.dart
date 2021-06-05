@@ -2,8 +2,12 @@ import 'dart:html';
 
 final HtmlElement _log = querySelector('#log');
 
-void gameLog(String s) async {
+void gameLog(String s, {bool mine = false}) async {
   var line = SpanElement()..innerHtml = s;
+  if (mine) {
+    line.className = 'mine';
+  }
+
   _log.append(line);
   _log.scrollTop = _log.scrollHeight;
 

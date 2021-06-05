@@ -221,16 +221,18 @@
     }
 
     #sceneSelector {
-        @include panels.hooked(186px);
+        @include panels.hooked(172px);
         width: 100%;
         border-radius: 0%;
+        padding-bottom: 0;
+        gap: 0;
 
         #scenes {
             flex-direction: row;
             overflow-x: auto;
             overflow-y: hidden;
             gap: 8px;
-            padding: 8px 0 44px 0;
+            padding: 8px 0 48px 0;
 
             > div {
                 > div {
@@ -297,6 +299,11 @@
                 }
             }
         }
+
+        #addScene {
+            width: 120px;
+            height: 80px;
+        }
     }
 
     #playerControls {
@@ -305,6 +312,12 @@
         left: 16px;
         display: flex;
         flex-direction: column;
+
+        button {
+            height: 40px;
+            padding-bottom: 12px;
+            box-shadow: 0 -4px 0 #0007 inset;
+        }
 
         button:not(:hover) {
             background-color: var(--color-not-intense);
@@ -412,12 +425,17 @@
     }
 }
 
-.dice {
-    color: var(--color-primary);
-}
 .roll {
     font-family: 'Courier New', Courier, monospace;
     padding: 0 2px;
+    color: white !important;
+    background-color: #1a1a1a;
+    border-radius: 4px;
+    padding: 2px 4px 2px 3px;
+    margin: 0 2px;
+}
+.dice {
+    color: var(--color-primary) !important;
 }
 
 #log {
@@ -431,11 +449,12 @@
     z-index: 2;
 
     > * {
-        padding: 2px 8px;
+        padding: 10px;
         text-shadow: var(--shadow-text);
         font-size: 1.1em;
 
         > span {
+            color: #999;
             display: inline-flex;
         }
 
@@ -445,9 +464,13 @@
         &:hover {
             opacity: 1;
         }
-        &:last-child {
+
+        &.mine {
             background-color: var(--color-not-intense);
         }
+    }
+    > *:not(:last-child) {
+        border-bottom: 1px solid #999;
     }
 }
 

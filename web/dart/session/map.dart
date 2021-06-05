@@ -289,7 +289,6 @@ class MapTab {
     }
 
     mode = Whiteboard.modeDraw;
-    visible = true;
 
     if (user.session.isDM) {
       _listenToEraseAcross();

@@ -48,7 +48,7 @@ class Session extends Game {
     }
 
     _charId = json['mine'];
-    gameLog('Hello, ' + (myCharacter?.name ?? 'DM') + '!');
+    gameLog('Hello, ' + (myCharacter?.name ?? 'DM') + '!', mine: true);
 
     // Depends on global session object
     Future.microtask(() {
