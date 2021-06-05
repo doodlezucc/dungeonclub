@@ -162,6 +162,10 @@ class Board {
       _container.classes.remove('edit');
     });
 
+    _container.querySelector('#openMap').onClick.listen((_) {
+      mapTab.visible = true;
+    });
+
     _e.onContextMenu.listen((ev) {
       ev.preventDefault();
       _deselectAll();

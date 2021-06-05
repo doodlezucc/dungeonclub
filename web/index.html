@@ -79,6 +79,10 @@
                         Measuring
                         <i class="fas fa-ruler"></i>
                     </button>
+                    <button class="icon" id="openMap">
+                        Map View
+                        <i class="fas fa-map"></i>
+                    </button>
                 </div>
                 <div id="sceneEditor" class="controls panel dm edit-only">
                     <h3>Scene Editor</h3>
@@ -113,8 +117,9 @@
                         <div id="pcPrefabs" class="prefab-container"></div>
                         <p>Others</p>
                         <div id="otherPrefabs" class="prefab-container">
-                            <button id="addPrefab" class="icon" title="Add prefab">
+                            <button id="addPrefab" class="icon with-tooltip">
                                 <i class="fas fa-plus"></i>
+                                <span>Add prefab</span>
                             </button>
                         </div>
                     </div>
@@ -226,7 +231,7 @@
                         <span id="toolInfo" title="Click to collapse info"></span>
 
                         <button class="icon" id="infoShow">
-                            <i class="fas fa-info-circle"></i>
+                            <i class="fas fa-question-circle"></i>
                             <span>Show tool info</span>
                         </button>
                     </div>

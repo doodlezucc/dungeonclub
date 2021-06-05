@@ -106,6 +106,7 @@ class CharacterPrefab extends Prefab {
 class CustomPrefab extends Prefab {
   int _id;
   String _name;
+  String _bufferedImg;
   final Set<int> accessIds = {};
 
   @override
@@ -141,6 +142,11 @@ class CustomPrefab extends Prefab {
   }
 
   @override
-  String img({bool cacheBreak = true}) =>
-      getGameFile('$IMAGE_TYPE_ENTITY$id', cacheBreak: cacheBreak);
+  String img({bool cacheBreak = true}) {
+    if (cacheBreak || _bufferedImg == null) {
+      _bufferedImg =
+          getGameFile('$IMAGE_TYPE_ENTITY$id', cacheBreak: cacheBreak);
+    }
+    return _bufferedImg;
+  }
 }
