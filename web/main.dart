@@ -26,8 +26,6 @@ void main() async {
     socket.send('{"action":"manualSave"}');
   });
 
-  _initBrightnessSwitch();
-
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
   window.onPopState.listen((_) => window.location.reload());
@@ -78,18 +76,6 @@ void processUrlPath() {
   }
 
   (querySelector('a.title') as AnchorElement).href = homeUrl;
-}
-
-void _initBrightnessSwitch() {
-  var key = 'darkMode';
-  var cl = 'dark-mode';
-
-  document.body.classes.toggle(cl, window.localStorage[key] != 'false');
-
-  querySelector('button#brightness').onClick.listen((_) {
-    var dark = document.body.classes.toggle(cl);
-    window.localStorage[key] = '$dark';
-  });
 }
 
 void _listenToCssReload() {
