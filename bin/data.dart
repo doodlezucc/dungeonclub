@@ -562,6 +562,7 @@ class CustomPrefab extends EntityBase {
 
 class Movable extends EntityBase {
   final int id;
+  final List<int> conds = [];
   String prefab;
   num x;
   num y;
@@ -584,6 +585,8 @@ class Movable extends EntityBase {
   @override
   void fromJson(Map<String, dynamic> json) {
     size = json['size'] ?? 0;
+    conds.clear();
+    conds.addAll(List.from(json['conds'] ?? []));
   }
 
   @override
@@ -592,6 +595,7 @@ class Movable extends EntityBase {
         'prefab': prefab,
         'x': x,
         'y': y,
+        'conds': conds,
         ...super.toJson(),
       };
 }

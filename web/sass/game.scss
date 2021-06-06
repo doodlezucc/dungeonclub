@@ -215,6 +215,21 @@
             }
         }
 
+        > #conds {
+            @extend %toolbox;
+            grid-template-rows: min-content min-content;
+            grid-auto-flow: column;
+
+            > i {
+                @extend %toolbox-item;
+                width: 36px;
+                height: 36px;
+                font-size: 20px;
+                align-items: center;
+                background-color: var(--color-background);
+            }
+        }
+
         &:hover {
             opacity: 1 !important;
         }
@@ -545,6 +560,28 @@
     --x: 0;
     --y: 0;
 
+    > .conds {
+        position: absolute;
+        top: -8px;
+        left: -8px;
+        display: flex;
+        cursor: default;
+
+        > i {
+            @extend %with-tooltip;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 100%;
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            background-color: var(--color-background);
+
+            > span { font-size: 16px; }
+        }
+    }
+
     &.empty {
         border-width: 3px;
         border-color: var(--color-bad);
@@ -721,38 +758,18 @@ $ping-radius: 100px;
         gap: 16px;
 
         > div {
-            display: grid;
+            @extend %toolbox;
             grid-template-columns: auto auto;
-            background-color: #aaa;
-            border: 1px solid #ddd;
-            gap: 1px;
-            background-clip: border-box;
         }
 
         button {
-            @extend %with-tooltip;
+            @extend %toolbox-item;
             background-color: var(--color-background);
             border-radius: 0;
             align-items: center;
 
-            > span {
-                bottom: calc(100% + 4px);
-                font-family: var(--font-paragraph);
-                font-size: 16px;
-                font-weight: normal;
-                z-index: 5;
-            }
-
             &:nth-child(odd) > span {
                 left: -8px;
-            }
-
-            &:hover {
-                background-color: var(--color-button-hover);
-            }
-            &.active {
-                background-color: var(--color-button-active);
-                color: var(--color-primary);
             }
 
             &[mode=text] {

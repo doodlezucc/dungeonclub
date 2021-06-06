@@ -7,7 +7,9 @@ import 'package:meta/meta.dart';
 import 'package:pedantic/pedantic.dart';
 
 import '../communication.dart';
+import '../font_awesome.dart';
 import '../panels/upload.dart' as upload;
+import 'condition.dart';
 import 'grid.dart';
 import 'map.dart';
 import 'movable.dart';
@@ -31,6 +33,7 @@ final HtmlElement _selectionProperties = querySelector('#selectionProperties');
 final InputElement _selectedLabel = querySelector('#movableLabel');
 final InputElement _selectedSize = querySelector('#movableSize');
 final ButtonElement _selectedRemove = querySelector('#movableRemove');
+final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
 
 final ButtonElement _measureToggle = querySelector('#measureDistance');
 final CanvasElement _distanceCanvas = querySelector('#distanceCanvas');
@@ -82,8 +85,13 @@ class Board {
         _selectedLabel.value = selectedMovable.label;
       }
 
+      // Assign current values to property inputs
       _selectedSize.valueAsNumber = selectedMovable.size;
       selectedMovable.e.append(_selectionProperties);
+      _selectedConds.querySelectorAll('.active').classes.remove('active');
+      for (var cond in selectedMovable.conds) {
+        _selectedConds.children[cond].classes.add('active');
+      }
     } else {
       _selectionProperties.remove();
     }
@@ -186,6 +194,7 @@ class Board {
     });
 
     _initSelectionHandler();
+    _initSelectionConds();
     mapTab.initMapControls();
   }
 
@@ -374,6 +383,24 @@ class Board {
     });
   }
 
+  void _initSelectionConds() {
+    var conds = Condition.items;
+    for (var i = 0; i < conds.length; i++) {
+      var cond = conds[i];
+      var ico = icon(cond.icon)..append(SpanElement()..text = cond.name);
+
+      _selectedConds.append(ico
+        ..onClick.listen((_) {
+          ico.classes.toggle('active', _selectedMovable.toggleCondition(i));
+
+          socket.sendAction(
+            a.GAME_MOVABLE_UPDATE,
+            _selectedMovable.toJson(),
+          );
+        }));
+    }
+  }
+
   void displayPing(Point p) async {
     var ping = DivElement()
       ..className = 'ping'
@@ -447,7 +474,8 @@ class Board {
       'y': pos.y,
       'prefab': prefab.id,
     });
-    var m = Movable.create(board: this, prefab: prefab, id: id, pos: pos);
+    var m = Movable.create(
+        board: this, prefab: prefab, id: id, pos: pos, conds: []);
     movables.add(m);
     grid.e.append(m.e);
     return m;
@@ -462,6 +490,7 @@ class Board {
       prefab: isEmpty ? emptyPrefab : getPrefab(pref),
       id: json['id'],
       pos: parsePoint(json),
+      conds: List<int>.from(json['conds']),
     )..fromJson(json);
     movables.add(m);
     grid.e.append(m.e);

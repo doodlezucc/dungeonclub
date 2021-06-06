@@ -5,7 +5,9 @@ import 'package:dnd_interactive/actions.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';
+import '../font_awesome.dart';
 import 'board.dart';
+import 'condition.dart';
 import 'prefab.dart';
 
 class Movable extends EntityBase {
@@ -13,6 +15,8 @@ class Movable extends EntityBase {
   final Board board;
   final Prefab prefab;
   final int id;
+  final Set<int> _conds = {};
+  Iterable<int> get conds => _conds;
 
   bool get accessible {
     if (board.session.isDM) return true;
@@ -49,10 +53,14 @@ class Movable extends EntityBase {
     @required this.prefab,
     @required this.id,
     @required Point pos,
-  }) : e = DivElement()..className = 'movable' {
+    @required Iterable<int> conds,
+  }) : e = DivElement()
+          ..className = 'movable'
+          ..append(DivElement()..className = 'conds') {
     prefab.movables.add(this);
     onImageChange(prefab.img(cacheBreak: false));
     position = pos ?? Point(0, 0);
+    applyConditions(conds);
 
     var drag = false;
     Point startPos;
@@ -99,11 +107,14 @@ class Movable extends EntityBase {
     @required Prefab prefab,
     @required int id,
     @required Point pos,
+    @required Iterable<int> conds,
   }) {
     if (prefab is EmptyPrefab) {
-      return EmptyMovable._(board: board, prefab: prefab, id: id, pos: pos);
+      return EmptyMovable._(
+          board: board, prefab: prefab, id: id, pos: pos, conds: conds);
     }
-    return Movable._(board: board, prefab: prefab, id: id, pos: pos);
+    return Movable._(
+        board: board, prefab: prefab, id: id, pos: pos, conds: conds);
   }
 
   void onPrefabUpdate() {
@@ -133,6 +144,35 @@ class Movable extends EntityBase {
     position = Point(modify(p.x), modify(p.y));
   }
 
+  bool toggleCondition(int id) {
+    var didAdd = false;
+    if (!_conds.remove(id)) {
+      _conds.add(id);
+      didAdd = true;
+    }
+    _applyConds();
+    return didAdd;
+  }
+
+  void _applyConds() {
+    var container = e.children[0];
+    for (var child in List<Element>.from(container.children)) {
+      child.remove();
+    }
+
+    for (var id in _conds) {
+      var cond = Condition.items[id];
+      container
+          .append(icon(cond.icon)..append(SpanElement()..text = cond.name));
+    }
+  }
+
+  void applyConditions(Iterable<int> conds) {
+    _conds.clear();
+    _conds.addAll(conds);
+    _applyConds();
+  }
+
   void onRemove() {
     prefab.movables.remove(this);
     e.remove();
@@ -141,8 +181,15 @@ class Movable extends EntityBase {
   @override
   Map<String, dynamic> toJson() => {
         'movable': id,
+        'conds': _conds.toList(),
         ...super.toJson(),
       };
+
+  @override
+  void fromJson(Map<String, dynamic> json) {
+    super.fromJson(json);
+    applyConditions(List<int>.from(json['conds'] ?? []));
+  }
 }
 
 class EmptyMovable extends Movable {
@@ -165,7 +212,8 @@ class EmptyMovable extends Movable {
     @required EmptyPrefab prefab,
     @required int id,
     @required Point pos,
-  }) : super._(board: board, prefab: prefab, id: id, pos: pos) {
+    @required Iterable<int> conds,
+  }) : super._(board: board, prefab: prefab, id: id, pos: pos, conds: conds) {
     e
       ..classes.add('empty')
       ..append(_labelSpan = SpanElement());

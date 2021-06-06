@@ -528,6 +528,7 @@ header {
     justify-content: center;
     
     > span {
+        transition-duration: 0.1s;
         position: absolute;
         bottom: 100%;
         background-color: var(--color-background);
@@ -537,7 +538,10 @@ header {
         opacity: 0;
         max-width: 180px;
         width: max-content;
-        // font-weight: var(--weight-thick);
+        z-index: 2;
+        font-family: var(--font-paragraph);
+        font-size: 16px;
+        font-weight: normal;
     }
 
     &:hover {
@@ -549,4 +553,27 @@ header {
 
 .with-tooltip {
     @extend %with-tooltip;
+}
+
+%toolbox {
+    display: grid;
+    background-color: #aaa;
+    border: 1px solid #ddd;
+    gap: 1px;
+}
+
+%toolbox-item {
+    @extend %with-tooltip;
+
+    &:hover {
+        background-color: var(--color-button-hover);
+    }
+    &.active {
+        background-color: var(--color-button-active);
+        color: var(--color-primary);
+    }
+
+    > span {
+        bottom: calc(100% + 4px);
+    }
 }
