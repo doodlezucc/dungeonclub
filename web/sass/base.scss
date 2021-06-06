@@ -522,6 +522,11 @@ header {
     }
 }
 
+.space-between {
+    display: flex;
+    justify-content: space-between !important;
+}
+
 %with-tooltip {
     position: relative;
     display: flex;

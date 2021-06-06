@@ -390,12 +390,17 @@ class Board {
         ..onClick.listen((_) {
           ico.classes.toggle('active', _selectedMovable.toggleCondition(i));
 
-          socket.sendAction(
-            a.GAME_MOVABLE_UPDATE,
-            _selectedMovable.toJson(),
-          );
+          socket.sendAction(a.GAME_MOVABLE_UPDATE, _selectedMovable.toJson());
         }));
     }
+
+    _selectionProperties.querySelector('a').onClick.listen((_) {
+      if (_selectedMovable.conds.isNotEmpty) {
+        _selectedMovable.applyConditions([]);
+        _selectedConds.querySelectorAll('.active').classes.remove('active');
+        socket.sendAction(a.GAME_MOVABLE_UPDATE, _selectedMovable.toJson());
+      }
+    });
   }
 
   void displayPing(Point p) async {

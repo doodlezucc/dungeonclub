@@ -562,8 +562,8 @@
 
     > .conds {
         position: absolute;
-        top: -8px;
-        left: -8px;
+        top: -3px;
+        left: -3px;
         display: flex;
         cursor: default;
 
@@ -578,7 +578,7 @@
             font-size: 12px;
             background-color: var(--color-background);
 
-            > span { font-size: 16px; }
+            > span { font-size: 12px; }
         }
     }
 
