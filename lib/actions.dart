@@ -29,6 +29,7 @@ const GAME_SCENE_REMOVE = 'gameSceneRemove';
 const GAME_SCENE_PLAY = 'gameScenePlay';
 
 const GAME_ROLL_DICE = 'gameRollDice';
+const GAME_PING = 'gamePing';
 
 const GAME_MAP_CREATE = 'gameMapCreate';
 const GAME_MAP_UPDATE = 'gameMapUpdate';

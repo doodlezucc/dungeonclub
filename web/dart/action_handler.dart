@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/point_json.dart';
 
 import '../main.dart';
 import 'session/log.dart';
@@ -59,6 +60,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
 
     case GAME_MAP_REMOVE:
       return user.session?.board?.mapTab?.onMapRemove(params['map']);
+
+    case GAME_PING:
+      return user.session?.board?.displayPing(parsePoint(params));
   }
 
   window.console.warn('Unhandled action!');

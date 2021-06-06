@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
+import 'package:pedantic/pedantic.dart';
 
 import '../communication.dart';
 import '../panels/upload.dart' as upload;
@@ -271,6 +272,7 @@ class Board {
     var isBoardDrag = false;
     var drag = false;
     var button = -1;
+    bool hasMoved;
     Point measureStart;
     Point measureStartScaled;
     _container.onMouseDown.listen((event) async {
@@ -278,6 +280,18 @@ class Board {
 
       button = event.button;
       isBoardDrag = event.path.contains(_e);
+
+      if (isBoardDrag && button == 0) {
+        hasMoved = false;
+        unawaited(Future.delayed(Duration(milliseconds: 300)).then((value) {
+          if (!hasMoved) {
+            var pos = (event.page - _e.getBoundingClientRect().topLeft) *
+                (1 / scaledZoom);
+            socket.sendAction(a.GAME_PING, writePoint(pos));
+            displayPing(pos);
+          }
+        }));
+      }
 
       if (measuring && button == 0) {
         if (isBoardDrag) {
@@ -321,6 +335,7 @@ class Board {
       drag = false;
     });
     window.onMouseMove.listen((event) {
+      hasMoved = true;
       var parentIsBoard =
           event.target is Element && (event.target as Element).parent == _e;
 
@@ -349,6 +364,7 @@ class Board {
       }
     });
     window.onMouseUp.listen((event) {
+      hasMoved = true;
       if (measuring && event.button == 0) {
         measureStart = null;
         _distanceCanvas.context2D
@@ -356,6 +372,16 @@ class Board {
         _distanceText.classes.add('hidden');
       }
     });
+  }
+
+  void displayPing(Point p) async {
+    var ping = DivElement()
+      ..className = 'ping'
+      ..style.left = '${p.x}px'
+      ..style.top = '${p.y}px';
+    _e.append(ping);
+    await Future.delayed(Duration(seconds: 3));
+    ping.remove();
   }
 
   void _redrawDistanceCanvas(Point start, Point end) {

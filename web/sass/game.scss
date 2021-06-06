@@ -452,6 +452,7 @@
         padding: 10px;
         text-shadow: var(--shadow-text);
         font-size: 1.1em;
+        border-bottom: 1px solid #999;
 
         > span {
             color: #999;
@@ -468,9 +469,6 @@
         &.mine {
             background-color: var(--color-not-intense);
         }
-    }
-    > *:not(:last-child) {
-        border-bottom: 1px solid #999;
     }
 }
 
@@ -589,6 +587,28 @@
     }
 }
 
+$ping-radius: 100px;
+
+.ping {
+    position: absolute;
+    border-radius: $ping-radius * 2;
+    border: 3px solid white;
+    animation: ping-grow infinite 3s ease-out;
+    z-index: 25;
+}
+
+@keyframes ping-grow {
+    0% { width: 0; height: 0; opacity: 0; }
+    10% { opacity: 1; }
+    70% { opacity: 1; }
+    100% {
+        width: $ping-radius * 2;
+        height: $ping-radius * 2;
+        transform: translate(-$ping-radius, -$ping-radius);
+        opacity: 0;
+    }
+}
+
 #map {
     @extend %vertical;
     justify-content: center;
@@ -644,6 +664,12 @@
         bottom: auto;
         top: 100%;
         z-index: 10;
+        font-size: 16px;
+    }
+
+    #mapDelete > span {
+        top: auto;
+        right: 100%;
     }
 
     > span {
@@ -716,7 +742,7 @@
                 font-weight: normal;
                 z-index: 5;
             }
-            
+
             &:nth-child(odd) > span {
                 left: -8px;
             }

@@ -360,6 +360,12 @@ class Connection extends Socket {
         _game.removeMap(id);
         _game.notify(action, {'map': id}, exclude: this, allScenes: true);
         return true;
+
+      case a.GAME_PING:
+        if (_game != null) {
+          _game.notify(action, params, exclude: this);
+        }
+        return true;
     }
   }
 
