@@ -628,6 +628,7 @@ $ping-radius: 100px;
 
 .ping {
     position: absolute;
+    pointer-events: none;
     border-radius: $ping-radius * 2;
     border: 3px solid white;
     animation: ping-grow infinite 3s ease-out;
