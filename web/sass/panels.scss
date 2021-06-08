@@ -124,9 +124,13 @@
         flex-direction: inherit;
         align-items: center;
     }
-    &.show section.show {
+    section.show {
         height: 100%;
         display: inherit;
+        pointer-events: none;
+    }
+    &.show > section.show {
+        pointer-events: all;
     }
 
     form {

@@ -30,10 +30,11 @@
         border-bottom: 2px solid var(--color-separator);
         text-align: center;
         overflow: hidden;
-        max-height: 100vh;
+        max-height: 500px;
         transition: max-height 0.5s 0.25s,
                     padding 0.5s 0.25s,
                     border-bottom 0.5s 0.25s;
+        transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1);
 
         > .panel {
             gap: 16px;
