@@ -492,7 +492,7 @@ class Board {
       prefab: isEmpty ? emptyPrefab : getPrefab(pref),
       id: json['id'],
       pos: parsePoint(json),
-      conds: List<int>.from(json['conds']),
+      conds: List<int>.from(json['conds'] ?? []),
     )..fromJson(json);
     movables.add(m);
     grid.e.append(m.e);
