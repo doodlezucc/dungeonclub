@@ -88,11 +88,43 @@ a {
 
     &.title {
         text-decoration: none;
+        display: flex;
+        gap: 8px;
+
+        > div {
+            height: 32px;
+            max-height: 0;
+            width: 32px;
+            position: relative;
+            transition: max-height 0.7s cubic-bezier(0.23, 1, 0.320, 1), filter 0.5s;
+            transform: translateY(2.5px);
+        }
+
+        img {
+            position: absolute;
+            height: 32px;
+            animation: icon 1s infinite cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+
+        > h1 {
+            transition: 0.5s cubic-bezier(0.215, 0.610, 0.355, 1);
+        }
 
         &:hover > h1 {
             color: var(--color-text-primary);
+            transform: translateX(4px);
+        }
+        &:hover > div {
+            max-height: 4px;
+            filter: grayscale(1) contrast(1.2) brightness(1.5);
         }
     }
+}
+
+@keyframes icon {
+    0%   { top: -100%; }
+    50% { top: 100%; }
+    100% { top: -100%; }
 }
 
 b {
@@ -337,7 +369,7 @@ li {
     left: 0; 
     margin: 24px;
     gap: 10px;
-    z-index: 5;
+    z-index: 50;
 }
 
 .notification {

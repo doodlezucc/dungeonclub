@@ -51,7 +51,10 @@ Future<bool> sendMailWithCode({
     ..from = Address(_mailAddress, 'D&D Interactive')
     ..recipients.add(email)
     ..subject = subject
-    ..html = content;
+    ..html = content
+    ..attachments.add(FileAttachment(File('web/sass/icon32.png'))
+      ..location = Location.inline
+      ..cid = '<logo>');
 
   try {
     final sendReport = await send(message, smtpServer);
