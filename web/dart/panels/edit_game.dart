@@ -8,6 +8,7 @@ import '../edit_image.dart';
 import '../font_awesome.dart';
 import '../game.dart';
 import 'dialog.dart';
+import 'panel_overlay.dart';
 import 'upload.dart' as uploader;
 
 final HtmlElement _panel = querySelector('#editGamePanel');
@@ -32,6 +33,7 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   var result = await socket.request(GAME_EDIT, {'id': game.id});
   if (result is String) return print('Error: $result');
 
+  overlayVisible = true;
   _saveButton.disabled = false;
 
   _gameNameInput
@@ -71,6 +73,7 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   await closer.future;
   _panel.classes.remove('show');
   subs.forEach((s) => s.cancel());
+  overlayVisible = false;
 }
 
 void _updateAddButton() {
@@ -104,7 +107,8 @@ class _EditChar {
   }
 
   Future<String> _changeIcon([Blob initialFile]) async {
-    return await uploader.display(
+    _panel.classes.add('upload');
+    var result = await uploader.display(
       action: GAME_CHARACTER_UPLOAD,
       type: IMAGE_TYPE_PC,
       initialImg: initialFile,
@@ -113,6 +117,8 @@ class _EditChar {
         'gameId': _gameId,
       },
     );
+    _panel.classes.remove('upload');
+    return result;
   }
 
   void remove() {
@@ -125,10 +131,7 @@ class _EditChar {
     _nameInput.focus();
   }
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        //'img': basename(_iconImg.src),
-      };
+  Map<String, dynamic> toJson() => {'name': name};
 }
 
 Future<bool> _saveChanges(String id) async {

@@ -404,26 +404,6 @@ li {
     height: 100%;
 }
 
-#overlay {
-    @extend %center;
-    position: fixed;
-    pointer-events: none;
-    z-index: 10;
-
-    > * {
-        position: fixed;
-        opacity: 0;
-        pointer-events: none;
-        transition-duration: 0.2s;
-        transform: translateY(20px);
-    }
-    > .show {
-        opacity: 1;
-        pointer-events: all;
-        transform: none;
-    }
-}
-
 .edit-img {
     @extend %responsive;
     display: flex;
@@ -513,7 +493,7 @@ header {
     align-items: center;
     background-color: var(--color-header);
     position: sticky;
-    z-index: 10;
+    z-index: 101;
 
     > span > * {
         opacity: 1;

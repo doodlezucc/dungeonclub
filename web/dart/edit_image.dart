@@ -12,7 +12,7 @@ HtmlElement registerEditImage(
   void uploadAndUpdate([Blob initialFile]) async {
     var src = await upload(initialFile);
     if (src != null) {
-      img.src = src;
+      img.src = '$src?${DateTime.now().millisecondsSinceEpoch}';
       if (onSuccess != null) onSuccess(src);
     }
   }

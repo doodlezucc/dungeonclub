@@ -4,6 +4,7 @@ import 'dart:html';
 import 'package:pedantic/pedantic.dart';
 
 import '../font_awesome.dart';
+import 'panel_overlay.dart';
 
 final HtmlElement _overlay = querySelector('#overlay');
 
@@ -52,6 +53,7 @@ class Dialog<T> {
   }
 
   Future<T> display() async {
+    overlayVisible = true;
     _overlay.append(_e);
     _e.classes.add('show');
     (_input ?? _okButton).focus();
@@ -60,6 +62,7 @@ class Dialog<T> {
     _e.classes.remove('show');
     unawaited(
         Future.delayed(Duration(seconds: 1)).then((value) => _e.remove()));
+    overlayVisible = false;
     return result;
   }
 }

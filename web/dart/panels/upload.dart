@@ -6,6 +6,7 @@ import 'package:dnd_interactive/actions.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';
+import 'panel_overlay.dart';
 
 final HtmlElement _panel = querySelector('#uploadPanel');
 final ButtonElement _cancelButton = _panel.querySelector('button.close');
@@ -233,6 +234,7 @@ Future<dynamic> display({
   Blob initialImg,
 }) async {
   _initialize();
+  overlayVisible = true;
 
   var maxRes = _getMaxRes(type);
   var upscale = _upscale(type);
@@ -286,6 +288,8 @@ Future<dynamic> display({
   var finalResult = await completer.future;
   subs.forEach((s) => s.cancel());
   _panel.classes.remove('show');
+
+  overlayVisible = false;
   return finalResult;
 }
 

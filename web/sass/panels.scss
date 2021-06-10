@@ -68,6 +68,11 @@
 }
 
 #editGamePanel {
+    &.upload {
+        pointer-events: none !important;
+        filter: brightness(0.5);
+    }
+
     #editChars {
         display: grid;
         grid-template-columns: auto auto;
@@ -154,5 +159,31 @@
         width: 160px;
         font-size: 24px;
         text-align: center;
+    }
+}
+
+#overlay {
+    @extend %center;
+    position: fixed;
+    pointer-events: none;
+    z-index: 100;
+    transition-duration: 0.5s;
+
+    &.block {
+        pointer-events: all;
+        background-color: #000a;
+    }
+
+    > * {
+        position: fixed;
+        opacity: 0;
+        pointer-events: none;
+        transition-duration: 0.2s;
+        transform: translateY(20px);
+    }
+    > .show {
+        opacity: 1;
+        pointer-events: all;
+        transform: none;
     }
 }

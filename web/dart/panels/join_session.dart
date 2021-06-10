@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:html';
 
 import '../../main.dart';
+import 'panel_overlay.dart';
 
 final HtmlElement _panel = querySelector('#joinPanel');
 final InputElement _sessionNameInput = _panel.querySelector('#sessionName')
@@ -12,6 +13,7 @@ final ButtonElement _joinButton = _panel.querySelector('button#join');
 final HtmlElement _error = _panel.querySelector('#joinError');
 
 Future<void> display(String gameId) async {
+  overlayVisible = true;
   _joinButton.disabled = true;
   _error.text = '';
 
@@ -48,6 +50,7 @@ Future<void> display(String gameId) async {
   await closer.future;
   _panel.classes.remove('show');
   subs.forEach((s) => s.cancel());
+  overlayVisible = false;
 }
 
 void _updateJoinButton() {

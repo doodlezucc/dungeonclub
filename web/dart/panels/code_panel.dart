@@ -5,6 +5,7 @@ import 'package:dnd_interactive/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import 'panel_overlay.dart';
 
 const pwLengthMin = 7;
 
@@ -62,6 +63,7 @@ class CodePanel {
   }
 
   Future<void> display() async {
+    overlayVisible = true;
     _loginButton.classes.add('disabled');
     _emailInput.value = '';
     _passwordInput.value = '';
@@ -108,6 +110,7 @@ class CodePanel {
     _panel.classes.remove('show');
     _loginButton.classes.remove('disabled');
     subs.forEach((s) => s.cancel());
+    overlayVisible = false;
   }
 
   void _setSection(HtmlElement section) {
