@@ -408,6 +408,15 @@ li {
     @extend %responsive;
     display: flex;
     position: relative;
+    outline: 2px dashed transparent;
+    outline-offset: 2px;
+    transition-property: all;
+
+    &.drag {
+        outline: 2px dashed white;
+        outline-offset: 0;
+        filter: contrast(0.5) brightness(1.5);
+    }
 
     > div {
         @extend %center;

@@ -11,7 +11,7 @@ import 'panel_overlay.dart';
 final HtmlElement _panel = querySelector('#uploadPanel');
 final ButtonElement _cancelButton = _panel.querySelector('button.close');
 
-final HtmlElement _imgContainer = _panel.querySelector('div');
+final HtmlElement _imgBox = _panel.querySelector('div');
 
 final FileUploadInputElement _uploadInput = _panel.querySelector('#imgUpload');
 
@@ -60,130 +60,136 @@ bool _square;
 bool _init = false;
 
 void _initialize() {
-  if (!_init) {
-    _init = true;
+  _init = true;
 
-    _uploadInput.onInput.listen((event) {
-      if (_uploadInput.files.isNotEmpty) {
-        _loadFileAsImage(_uploadInput.files[0]);
-        _uploadInput.value = null;
-      }
-    });
-    _imgContainer.onDrop.listen((e) {
-      e.preventDefault();
-      if (e.dataTransfer.files != null && e.dataTransfer.files.isNotEmpty) {
-        _loadFileAsImage(e.dataTransfer.files[0]);
-      }
-    });
+  _uploadInput.onInput.listen((event) {
+    if (_uploadInput.files.isNotEmpty) {
+      _loadFileAsImage(_uploadInput.files[0]);
+      _uploadInput.value = null;
+    }
+  });
 
-    _crop.onMouseDown.listen((e) async {
-      e.preventDefault();
-      HtmlElement clicked = e.target;
-      var pos1 = position;
-      var size1 = size;
+  // Styling on file drag
+  _imgBox.onDragEnter.listen((_) async {
+    await Future.delayed(Duration(milliseconds: 1));
+    _imgBox.classes.add('drag');
+  });
+  _imgBox.onDragLeave.listen((_) => _imgBox.classes.remove('drag'));
 
-      void Function(Point<double>) action;
-      if (clicked != _crop) {
-        var cursorCss = clicked.style.cursor + ' !important';
-        document.body.style.cursor = cursorCss;
-        _crop.style.cursor = cursorCss;
+  _imgBox.onDrop.listen((e) {
+    _imgBox.classes.remove('drag');
+    e.preventDefault();
+    if (e.dataTransfer.files != null && e.dataTransfer.files.isNotEmpty) {
+      _loadFileAsImage(e.dataTransfer.files[0]);
+    }
+  });
 
-        var classes = clicked.classes;
-        var t = classes.contains('top');
-        var r = classes.contains('right');
-        var l = classes.contains('left');
-        var b = classes.contains('bottom');
+  _crop.onMouseDown.listen((e) async {
+    e.preventDefault();
+    HtmlElement clicked = e.target;
+    var pos1 = position;
+    var size1 = size;
 
-        action = (diff) {
-          var x = pos1.x;
-          var y = pos1.y;
-          var width = size1.x;
-          var height = size1.y;
+    void Function(Point<double>) action;
+    if (clicked != _crop) {
+      var cursorCss = clicked.style.cursor + ' !important';
+      document.body.style.cursor = cursorCss;
+      _crop.style.cursor = cursorCss;
 
-          var maxPosDiff = size1 - minSize;
-          var minPosDiff = pos1 * -1;
+      var classes = clicked.classes;
+      var t = classes.contains('top');
+      var r = classes.contains('right');
+      var l = classes.contains('left');
+      var b = classes.contains('bottom');
 
-          if (_square) {
-            var maxSizeDiff = _imgSize - size1 - pos1;
-            double v;
-            if (t) {
-              if (r) {
-                var maximum = min(maxSizeDiff.x, pos1.y);
-                v = max(min(max(diff.x, -diff.y), maximum), -maxPosDiff.x);
-              } else if (l) {
-                var minimum = min(pos1.x, pos1.y);
-                v = max(min(max(-diff.x, -diff.y), minimum), -maxPosDiff.x);
-                x -= v;
-              } else {
-                var minimum = min(pos1.y, min(pos1.x, maxSizeDiff.x) * 2);
-                v = max(min(-diff.y, minimum), -maxPosDiff.x);
-                x -= (v / 2);
-              }
-              y -= v;
-            } else if (b) {
-              if (r) {
-                var maximum = min(maxSizeDiff.x, maxSizeDiff.y);
-                v = max(min(max(diff.x, diff.y), maximum), -maxPosDiff.x);
-              } else if (l) {
-                var minimum = min(pos1.x, maxSizeDiff.y);
-                v = max(min(max(-diff.x, diff.y), minimum), -maxPosDiff.x);
-                x -= v;
-              } else {
-                var minimum =
-                    min(maxSizeDiff.y, min(pos1.x, maxSizeDiff.x) * 2);
-                v = max(min(diff.y, minimum), -maxPosDiff.x);
-                x -= (v / 2);
-              }
-            } else if (r) {
-              var minimum = min(min(pos1.y, maxSizeDiff.y) * 2, maxSizeDiff.x);
-              v = max(min(diff.x, minimum), -maxPosDiff.y);
-              y -= (v / 2);
-            } else {
-              var minimum = min(min(pos1.y, maxSizeDiff.y) * 2, pos1.x);
-              v = max(min(-diff.x, minimum), -maxPosDiff.y);
+      action = (diff) {
+        var x = pos1.x;
+        var y = pos1.y;
+        var width = size1.x;
+        var height = size1.y;
+
+        var maxPosDiff = size1 - minSize;
+        var minPosDiff = pos1 * -1;
+
+        if (_square) {
+          var maxSizeDiff = _imgSize - size1 - pos1;
+          double v;
+          if (t) {
+            if (r) {
+              var maximum = min(maxSizeDiff.x, pos1.y);
+              v = max(min(max(diff.x, -diff.y), maximum), -maxPosDiff.x);
+            } else if (l) {
+              var minimum = min(pos1.x, pos1.y);
+              v = max(min(max(-diff.x, -diff.y), minimum), -maxPosDiff.x);
               x -= v;
-              y -= (v / 2);
+            } else {
+              var minimum = min(pos1.y, min(pos1.x, maxSizeDiff.x) * 2);
+              v = max(min(-diff.y, minimum), -maxPosDiff.x);
+              x -= (v / 2);
             }
-            width += v;
-            height += v;
+            y -= v;
+          } else if (b) {
+            if (r) {
+              var maximum = min(maxSizeDiff.x, maxSizeDiff.y);
+              v = max(min(max(diff.x, diff.y), maximum), -maxPosDiff.x);
+            } else if (l) {
+              var minimum = min(pos1.x, maxSizeDiff.y);
+              v = max(min(max(-diff.x, diff.y), minimum), -maxPosDiff.x);
+              x -= v;
+            } else {
+              var minimum = min(maxSizeDiff.y, min(pos1.x, maxSizeDiff.x) * 2);
+              v = max(min(diff.y, minimum), -maxPosDiff.x);
+              x -= (v / 2);
+            }
+          } else if (r) {
+            var minimum = min(min(pos1.y, maxSizeDiff.y) * 2, maxSizeDiff.x);
+            v = max(min(diff.x, minimum), -maxPosDiff.y);
+            y -= (v / 2);
           } else {
-            if (t) {
-              var v = min(max(diff.y, minPosDiff.y), maxPosDiff.y);
-              y += v;
-              height -= v;
-            }
-            if (r) width += diff.x;
-            if (b) height += diff.y;
-            if (l) {
-              var v = min(max(diff.x, minPosDiff.x), maxPosDiff.x);
-              x += v;
-              width -= v;
-            }
+            var minimum = min(min(pos1.y, maxSizeDiff.y) * 2, pos1.x);
+            v = max(min(-diff.x, minimum), -maxPosDiff.y);
+            x -= v;
+            y -= (v / 2);
           }
+          width += v;
+          height += v;
+        } else {
+          if (t) {
+            var v = min(max(diff.y, minPosDiff.y), maxPosDiff.y);
+            y += v;
+            height -= v;
+          }
+          if (r) width += diff.x;
+          if (b) height += diff.y;
+          if (l) {
+            var v = min(max(diff.x, minPosDiff.x), maxPosDiff.x);
+            x += v;
+            width -= v;
+          }
+        }
 
-          setPosAndSize(Point(x, y), Point(width, height));
-        };
-      } else {
-        action = (diff) {
-          setPosAndSize(pos1 + diff, size);
-        };
-      }
+        setPosAndSize(Point(x, y), Point(width, height));
+      };
+    } else {
+      action = (diff) {
+        setPosAndSize(pos1 + diff, size);
+      };
+    }
 
-      var mouse1 = Point<double>(e.client.x, e.client.y);
-      var subMove = window.onMouseMove.listen((e) {
-        if (e.movement.magnitude == 0) return;
-        var diff = Point<double>(e.client.x, e.client.y) - mouse1;
+    var mouse1 = Point<double>(e.client.x, e.client.y);
+    var subMove = window.onMouseMove.listen((e) {
+      if (e.movement.magnitude == 0) return;
+      var diff = Point<double>(e.client.x, e.client.y) - mouse1;
 
-        action(diff);
-      });
-
-      await window.onMouseUp.first;
-
-      document.body.style.cursor = '';
-      _crop.style.cursor = '';
-      await subMove.cancel();
+      action(diff);
     });
-  }
+
+    await window.onMouseUp.first;
+
+    document.body.style.cursor = '';
+    _crop.style.cursor = '';
+    await subMove.cancel();
+  });
 }
 
 void _resizeOutside() {
@@ -233,7 +239,9 @@ Future<dynamic> display({
   Map<String, dynamic> extras,
   Blob initialImg,
 }) async {
-  _initialize();
+  if (!_init) {
+    _initialize();
+  }
   overlayVisible = true;
 
   var maxRes = _getMaxRes(type);
@@ -299,7 +307,7 @@ void _loadFileAsImage(Blob blob) async {
 
   var width = _img.naturalWidth;
   var height = _img.naturalHeight;
-  var max = 300;
+  var max = window.innerHeight ~/ 2;
 
   if (width > height) {
     width = width * max ~/ height;

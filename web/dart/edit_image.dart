@@ -9,7 +9,14 @@ HtmlElement registerEditImage(
 }) {
   ImageElement img = editImg.querySelector('img');
 
+  editImg.onDragEnter.listen((_) async {
+    await Future.delayed(Duration(milliseconds: 1));
+    editImg.classes.add('drag');
+  });
+  editImg.onDragLeave.listen((_) => editImg.classes.remove('drag'));
+
   void uploadAndUpdate([Blob initialFile]) async {
+    editImg.classes.remove('drag');
     var src = await upload(initialFile);
     if (src != null) {
       img.src = '$src?${DateTime.now().millisecondsSinceEpoch}';
