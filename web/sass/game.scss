@@ -758,6 +758,17 @@ $ping-radius: 100px;
         flex-direction: column;
         gap: 16px;
 
+        > #activeColor {
+            width: 36px;
+            height: 36px;
+            position: absolute;
+            left: calc(100% + 16px);
+            transition-duration: 0.3s;
+            transition-property: opacity, transform;
+
+            &:disabled { opacity: 0; pointer-events: none; transform: translateX(-16px); }
+        }
+
         > div {
             @extend %toolbox;
             grid-template-columns: auto auto;

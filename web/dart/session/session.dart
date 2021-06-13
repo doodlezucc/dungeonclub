@@ -42,13 +42,24 @@ class Session extends Game {
   }
 
   String getPlayerColor(int player) {
-    if (player == null) {
-      return '#ffffff'; // DM color
-    }
+    if (player == null) return '#ffffff'; // DM color
 
-    var hue = 360 * player / characters.length;
-    var lightness = (70 + 10 * sin(player)).round();
-    return 'hsl($hue, 100%, $lightness%)';
+    var h = 360 * player / characters.length;
+    var l = 0.65 + 0.1 * sin(player);
+
+    // Convert from HSL to RGB
+    var c = 1 - (2 * l - 1).abs();
+    var x = c * (1 - ((h / 60) % 2 - 1).abs());
+    var m = l - c / 2;
+
+    var r = (h < 60 || h >= 300) ? c : ((h < 120 || h >= 240) ? x : 0);
+    var g = h >= 240 ? 0 : ((h < 60 || h >= 180) ? x : c);
+    var b = h < 120 ? 0 : ((h < 180 || h >= 300) ? x : c);
+
+    String hex(double v) =>
+        ((v + m) * 255).round().toRadixString(16).padLeft(2, '0');
+
+    return '#' + hex(r) + hex(g) + hex(b);
   }
 
   void fromJson(Map<String, dynamic> json) {

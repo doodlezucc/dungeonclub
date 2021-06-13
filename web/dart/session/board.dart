@@ -408,7 +408,6 @@ class Board {
   }
 
   void displayPing(Point p, int player) async {
-    print(session.getPlayerColor(player));
     var ping = DivElement()
       ..className = 'ping'
       ..style.left = '${p.x}px'

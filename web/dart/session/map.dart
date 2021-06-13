@@ -20,6 +20,7 @@ final ButtonElement _imgButton = _e.querySelector('#changeMap');
 final InputElement _name = _e.querySelector('#mapName');
 final HtmlElement _tools = _e.querySelector('#mapTools');
 final HtmlElement _toolInfo = _e.querySelector('#toolInfo');
+final InputElement _color = _e.querySelector('#activeColor');
 
 final ButtonElement _navLeft = _name.previousElementSibling;
 final ButtonElement _navRight = _name.parent.children.last;
@@ -35,7 +36,7 @@ class MapTab {
     _mapIndex = currentMap;
     _mapContainer.style.left = '${currentMap * -100}%';
     _name.value = map.name;
-    map.whiteboard.mode = mode;
+    mode = mode;
     map._fixScaling();
     _updateHistoryButtons();
     _updateNavigateButtons();
@@ -43,13 +44,15 @@ class MapTab {
 
   GameMap get map => maps.isNotEmpty ? maps[mapIndex] : null;
 
-  String _mode;
+  String _mode = 'draw';
   String get mode => _mode;
   set mode(String mode) {
     _mode = mode;
     _tools.querySelectorAll('.active').classes.remove('active');
     _tools.querySelector('[mode=$mode]').classes.add('active');
     _setToolInfo(mode);
+
+    _color.disabled = mode != 'draw';
 
     if (maps.isNotEmpty) {
       var wb = map.whiteboard;
@@ -59,6 +62,10 @@ class MapTab {
       } else {
         wb.mode = mode;
         wb.eraser = false;
+
+        if (mode == 'draw') {
+          wb.activeColor = _color.value;
+        }
       }
     }
   }
@@ -169,6 +176,12 @@ class MapTab {
       map?.whiteboard?.clear();
       _toolBtn('clear').disabled = true;
     }
+
+    _color.onInput.listen((_) {
+      if (maps.isNotEmpty) {
+        map.whiteboard.activeColor = _color.value;
+      }
+    });
 
     _tools.children[0].children.forEach((element) {
       if (element is ButtonElement) {
@@ -288,6 +301,7 @@ class MapTab {
       _onFirstUpload();
     }
 
+    _color.value = user.session.getPlayerColor(user.session.charId);
     mode = Whiteboard.modeDraw;
 
     if (user.session.isDM) {

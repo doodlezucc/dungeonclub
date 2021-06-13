@@ -285,13 +285,23 @@ input {
         width: 70px;
     }
     &[type=color], &[type=range] {
-        border: none !important;
         margin: 0 !important;
         padding: 0 !important;
         width: 100%;
         cursor: pointer;
     }
+    &[type=color] {
+        border: 1px solid #aaa !important;
+        box-sizing: border-box;
+        outline-offset: 0px;
+
+        &:hover { border: 1px solid white !important; }
+
+        &::-webkit-color-swatch-wrapper { padding: 0; }
+        &::-webkit-color-swatch { border: 1px solid black; }
+    }
     &[type=range] {
+        border: none !important;
         -webkit-appearance: none;  /* Override default CSS styles */
         width: 100%; /* Full-width */
         height: 4px; /* Specified height */
