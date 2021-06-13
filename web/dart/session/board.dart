@@ -294,8 +294,12 @@ class Board {
         timer = Timer(Duration(milliseconds: 300), () {
           var pos = (event.page - _e.getBoundingClientRect().topLeft) *
               (1 / scaledZoom);
-          socket.sendAction(a.GAME_PING, writePoint(pos));
-          displayPing(pos);
+
+          socket.sendAction(a.GAME_PING, {
+            ...writePoint(pos),
+            'player': session.charId,
+          });
+          displayPing(pos, session.charId);
         });
       }
 
@@ -403,11 +407,13 @@ class Board {
     });
   }
 
-  void displayPing(Point p) async {
+  void displayPing(Point p, int player) async {
+    print(session.getPlayerColor(player));
     var ping = DivElement()
       ..className = 'ping'
       ..style.left = '${p.x}px'
-      ..style.top = '${p.y}px';
+      ..style.top = '${p.y}px'
+      ..style.borderColor = session.getPlayerColor(player);
     _e.append(ping);
     await Future.delayed(Duration(seconds: 3));
     ping.remove();

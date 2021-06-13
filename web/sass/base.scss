@@ -369,7 +369,7 @@ li {
     left: 0; 
     margin: 24px;
     gap: 10px;
-    z-index: 50;
+    z-index: 102;
 }
 
 .notification {
@@ -380,10 +380,17 @@ li {
     padding: 4px;
     align-items: baseline;
     gap: 2px;
+    width: fit-content;
+    animation: notif-in 0.5s cubic-bezier(0.23, 1, 0.320, 1) forwards;
 
     span {
         margin: 0 4px;
     }
+}
+
+@keyframes notif-in {
+    0%   { transform: translateX(-20px); opacity: 0; }
+    100% { transform: none; opacity: 1; }
 }
 
 .roster {

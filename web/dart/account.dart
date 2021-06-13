@@ -7,6 +7,7 @@ import '../main.dart';
 import 'communication.dart';
 import 'game.dart';
 import 'notif.dart';
+import 'panels/panel_overlay.dart';
 
 class Account {
   //final String name = 'noname';
@@ -64,9 +65,11 @@ class MyAccount extends Account {
         ..onClick.listen((e) => completer.complete(i)));
     }
 
+    overlayVisible = true;
     parent.classes.add('show');
-
     var result = await completer.future;
+
+    overlayVisible = false;
     parent.classes.remove('show');
     return result;
   }

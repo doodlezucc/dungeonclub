@@ -62,7 +62,8 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session?.board?.mapTab?.onMapRemove(params['map']);
 
     case GAME_PING:
-      return user.session?.board?.displayPing(parsePoint(params));
+      var point = parsePoint(params);
+      return user.session?.board?.displayPing(point, params['player']);
   }
 
   window.console.warn('Unhandled action!');

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:html';
+import 'dart:math';
 
 import '../game.dart';
 import 'board.dart';
@@ -38,6 +39,16 @@ class Session extends Game {
     // Add joined game id and name to local storage
     idNames[id] = name;
     window.localStorage['joined'] = jsonEncode(idNames);
+  }
+
+  String getPlayerColor(int player) {
+    if (player == null) {
+      return '#ffffff'; // DM color
+    }
+
+    var hue = 360 * player / characters.length;
+    var lightness = (70 + 10 * sin(player)).round();
+    return 'hsl($hue, 100%, $lightness%)';
   }
 
   void fromJson(Map<String, dynamic> json) {
