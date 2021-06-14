@@ -9,6 +9,7 @@ build/
 doc/api/
 
 database/
+database_backup/
 web/style
 web/main.dart.*
 mail/gmail_credentials

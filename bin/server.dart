@@ -7,6 +7,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_web_socket/shelf_web_socket.dart' as ws;
 
+import 'autosave.dart';
 import 'connections.dart';
 import 'data.dart';
 import 'mail.dart';
@@ -18,6 +19,7 @@ String _address;
 String get address => _address;
 
 final data = ServerData();
+final autoSaver = AutoSaver(data);
 
 void main(List<String> args) async {
   var parser = ArgParser()..addOption('port', abbr: 'p');
@@ -60,6 +62,7 @@ void main(List<String> args) async {
   print('Serving at $address');
 
   await initializeMailServer();
+  autoSaver.init();
 }
 
 String getMimeType(File f) {
@@ -87,7 +90,7 @@ Future<Response> _echoRequest(Request request) async {
     path = 'index.html';
   }
 
-  var isDataFile = path.startsWith('database');
+  var isDataFile = path.startsWith('database/games');
 
   var file = isDataFile
       ? File(path)

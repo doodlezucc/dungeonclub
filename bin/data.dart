@@ -25,17 +25,9 @@ class ServerData {
   final games = <Game>[];
   final Random rng = Random();
 
-  void init() {
-    load().then((_) {
-      _manualSaveWatch.start();
-      //initAutoSave();
-    });
-  }
-
-  void initAutoSave() {
-    Timer.periodic(Duration(seconds: 10), (timer) {
-      save();
-    });
+  void init() async {
+    await load();
+    _manualSaveWatch.start();
   }
 
   Account getAccount(String email, {bool alreadyEncrypted = false}) {
@@ -76,7 +68,7 @@ class ServerData {
 
   Future<void> save() async {
     var json = JsonEncoder.withIndent(' ').convert(toJson());
-    print(json);
+    // print(json);
     await file.writeAsString(json);
     print('Saved!');
   }
