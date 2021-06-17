@@ -28,6 +28,12 @@ class User {
     return null;
   }
 
+  void joinFromJson(Map<String, dynamic> s) {
+    _session = Session(s['id'], s['name'], s['dm'] != null);
+    _session.fromJson(s);
+    showPage('session');
+  }
+
   void onActivate([Map<String, dynamic> accJson]) {
     _account = MyAccount(accJson);
     home.onLogin();

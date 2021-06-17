@@ -143,8 +143,10 @@ class Game {
   int get sceneCount => _scenes.length;
   Scene get playingScene =>
       playingSceneId < _scenes.length ? _scenes[playingSceneId] : null;
-  int get nextPrefabId => _prefabs.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
-  int get nextMapId => _maps.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
+  Iterable<PlayerCharacter> get characters => _characters;
+
+  int get _nextPrefabId => _prefabs.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
+  int get _nextMapId => _maps.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
 
   final _connections = <Connection>[];
   final List<PlayerCharacter> _characters;
@@ -206,7 +208,7 @@ class Game {
   }
 
   CustomPrefab addPrefab() {
-    var p = CustomPrefab(nextPrefabId, 1);
+    var p = CustomPrefab(_nextPrefabId, 1);
     _prefabs.add(p);
     return p;
   }
@@ -295,7 +297,7 @@ class Game {
   }
 
   int addMap() {
-    var map = GameMap(nextMapId, '');
+    var map = GameMap(_nextMapId, '');
     for (var i = 0; i <= _characters.length; i++) {
       map.data.layers.add(DrawingData());
     }

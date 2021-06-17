@@ -19,7 +19,9 @@ HtmlElement registerEditImage(
     editImg.classes.remove('drag');
     var src = await upload(initialFile);
     if (src != null) {
-      img.src = '$src?${DateTime.now().millisecondsSinceEpoch}';
+      img.src = src.startsWith('data')
+          ? src
+          : '$src?${DateTime.now().millisecondsSinceEpoch}';
       if (onSuccess != null) onSuccess(src);
     }
   }

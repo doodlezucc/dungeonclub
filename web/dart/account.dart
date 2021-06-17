@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:dnd_interactive/actions.dart';
-
 import '../main.dart';
-import 'communication.dart';
 import 'game.dart';
 import 'notif.dart';
+import 'panels/edit_game.dart' as edit_game;
 import 'panels/panel_overlay.dart';
 
 class Account {
@@ -29,12 +27,9 @@ class MyAccount extends Account {
     }
   }
 
-  Future<Game> createNewGame(String name) async {
-    var id = await socket.request(GAME_CREATE_NEW, {'name': name});
-    if (id == null) return null;
-
-    var game = Game(id, name, true);
-    games.add(game);
+  Future<Game> createNewGame() async {
+    var game = await edit_game.displayPrepare();
+    if (game != null) games.add(game);
     return game;
   }
 

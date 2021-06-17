@@ -33,7 +33,7 @@ void main() async {
   await home.init();
   processUrlPath();
 
-  await testFlow();
+  //await testFlow();
 }
 
 Future<void> testFlow() async {
@@ -45,7 +45,7 @@ Future<void> testFlow() async {
   if (edit) {
     await edit_game.display(user.account.games.first);
   } else {
-    await user.joinSession(user.account.games.first.id);
+    await user.joinSession(user.account.games.last.id);
   }
 }
 

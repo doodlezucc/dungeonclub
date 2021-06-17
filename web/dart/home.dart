@@ -5,7 +5,6 @@ import '../main.dart';
 import 'font_awesome.dart';
 import 'game.dart';
 import 'panels/code_panel.dart';
-import 'panels/dialog.dart';
 import 'panels/edit_game.dart' as edit_game;
 import 'panels/join_session.dart' as join_session;
 import 'section_page.dart';
@@ -23,16 +22,9 @@ Future<void> init() {
   _createGameButton.onClick.listen((event) async {
     if (!user.registered) return print('No permissions to create a new game!');
 
-    var name = await Dialog<String>(
-      'New Campaign',
-      okText: 'Create',
-      onClose: () => null,
-    ).withInput(placeholder: 'Campaign name...').display();
+    var game = await user.account.createNewGame();
 
-    if (name == null) return;
-
-    var game = await user.account.createNewGame(name);
-    _addEnteredGame(game, instantEdit: true);
+    if (game != null) _addEnteredGame(game);
   });
 
   _displayLocalEnteredGames();
@@ -93,7 +85,7 @@ Future<void> _displayLocalEnteredGames() async {
   }
 }
 
-void _addEnteredGame(Game game, {bool instantEdit = false}) {
+void _addEnteredGame(Game game) {
   HtmlElement nameEl;
   HtmlElement topRow;
   var e = DivElement()
@@ -110,15 +102,10 @@ void _addEnteredGame(Game game, {bool instantEdit = false}) {
         }
       }));
 
-  var displayEdit = () {
-    edit_game.display(game, nameEl, e);
-  };
-
   if (game.owned) {
-    topRow.append(iconButton('cog')..onClick.listen((_) => displayEdit()));
+    topRow.append(iconButton('cog')
+      ..onClick.listen((_) => edit_game.display(game, nameEl, e)));
   }
 
   _gamesContainer.insertBefore(e, _createGameButton);
-
-  if (instantEdit) displayEdit();
 }

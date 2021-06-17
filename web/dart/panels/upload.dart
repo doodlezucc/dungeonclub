@@ -233,11 +233,10 @@ bool _upscale(String type) {
   }
 }
 
-Future<dynamic> display({
-  @required String action,
+Future displayOffline({
   @required String type,
-  Map<String, dynamic> extras,
   Blob initialImg,
+  Future Function(String base64, int maxRes, bool upscale) processUpload,
 }) async {
   if (!_init) {
     _initialize();
@@ -266,13 +265,8 @@ Future<dynamic> display({
   var subs = [
     _uploadButton.onClick.listen((_) async {
       _uploadButton.disabled = true;
-      var result = await _upload(
-        action,
-        type,
-        extras,
-        maxRes,
-        upscale,
-      );
+      var base64 = await _imgToBase64(maxRes, upscale);
+      var result = await processUpload(base64, maxRes, upscale);
       if (result != null) {
         completer.complete(result);
       }
@@ -300,6 +294,19 @@ Future<dynamic> display({
   overlayVisible = false;
   return finalResult;
 }
+
+Future<dynamic> display({
+  @required String action,
+  @required String type,
+  Map<String, dynamic> extras,
+  Blob initialImg,
+}) =>
+    displayOffline(
+      type: type,
+      initialImg: initialImg,
+      processUpload: (base64, maxRes, upscale) =>
+          _upload(base64, action, type, extras, maxRes, upscale),
+    );
 
 void _loadFileAsImage(Blob blob) async {
   _img.src = Url.createObjectUrlFromBlob(blob);
@@ -356,17 +363,19 @@ CanvasElement _imgToCanvas(int maxRes, bool upscale) {
         _img, x * nw, y * nh, w * nw, h * nh, 0, 0, dw, dh);
 }
 
-Future<dynamic> _upload(String action, String type, Map<String, dynamic> extras,
-    int maxRes, bool upscale) async {
+Future<dynamic> _imgToBase64(int maxRes, bool upscale) async {
   var canvas = _imgToCanvas(maxRes, upscale);
   var blob = await canvas.toBlob('image/jpeg', 0.85);
 
   var reader = FileReader()..readAsDataUrl(blob);
   await reader.onLoadEnd.first;
 
-  var data = (reader.result as String).substring(23);
+  return (reader.result as String).substring(23);
+}
 
-  var json = <String, dynamic>{'type': type, 'data': data};
+Future<dynamic> _upload(String base64, String action, String type,
+    Map<String, dynamic> extras, int maxRes, bool upscale) async {
+  var json = <String, dynamic>{'type': type, 'data': base64};
   if (extras != null) json.addAll(Map.from(extras));
 
   var result = await socket.request(action, json);

@@ -68,9 +68,33 @@
 }
 
 #editGamePanel {
+    min-width: 500px;
+
     &.upload {
         pointer-events: none !important;
         filter: brightness(0.5);
+    }
+
+    &:not(.prepare) {
+        .on-prepare { display: none; }
+    }
+    &.prepare {
+        #delete { display: none; }
+    }
+
+    #startingScene {
+        border: 1px solid #aaaa;
+        border-radius: base.$radius;
+        background-color: var(--color-background);
+        width: 100%;
+        max-width: 30vw;
+        min-height: 100px;
+        max-height: 20vh;
+        margin-top: 4px;
+        overflow: hidden;
+        align-self: center;
+
+        > div { @include base.center-background; }
     }
 
     #editChars {

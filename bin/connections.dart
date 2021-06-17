@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/comms.dart';
+import 'package:meta/meta.dart';
+import 'package:pedantic/pedantic.dart';
 import 'package:random_string/random_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -127,11 +129,31 @@ class Connection extends Socket {
       case a.GAME_CREATE_NEW:
         if (account == null) return false;
 
-        _game = Game(account, params['name']);
+        var createdGame = Game(account, '');
+        if (!createdGame.applyChanges(params['data'])) return false;
+
+        _game = createdGame..connect(this, true);
         scene = _game.playingScene;
         data.games.add(_game);
         account.enteredGames.add(_game);
-        return _game.id;
+
+        // Wait for all images to be uploaded
+        var countdown = _game.characters.length;
+        for (var i = 0; i < _game.characters.length; i++) {
+          unawaited(_uploadGameImage(
+            base64: params['pics'][i],
+            type: a.IMAGE_TYPE_PC,
+            id: i,
+          ).then((_) => countdown--));
+        }
+
+        await _uploadGameImage(
+          base64: params['scene'],
+          type: a.IMAGE_TYPE_SCENE,
+          id: 0,
+        );
+
+        return _game.toSessionSnippet(this);
 
       case a.GAME_EDIT:
         if (account == null) return false;
@@ -370,9 +392,9 @@ class Connection extends Socket {
   }
 
   Future<String> _uploadGameImage({
-    String base64,
-    String type,
-    dynamic id,
+    @required String base64,
+    @required String type,
+    @required dynamic id,
     String gameId,
   }) async {
     if (base64 == null || type == null || id == null) return 'Missing info';
