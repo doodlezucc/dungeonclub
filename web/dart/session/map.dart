@@ -215,10 +215,10 @@ class MapTab {
 
   void _listenToEraseAcross() {
     window.onKeyDown.listen((ev) {
-      if (ev.keyCode == 16) map.whiteboard.eraseAcrossLayers = true;
+      if (ev.keyCode == 16) map?.whiteboard?.eraseAcrossLayers = true;
     });
     window.onKeyUp.listen((ev) {
-      if (ev.keyCode == 16) map.whiteboard.eraseAcrossLayers = false;
+      if (ev.keyCode == 16) map?.whiteboard?.eraseAcrossLayers = false;
     });
   }
 
