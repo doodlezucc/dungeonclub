@@ -98,33 +98,3 @@
     0% { transform: scale(0.5); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
-
-#charPick {
-    max-width: 70%;
-    align-items: center;
-
-    b {
-        margin-left: 3px;
-    }
-
-    .char {
-        @extend %responsive;
-        display: flex;
-        flex-direction: column;
-        text-align: center;
-        align-items: center;
-        cursor: pointer;
-        transition-duration: 0.1s;
-        width: 80px;
-
-        img {
-            height: 80px;
-            border-radius: 6px;
-            box-shadow: 0 0 2px var(--color-text-primary);
-            box-sizing: border-box;
-        }
-    }
-    .char:hover {
-        text-decoration: underline;
-    }
-}

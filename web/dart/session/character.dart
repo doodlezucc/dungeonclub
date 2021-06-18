@@ -19,7 +19,6 @@ class Character {
       ..fromJson(json['prefab'] ?? {})
       ..character = this;
 
-    //TODO
     print('$name: $hasJoined');
   }
 }

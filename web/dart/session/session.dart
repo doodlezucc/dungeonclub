@@ -89,7 +89,6 @@ class Session extends Game {
 
     // Depends on global session object
     Future.microtask(() {
-      print(json);
       int playingId = json['sceneId'];
       initMovableManager(json['prefabs']);
       _board.fromJson(playingId, json['scene']);

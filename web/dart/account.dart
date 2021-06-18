@@ -55,6 +55,7 @@ class MyAccount extends Account {
       var ch = chars[i];
       roster.append(DivElement()
         ..className = 'char'
+        ..classes.toggle('reserved', ch.hasJoined)
         ..append(ImageElement(src: ch.img))
         ..append(SpanElement()..text = ch.name)
         ..onClick.listen((e) => completer.complete(i)));
