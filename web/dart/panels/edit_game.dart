@@ -25,6 +25,7 @@ final DivElement _startingScene = registerEditImage(
     initialImg: initialFile,
     processUpload: (base64, maxRes, upscale) async {
       _sceneImgData = base64;
+      _saveButton.disabled = false;
       return 'data:image/jpeg;base64,$base64';
     },
   ),
@@ -35,7 +36,7 @@ final _chars = <_EditChar>[];
 String _sceneImgData;
 String _gameId;
 int _idCounter = 0;
-final ButtonElement _addCharButton = _panel.querySelector('#addChar')
+final AnchorElement _addCharButton = _panel.querySelector('#addChar')
   ..onClick.listen((_) {
     _chars.add(_EditChar(_idCounter++)..focus());
     _updateAddButton();
@@ -105,7 +106,7 @@ Future<Game> displayPrepare() async {
 
   prepareMode = true;
   overlayVisible = true;
-  _saveButton.disabled = false;
+  _saveButton.disabled = true;
 
   _gameNameInput
     ..value = ''
@@ -136,7 +137,7 @@ Future<Game> displayPrepare() async {
 }
 
 void _updateAddButton() {
-  _addCharButton.disabled = _chars.length >= 20;
+  _addCharButton.classes.toggle('disabled', _chars.length >= 20);
 }
 
 class _EditChar {
@@ -150,7 +151,7 @@ class _EditChar {
     e
       ..append(registerEditImage(
         DivElement()
-          ..className = 'edit-img'
+          ..className = 'edit-img responsive'
           ..append(DivElement()..text = 'Change')
           ..append(ImageElement(src: imgUrl)),
         upload: _changeIcon,

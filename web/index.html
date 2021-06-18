@@ -138,7 +138,7 @@
 
                     <div id="prefabProperties" class="disabled">
                         <h3>Properties</h3>
-                        <div id="prefabImage" class="edit-img">
+                        <div id="prefabImage" class="edit-img responsive">
                             <div>Change</div>
                             <img>
                         </div>
@@ -281,15 +281,14 @@
             <p>
                 You're invited to join this session! Enter your name so the Dungeon Master can assign you the right
                 character.
-            </p>
-            <p>
+                <br><br>
                 (This name will be forwarded to the DM only and is not saved anywhere.)
             </p>
 
             <div>
                 <input id="sessionName" placeholder="Name..." maxlength="25">
                 <p id="joinError"></p>
-                <button id="join">Join</button>
+                <button id="join" class="big">Join</button>
             </div>
         </div>
 
@@ -304,9 +303,12 @@
                 <input id="gameName" placeholder="Campaign name...">
             </div>
             <div>
-                <h3>Playable Characters</h3>
-                <div id="editChars"></div>
-                <button id="addChar" class="big">New Character</button>
+                <span>
+                    <h3>Playable Characters</h3>
+                    <a id="addChar">New character</a>
+                </span>
+                <div id="editChars">
+                </div>
             </div>
 
             <div class="on-prepare">
@@ -321,9 +323,8 @@
                 </div>
             </div>
 
-            <button id="delete" class="bad">Delete Campaign</button>
-
-            <button id="save">Save</button>
+            <button id="save" class="big">Save changes</button>
+            <button id="delete" class="bad">Delete campaign</button>
         </div>
 
         <div class="panel" id="uploadPanel">

@@ -62,6 +62,10 @@
         justify-content: space-evenly;
     }
 
+    > button {
+        align-self: center;
+    }
+
     &.dialog {
         max-width: 500px;
     }
@@ -82,38 +86,58 @@
         #delete { display: none; }
     }
 
-    #startingScene {
-        border: 1px solid #aaaa;
-        border-radius: base.$radius;
-        background-color: var(--color-background);
-        width: 100%;
-        max-width: 30vw;
-        min-height: 100px;
-        max-height: 20vh;
-        margin-top: 4px;
-        overflow: hidden;
-        align-self: center;
-
-        > div { @include base.center-background; }
+    > div > span {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        user-select: none;
     }
 
     #editChars {
         display: grid;
         grid-template-columns: auto auto;
+        grid-auto-rows: min-content;
         gap: 4px;
-        max-height: 50vh;
+        // padding: 4px;
+        min-height: 20vh;
+        max-height: 25vh;
         overflow-y: auto;
         overflow-x: hidden;
+
+        > li {
+            animation: popup 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) backwards;
+        }
 
         img {
             width: 64px;
             height: 64px;
         }
+
+        input { width: 100%; }
+
+        &:empty:after {
+            content: "No characters added";
+            color: var(--color-note);
+        }
+    }
+
+    #startingScene {
+        background-color: var(--color-background);
+        width: 100%;
+        max-width: 40vw;
+        min-height: 100px;
+        max-height: 20vh;
+        margin-top: 4px;
+        overflow: hidden;
+        align-self: center;
     }
 }
 
 #joinPanel {
     width: 32vw;
+    align-items: center;
+    text-align: center;
 
     input {
         width: 240px;
