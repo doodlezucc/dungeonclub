@@ -45,6 +45,16 @@ class MyAccount extends Account {
     var completer = Completer<int>();
     var chars = user.session.characters;
 
+    var available = chars.where((c) => !c.hasJoined);
+
+    if (available.isEmpty) {
+      print('Every available character is already assigned!');
+      return null;
+    }
+    if (available.length == 1) {
+      return available.first.id;
+    }
+
     HtmlElement parent = querySelector('#charPick');
     HtmlElement roster = parent.querySelector('.roster');
     List.from(roster.children).forEach((e) => e.remove());
