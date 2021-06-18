@@ -188,15 +188,22 @@ class Game {
         _maps = [];
 
   void connect(Connection connection, bool join) {
+    var pc = _characters.firstWhere(
+      (e) => e.connection == connection,
+      orElse: () => null,
+    );
+
     notify(a.GAME_CONNECTION, {
       'join': join,
-      'pc': _characters.indexWhere((e) => e.connection == connection),
+      'pc': _characters.indexOf(pc),
     });
+
     if (!join) {
+      pc?.connection = null;
       _connections.remove(connection);
-      return;
+    } else {
+      _connections.add(connection);
     }
-    _connections.add(connection);
   }
 
   void playScene(int id) {
@@ -364,7 +371,7 @@ class Game {
       'name': name,
       'sceneId': playingSceneId,
       'scene': playingScene.toJson(),
-      'pcs': _characters.map((e) => e.toJson()).toList(),
+      'pcs': _characters.map((e) => e.toJson(includeStatus: true)).toList(),
       'maps': _maps.map((e) => e.toJson()).toList(),
       if (mine != null) 'mine': mine,
       'prefabs': _prefabs.map((e) => e.toJson()).toList(),
@@ -431,9 +438,10 @@ class PlayerCharacter {
       : name = json['name'],
         prefab = CharacterPrefab()..fromJson(json['prefab'] ?? {});
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson({bool includeStatus = false}) => {
         'name': name,
         'prefab': prefab.toJson(),
+        if (includeStatus) 'connected': connection != null,
       };
 }
 

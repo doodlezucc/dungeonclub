@@ -4,7 +4,6 @@ import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/point_json.dart';
 
 import '../main.dart';
-import 'session/log.dart';
 import 'session/prefab_palette.dart';
 import 'session/roll_dice.dart';
 
@@ -38,7 +37,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return await user.account?.displayPickCharacterDialog(params['name']);
 
     case GAME_CONNECTION:
-      return _onConnectionChange(params);
+      return user.session?.onConnectionChange(params);
 
     case GAME_ROLL_DICE:
       return onDiceRoll(params);
@@ -67,17 +66,4 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
   }
 
   window.console.warn('Unhandled action!');
-}
-
-void _onConnectionChange(Map<String, dynamic> params) {
-  bool join = params['join'];
-  int pc = params['pc'];
-
-  var name = pc != null ? user.session.characters[pc].name : 'DM';
-
-  if (join) {
-    gameLog('$name joined the game.');
-  } else {
-    gameLog('$name left the game.');
-  }
 }

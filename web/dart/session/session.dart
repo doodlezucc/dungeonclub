@@ -62,6 +62,21 @@ class Session extends Game {
     return '#' + hex(r) + hex(g) + hex(b);
   }
 
+  void onConnectionChange(Map<String, dynamic> params) {
+    bool join = params['join'];
+    int id = params['pc'];
+    var pc = characters[id];
+
+    var name = pc?.name ?? 'DM';
+
+    pc.hasJoined = join;
+    if (join) {
+      gameLog('$name joined the game.');
+    } else {
+      gameLog('$name left the game.');
+    }
+  }
+
   void fromJson(Map<String, dynamic> json, {bool instantEdit = false}) {
     characters.clear();
     var pcs = List.from(json['pcs']);
