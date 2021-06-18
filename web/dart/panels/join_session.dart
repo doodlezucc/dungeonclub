@@ -25,23 +25,14 @@ Future<void> display(String gameId) async {
 
   var closer = Completer();
   var subs = [
-    _joinButton.onClick.listen((event) async {
-      _joinButton.disabled = true;
-      _error
-        ..className = ''
-        ..text = 'Requesting access...';
-
-      var err = await user.joinSession(gameId, _sessionNameInput.value);
-
-      if (err == null) {
-        closer.complete();
-      } else {
-        _joinButton.disabled = false;
-        _error
-          ..className = 'bad'
-          ..text = err.message;
-      }
+    _joinButton.onClick.listen((_) async {
+      if (await _tryJoin(gameId)) closer.complete();
     }),
+    _sessionNameInput.onKeyDown.listen((ev) async {
+      if (ev.keyCode == 13 && !_joinButton.disabled) {
+        if (await _tryJoin(gameId)) closer.complete();
+      }
+    })
     // _cancelButton.onClick.listen((event) => closer.complete()),
   ];
 
@@ -51,6 +42,23 @@ Future<void> display(String gameId) async {
   _panel.classes.remove('show');
   subs.forEach((s) => s.cancel());
   overlayVisible = false;
+}
+
+Future<bool> _tryJoin(String gameId) async {
+  _joinButton.disabled = true;
+  _error
+    ..className = ''
+    ..text = 'Requesting access...';
+
+  var err = await user.joinSession(gameId, _sessionNameInput.value);
+
+  if (err == null) return true;
+
+  _joinButton.disabled = false;
+  _error
+    ..className = 'bad'
+    ..text = err.message;
+  return false;
 }
 
 void _updateJoinButton() {
