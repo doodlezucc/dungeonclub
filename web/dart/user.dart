@@ -28,9 +28,9 @@ class User {
     return null;
   }
 
-  void joinFromJson(Map<String, dynamic> s) {
+  void joinFromJson(Map<String, dynamic> s, bool instantEdit) {
     _session = Session(s['id'], s['name'], s['dm'] != null);
-    _session.fromJson(s);
+    _session.fromJson(s, instantEdit: instantEdit);
     showPage('session');
   }
 

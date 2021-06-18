@@ -46,6 +46,24 @@ class Board {
   final movables = <Movable>[];
 
   bool get editingGrid => _container.classes.contains('edit');
+  set editingGrid(bool v) {
+    _container.classes.toggle('edit', v);
+
+    if (v) {
+      _deselectAll();
+      measuring = false;
+    } else {
+      socket.sendAction(a.GAME_SCENE_UPDATE, {
+        'grid': grid.toJson(),
+        'movables': movables
+            .map((e) => {
+                  'id': e.id,
+                  ...writePoint(e.position),
+                })
+            .toList()
+      });
+    }
+  }
 
   bool get measuring => _measureToggle.classes.contains('active');
   set measuring(bool measuring) {
@@ -153,23 +171,8 @@ class Board {
     });
 
     _changeImage.onClick.listen((_) => _changeImageDialog());
-    _editScene.onClick.listen((_) {
-      _container.classes.add('edit');
-      _deselectAll();
-      measuring = false;
-    });
-    _exitEdit.onClick.listen((_) {
-      socket.sendAction(a.GAME_SCENE_UPDATE, {
-        'grid': grid.toJson(),
-        'movables': movables
-            .map((e) => {
-                  'id': e.id,
-                  ...writePoint(e.position),
-                })
-            .toList()
-      });
-      _container.classes.remove('edit');
-    });
+    _editScene.onClick.listen((_) => editingGrid = true);
+    _exitEdit.onClick.listen((_) => editingGrid = false);
 
     _container.querySelector('#openMap').onClick.listen((_) {
       mapTab.visible = true;

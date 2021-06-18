@@ -222,7 +222,7 @@ Future<Game> _createGameAndJoin() async {
   if (session == null) return null;
 
   var game = Game(session['id'], name, true);
-  user.joinFromJson(session);
+  user.joinFromJson(session, true);
   return game;
 }
 

@@ -62,7 +62,7 @@ class Session extends Game {
     return '#' + hex(r) + hex(g) + hex(b);
   }
 
-  void fromJson(Map<String, dynamic> json) {
+  void fromJson(Map<String, dynamic> json, {bool instantEdit = false}) {
     characters.clear();
     var pcs = List.from(json['pcs']);
     for (var i = 0; i < pcs.length; i++) {
@@ -96,6 +96,10 @@ class Session extends Game {
               scene.enableRemove = false;
             }
           }
+        }
+
+        if (instantEdit) {
+          _board.editingGrid = true;
         }
       }
     });
