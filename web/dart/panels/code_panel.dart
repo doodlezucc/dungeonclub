@@ -33,6 +33,9 @@ class CodePanel {
   ButtonElement _registerButton;
   ButtonElement _activateButton;
 
+  HtmlElement _errorText1;
+  HtmlElement _errorText2;
+
   ButtonElement _cancelButton;
   final ButtonElement _loginButton = querySelector('button#login');
 
@@ -59,6 +62,9 @@ class CodePanel {
     _registerButton = _panel.querySelector('.send');
     _activateButton = _panel.querySelector('.activate-code');
 
+    _errorText1 = _sectionRegister.querySelector('p.bad');
+    _errorText2 = _sectionActivate.querySelector('p.bad');
+
     _cancelButton = _panel.querySelector('button.close');
   }
 
@@ -68,6 +74,8 @@ class CodePanel {
     _emailInput.value = '';
     _passwordInput.value = '';
     _confirmInput.value = '';
+    _errorText1.text = '';
+    _errorText2.text = '';
     _updateCreateButton();
 
     var closer = Completer();
@@ -80,7 +88,9 @@ class CodePanel {
           'password': _passwordInput.value,
         });
 
-        if (moveOn) {
+        // Yes. I actually DO have to use "== true"!
+        // moveOn can be a string. Thanks for coming to my ted talk.
+        if (moveOn == true) {
           _emailReader.text = _emailInput.value;
           _setSection(_sectionActivate);
           _codeInput
@@ -88,14 +98,18 @@ class CodePanel {
             ..focus();
           blockPageExit = true;
         } else {
+          _errorText1.text = moveOn;
           _registerButton.disabled = false;
         }
       }),
       _activateButton.onClick.listen((event) async {
+        _errorText2.text = '';
         var account = await socket.request(actionVerify, {
           'code': _codeInput.value,
         });
-        if (account == false) return print("Sike! That's the wrong numba!");
+        if (account == false) {
+          _errorText2.text = 'Invalid code!';
+        }
 
         user.onActivate(account);
         closer.complete();

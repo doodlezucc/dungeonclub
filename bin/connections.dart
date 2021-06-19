@@ -73,12 +73,16 @@ class Connection extends Socket {
 
       case a.ACCOUNT_REGISTER:
         var email = params['email'];
-        if (data.getAccount(email) != null) return false;
+        if (data.getAccount(email) != null) {
+          return 'Email address already in use!';
+        }
 
         _account = Account(email, params['password']);
         var code = randomAlphaNumeric(5);
         activationCodes[this] = code;
-        return await sendVerifyCreationMail(email, code);
+        return await sendVerifyCreationMail(email, code)
+            ? true
+            : 'Email could not be sent.';
 
       case a.ACCOUNT_ACTIVATE:
         var actualCode = activationCodes[this];
@@ -106,7 +110,9 @@ class Connection extends Socket {
       case a.ACCOUNT_RESET_PASSWORD:
         var email = params['email'];
         var password = params['password'];
-        if (password == null || data.getAccount(email) == null) return false;
+        if (password == null || data.getAccount(email) == null) {
+          return 'No account connected to this email address found!';
+        }
 
         var code = randomAlphaNumeric(5);
         resets[this] = PasswordReset(email, password, code);
