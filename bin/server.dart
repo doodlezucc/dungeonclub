@@ -63,6 +63,25 @@ void main(List<String> args) async {
 
   await initializeMailServer();
   autoSaver.init();
+  listenToExit();
+}
+
+void onExit() async {
+  try {
+    await data.save();
+  } finally {
+    exit(0);
+  }
+}
+
+void listenToExit() {
+  var shuttingDown = false;
+  ProcessSignal.sigint.watch().forEach((signal) {
+    if (!shuttingDown) {
+      shuttingDown = true;
+      onExit();
+    }
+  });
 }
 
 String getMimeType(File f) {
