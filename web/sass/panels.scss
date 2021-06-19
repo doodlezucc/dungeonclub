@@ -239,10 +239,15 @@
         align-items: center;
     }
 
-    .grid {
-        display: grid;
-        grid-template-columns: max-content auto;
-        gap: 12px 16px;
+    table {
+        border-collapse: collapse;
+
+        tr > td + td {
+            padding-left: 16px;
+        }
+        tr + tr > td {
+            padding-top: 12px;
+        }
 
         input {
             min-width: 300px;

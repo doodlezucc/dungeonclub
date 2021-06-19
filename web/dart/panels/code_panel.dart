@@ -112,7 +112,7 @@ class CodePanel {
           'code': _codeInput.value,
         });
         if (account == false) {
-          _errorText2.text = 'Invalid code!';
+          return _errorText2.text = 'Invalid code!';
         }
 
         user.onActivate(account);
