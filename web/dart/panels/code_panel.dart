@@ -86,6 +86,7 @@ class CodePanel {
           _codeInput
             ..value = ''
             ..focus();
+          blockPageExit = true;
         } else {
           _registerButton.disabled = false;
         }
@@ -111,6 +112,7 @@ class CodePanel {
     _loginButton.classes.remove('disabled');
     subs.forEach((s) => s.cancel());
     overlayVisible = false;
+    blockPageExit = false;
   }
 
   void _setSection(HtmlElement section) {
