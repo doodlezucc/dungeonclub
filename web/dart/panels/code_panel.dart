@@ -56,7 +56,10 @@ class CodePanel {
     _confirmInput = _panel.querySelector('.confirm')
       ..onInput.listen((event) => _updateCreateButton());
 
-    _codeInput = _panel.querySelector('.code');
+    _codeInput = _panel.querySelector('.code')
+      ..onInput.listen((_) {
+        _activateButton.disabled = _codeInput.value.length != 5;
+      });
     _emailReader = _panel.querySelector('.email-reader');
 
     _registerButton = _panel.querySelector('.send');
@@ -89,9 +92,10 @@ class CodePanel {
         });
 
         // Yes. I actually DO have to use "== true"!
-        // moveOn can be a string. Thanks for coming to my ted talk.
+        // moveOn can be a string. Checkmate.
         if (moveOn == true) {
           _emailReader.text = _emailInput.value;
+          _activateButton.disabled = true;
           _setSection(_sectionActivate);
           _codeInput
             ..value = ''
