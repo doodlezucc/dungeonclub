@@ -16,6 +16,7 @@ Future<void> initializeMailServer() async {
     return exit(1);
   }
   var lines = await file.readAsLines();
+  // ignore: deprecated_member_use
   _smtpServer = gmail(lines[0], lines[1]);
   _mailAddress = lines[0] + '@gmail.com';
 }
