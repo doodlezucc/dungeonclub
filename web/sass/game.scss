@@ -415,7 +415,7 @@
         #distanceCanvas { display: none; }
     }
     &:not([mode="fow"]) {
-        #polymask { pointer-events: none; opacity: 0.8; }
+        #polymask { pointer-events: none; opacity: 0.5; }
     }
 }
 
