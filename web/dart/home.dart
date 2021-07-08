@@ -72,6 +72,10 @@ void onLogin() {
 
 Future<void> _displayAccountEnteredGames() async {
   for (var g in user.account.games) {
+    // Remove saved game if you're actually the owner
+    var saved = _gamesContainer.querySelector('[id="${g.id}"]');
+    if (saved != null) saved.remove();
+
     _addEnteredGame(g);
   }
 }
@@ -90,6 +94,7 @@ void _addEnteredGame(Game game) {
   HtmlElement topRow;
   var e = DivElement()
     ..className = 'game'
+    ..setAttribute('id', game.id)
     ..append(topRow = SpanElement()
       ..append(nameEl = HeadingElement.h3()..text = game.name))
     ..append(ButtonElement()
