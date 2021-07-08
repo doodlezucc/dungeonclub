@@ -10,6 +10,7 @@ import '../communication.dart';
 import '../font_awesome.dart';
 import '../panels/upload.dart' as upload;
 import 'condition.dart';
+import 'fog_of_war.dart';
 import 'grid.dart';
 import 'map.dart';
 import 'movable.dart';
@@ -35,6 +36,7 @@ final InputElement _selectedSize = querySelector('#movableSize');
 final ButtonElement _selectedRemove = querySelector('#movableRemove');
 final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
 
+final ButtonElement _fowToggle = querySelector('#fogOfWar');
 final ButtonElement _measureToggle = querySelector('#measureDistance');
 final CanvasElement _distanceCanvas = querySelector('#distanceCanvas');
 final HtmlElement _distanceText = querySelector('#distanceText');
@@ -44,6 +46,11 @@ class Board {
   final grid = Grid();
   final mapTab = MapTab();
   final movables = <Movable>[];
+  final fogOfWar = FogOfWar();
+
+  static const PAN = 'pan';
+  static const MEASURE = 'measure';
+  static const FOG_OF_WAR = 'fow';
 
   bool get editingGrid => _container.classes.contains('edit');
   set editingGrid(bool v) {
@@ -51,7 +58,7 @@ class Board {
 
     if (v) {
       _deselectAll();
-      measuring = false;
+      mode = PAN;
     } else {
       socket.sendAction(a.GAME_SCENE_UPDATE, {
         'grid': grid.toJson(),
@@ -65,13 +72,20 @@ class Board {
     }
   }
 
-  bool get measuring => _measureToggle.classes.contains('active');
-  set measuring(bool measuring) {
-    _container.classes.toggle('measuring', measuring);
-    _distanceCanvas.classes.toggle('hidden', !measuring);
-    _measureToggle.classes.toggle('active', measuring);
+  String _mode;
+  String get mode => _mode;
+  set mode(String mode) {
+    if (mode == _mode) mode = PAN;
 
-    if (measuring) {
+    _mode = mode;
+
+    var isPan = mode == PAN;
+    _container.attributes['mode'] = '$mode';
+    _measureToggle.classes.toggle('active', mode == MEASURE);
+    _fowToggle.classes.toggle('active', mode == FOG_OF_WAR);
+    fogOfWar.canvas.captureInput = mode == FOG_OF_WAR;
+
+    if (!isPan) {
       _deselectAll();
     }
   }
@@ -156,7 +170,8 @@ class Board {
   void _initBoard() {
     _initDragControls();
     initDiceTable();
-    _measureToggle.onClick.listen((_) => measuring = !measuring);
+    _measureToggle.onClick.listen((_) => mode = MEASURE);
+    _fowToggle.onClick.listen((_) => mode = FOG_OF_WAR);
 
     _container.onMouseWheel.listen((event) {
       if (event.target is InputElement) {
@@ -199,6 +214,7 @@ class Board {
     _initSelectionHandler();
     _initSelectionConds();
     mapTab.initMapControls();
+    fogOfWar.initFogOfWar(this);
   }
 
   void _removeSelectedMovable() async {
@@ -306,8 +322,8 @@ class Board {
         });
       }
 
-      if (measuring && button == 0) {
-        if (isBoardDrag) {
+      if (mode != PAN && button == 0) {
+        if (mode == MEASURE && isBoardDrag) {
           measureStart = grid.evToGridSpaceUnscaled(event);
           measureStartScaled = grid.roundToCell(event.offset);
           _distanceText.classes.remove('hidden');
@@ -356,7 +372,7 @@ class Board {
         var delta = event.movement * (1 / _scaledZoom);
 
         position += delta;
-      } else if (measuring && measureStart != null && parentIsBoard) {
+      } else if (mode == MEASURE && measureStart != null && parentIsBoard) {
         var measureEnd = grid.evToGridSpaceUnscaled(event);
         // Using Chebychov method
         var distance = max(
@@ -378,7 +394,7 @@ class Board {
     });
     window.onMouseUp.listen((event) {
       timer?.cancel();
-      if (measuring && event.button == 0) {
+      if (mode == MEASURE && event.button == 0) {
         measureStart = null;
         _distanceCanvas.context2D
             .clearRect(0, 0, _ground.naturalWidth, _ground.naturalHeight);
@@ -542,9 +558,11 @@ class Board {
     onImgChange(updateRef: false);
 
     grid.fromJson(json['grid']);
+    fogOfWar.load(json['fow']);
 
     for (var m in json['movables']) {
       onMovableCreate(m);
     }
+    mode = PAN;
   }
 }

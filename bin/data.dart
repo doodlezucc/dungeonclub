@@ -453,12 +453,14 @@ class Scene {
   String tileUnit;
   String gridColor;
   num gridAlpha;
+  String fogOfWar;
 
   Scene(Map<String, dynamic> json)
       : _movables = List.from(json['movables'] ?? [])
             .map((j) => Movable.create(j['id'], j))
             .toList() {
     applyGrid(json['grid'] ?? {});
+    fogOfWar = json['fow'];
   }
 
   Movable addMovable(Map<String, dynamic> json) {
@@ -508,6 +510,7 @@ class Scene {
           'alpha': gridAlpha,
         },
         'movables': _movables.map((e) => e.toJson()).toList(),
+        'fow': fogOfWar,
       };
 }
 

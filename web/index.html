@@ -82,14 +82,18 @@
                         Edit Scene
                         <i class="fas fa-wrench"></i>
                     </button>
-                    <button class="icon tab" id="diceTab">
-                        Roll Dice
-                        <i class="fas fa-dice-d20"></i>
-                        <table class="content" id="dice"></table>
+                    <button class="icon toggle dm" id="fogOfWar">
+                        Fog of War
+                        <i class="fas fa-cloud"></i>
                     </button>
                     <button class="icon toggle" id="measureDistance">
                         Measuring
                         <i class="fas fa-ruler"></i>
+                    </button>
+                    <button class="icon tab" id="diceTab">
+                        Roll Dice
+                        <i class="fas fa-dice-d20"></i>
+                        <table class="content" id="dice"></table>
                     </button>
                     <button class="icon" id="openMap">
                         Map View
@@ -122,7 +126,7 @@
                         <i class="fas fa-save"></i>
                     </button>
                 </div>
-                <div id="prefabPalette" class="controls panel dm no-edit no-measure">
+                <div id="prefabPalette" class="controls panel dm no-edit panning-only">
                     <h3>Prefab Palette</h3>
                     <div class="prefab-selection">
                         <p>Players</p>
@@ -167,7 +171,7 @@
                     <div id="conds"></div>
                     <button id="movableRemove" class="bad compact">Remove from scene</button>
                 </div>
-                <div id="sceneSelector" class="controls panel dm hooked no-edit no-measure">
+                <div id="sceneSelector" class="controls panel dm hooked no-edit panning-only">
                     <h3>Scene Selector</h3>
                     <span class="top-hook">
                         <div>
@@ -185,8 +189,37 @@
                     <div id="grid">
                         <div id="movableGhost" class="movable"></div>
                     </div>
-                    <canvas id="distanceCanvas" class="hidden"></canvas>
+                    <canvas id="distanceCanvas"></canvas>
                     <span id="distanceText" class="hidden"></span>
+
+                    <svg id="polymask">
+                        <defs>
+                            <pattern id="barrier" width="21" height="10" patternUnits="userSpaceOnUse"
+                                patternTransform="rotate(45 50 50)">
+                                <rect fill="#1115"></rect>
+                                <line stroke="#fb8" stroke-width="20px" y2="10" />
+                                <animateTransform attributeType="xml" attributeName="patternTransform" type="translate"
+                                    from="0" to="21" dur="3s" repeatCount="indefinite" additive="sum" />
+                            </pattern>
+
+                            <filter id="outline">
+                                <feMorphology operator="dilate" radius="2" in="SourceGraphic" result="THICKNESS" />
+                                <feComposite operator="out" in="THICKNESS" in2="SourceGraphic"></feComposite>
+                            </filter>
+
+                            <mask id="polyneg">
+                                <rect fill="white"></rect>
+                            </mask>
+                        </defs>
+
+                        <g filter="url(#outline)" fill="#fb8">
+                            <g id="polypos" mask="url(#polyneg)"></g>
+                        </g>
+
+                        <use href="#polypos" class="polypattern"></use>
+
+                        <polygon id="polyprev" class="polypattern"></polygon>
+                    </svg>
                 </div>
                 <div id="map">
                     <span>

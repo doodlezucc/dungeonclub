@@ -33,6 +33,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       }
       return user.session?.board?.onImgChange();
 
+    case GAME_SCENE_FOG_OF_WAR:
+      return user.session?.board?.fogOfWar?.load(params['data']);
+
     case GAME_JOIN_REQUEST:
       return await user.account?.displayPickCharacterDialog(params['name']);
 

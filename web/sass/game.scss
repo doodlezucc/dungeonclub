@@ -406,10 +406,16 @@
             cursor: move;
         }
     }
-    &.measuring {
-        .no-measure {
+    &:not([mode="pan"]) {
+        .panning-only {
             @extend .invisible;
         }
+    }
+    &:not([mode="measure"]) {
+        #distanceCanvas { display: none; }
+    }
+    &:not([mode="fow"]) {
+        #polymask { pointer-events: none; opacity: 0.8; }
     }
 }
 

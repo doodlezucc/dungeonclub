@@ -18,6 +18,8 @@ dependencies:
   mailer: ^3.0.0
   web_whiteboard:
     git: https://github.com/doodlezucc/web_whiteboard.git
+  web_polymask:
+    git: https://github.com/doodlezucc/web_polymask.git
   async: ^2.7.0
   archive: ^3.1.2
 

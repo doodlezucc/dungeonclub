@@ -27,6 +27,7 @@ const GAME_SCENE_GET = 'gameSceneGet';
 const GAME_SCENE_ADD = 'gameSceneAdd';
 const GAME_SCENE_REMOVE = 'gameSceneRemove';
 const GAME_SCENE_PLAY = 'gameScenePlay';
+const GAME_SCENE_FOG_OF_WAR = 'gameSceneFOW';
 
 const GAME_ROLL_DICE = 'gameRollDice';
 const GAME_PING = 'gamePing';

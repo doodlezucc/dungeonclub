@@ -343,6 +343,15 @@ class Connection extends Socket {
         }
         return result;
 
+      case a.GAME_SCENE_FOG_OF_WAR:
+        var data = params['data'];
+
+        if (scene == null || data == null) return false;
+
+        scene.fogOfWar = data;
+        _game.notify(action, params, exclude: this);
+        return true;
+
       case a.GAME_ROLL_DICE:
         int charId = params['id'];
         int sides = params['sides'];
