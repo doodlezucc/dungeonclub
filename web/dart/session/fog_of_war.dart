@@ -21,23 +21,30 @@ class FogOfWar {
   Future<void> load(String data) async {
     if (data != null) {
       canvas.fromData(data);
-      //TODO fix chrome/firefox SVG issues
-
-      var maskRect = canvas.polyneg.children.first;
-
-      Future<void> adjust(int x) async {
-        maskRect.attributes['width'] = '$x%';
-        maskRect.attributes['height'] = '$x%';
-        await Future.delayed(Duration(milliseconds: 50));
-      }
-
-      for (var i = 0; i < 10; i++) {
-        await adjust(99);
-        await adjust(100);
-      }
+      await _fixSvgInit();
     } else {
       canvas.clear();
     }
+  }
+
+  // Force browsers to redraw SVG
+  Future<void> _fixSvgInit() async {
+    var maskRect = canvas.polyneg.children.first;
+
+    Future<void> adjust(int x) async {
+      maskRect.attributes['width'] = '$x%';
+      maskRect.attributes['height'] = '$x%';
+      await Future.delayed(Duration(milliseconds: 50));
+    }
+
+    var rect = canvas.root.parent.getBoundingClientRect();
+
+    canvas.root.setAttribute('viewBox', '0 0 ${rect.width} ${rect.height}');
+    for (var i = 0; i < 10; i++) {
+      await adjust(99);
+      await adjust(100);
+    }
+    canvas.root.removeAttribute('viewBox');
   }
 
   void _onPolymaskChange() {

@@ -458,7 +458,7 @@ class Board {
     ctx.fill();
   }
 
-  Future<void> _changeImageDialog() async {
+  void _changeImageDialog() async {
     var img = await upload.display(
       action: a.GAME_SCENE_UPDATE,
       type: a.IMAGE_TYPE_SCENE,
@@ -468,7 +468,7 @@ class Board {
     );
 
     if (img != null) {
-      onImgChange(src: img);
+      await onImgChange(src: img);
     }
   }
 
@@ -477,7 +477,7 @@ class Board {
         'scale($scaledZoom) translate(${position.x}px, ${position.y}px)';
   }
 
-  void onImgChange({String src, bool updateRef = true}) async {
+  Future<void> onImgChange({String src, bool updateRef = true}) async {
     src = src ?? Scene.getSceneImage(_sceneId);
     src += '?${DateTime.now().millisecondsSinceEpoch ~/ 1000}';
     _ground.src = src;
@@ -556,9 +556,7 @@ class Board {
     clear();
 
     _sceneId = id;
-    onImgChange(updateRef: false);
-
-    grid.fromJson(json['grid']);
+    await onImgChange(updateRef: false);
 
     mode = PAN;
 
@@ -570,6 +568,8 @@ class Board {
       // before revealing movables
       await loadFOW();
     }
+
+    grid.fromJson(json['grid']);
 
     for (var m in json['movables']) {
       onMovableCreate(m);
