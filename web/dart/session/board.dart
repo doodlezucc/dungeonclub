@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
+import 'package:pedantic/pedantic.dart';
 
 import '../communication.dart';
 import '../font_awesome.dart';
@@ -551,18 +552,27 @@ class Board {
 
   void onMovableUpdate(json) => _movableEvent(json, (m) => m.fromJson(json));
 
-  void fromJson(int id, Map<String, dynamic> json) {
+  void fromJson(int id, Map<String, dynamic> json) async {
     clear();
 
     _sceneId = id;
     onImgChange(updateRef: false);
 
     grid.fromJson(json['grid']);
-    fogOfWar.load(json['fow']);
+
+    mode = PAN;
+
+    var loadFOW = () => fogOfWar.load(json['fow']);
+    if (session.isDM) {
+      unawaited(loadFOW());
+    } else {
+      // Wait for fog of war to be correctly displayed
+      // before revealing movables
+      await loadFOW();
+    }
 
     for (var m in json['movables']) {
       onMovableCreate(m);
     }
-    mode = PAN;
   }
 }

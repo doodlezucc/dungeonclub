@@ -203,7 +203,7 @@
                             </pattern>
 
                             <filter id="outline">
-                                <feMorphology operator="dilate" radius="2" in="SourceGraphic" result="THICKNESS" />
+                                <feMorphology operator="dilate" radius="3" in="SourceGraphic" result="THICKNESS" />
                                 <feComposite operator="out" in="THICKNESS" in2="SourceGraphic"></feComposite>
                             </filter>
 
@@ -218,7 +218,7 @@
 
                         <use href="#polypos" class="polypattern"></use>
 
-                        <polygon id="polyprev" class="polypattern"></polygon>
+                        <polygon id="polyprev"></polygon>
                     </svg>
                 </div>
                 <div id="map">

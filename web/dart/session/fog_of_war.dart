@@ -7,8 +7,7 @@ import '../communication.dart';
 import 'board.dart';
 
 class FogOfWar {
-  final canvas =
-      PolygonCanvas(querySelector('#board svg'), captureInput: false);
+  final canvas = PolygonCanvas(querySelector('#polymask'), captureInput: false);
 
   void initFogOfWar(Board board) {
     canvas
@@ -19,10 +18,23 @@ class FogOfWar {
       ..modifyPoint = (p) => p * (1 / board.scaledZoom);
   }
 
-  void load(String data) async {
+  Future<void> load(String data) async {
     if (data != null) {
       canvas.fromData(data);
       //TODO fix chrome/firefox SVG issues
+
+      var maskRect = canvas.polyneg.children.first;
+
+      Future<void> adjust(int x) async {
+        maskRect.attributes['width'] = '$x%';
+        maskRect.attributes['height'] = '$x%';
+        await Future.delayed(Duration(milliseconds: 50));
+      }
+
+      for (var i = 0; i < 10; i++) {
+        await adjust(99);
+        await adjust(100);
+      }
     } else {
       canvas.clear();
     }
