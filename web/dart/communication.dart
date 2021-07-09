@@ -11,7 +11,7 @@ final socket = FrontSocket();
 
 final bool _isLocal = window.location.hostname == 'localhost';
 final String _serverAddress =
-    _isLocal ? 'http://localhost:7070' : dirname(window.location.href);
+    _isLocal ? 'http://localhost:7070' : join(window.location.origin, 'dnd');
 
 String getFile(String path, {bool cacheBreak = true}) {
   var out = join(_serverAddress, path);

@@ -74,6 +74,10 @@ body {
     }
 }
 
+::selection {
+    background-color: var(--color-separator);
+}
+
 a {
     color: var(--color-button-text);
     text-decoration: underline;
