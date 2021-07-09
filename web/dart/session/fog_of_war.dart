@@ -21,10 +21,10 @@ class FogOfWar {
   Future<void> load(String data) async {
     if (data != null) {
       canvas.fromData(data);
-      await _fixSvgInit();
     } else {
       canvas.clear();
     }
+    await _fixSvgInit();
   }
 
   // Force browsers to redraw SVG
