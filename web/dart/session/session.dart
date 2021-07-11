@@ -41,10 +41,10 @@ class Session extends Game {
     window.localStorage['joined'] = jsonEncode(idNames);
   }
 
-  String getPlayerColor(int player) {
+  String getPlayerColor(int player, [int charCount]) {
     if (player == null) return '#ffffff'; // DM color
 
-    var h = 360 * player / characters.length;
+    var h = 360 * player / (charCount ?? characters.length);
     var l = 0.65 + 0.1 * sin(player);
 
     // Convert from HSL to RGB
@@ -81,7 +81,7 @@ class Session extends Game {
     characters.clear();
     var pcs = List.from(json['pcs']);
     for (var i = 0; i < pcs.length; i++) {
-      characters.add(Character(i, pcs[i]));
+      characters.add(Character(i, getPlayerColor(i, pcs.length), pcs[i]));
     }
 
     _charId = json['mine'];

@@ -322,11 +322,11 @@
     }
 
     #playerControls {
-        position: absolute;
         top: 16px;
         left: 16px;
         display: flex;
         flex-direction: column;
+        padding: 0;
 
         button {
             height: 40px;
@@ -829,9 +829,6 @@ $ping-radius: 100px;
         > i {
             font-style: normal;
             color: var(--color-primary);
-            // background-color: black;
-            // padding: 3px 6px;
-            // border-radius: 4px;
         }
     }
 
@@ -946,5 +943,25 @@ $ping-radius: 100px;
 
     button {
         padding: 6px 4px;
+    }
+}
+
+#online {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    width: 25vw;
+
+    > span {
+        display: flex;
+        align-items: center;
+        background-color: #111b;
+        padding: 8px 12px 8px 8px;
+        gap: 6px;
+        border-radius: 100px;
+        box-sizing: border-box;
     }
 }
