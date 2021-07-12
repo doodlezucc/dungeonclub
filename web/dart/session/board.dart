@@ -14,6 +14,7 @@ import 'condition.dart';
 import 'fog_of_war.dart';
 import 'grid.dart';
 import 'map.dart';
+import 'measuring.dart';
 import 'movable.dart';
 import 'prefab.dart';
 import 'prefab_palette.dart';
@@ -39,8 +40,6 @@ final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
 
 final ButtonElement _fowToggle = querySelector('#fogOfWar');
 final ButtonElement _measureToggle = querySelector('#measureDistance');
-final CanvasElement _distanceCanvas = querySelector('#distanceCanvas');
-final HtmlElement _distanceText = querySelector('#distanceText');
 
 class Board {
   final Session session;
@@ -150,7 +149,7 @@ class Board {
 
     var invZoomScale = 'scale(${1 / scaledZoom})';
     _selectionProperties.style.transform = invZoomScale;
-    _distanceText.style.transform = invZoomScale;
+    distanceText.style.transform = invZoomScale;
 
     _transform();
   }
@@ -290,19 +289,19 @@ class Board {
     input.onChange.listen((_) => update());
   }
 
-  void _initDragControls() {
-    void alignDistanceText(MouseEvent event, num distance) {
-      var p = event.offset;
-      _distanceText.style.left = '${p.x}px';
-      _distanceText.style.top = '${p.y}px';
-      _distanceText.text = grid.tileUnitString(distance);
-    }
+  void alignDistanceText(MouseEvent event) {
+    var p = event.offset;
+    distanceText.style.left = '${p.x}px';
+    distanceText.style.top = '${p.y}px';
+  }
 
+  void _initDragControls() {
     var isBoardDrag = false;
     var drag = false;
     var button = -1;
-    Point measureStart;
-    Point measureStartScaled;
+
+    MeasuringPath mPath;
+
     Timer timer;
     _container.onMouseDown.listen((event) async {
       if (mapTab.visible) return;
@@ -323,15 +322,16 @@ class Board {
         });
       }
 
-      if (mode != PAN && button == 0) {
+      if (mode != PAN) {
         if (mode == MEASURE && isBoardDrag) {
-          measureStart = grid.evToGridSpaceUnscaled(event);
-          measureStartScaled = grid.roundToCell(event.offset);
-          _distanceText.classes.remove('hidden');
-          alignDistanceText(event, 0);
-          _redrawDistanceCanvas(measureStartScaled, measureStartScaled);
-        }
-        return;
+          if (button == 0 || mPath != null) {
+            alignDistanceText(event);
+            mPath ??= MeasuringPath();
+            // add point to path
+            mPath.addPoint(grid.evToGridSpaceUnscaled(event));
+            return;
+          }
+        } else if (button == 0) return;
       }
 
       var movable = event.path
@@ -371,20 +371,16 @@ class Board {
 
       if (drag) {
         var delta = event.movement * (1 / _scaledZoom);
-
         position += delta;
-      } else if (mode == MEASURE && measureStart != null && parentIsBoard) {
+      }
+      // Update distance measuring path
+      else if (mode == MEASURE && mPath != null && parentIsBoard) {
         var measureEnd = grid.evToGridSpaceUnscaled(event);
-        // Using Chebychov method
-        var distance = max(
-          (measureEnd.x - measureStart.x).abs(),
-          (measureEnd.y - measureStart.y).abs(),
-        );
-        alignDistanceText(event, distance);
-
-        _redrawDistanceCanvas(
-            measureStartScaled, grid.roundToCell(event.offset));
-      } else if (selectedPrefab != null) {
+        mPath.redraw(measureEnd);
+        alignDistanceText(event);
+      }
+      // Update ghost movable
+      else if (selectedPrefab != null) {
         if (!parentIsBoard) {
           toggleMovableGhostVisible(false);
         } else {
@@ -395,11 +391,9 @@ class Board {
     });
     window.onMouseUp.listen((event) {
       timer?.cancel();
-      if (mode == MEASURE && event.button == 0) {
-        measureStart = null;
-        _distanceCanvas.context2D
-            .clearRect(0, 0, _ground.naturalWidth, _ground.naturalHeight);
-        _distanceText.classes.add('hidden');
+      if (mode == MEASURE && event.button == 0 && mPath != null) {
+        mPath.dispose();
+        mPath = null;
       }
     });
   }
@@ -438,26 +432,6 @@ class Board {
     ping.remove();
   }
 
-  void _redrawDistanceCanvas(Point start, Point end) {
-    var ctx = _distanceCanvas.context2D;
-    ctx.clearRect(0, 0, _ground.naturalWidth, _ground.naturalHeight);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = max(2 / scaledZoom, 2);
-    ctx.beginPath();
-    ctx.moveTo(start.x, start.y);
-    ctx.lineTo(end.x, end.y);
-    ctx.closePath();
-    ctx.stroke();
-
-    var circleSize = max(5 / scaledZoom, 5);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(start.x, start.y, circleSize, 0, 2 * pi);
-    ctx.arc(end.x, end.y, circleSize, 0, 2 * pi);
-    ctx.fill();
-  }
-
   void _changeImageDialog() async {
     var img = await upload.display(
       action: a.GAME_SCENE_UPDATE,
@@ -485,8 +459,6 @@ class Board {
       refScene?.image = src;
     }
     await _ground.onLoad.first;
-    _distanceCanvas.width = _ground.naturalWidth;
-    _distanceCanvas.height = _ground.naturalHeight;
     grid.resize(_ground.naturalWidth, _ground.naturalHeight);
   }
 
@@ -570,6 +542,10 @@ class Board {
     }
 
     grid.fromJson(json['grid']);
+
+    var x = grid.tiles;
+    var y = x * (_ground.height / _ground.width);
+    measuringRoot.setAttribute('viewBox', '-0.5 -0.5 $x $y');
 
     for (var m in json['movables']) {
       onMovableCreate(m);

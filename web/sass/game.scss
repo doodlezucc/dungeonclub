@@ -419,12 +419,6 @@
     }
 }
 
-@keyframes blink {
-    0%   { opacity: 0.7; filter: brightness(0); }
-    50%  { opacity: 0.9; filter: brightness(1); }
-    100% { opacity: 0.7; filter: brightness(0); }
-}
-
 #session {
     display: flex;
     flex-direction: row;
@@ -521,26 +515,41 @@
     }
 
     > .hidden { display: none; }
+}
 
-    #distanceCanvas {
-        animation: blink 1s infinite linear;
-        z-index: 100;
+@keyframes blink {
+    0%   { stroke: #000; fill: #000; }
+    50%  { stroke: #fff; fill: #fff; }
+    100% { stroke: #000; fill: #000; }
+}
+
+#distanceCanvas {
+    animation: blink 1s infinite linear;
+    stroke-width: 0.1;
+
+    > * { pointer-events: none; }
+    
+    path {
+        fill: none !important;
     }
 
-    #distanceText {
-        position: absolute;
-        z-index: 101;
-        padding: 8px 12px;
-        border-radius: base.$radius;
-        background-color: var(--color-not-intense);
-        box-shadow: 0 0 8px 2px #0005;
-        transform-origin: top left;
-        transition-duration: 0.1s;
-        transition-property: transform;
-        transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
-        pointer-events: none;
-        white-space: nowrap;
+    circle {
+        stroke: none !important;
     }
+}
+#distanceText {
+    position: absolute;
+    z-index: 101;
+    padding: 8px 12px;
+    border-radius: base.$radius;
+    background-color: var(--color-not-intense);
+    box-shadow: 0 0 8px 2px #0005;
+    transform-origin: top left;
+    transition-duration: 0.1s;
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+    pointer-events: none;
+    white-space: nowrap;
 }
 
 #grid {
