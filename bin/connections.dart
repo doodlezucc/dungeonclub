@@ -402,6 +402,12 @@ class Connection extends Socket {
           _game.notify(action, params, exclude: this);
         }
         return true;
+
+      case a.GAME_CHAT:
+        if (_game != null) {
+          _game.notify(action, params, exclude: this, allScenes: true);
+        }
+        return true;
     }
   }
 

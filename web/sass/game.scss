@@ -454,20 +454,30 @@
 }
 
 #log {
-    display: flex;
-    flex-direction: column;
     min-width: 15vw;
     width: 25vw;
     max-width: 300px;
-    overflow-x: hidden;
-    overflow-y: auto;
     z-index: 2;
 
+    &, > * {
+        display: flex;
+        flex-direction: column;
+    }
+}
+#messages {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
+    padding: 4px;
+    gap: 6px;
+
     > * {
-        padding: 10px;
+        padding: 8px;
         text-shadow: var(--shadow-text);
         font-size: 1.1em;
-        border-bottom: 1px solid #999;
+        overflow-wrap: break-word;
+        background-color: var(--color-not-intense);
+        border-radius: 8px;
 
         > span {
             color: #999;
@@ -483,6 +493,27 @@
 
         &.mine {
             background-color: var(--color-not-intense);
+        }
+    }
+}
+#chat {
+    position: relative;
+
+    > textarea {
+        max-height: 8vh;
+        min-height: 40px;
+        resize: none;
+    }
+
+    > button {
+        position: absolute;
+        top: 0;
+        right: 0;
+
+        > span {
+            top: 0;
+            bottom: auto;
+            right: 100%;
         }
     }
 }

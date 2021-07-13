@@ -4,6 +4,7 @@ import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/point_json.dart';
 
 import '../main.dart';
+import 'session/log.dart';
 import 'session/prefab_palette.dart';
 import 'session/roll_dice.dart';
 
@@ -66,6 +67,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_PING:
       var point = parsePoint(params);
       return user.session?.board?.displayPing(point, params['player']);
+
+    case GAME_CHAT:
+      return onChat(params);
   }
 
   window.console.warn('Unhandled action!');

@@ -31,6 +31,7 @@ const GAME_SCENE_FOG_OF_WAR = 'gameSceneFOW';
 
 const GAME_ROLL_DICE = 'gameRollDice';
 const GAME_PING = 'gamePing';
+const GAME_CHAT = 'gameChat';
 
 const GAME_MAP_CREATE = 'gameMapCreate';
 const GAME_MAP_UPDATE = 'gameMapUpdate';
