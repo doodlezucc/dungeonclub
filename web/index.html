@@ -185,7 +185,14 @@
                 </div>
                 <div id="board">
                     <img id="ground" src="https://via.placeholder.com/500">
-                    <canvas id="gridCanvas"></canvas>
+                    <svg id="gridCanvas">
+                        <defs>
+                            <pattern id="gridPattern" width="80" height="80" patternUnits="userSpaceOnUse">
+                                <path d="M 1000 0 L 0 0 0 1000" fill="none" stroke="gray" stroke-width="4" />
+                            </pattern>
+                        </defs>
+                        <rect fill="url(#gridPattern)"></rect>
+                    </svg>
                     <div id="grid">
                         <div id="movableGhost" class="movable"></div>
                     </div>
@@ -415,7 +422,7 @@
             </button>
 
             <section class="credentials">
-                <form>
+                <form action="javascript:void(0);">
                     <table>
                         <tr>
                             <td>Email address</td>
@@ -478,7 +485,7 @@
                     When submitting the new password, a verification code will be sent to your email address.
                 </p>
 
-                <form>
+                <form action="javascript:void(0);">
                     <table>
                         <tr>
                             <td>Email address</td>

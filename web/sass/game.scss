@@ -51,11 +51,6 @@
                 input {
                     width: 160px;
                 }
-
-                #gridTileSize::after {
-                    content: 'ft';
-                    width: 100px;
-                }
             }
         }
     }
@@ -389,11 +384,10 @@
         }
 
         #gridCanvas {
-            &.blink {
+            &.blink path {
                 animation: blink 1s infinite linear;
-            }
-            &:hover {
-                opacity: 0;
+                fill: none !important;
+                opacity: 1 !important;
             }
         }
     }
@@ -415,7 +409,7 @@
         #distanceCanvas { display: none; }
     }
     &:not([mode="fow"]) {
-        #polymask { pointer-events: none; opacity: 0.5; }
+        #polymask { pointer-events: none; opacity: 0.7; }
     }
 }
 

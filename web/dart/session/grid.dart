@@ -1,5 +1,6 @@
 import 'dart:html';
 import 'dart:math';
+import 'dart:svg' as svg;
 
 import 'package:dnd_interactive/point_json.dart';
 
@@ -13,7 +14,9 @@ final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
 
 class Grid {
   final HtmlElement e;
-  final CanvasElement _canvas = querySelector('#gridCanvas');
+  final svg.SvgSvgElement _canvas = querySelector('#gridCanvas');
+  final svg.PatternElement _pattern = querySelector('#gridPattern');
+  final svg.RectElement _rect = querySelector('#gridCanvas rect');
 
   bool get blink => _canvas.classes.contains('blink');
   set blink(bool blink) => _canvas.classes.toggle('blink', blink);
@@ -28,7 +31,7 @@ class Grid {
     redrawCanvas();
   }
 
-  num get cellSize => _canvas.width / _tiles;
+  num get cellSize => (_canvas.clientWidth - 2) / _tiles;
 
   Point _offset = Point(0, 0);
   Point get offset => _offset;
@@ -148,30 +151,20 @@ class Grid {
   }
 
   void resize(int width, int height) {
-    _canvas.width = width;
-    _canvas.height = height;
+    _rect.setAttribute('width', '$width');
+    _rect.setAttribute('height', '$height');
     redrawCanvas();
     _updateCellSize();
   }
 
   void redrawCanvas() {
-    var ctx = _canvas.context2D;
-    ctx.clearRect(0, 0, _canvas.width, _canvas.height);
-    ctx.globalAlpha = blink ? 1 : _gridAlpha.valueAsNumber;
-    ctx.strokeStyle = blink ? '#ffffff' : _gridColor.value;
-    ctx.beginPath();
-    for (var x = offset.x; x < _canvas.width; x += cellSize) {
-      var xr = x.round() - 0.5;
-      ctx.moveTo(xr, 0);
-      ctx.lineTo(xr, _canvas.height);
-    }
-    for (var y = offset.y; y < _canvas.height; y += cellSize) {
-      var yr = y.round() - 0.5;
-      ctx.moveTo(0, yr);
-      ctx.lineTo(_canvas.width, yr);
-    }
-    ctx.closePath();
-    ctx.stroke();
+    var size = cellSize;
+    _pattern.setAttribute('width', '$size');
+    _pattern.setAttribute('height', '$size');
+
+    svg.PathElement path = _pattern.children.first;
+    path.setAttribute('stroke', _gridColor.value);
+    path.setAttribute('opacity', _gridAlpha.value);
   }
 
   Map<String, dynamic> toJson() => {
