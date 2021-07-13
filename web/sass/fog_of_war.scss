@@ -1,3 +1,5 @@
+$outline: 4px;
+
 #board {
     > svg {
         position: absolute;
@@ -17,8 +19,13 @@ svg rect {
         opacity: 0.7;
     }
 
-    #polyneg polygon {
-        fill: black;
+    .polypattern, #polynegdisplay {
+        stroke: #fb8;
+        stroke-width: $outline;
+    }
+
+    #polynegdisplay {
+        fill: none;
     }
 
     #polyprev {

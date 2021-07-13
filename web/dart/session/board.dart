@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
-import 'package:pedantic/pedantic.dart';
 
 import '../communication.dart';
 import '../font_awesome.dart';
@@ -460,6 +459,7 @@ class Board {
     }
     await _ground.onLoad.first;
     grid.resize(_ground.naturalWidth, _ground.naturalHeight);
+    fogOfWar.fixSvgInit(_ground.naturalWidth, _ground.naturalHeight);
   }
 
   void clear() {
@@ -532,15 +532,7 @@ class Board {
 
     mode = PAN;
 
-    var loadFOW = () => fogOfWar.load(json['fow']);
-    if (session.isDM) {
-      unawaited(loadFOW());
-    } else {
-      // Wait for fog of war to be correctly displayed
-      // before revealing movables
-      await loadFOW();
-    }
-
+    fogOfWar.load(json['fow']);
     grid.fromJson(json['grid']);
 
     var x = grid.tiles;

@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:svg' as svg;
 
 import 'package:dnd_interactive/actions.dart';
 import 'package:web_polymask/polygon_canvas.dart';
@@ -18,33 +19,22 @@ class FogOfWar {
       ..modifyPoint = (p) => p * (1 / board.scaledZoom);
   }
 
-  Future<void> load(String data) async {
+  void load(String data) {
     if (data != null) {
       canvas.fromData(data);
     } else {
       canvas.clear();
     }
-    await _fixSvgInit();
   }
 
   // Force browsers to redraw SVG
-  Future<void> _fixSvgInit() async {
-    var maskRect = canvas.polyneg.children.first;
+  void fixSvgInit(int width, int height) {
+    svg.RectElement maskRect = canvas.root.querySelector('mask rect');
 
-    Future<void> adjust(int x) async {
-      maskRect.attributes['width'] = '$x%';
-      maskRect.attributes['height'] = '$x%';
-      await Future.delayed(Duration(milliseconds: 50));
-    }
-
-    var rect = canvas.root.parent.getBoundingClientRect();
-
-    canvas.root.setAttribute('viewBox', '0 0 ${rect.width} ${rect.height}');
-    for (var i = 0; i < 10; i++) {
-      await adjust(99);
-      await adjust(100);
-    }
-    canvas.root.removeAttribute('viewBox');
+    maskRect.width.baseVal
+        .newValueSpecifiedUnits(svg.Length.SVG_LENGTHTYPE_PX, width);
+    maskRect.height.baseVal
+        .newValueSpecifiedUnits(svg.Length.SVG_LENGTHTYPE_PX, height);
   }
 
   void _onPolymaskChange() {
