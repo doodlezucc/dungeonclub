@@ -7,8 +7,14 @@ import 'package:web_polymask/polygon_canvas.dart';
 import '../communication.dart';
 import 'board.dart';
 
+const _marginPx = 80;
+
 class FogOfWar {
-  final canvas = PolygonCanvas(querySelector('#polymask'), captureInput: false);
+  final canvas = PolygonCanvas(
+    querySelector('#polymask'),
+    captureInput: false,
+    cropMargin: _marginPx,
+  );
 
   void initFogOfWar(Board board) {
     canvas
@@ -31,10 +37,9 @@ class FogOfWar {
   void fixSvgInit(int width, int height) {
     svg.RectElement maskRect = canvas.root.querySelector('mask rect');
 
-    maskRect.width.baseVal
-        .newValueSpecifiedUnits(svg.Length.SVG_LENGTHTYPE_PX, width);
-    maskRect.height.baseVal
-        .newValueSpecifiedUnits(svg.Length.SVG_LENGTHTYPE_PX, height);
+    var unit = svg.Length.SVG_LENGTHTYPE_PX;
+    maskRect.width.baseVal.newValueSpecifiedUnits(unit, width + _marginPx);
+    maskRect.height.baseVal.newValueSpecifiedUnits(unit, height + _marginPx);
   }
 
   void _onPolymaskChange() {

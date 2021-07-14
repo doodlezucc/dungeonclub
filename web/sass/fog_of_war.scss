@@ -1,11 +1,10 @@
 $outline: 4px;
+$margin: 80px;
 
-#board {
-    > svg {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-    }
+.fill-board {
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
 
 svg rect {
@@ -13,7 +12,17 @@ svg rect {
     height: 100%;
 }
 
+#polymaskWrapper {
+    top: -$margin;
+    left: -$margin;
+    width: calc(100% + #{2 * $margin}) !important;
+    height: calc(100% + #{2 * $margin}) !important;
+}
+
 #polymask {
+    width: 100%;
+    height: 100%;
+
     .polypattern, .positive-pole {
         fill: url(#barrier) !important;
         opacity: 0.7;

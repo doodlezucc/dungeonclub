@@ -185,7 +185,7 @@
                 </div>
                 <div id="board">
                     <img id="ground" src="https://via.placeholder.com/500">
-                    <svg id="gridCanvas">
+                    <svg id="gridCanvas" class="fill-board">
                         <defs>
                             <pattern id="gridPattern" width="80" height="80" patternUnits="userSpaceOnUse">
                                 <path d="M 1000 0 L 0 0 0 1000" fill="none" stroke="gray" stroke-width="4" />
@@ -196,35 +196,38 @@
                     <div id="grid">
                         <div id="movableGhost" class="movable"></div>
                     </div>
-                    <svg id="distanceCanvas"></svg>
+                    <svg id="distanceCanvas" class="fill-board"></svg>
                     <span id="distanceText" class="hidden"></span>
 
-                    <svg id="polymask">
-                        <defs>
-                            <pattern id="barrier" width="21" height="10" patternUnits="userSpaceOnUse"
-                                patternTransform="rotate(45 50 50)">
-                                <rect fill="#1115"></rect>
-                                <line stroke="#fb8" stroke-width="20px" y2="10" />
-                                <animateTransform attributeType="xml" attributeName="patternTransform" type="translate"
-                                    from="0" to="21" dur="3s" repeatCount="indefinite" additive="sum" />
-                            </pattern>
+                    <div id="polymaskWrapper" class="fill-board">
+                        <svg id="polymask">
+                            <defs>
+                                <pattern id="barrier" width="21" height="10" patternUnits="userSpaceOnUse"
+                                    patternTransform="rotate(45 50 50)">
+                                    <rect fill="#1115"></rect>
+                                    <line stroke="#fb8" stroke-width="20px" y2="10" />
+                                    <animateTransform attributeType="xml" attributeName="patternTransform"
+                                        type="translate" from="0" to="21" dur="3s" repeatCount="indefinite"
+                                        additive="sum" />
+                                </pattern>
 
-                            <g id="polyneg"></g>
+                                <g id="polyneg"></g>
 
-                            <mask id="polynegmask" fill="black">
-                                <rect fill="white"></rect>
+                                <mask id="polynegmask" fill="black">
+                                    <rect fill="white"></rect>
+                                    <use href="#polyneg"></use>
+                                </mask>
+                            </defs>
+
+                            <g id="polypos" class="polypattern" mask="url(#polynegmask)"></g>
+
+                            <g id="polynegdisplay">
                                 <use href="#polyneg"></use>
-                            </mask>
-                        </defs>
+                            </g>
 
-                        <g id="polypos" class="polypattern" mask="url(#polynegmask)"></g>
-
-                        <g id="polynegdisplay">
-                            <use href="#polyneg"></use>
-                        </g>
-
-                        <polygon id="polyprev"></polygon>
-                    </svg>
+                            <polygon id="polyprev"></polygon>
+                        </svg>
+                    </div>
                 </div>
                 <div id="map">
                     <span>
