@@ -51,7 +51,7 @@ svg rect {
     }
 }
 
-#session:not(.is-dm) #polymask {
+#session:not(.is-dm) #polymaskWrapper {
     opacity: 1 !important;
 
     .polypattern {
