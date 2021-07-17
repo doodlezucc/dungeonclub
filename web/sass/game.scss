@@ -409,8 +409,12 @@
         #distanceCanvas { display: none; }
     }
     &:not([mode="fow"]) {
-        #polymask { pointer-events: none; opacity: 0.7; }
+        #polymaskWrapper { pointer-events: none; opacity: 0.7; }
     }
+}
+
+#gridCanvas {
+    pointer-events: none;
 }
 
 #session {
@@ -526,12 +530,6 @@
         z-index: 2;
         box-shadow: 0 0 10px #000a;
         pointer-events: none;
-    }
-
-    &:active {
-        #movableGhost {
-            opacity: 0;
-        }
     }
 
     canvas {

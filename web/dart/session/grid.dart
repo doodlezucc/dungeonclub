@@ -112,13 +112,13 @@ class Grid {
     e.style.setProperty('--cell-size', '$cellSize');
   }
 
-  Point evToGridSpaceUnscaled(
-    MouseEvent event, {
+  Point offsetToGridSpaceUnscaled(
+    Point point, {
     bool round = true,
   }) {
     var size = Point<num>(0.5, 0.5);
 
-    var p = ((event.offset - offset) * (1 / cellSize)) - size;
+    var p = ((point - offset) * (1 / cellSize)) - size;
 
     if (round) {
       p = Point(p.x.round(), p.y.round());
@@ -126,14 +126,14 @@ class Grid {
     return p;
   }
 
-  Point evToGridSpace(
-    MouseEvent event,
+  Point offsetToGridSpace(
+    Point point,
     num targetSize, {
     bool round = true,
   }) {
     var size = Point(targetSize * cellSize / 2, targetSize * cellSize / 2);
 
-    var p = event.offset - offset - size;
+    var p = point - offset - size;
 
     if (round) {
       var cs = cellSize;

@@ -45,6 +45,7 @@ class Board {
   final grid = Grid();
   final mapTab = MapTab();
   final movables = <Movable>[];
+  final selected = <Movable>{};
   final fogOfWar = FogOfWar();
 
   static const PAN = 'pan';
@@ -89,38 +90,35 @@ class Board {
     }
   }
 
-  Movable _selectedMovable;
-  Movable get selectedMovable => _selectedMovable;
-  set selectedMovable(Movable selectedMovable) {
-    if (_selectedMovable == selectedMovable) return;
+  Movable _activeMovable;
+  Movable get activeMovable => _activeMovable;
+  set activeMovable(Movable activeMovable) {
+    if (_activeMovable == activeMovable) return;
 
-    _selectedMovable?.e?.classes?.remove('selected');
-
-    if (_selectedMovable != null) {
+    if (_activeMovable != null) {
       // Firefox doesn't automatically blurrr inputs when their parent
       // element gets moved or removed
       _selectedLabel.blur();
       _selectedSize.blur();
     }
 
-    if (selectedMovable != null && !selectedMovable.accessible) {
-      selectedMovable = null;
+    if (activeMovable != null && !activeMovable.accessible) {
+      activeMovable = null;
     }
-    _selectedMovable = selectedMovable;
+    _activeMovable = activeMovable;
 
-    if (selectedMovable != null) {
-      selectedPrefab = selectedMovable.prefab;
-      selectedMovable.e.classes.add('selected');
+    if (activeMovable != null) {
+      selectedPrefab = activeMovable.prefab;
 
-      if (selectedMovable is EmptyMovable) {
-        _selectedLabel.value = selectedMovable.label;
+      if (activeMovable is EmptyMovable) {
+        _selectedLabel.value = activeMovable.label;
       }
 
       // Assign current values to property inputs
-      _selectedSize.valueAsNumber = selectedMovable.size;
-      selectedMovable.e.append(_selectionProperties);
+      _selectedSize.valueAsNumber = activeMovable.size;
+      activeMovable.e.append(_selectionProperties);
       _selectedConds.querySelectorAll('.active').classes.remove('active');
-      for (var cond in selectedMovable.conds) {
+      for (var cond in activeMovable.conds) {
         _selectedConds.children[cond].classes.add('active');
       }
     } else {
@@ -167,7 +165,7 @@ class Board {
   }
 
   void _initBoard() {
-    _initDragControls();
+    _initMouseControls();
     initDiceTable();
     _measureToggle.onClick.listen((_) => mode = MEASURE);
     _fowToggle.onClick.listen((_) => mode = FOG_OF_WAR);
@@ -192,7 +190,7 @@ class Board {
       mapTab.visible = true;
     });
 
-    _e.onContextMenu.listen((ev) {
+    _container.onContextMenu.listen((ev) {
       ev.preventDefault();
       _deselectAll();
     });
@@ -203,8 +201,8 @@ class Board {
       if (ev.keyCode == 27 && selectedPrefab != null) {
         ev.preventDefault();
         _deselectAll();
-      } else if (ev.keyCode == 46 && session.isDM && selectedMovable != null) {
-        _removeSelectedMovable();
+      } else if (ev.keyCode == 46 && session.isDM) {
+        _removeSelectedMovables();
       } else if (ev.key == 'm') {
         mapTab.visible = !mapTab.visible;
       }
@@ -216,24 +214,52 @@ class Board {
     fogOfWar.initFogOfWar(this);
   }
 
-  void _removeSelectedMovable() async {
-    if (selectedMovable != null) {
-      await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
-        'movable': selectedMovable.id,
-      });
-      selectedMovable.onRemove();
-      selectedMovable = null;
+  void toggleSelect(Iterable<Movable> movables, {bool additive = false}) {
+    if (!additive) {
+      _deselectAll();
+    }
+
+    var deselect = selected.any((m) => movables.contains(m));
+
+    movables.forEach((m) {
+      if (m.e.classes.toggle('selected', !deselect)) {
+        selected.add(m);
+      } else {
+        selected.remove(m);
+      }
+    });
+
+    if (!deselect && movables.length == 1) {
+      activeMovable = movables.first;
     }
   }
 
+  void _removeSelectedMovables() async {
+    for (var m in selected) {
+      await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
+        'movable': m.id,
+      });
+      m.onRemove();
+      movables.remove(m);
+      if (m == activeMovable) {
+        activeMovable = null;
+      }
+    }
+    selected.clear();
+  }
+
   void _deselectAll() {
-    selectedMovable = null;
+    for (var m in selected) {
+      m.e.classes.remove('selected');
+    }
+    selected.clear();
+    activeMovable = null;
     selectedPrefab = null;
   }
 
   void _initSelectionHandler() {
     _selectedRemove.onClick.listen((_) async {
-      _removeSelectedMovable();
+      _removeSelectedMovables();
     });
 
     _listenSelectedLazyUpdate(_selectedLabel, onChange: (m, value) {
@@ -266,7 +292,7 @@ class Board {
 
     void onFocus() {
       startValue = input.value;
-      bufferedMovable = selectedMovable;
+      bufferedMovable = activeMovable;
       typedValue = input.value;
     }
 
@@ -288,112 +314,163 @@ class Board {
     input.onChange.listen((_) => update());
   }
 
-  void alignDistanceText(MouseEvent event) {
-    var p = event.offset;
+  void alignDistanceText(Point p) {
     distanceText.style.left = '${p.x}px';
     distanceText.style.top = '${p.y}px';
   }
 
-  void _initDragControls() {
-    var isBoardDrag = false;
-    var drag = false;
-    var button = -1;
-
-    MeasuringPath mPath;
-
+  void _initMouseControls() {
+    StreamController<SimpleEvent> moveStreamCtrl;
     Timer timer;
-    _container.onMouseDown.listen((event) async {
-      if (mapTab.visible) return;
+    Point previous;
+    int initialButton;
 
-      button = event.button;
-      isBoardDrag = event.path.contains(_e);
+    void listenToCursorEvents<T extends Event>(
+      Point Function(T ev) evToPoint,
+      Stream<T> startEvent,
+      Stream<T> moveEvent,
+      Stream<T> endEvent,
+    ) {
+      SimpleEvent toSimple(T ev) {
+        var delta = evToPoint(ev) - previous;
+        previous = evToPoint(ev);
+        return SimpleEvent(
+          previous - _e.getBoundingClientRect().topLeft,
+          delta,
+          (ev as dynamic).shiftKey,
+          ev is MouseEvent ? ev.button : 0,
+        );
+      }
 
-      if (isBoardDrag && button == 0) {
-        timer = Timer(Duration(milliseconds: 300), () {
-          var pos = (event.page - _e.getBoundingClientRect().topLeft) *
-              (1 / scaledZoom);
+      startEvent.listen((ev) async {
+        if (ev.path
+            .any((e) => e is Element && e.classes.contains('controls'))) {
+          return;
+        }
 
-          socket.sendAction(a.GAME_PING, {
-            ...writePoint(pos),
-            'player': session.charId,
+        ev.preventDefault();
+        document.activeElement.blur();
+
+        previous = evToPoint(ev);
+        var start = toSimple(ev);
+
+        if (start.button != initialButton && moveStreamCtrl != null) {
+          return moveStreamCtrl.add(start);
+        }
+
+        initialButton = start.button;
+        var isBoardDrag = ev.path.contains(_e);
+
+        if (isBoardDrag) {
+          timer = Timer(Duration(milliseconds: 300), () {
+            var pos = start.p * (1 / scaledZoom);
+
+            socket.sendAction(a.GAME_PING, {
+              ...writePoint(pos),
+              'player': session.charId,
+            });
+            displayPing(pos, session.charId);
           });
-          displayPing(pos, session.charId);
-        });
-      }
+        }
 
-      if (mode != PAN) {
-        if (mode == MEASURE && isBoardDrag) {
-          if (button == 0 || mPath != null) {
-            alignDistanceText(event);
-            mPath ??= MeasuringPath();
-            // add point to path
-            mPath.addPoint(grid.evToGridSpaceUnscaled(event));
-            return;
+        moveStreamCtrl = StreamController();
+        var stream = moveStreamCtrl.stream;
+
+        var pan = !(start.button == 0 && mode != PAN);
+
+        Element clickedMovable;
+
+        if (start.button == 0) {
+          if (mode == MEASURE) {
+            _handleMeasuring(start, stream);
+          } else if (mode == PAN) {
+            clickedMovable = ev.path.firstWhere(
+              (e) => e is Element && e.classes.contains('movable'),
+              orElse: () => null,
+            );
+
+            if (clickedMovable != null) {
+              _handleMovableMove(start, stream);
+              pan = false;
+            } else if (selectedPrefab != null) {
+              var gridPos = grid.offsetToGridSpace(
+                  start.p * (1 / scaledZoom), selectedPrefab.size);
+
+              toggleSelect([await addMovable(selectedPrefab, pos: gridPos)]);
+              pan = false;
+            }
           }
-        } else if (button == 0) return;
-      }
+        }
 
-      var movable = event.path
-          .any((e) => e is HtmlElement && e.classes.contains('movable'));
+        if (pan) {
+          _handlePanning(start, stream);
+        }
 
-      if (button == 0 && !editingGrid) {
-        if (movable) {
+        await endEvent.firstWhere((ev) => toSimple(ev).button == initialButton);
+        timer?.cancel();
+
+        if (clickedMovable != null) {
           for (var mv in movables) {
-            if (mv.e == event.target) {
-              alignMovableGhost(event, mv);
-              selectedMovable = mv;
+            if (mv.e == clickedMovable) {
+              toggleSelect([mv], additive: (ev as dynamic).shiftKey);
               break;
             }
           }
-          return;
-        } else if (isBoardDrag) {
+        }
+
+        var streamCopy = moveStreamCtrl;
+        moveStreamCtrl = null;
+        await streamCopy.close();
+      });
+
+      moveEvent.listen((ev) {
+        if (moveStreamCtrl != null) {
+          timer?.cancel();
+          moveStreamCtrl.add(toSimple(ev));
+        } else {
           if (selectedPrefab != null) {
-            var gridPos = grid.evToGridSpace(event, selectedPrefab.size);
-            selectedMovable = await addMovable(selectedPrefab, pos: gridPos);
+            var p = evToPoint(ev) - _e.getBoundingClientRect().topLeft;
+            alignMovableGhost(p * (1 / scaledZoom), selectedPrefab);
+            toggleMovableGhostVisible(true);
           }
         }
-      }
+      });
+    }
 
-      if (event.path
-          .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
-        return;
-      }
+    listenToCursorEvents<MouseEvent>((ev) => ev.page, _container.onMouseDown,
+        window.onMouseMove, window.onMouseUp);
 
-      drag = true;
-      await window.onMouseUp.first;
-      drag = false;
+    listenToCursorEvents<TouchEvent>((ev) => ev.targetTouches[0].page,
+        _container.onTouchStart, window.onTouchMove, window.onTouchEnd);
+  }
+
+  void _handlePanning(SimpleEvent first, Stream<SimpleEvent> moveStream) {
+    moveStream.listen((ev) {
+      position += ev.movement * (1 / _scaledZoom);
     });
-    window.onMouseMove.listen((event) {
-      timer?.cancel();
-      var parentIsBoard =
-          event.target is Element && (event.target as Element).parent == _e;
+  }
 
-      if (drag) {
-        var delta = event.movement * (1 / _scaledZoom);
-        position += delta;
+  void _handleMovableMove(SimpleEvent first, Stream<SimpleEvent> moveStream) {
+    print('move me');
+    toggleMovableGhostVisible(false);
+  }
+
+  void _handleMeasuring(SimpleEvent first, Stream<SimpleEvent> moveStream) {
+    var p = first.p * (1 / scaledZoom);
+    alignDistanceText(p);
+    var mPath = MeasuringPath();
+    mPath.addPoint(grid.offsetToGridSpaceUnscaled(p));
+
+    moveStream.listen((ev) {
+      p = ev.p * (1 / scaledZoom);
+      var measureEnd = grid.offsetToGridSpaceUnscaled(p);
+      if (ev.button == 2) {
+        mPath.addPoint(measureEnd);
       }
-      // Update distance measuring path
-      else if (mode == MEASURE && mPath != null && parentIsBoard) {
-        var measureEnd = grid.evToGridSpaceUnscaled(event);
-        mPath.redraw(measureEnd);
-        alignDistanceText(event);
-      }
-      // Update ghost movable
-      else if (selectedPrefab != null) {
-        if (!parentIsBoard) {
-          toggleMovableGhostVisible(false);
-        } else {
-          alignMovableGhost(event, selectedPrefab);
-          toggleMovableGhostVisible(true);
-        }
-      }
-    });
-    window.onMouseUp.listen((event) {
-      timer?.cancel();
-      if (mode == MEASURE && event.button == 0 && mPath != null) {
-        mPath.dispose();
-        mPath = null;
-      }
+      mPath.redraw(measureEnd);
+      alignDistanceText(p);
+    }, onDone: () {
+      mPath.dispose();
     });
   }
 
@@ -405,17 +482,17 @@ class Board {
 
       _selectedConds.append(ico
         ..onClick.listen((_) {
-          ico.classes.toggle('active', _selectedMovable.toggleCondition(i));
+          ico.classes.toggle('active', _activeMovable.toggleCondition(i));
 
-          socket.sendAction(a.GAME_MOVABLE_UPDATE, _selectedMovable.toJson());
+          socket.sendAction(a.GAME_MOVABLE_UPDATE, _activeMovable.toJson());
         }));
     }
 
     _selectionProperties.querySelector('a').onClick.listen((_) {
-      if (_selectedMovable.conds.isNotEmpty) {
-        _selectedMovable.applyConditions([]);
+      if (_activeMovable.conds.isNotEmpty) {
+        _activeMovable.applyConditions([]);
         _selectedConds.querySelectorAll('.active').classes.remove('active');
-        socket.sendAction(a.GAME_MOVABLE_UPDATE, _selectedMovable.toJson());
+        socket.sendAction(a.GAME_MOVABLE_UPDATE, _activeMovable.toJson());
       }
     });
   }
@@ -543,4 +620,13 @@ class Board {
       onMovableCreate(m);
     }
   }
+}
+
+class SimpleEvent {
+  final Point p;
+  final Point movement;
+  final bool shift;
+  final int button;
+
+  SimpleEvent(this.p, this.movement, this.shift, this.button);
 }

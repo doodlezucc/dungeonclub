@@ -73,6 +73,7 @@ set selectedPrefab(Prefab p) {
 }
 
 void toggleMovableGhostVisible(bool v) {
+  if (v == _movableGhost.isConnected) return;
   if (v) {
     user.session.board.grid.e.append(_movableGhost);
   } else {
@@ -80,8 +81,8 @@ void toggleMovableGhostVisible(bool v) {
   }
 }
 
-void alignMovableGhost(MouseEvent event, EntityBase entity) {
-  var p = user.session.board.grid.evToGridSpace(event, entity.size);
+void alignMovableGhost(Point point, EntityBase entity) {
+  var p = user.session.board.grid.offsetToGridSpace(point, entity.size);
 
   _movableGhost.style.setProperty('--x', '${p.x}');
   _movableGhost.style.setProperty('--y', '${p.y}');
