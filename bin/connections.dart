@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/comms.dart';
+import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
 import 'package:pedantic/pedantic.dart';
 import 'package:random_string/random_string.dart';
@@ -256,12 +257,16 @@ class Connection extends Socket {
         return null;
 
       case a.GAME_MOVABLE_MOVE:
-        var m = scene?.getMovable(params['movable']);
-        if (m != null) {
-          m
-            ..x = params['x']
-            ..y = params['y'];
+        List ids = params['movables'];
+        var delta = parsePoint(params);
+        if (ids == null || delta == null || scene == null) return null;
+
+        for (int movableId in ids) {
+          scene.getMovable(movableId)
+            ..x += delta.x
+            ..y += delta.y;
         }
+
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_UPDATE:
@@ -270,7 +275,11 @@ class Connection extends Socket {
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_REMOVE:
-        scene?.removeMovable(params['movable']);
+        List ids = params['movables'];
+
+        for (int id in ids) {
+          scene?.removeMovable(id);
+        }
         return notifyOthers(action, params);
 
       case a.GAME_CHARACTER_UPLOAD:

@@ -470,7 +470,7 @@ class Scene {
   }
 
   Movable getMovable(int id) {
-    return _movables.singleWhere((m) => m.id == id, orElse: () => null);
+    return _movables.firstWhere((m) => m.id == id, orElse: () => null);
   }
 
   void removeMovablesOfPrefab(String prefabId) {

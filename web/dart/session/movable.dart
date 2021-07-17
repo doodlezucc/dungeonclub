@@ -1,10 +1,8 @@
 import 'dart:html';
 import 'dart:math' as math;
 
-import 'package:dnd_interactive/actions.dart';
 import 'package:meta/meta.dart';
 
-import '../communication.dart';
 import '../font_awesome.dart';
 import 'board.dart';
 import 'condition.dart';
@@ -62,42 +60,6 @@ class Movable extends EntityBase {
     position = pos ?? Point(0, 0);
     applyConditions(conds);
 
-    var drag = false;
-    Point startPos;
-    Point start;
-    Point offset;
-
-    e.onMouseDown.listen((event) async {
-      if (!accessible || event.button != 0 || event.target != e) return;
-      startPos = position;
-
-      var inset = board.grid.cellSize * displaySize / 2;
-
-      var posScaled = startPos * board.grid.cellSize;
-
-      start = posScaled + event.offset - Point(inset, inset);
-
-      offset = Point(0, 0);
-      drag = true;
-      await window.onMouseUp.first;
-      drag = false;
-      if (startPos != position) {
-        return socket.sendAction(GAME_MOVABLE_MOVE, {
-          'movable': id,
-          'x': position.x,
-          'y': position.y,
-        });
-      }
-    });
-
-    window.onMouseMove.listen((event) {
-      if (drag && !board.editingGrid) {
-        offset += event.movement * (1 / board.scaledZoom);
-
-        snapToGrid(start + offset);
-      }
-    });
-
     super.size = 0;
     onPrefabUpdate();
   }
@@ -122,8 +84,8 @@ class Movable extends EntityBase {
     e.classes.toggle('accessible', accessible);
   }
 
-  void onMove(Point pos) {
-    position = pos;
+  void onMove(Point delta) {
+    position += delta;
   }
 
   void onImageChange(String img) {

@@ -214,31 +214,35 @@ class Board {
     fogOfWar.initFogOfWar(this);
   }
 
-  void toggleSelect(Iterable<Movable> movables, {bool additive = false}) {
+  void toggleSelect(Iterable<Movable> movables,
+      {bool additive = false, bool state}) {
     if (!additive) {
       _deselectAll();
     }
 
-    var deselect = selected.any((m) => movables.contains(m));
+    state ??= !movables.any((m) => selected.contains(m));
 
     movables.forEach((m) {
-      if (m.e.classes.toggle('selected', !deselect)) {
+      if (m.e.classes.toggle('selected', state)) {
         selected.add(m);
       } else {
         selected.remove(m);
+
+        if (m == activeMovable) activeMovable = null;
       }
     });
 
-    if (!deselect && movables.length == 1) {
+    if (state && movables.length == 1) {
       activeMovable = movables.first;
     }
   }
 
   void _removeSelectedMovables() async {
+    await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
+      'movables': selected.map((m) => m.id).toList(),
+    });
+
     for (var m in selected) {
-      await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
-        'movable': m.id,
-      });
       m.onRemove();
       movables.remove(m);
       if (m == activeMovable) {
@@ -378,19 +382,26 @@ class Board {
 
         var pan = !(start.button == 0 && mode != PAN);
 
-        Element clickedMovable;
+        Movable clickedMovable;
 
         if (start.button == 0) {
           if (mode == MEASURE) {
             _handleMeasuring(start, stream);
           } else if (mode == PAN) {
-            clickedMovable = ev.path.firstWhere(
+            var movableElem = ev.path.firstWhere(
               (e) => e is Element && e.classes.contains('movable'),
               orElse: () => null,
             );
 
-            if (clickedMovable != null) {
-              _handleMovableMove(start, stream);
+            if (movableElem != null) {
+              for (var mv in movables) {
+                if (mv.e == movableElem) {
+                  clickedMovable = mv;
+                  break;
+                }
+              }
+
+              _handleMovableMove(start, stream, clickedMovable);
               pan = false;
             } else if (selectedPrefab != null) {
               var gridPos = grid.offsetToGridSpace(
@@ -407,15 +418,19 @@ class Board {
         }
 
         await endEvent.firstWhere((ev) => toSimple(ev).button == initialButton);
-        timer?.cancel();
+
+        var isClickEvent = false;
+        if (timer != null && timer.isActive) {
+          timer.cancel();
+          isClickEvent = true;
+        }
 
         if (clickedMovable != null) {
-          for (var mv in movables) {
-            if (mv.e == clickedMovable) {
-              toggleSelect([mv], additive: (ev as dynamic).shiftKey);
-              break;
-            }
-          }
+          toggleSelect(
+            [clickedMovable],
+            additive: !isClickEvent || (ev as dynamic).shiftKey,
+            state: isClickEvent ? null : true,
+          );
         }
 
         var streamCopy = moveStreamCtrl;
@@ -446,13 +461,49 @@ class Board {
 
   void _handlePanning(SimpleEvent first, Stream<SimpleEvent> moveStream) {
     moveStream.listen((ev) {
-      position += ev.movement * (1 / _scaledZoom);
+      position += ev.movement * (1 / scaledZoom);
     });
   }
 
-  void _handleMovableMove(SimpleEvent first, Stream<SimpleEvent> moveStream) {
-    print('move me');
+  void _handleMovableMove(
+      SimpleEvent first, Stream<SimpleEvent> moveStream, Movable extra) {
     toggleMovableGhostVisible(false);
+    var off = Point<num>(0, 0);
+    var starts = <Movable, Point>{};
+    var movedOnce = false;
+    var affected = {extra, ...selected};
+
+    for (var mv in affected) {
+      starts[mv] = mv.position;
+    }
+
+    Point rounded() {
+      return scalePoint(off, (v) => (v / grid.cellSize).round());
+    }
+
+    moveStream.listen((ev) {
+      if (!movedOnce) {
+        movedOnce = true;
+        if (!extra.e.classes.contains('selected') && !first.shift) {
+          _deselectAll();
+          affected = {extra};
+        }
+      }
+      off += ev.movement * (1 / scaledZoom);
+
+      var delta = rounded();
+
+      for (var mv in affected) {
+        mv.position = starts[mv] + delta;
+      }
+    }, onDone: () {
+      if (rounded() != Point(0, 0)) {
+        return socket.sendAction(a.GAME_MOVABLE_MOVE, {
+          'movables': affected.map((e) => e.id).toList(),
+          ...writePoint(rounded())
+        });
+      }
+    });
   }
 
   void _handleMeasuring(SimpleEvent first, Stream<SimpleEvent> moveStream) {
@@ -546,8 +597,7 @@ class Board {
 
   Future<Movable> addMovable(Prefab prefab, {Point pos}) async {
     var id = await socket.request(a.GAME_MOVABLE_CREATE, {
-      'x': pos.x,
-      'y': pos.y,
+      ...writePoint(pos),
       'prefab': prefab.id,
     });
     var m = Movable.create(
@@ -587,9 +637,11 @@ class Board {
   }
 
   void _movableEvent(json, void Function(Movable m) action) {
-    for (var m in movables) {
-      if (m.id == json['movable']) {
-        return action(m);
+    List ids = json['movables'] ?? [json['movable']];
+
+    for (var m in List.from(movables)) {
+      if (ids.contains(m.id)) {
+        action(m);
       }
     }
   }
