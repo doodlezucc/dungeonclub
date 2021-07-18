@@ -90,6 +90,8 @@ class Board {
     }
   }
 
+  Timer _activeTimer;
+  StreamSubscription _activeHoverSub;
   Movable _activeMovable;
   Movable get activeMovable => _activeMovable;
   set activeMovable(Movable activeMovable) {
@@ -100,6 +102,8 @@ class Board {
       // element gets moved or removed
       _selectedLabel.blur();
       _selectedSize.blur();
+      _activeHoverSub.cancel();
+      _activeMovable.e.classes.remove('hovered');
     }
 
     if (activeMovable != null && !activeMovable.accessible) {
@@ -108,13 +112,18 @@ class Board {
     _activeMovable = activeMovable;
 
     if (activeMovable != null) {
-      selectedPrefab = activeMovable.prefab;
+      _activeHoverSub = activeMovable.e.onMouseMove.listen((ev) {
+        activeMovable.e.classes.add('hovered');
+        _activeTimer?.cancel();
+        _activeTimer = Timer(Duration(milliseconds: 700), () {
+          activeMovable.e.classes.remove('hovered');
+        });
+      });
 
+      // Assign current values to HTML inputs
       if (activeMovable is EmptyMovable) {
         _selectedLabel.value = activeMovable.label;
       }
-
-      // Assign current values to property inputs
       _selectedSize.valueAsNumber = activeMovable.size;
       activeMovable.e.append(_selectionProperties);
       _selectedConds.querySelectorAll('.active').classes.remove('active');
@@ -145,7 +154,8 @@ class Board {
     _scaledZoom = exp(_zoom);
 
     var invZoomScale = 'scale(${1 / scaledZoom})';
-    _selectionProperties.style.transform = invZoomScale;
+    _selectionProperties.style.transform =
+        'scale(${70 / grid.cellSize / scaledZoom})';
     distanceText.style.transform = invZoomScale;
 
     _transform();
@@ -671,6 +681,9 @@ class Board {
     for (var m in json['movables']) {
       onMovableCreate(m);
     }
+
+    zoom = -0.5;
+    position = Point(0, 0);
   }
 }
 

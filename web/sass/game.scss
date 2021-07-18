@@ -196,10 +196,11 @@
         cursor: default;
         white-space: nowrap;
         transform-origin: top right;
-        transition-duration: 0.1s;
-        transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
-        opacity: 0.8;
+        opacity: 0.25;
         box-shadow: none;
+        pointer-events: none;
+        transition: transform 0.1s cubic-bezier(0.165, 0.84, 0.44, 1),
+                    opacity 1s;
 
         > span {
             gap: 8px;
@@ -585,12 +586,14 @@
     position: absolute;
     border: 0 solid transparent;
     border-radius: 50%;
-    width: calc(var(--size) * var(--cell-size) * 1px);
-    height: calc(var(--size) * var(--cell-size) * 1px);
+    width: calc(var(--size) * 70px);
+    height: calc(var(--size) * 70px);
     left: calc(var(--x) * var(--cell-size) * 1px);
     top: calc(var(--y) * var(--cell-size) * 1px);
     box-sizing: border-box;
     box-shadow: 0 0 8px #000a;
+    transform-origin: top left;
+    transform: scale(calc(var(--cell-size) / 70));
     transition: border-color 0.25s,
                 border-width 0.05s;
 
@@ -634,7 +637,7 @@
             font-family: 'Fira Mono';
             color: var(--color-bad);
             text-align: center;
-            font-size: calc(var(--size) * var(--cell-size) * 1.5px / var(--length));
+            font-size: calc(var(--size) * 110px / var(--length));
             --length: 1;
         }
     }
@@ -643,7 +646,7 @@
             display: none;
         }
     }
-    &:hover {
+    &:hover, &.hovered {
         &.accessible {
             border-width: 3px;
             border-color: var(--color-primary);
@@ -651,6 +654,8 @@
 
         #selectionProperties {
             opacity: 0.9 !important;
+            pointer-events: all !important;
+            transition: 0.2s !important;
         }
     }
     &.selected {
