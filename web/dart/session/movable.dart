@@ -54,7 +54,8 @@ class Movable extends EntityBase {
     @required Iterable<int> conds,
   }) : e = DivElement()
           ..className = 'movable'
-          ..append(DivElement()..className = 'conds') {
+          ..append(DivElement()..className = 'conds')
+          ..append(DivElement()..className = 'ring') {
     prefab.movables.add(this);
     onImageChange(prefab.img(cacheBreak: false));
     position = pos ?? Point(0, 0);

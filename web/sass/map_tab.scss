@@ -1,0 +1,294 @@
+@use 'base.scss';
+
+#map {
+    @extend %vertical;
+    justify-content: center;
+    position: absolute;
+    z-index: 10;
+    background-color: #000d;
+    transition-duration: 0.5s;
+    font-size: 23px;
+    padding-top: 20px;
+    gap: 12px;
+
+    .needs-map.hidden { display: none !important; }
+
+    button {
+        background-color: transparent;
+
+        > i {
+            transition-duration: 0.05s;
+        }
+
+        &:enabled:hover {
+            > .fa-chevron-left  { transform: translateX(-4px); }
+            > .fa-chevron-right { transform: translateX(4px); }
+            > .fa-plus          { transform: scale(1.1); }
+        }
+    }
+
+    > button[type=reset] {
+        @extend %responsive;
+        left: 16px;
+        top: 16px;
+    }
+
+    > button {
+        position: absolute;
+        font-size: inherit;
+        align-items: center;
+        gap: 8px;
+    }
+
+    #changeMap {
+        @extend %responsive;
+        bottom: 16px;
+    }
+
+    #mapDelete {
+        top: 16px;
+        right: 16px;
+        font-size: 18px;
+    }
+
+    .with-tooltip > span {
+        bottom: auto;
+        top: 100%;
+        z-index: 10;
+        font-size: 16px;
+    }
+
+    #mapDelete > span {
+        top: auto;
+        right: 100%;
+    }
+
+    > span {
+        position: relative;
+
+        > input {
+            text-align: center;
+            opacity: 1 !important;
+        }
+
+        > .navigate:not(.add-map) > span {
+            display: none;
+        }
+
+        &.focus {
+            > .navigate {
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
+        &:not(.focus) {
+            > .dm {
+                opacity: 0;
+                cursor: default;
+                pointer-events: none;
+            }
+        }
+
+        > button.dm {
+            position: absolute;
+        }
+    }
+
+    > #maps {
+        display: flex;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        transition-duration: 0.4s;
+        transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    #mapTools {
+        position: absolute;
+        left: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        > #activeColor {
+            width: 36px;
+            height: 36px;
+            position: absolute;
+            left: calc(100% + 16px);
+            transition-duration: 0.3s;
+            transition-property: opacity, transform;
+
+            &:disabled { opacity: 0; pointer-events: none; transform: translateX(-16px); }
+        }
+
+        > div {
+            @extend %toolbox;
+            grid-template-columns: auto auto;
+        }
+
+        button {
+            @extend %toolbox-item;
+            background-color: var(--color-background);
+            border-radius: 0;
+            align-items: center;
+
+            &:nth-child(odd) > span {
+                left: -8px;
+            }
+
+            &[mode=text] {
+                font-weight: bold;
+                font-family: Georgia, 'Times New Roman', Times, serif;
+                font-size: 20px;
+            }
+        }
+
+        &.collapsed > #toolInfo, &:not(.collapsed) > #infoShow {
+            @extend .invisible;
+            transform: translateX(-8px);
+        }
+    }
+
+    #toolInfo, #infoShow {
+        position: absolute !important;
+        top: calc(100% + 16px);
+        background-color: #111e;
+        color: white;
+        font-size: 16px;
+        border-radius: base.$radius !important;
+        border: 1px solid white;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.4s;
+        box-sizing: border-box;
+
+        &:hover {
+            background-color: #1a1a1a;
+        }
+    }
+
+    #toolInfo {
+        padding: 8px;
+        width: 200px;
+        max-width: 260px;
+        width: max-content;
+
+        > i {
+            font-style: normal;
+            color: var(--color-primary);
+        }
+    }
+
+    .map {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 100%;
+        height: 100%;
+        max-height: calc(100% - 24px);
+        box-sizing: border-box;
+        padding: 0 20px;
+
+        > div {
+            height: 100%;
+
+            text {
+                cursor: default;
+                user-select: none;
+                paint-order: stroke;
+                stroke-linejoin: round;
+                fill: #fff;
+                stroke: #222;
+                stroke-width: 5px;
+            }
+
+            &[mode=text] text {
+                outline: 1px dashed #fffd;
+                cursor: move;
+
+                &:hover {
+                    outline: 1px solid #fffa;
+                }
+            }
+        }
+
+        image {
+            background-repeat: no-repeat;
+        }
+    }
+
+    &:not(.show) {
+        pointer-events: none;
+        opacity: 0;
+        transition-duration: 0.25s;
+
+        > #maps {
+            transform: translateY(150%);
+            transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+        }
+    }
+}
+
+#whiteboardPin {
+    fill: #fffa;
+    stroke: black;
+    stroke-width: 2px;
+    animation: pin-pulse 4s ease-in-out infinite;
+    opacity: 0;
+
+    &.visible {
+        opacity: 1;
+    }
+}
+  
+@keyframes pin-pulse {
+      0% { r: 10 }
+     50% { r: 15 }
+    100% { r: 10 }
+}
+
+#whiteboardTextControls {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    gap: 2px;
+    transform: translate(-50%, calc(-100% - 24px));
+    background-color: var(--color-background);
+    box-shadow: 0 0 4px #0005;
+    transition-property: opacity, transform;
+    transition-duration: 0.2s;
+    font-size: 16px;
+
+    &.display-below {
+        transform: translate(-50%, 20px);
+    }
+    &.hidden {
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, calc(-100% - 8px));
+    }
+
+    span {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        margin: 0 4px;
+    }
+    
+    textarea {
+        width: 400px;
+        height: 60px;
+        overflow: auto;
+        white-space: nowrap;
+    }
+    
+    input {
+        margin-right: auto;
+        padding-top: 4px;
+    }
+
+    button {
+        padding: 6px 4px;
+    }
+}

@@ -126,50 +126,52 @@
                         <i class="fas fa-save"></i>
                     </button>
                 </div>
-                <div id="prefabPalette" class="controls panel dm no-edit panning-only">
-                    <h3>Prefab Palette</h3>
-                    <div class="prefab-selection">
-                        <p>Players</p>
-                        <div id="pcPrefabs" class="prefab-container"></div>
-                        <p>Others</p>
-                        <div id="otherPrefabs" class="prefab-container">
-                            <button id="addPrefab" class="icon with-tooltip">
-                                <i class="fas fa-plus"></i>
-                                <span>Add prefab</span>
-                            </button>
+                <div id="rightControls" class="dm no-edit panning-only">
+                    <div id="prefabPalette" class="controls panel">
+                        <h3>Prefab Palette</h3>
+                        <div class="prefab-selection">
+                            <p>Players</p>
+                            <div id="pcPrefabs" class="prefab-container"></div>
+                            <p>Others</p>
+                            <div id="otherPrefabs" class="prefab-container">
+                                <button id="addPrefab" class="icon with-tooltip">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Add prefab</span>
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div id="prefabProperties" class="disabled">
-                        <h3>Properties</h3>
-                        <div id="prefabImage" class="edit-img responsive">
-                            <div>Change</div>
-                            <img>
+                        <div id="prefabProperties" class="disabled">
+                            <h3>Properties</h3>
+                            <div id="prefabImage" class="edit-img responsive">
+                                <div>Change</div>
+                                <img>
+                            </div>
+                            <span>Name:
+                                <input id="prefabName" type="text">
+                            </span>
+                            <span>Default size:
+                                <input id="prefabSize" type="number" min="1" max="25" placeholder="Size...">
+                            </span>
+                            <span id="prefabAccessSpan">Access:</span>
+                            <ul id="prefabAccess"></ul>
+                            <button id="prefabRemove" class="bad">Remove from campaign</button>
                         </div>
-                        <span>Name:
-                            <input id="prefabName" type="text">
-                        </span>
-                        <span>Default size:
-                            <input id="prefabSize" type="number" min="1" max="25" placeholder="Size...">
-                        </span>
-                        <span id="prefabAccessSpan">Access:</span>
-                        <ul id="prefabAccess"></ul>
-                        <button id="prefabRemove" class="bad">Remove from campaign</button>
                     </div>
-                </div>
-                <div id="selectionProperties" class="controls panel dm">
-                    <span class="on-empty">Name:
-                        <input id="movableLabel" type="text" placeholder="Label...">
-                    </span>
-                    <span>Size:
-                        <input id="movableSize" type="number" min="0" max="25" placeholder="Size...">
-                    </span>
-                    <span class="space-between">
-                        Conditions
-                        <a>Clear all</a>
-                    </span>
-                    <div id="conds"></div>
-                    <button id="movableRemove" class="bad compact">Remove from scene</button>
+                    <div id="selectionProperties" class="controls panel hidden">
+                        <span class="on-empty">Name:
+                            <input id="movableLabel" type="text" placeholder="Label...">
+                        </span>
+                        <span>Size:
+                            <input id="movableSize" type="number" min="0" max="25" placeholder="Size...">
+                        </span>
+                        <span class="space-between">
+                            Conditions
+                            <a>Clear all</a>
+                        </span>
+                        <div id="conds"></div>
+                        <button id="movableRemove" class="bad compact">Remove from scene</button>
+                    </div>
                 </div>
                 <div id="sceneSelector" class="controls panel dm hooked no-edit panning-only">
                     <h3>Scene Selector</h3>

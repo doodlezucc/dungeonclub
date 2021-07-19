@@ -90,8 +90,6 @@ class Board {
     }
   }
 
-  Timer _activeTimer;
-  StreamSubscription _activeHoverSub;
   Movable _activeMovable;
   Movable get activeMovable => _activeMovable;
   set activeMovable(Movable activeMovable) {
@@ -102,8 +100,7 @@ class Board {
       // element gets moved or removed
       _selectedLabel.blur();
       _selectedSize.blur();
-      _activeHoverSub.cancel();
-      _activeMovable.e.classes.remove('hovered');
+      _activeMovable.e.classes.remove('active');
     }
 
     if (activeMovable != null && !activeMovable.accessible) {
@@ -112,27 +109,24 @@ class Board {
     _activeMovable = activeMovable;
 
     if (activeMovable != null) {
-      _activeHoverSub = activeMovable.e.onMouseMove.listen((ev) {
-        activeMovable.e.classes.add('hovered');
-        _activeTimer?.cancel();
-        _activeTimer = Timer(Duration(milliseconds: 700), () {
-          activeMovable.e.classes.remove('hovered');
-        });
-      });
+      activeMovable.e.classes.add('active');
 
       // Assign current values to HTML inputs
       if (activeMovable is EmptyMovable) {
         _selectedLabel.value = activeMovable.label;
+        _selectionProperties.classes.add('empty');
+      } else {
+        _selectionProperties.classes.remove('empty');
       }
+
       _selectedSize.valueAsNumber = activeMovable.size;
-      activeMovable.e.append(_selectionProperties);
       _selectedConds.querySelectorAll('.active').classes.remove('active');
       for (var cond in activeMovable.conds) {
         _selectedConds.children[cond].classes.add('active');
       }
-    } else {
-      _selectionProperties.remove();
     }
+
+    _selectionProperties.classes.toggle('hidden', activeMovable == null);
   }
 
   Point _position;
@@ -154,8 +148,6 @@ class Board {
     _scaledZoom = exp(_zoom);
 
     var invZoomScale = 'scale(${1 / scaledZoom})';
-    _selectionProperties.style.transform =
-        'scale(${70 / grid.cellSize / scaledZoom})';
     distanceText.style.transform = invZoomScale;
 
     _transform();
@@ -282,7 +274,6 @@ class Board {
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
       m.size = int.parse(value);
     });
-    _selectionProperties.remove();
   }
 
   void _listenSelectedLazyUpdate(
@@ -419,6 +410,8 @@ class Board {
 
               toggleSelect([await addMovable(selectedPrefab, pos: gridPos)]);
               pan = false;
+            } else if (!start.shift) {
+              _deselectAll();
             }
           }
         }
