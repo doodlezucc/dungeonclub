@@ -613,7 +613,7 @@ class EmptyMovable extends Movable {
   @override
   void fromJson(Map<String, dynamic> json) {
     size = json['size'] ?? 0;
-    label = json['label'] ?? 'missingno';
+    label = json['label'] ?? '';
   }
 
   @override

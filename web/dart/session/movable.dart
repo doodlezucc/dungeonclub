@@ -190,6 +190,6 @@ class EmptyMovable extends Movable {
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
-    label = json['label'] ?? 'AAAH';
+    label = json['label'] ?? '';
   }
 }
