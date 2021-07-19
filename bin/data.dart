@@ -69,6 +69,11 @@ class ServerData {
   Future<void> save() async {
     var json = JsonEncoder.withIndent(' ').convert(toJson());
     // print(json);
+
+    if (!await file.exists()) {
+      await file.create(recursive: true);
+    }
+
     await file.writeAsString(json);
     print('Saved!');
   }
