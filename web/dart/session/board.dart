@@ -47,6 +47,7 @@ class Board {
   final movables = <Movable>[];
   final selected = <Movable>{};
   final fogOfWar = FogOfWar();
+  var clipboard = <Movable>[];
 
   static const PAN = 'pan';
   static const MEASURE = 'measure';
@@ -208,9 +209,35 @@ class Board {
       } else if (session.isDM) {
         if (ev.keyCode == 46 || ev.keyCode == 8) {
           // Delete/Backspace
+          ev.preventDefault();
           _removeSelectedMovables();
-        } else if (ev.key == 'D' && selected.isNotEmpty) {
-          cloneMovables(selected);
+        }
+        // Paste from clipboard
+        else if (ev.key == 'v') {
+          ev.preventDefault();
+          if (clipboard.isNotEmpty) {
+            cloneMovables(clipboard);
+          }
+        }
+        // Copy to clipboard or duplicate
+        else if (selected.isNotEmpty) {
+          if (ev.ctrlKey) {
+            // Copy with Ctrl+C
+            if (ev.key == 'c') {
+              ev.preventDefault();
+              clipboard = selected.toList();
+            }
+            // Cut with Ctrl+X
+            else if (ev.key == 'x') {
+              ev.preventDefault();
+              clipboard = selected.toList();
+              _removeSelectedMovables();
+            }
+          }
+          // Duplicate with Shift+D
+          else if (ev.key == 'D') {
+            cloneMovables(selected);
+          }
         }
       }
     });
@@ -603,6 +630,7 @@ class Board {
   }
 
   void clear() {
+    _deselectAll();
     movables.forEach((m) => m.e.remove());
     movables.clear();
   }
