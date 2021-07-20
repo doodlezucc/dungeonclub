@@ -598,6 +598,17 @@ class Board {
     movables.clear();
   }
 
+  void _syncMovableAnim() async {
+    var elems = _e.querySelectorAll('.movable .ring');
+    for (var m in elems) {
+      m.style.animation = 'none';
+    }
+    await Future.delayed(Duration(milliseconds: 50));
+    for (var m in elems) {
+      m.style.animation = '';
+    }
+  }
+
   Future<Movable> addMovable(Prefab prefab, {Point pos}) async {
     var id = await socket.request(a.GAME_MOVABLE_CREATE, {
       ...writePoint(pos),
@@ -607,6 +618,7 @@ class Board {
         board: this, prefab: prefab, id: id, pos: pos, conds: []);
     movables.add(m);
     grid.e.append(m.e);
+    _syncMovableAnim();
     return m;
   }
 

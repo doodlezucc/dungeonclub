@@ -64,7 +64,7 @@
         position: absolute;
         top: 16px;
         right: 16px;
-        gap: 8px;
+        gap: 16px;
         display: flex;
         flex-direction: column;
         z-index: 6;
@@ -85,8 +85,8 @@
         }
 
         .prefab-container {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: min-content min-content min-content min-content min-content min-content;
             gap: 0;
 
             > * {
