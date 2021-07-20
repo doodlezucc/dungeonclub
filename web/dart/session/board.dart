@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 import 'dart:math';
+import 'dart:svg' as svg;
 
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/point_json.dart';
@@ -31,6 +32,7 @@ final ButtonElement _exitEdit = _container.querySelector('#exitEdit');
 final HtmlElement _controls = _container.querySelector('#sceneEditor');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
+final svg.RectElement _selectionArea = _e.querySelector('#selectionArea');
 final HtmlElement _selectionProperties = querySelector('#selectionProperties');
 final InputElement _selectedLabel = querySelector('#movableLabel');
 final InputElement _selectedSize = querySelector('#movableSize');
@@ -375,6 +377,7 @@ class Board {
           previous - _e.getBoundingClientRect().topLeft,
           delta,
           (ev as dynamic).shiftKey,
+          (ev as dynamic).ctrlKey,
           ev is MouseEvent ? ev.button : 0,
         );
       }
@@ -422,32 +425,37 @@ class Board {
           if (mode == MEASURE) {
             _handleMeasuring(start, stream);
           } else if (mode == PAN) {
-            var movableElem = ev.path.firstWhere(
-              (e) =>
-                  e is Element &&
-                  e.classes.contains('movable') &&
-                  e.classes.contains('accessible'),
-              orElse: () => null,
-            );
+            if (start.ctrl) {
+              _handleSelectArea(start, stream);
+              pan = false;
+            } else {
+              var movableElem = ev.path.firstWhere(
+                (e) =>
+                    e is Element &&
+                    e.classes.contains('movable') &&
+                    e.classes.contains('accessible'),
+                orElse: () => null,
+              );
 
-            if (movableElem != null) {
-              for (var mv in movables) {
-                if (mv.e == movableElem) {
-                  clickedMovable = mv;
-                  break;
+              if (movableElem != null) {
+                for (var mv in movables) {
+                  if (mv.e == movableElem) {
+                    clickedMovable = mv;
+                    break;
+                  }
                 }
+
+                _handleMovableMove(start, stream, clickedMovable);
+                pan = false;
+              } else if (selectedPrefab != null) {
+                var gridPos = grid.offsetToGridSpace(
+                    start.p * (1 / scaledZoom), selectedPrefab.size);
+
+                toggleSelect([await addMovable(selectedPrefab, gridPos)]);
+                pan = false;
+              } else if (!start.shift) {
+                _deselectAll();
               }
-
-              _handleMovableMove(start, stream, clickedMovable);
-              pan = false;
-            } else if (selectedPrefab != null) {
-              var gridPos = grid.offsetToGridSpace(
-                  start.p * (1 / scaledZoom), selectedPrefab.size);
-
-              toggleSelect([await addMovable(selectedPrefab, gridPos)]);
-              pan = false;
-            } else if (!start.shift) {
-              _deselectAll();
             }
           }
         }
@@ -496,6 +504,52 @@ class Board {
 
     listenToCursorEvents<TouchEvent>((ev) => ev.targetTouches[0].page,
         _container.onTouchStart, window.onTouchMove, window.onTouchEnd);
+  }
+
+  void _handleSelectArea(SimpleEvent first, Stream<SimpleEvent> moveStream) {
+    void setAnimLen(svg.AnimatedLength len, num v) =>
+        len.baseVal.newValueSpecifiedUnits(svg.Length.SVG_LENGTHTYPE_PX, v);
+
+    var p = first.p * (1 / scaledZoom);
+    var q = p;
+
+    void scaleArea() {
+      var rect = Rectangle.fromPoints(p, q);
+      setAnimLen(_selectionArea.x, rect.left);
+      setAnimLen(_selectionArea.y, rect.top);
+      _selectionArea.style.width = '${rect.width}px';
+      _selectionArea.style.height = '${rect.height}px';
+    }
+
+    moveStream.listen((ev) {
+      q += ev.movement * (1 / scaledZoom);
+      scaleArea();
+    }, onDone: () {
+      // Select area
+      if (!first.shift) _deselectAll();
+      _selectMovablesInScreenRect(Rectangle.fromPoints(p, q));
+      q = p;
+      scaleArea();
+    });
+  }
+
+  void _selectMovablesInScreenRect(Rectangle r) {
+    Point scale(Point p) => grid.offsetToGridSpaceUnscaled(p,
+        round: false, offset: const Point(0, 0));
+
+    var rect = Rectangle.fromPoints(scale(r.topLeft), scale(r.bottomRight));
+
+    var validMovables = movables.where((m) {
+      var mRect = Rectangle(
+        m.position.x,
+        m.position.y,
+        m.displaySize,
+        m.displaySize,
+      );
+      return rect.intersects(mRect);
+    }).toList();
+
+    toggleSelect(validMovables, additive: true);
   }
 
   void _handlePanning(SimpleEvent first, Stream<SimpleEvent> moveStream) {
@@ -766,6 +820,7 @@ class Board {
     measuringRoot.setAttribute('viewBox', '-0.5 -0.5 $x $y');
 
     for (var m in json['movables']) {
+      print(m);
       onMovableCreate(m);
     }
 
@@ -778,7 +833,8 @@ class SimpleEvent {
   final Point p;
   final Point movement;
   final bool shift;
+  final bool ctrl;
   final int button;
 
-  SimpleEvent(this.p, this.movement, this.shift, this.button);
+  SimpleEvent(this.p, this.movement, this.shift, this.ctrl, this.button);
 }

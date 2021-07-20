@@ -115,10 +115,9 @@ class Grid {
   Point offsetToGridSpaceUnscaled(
     Point point, {
     bool round = true,
+    Point offset = const Point(0.5, 0.5),
   }) {
-    var size = Point<num>(0.5, 0.5);
-
-    var p = ((point - offset) * (1 / cellSize)) - size;
+    var p = ((point - offset) * (1 / cellSize)) - offset;
 
     if (round) {
       p = Point(p.x.round(), p.y.round());

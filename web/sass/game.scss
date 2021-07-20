@@ -420,6 +420,12 @@
     }
 }
 
+#selectionArea {
+    stroke: white;
+    stroke-width: 2px;
+    fill: #fff5;
+}
+
 #gridCanvas {
     pointer-events: none;
 }
