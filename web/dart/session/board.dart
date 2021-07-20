@@ -638,6 +638,10 @@ class Board {
         conds: src.conds,
       );
 
+      if (src is EmptyMovable) {
+        (m as EmptyMovable).label = src.label;
+      }
+
       dest.add(m);
       movables.add(m);
       grid.e.append(m.e);
