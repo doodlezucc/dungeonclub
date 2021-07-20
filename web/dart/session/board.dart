@@ -203,10 +203,15 @@ class Board {
       if (ev.keyCode == 27 && selectedPrefab != null) {
         ev.preventDefault();
         _deselectAll();
-      } else if (ev.keyCode == 46 && session.isDM) {
-        _removeSelectedMovables();
       } else if (ev.key == 'm') {
         mapTab.visible = !mapTab.visible;
+      } else if (session.isDM) {
+        if (ev.keyCode == 46 || ev.keyCode == 8) {
+          // Delete/Backspace
+          _removeSelectedMovables();
+        } else if (ev.key == 'D' && selected.isNotEmpty) {
+          cloneMovables(selected);
+        }
       }
     });
 
@@ -348,8 +353,9 @@ class Board {
       }
 
       startEvent.listen((ev) async {
-        if (ev.path
-            .any((e) => e is Element && e.classes.contains('controls'))) {
+        if (mapTab.visible ||
+            ev.path
+                .any((e) => e is Element && e.classes.contains('controls'))) {
           return;
         }
 
@@ -390,7 +396,10 @@ class Board {
             _handleMeasuring(start, stream);
           } else if (mode == PAN) {
             var movableElem = ev.path.firstWhere(
-              (e) => e is Element && e.classes.contains('movable'),
+              (e) =>
+                  e is Element &&
+                  e.classes.contains('movable') &&
+                  e.classes.contains('accessible'),
               orElse: () => null,
             );
 
@@ -408,7 +417,7 @@ class Board {
               var gridPos = grid.offsetToGridSpace(
                   start.p * (1 / scaledZoom), selectedPrefab.size);
 
-              toggleSelect([await addMovable(selectedPrefab, pos: gridPos)]);
+              toggleSelect([await addMovable(selectedPrefab, gridPos)]);
               pan = false;
             } else if (!start.shift) {
               _deselectAll();
@@ -602,14 +611,44 @@ class Board {
     var elems = _e.querySelectorAll('.movable .ring');
     for (var m in elems) {
       m.style.animation = 'none';
+      m.innerText; // Trigger reflow
     }
-    await Future.delayed(Duration(milliseconds: 50));
     for (var m in elems) {
       m.style.animation = '';
     }
   }
 
-  Future<Movable> addMovable(Prefab prefab, {Point pos}) async {
+  Future<List<Movable>> cloneMovables(Iterable<Movable> source) async {
+    var jsons = source.map((m) => m.toCloneJson());
+
+    var ids =
+        List<int>.from(await socket.request(a.GAME_MOVABLE_CREATE_ADVANCED, {
+      'movables': jsons.toList(),
+    }));
+
+    var dest = <Movable>[];
+    for (var i = 0; i < ids.length; i++) {
+      var src = source.elementAt(i);
+
+      var m = Movable.create(
+        board: this,
+        prefab: src.prefab,
+        id: ids[i],
+        pos: src.position,
+        conds: src.conds,
+      );
+
+      dest.add(m);
+      movables.add(m);
+      grid.e.append(m.e);
+    }
+    _deselectAll();
+    _syncMovableAnim();
+    toggleSelect(dest, state: true);
+    return dest;
+  }
+
+  Future<Movable> addMovable(Prefab prefab, Point pos) async {
     var id = await socket.request(a.GAME_MOVABLE_CREATE, {
       ...writePoint(pos),
       'prefab': prefab.id,
@@ -620,6 +659,12 @@ class Board {
     grid.e.append(m.e);
     _syncMovableAnim();
     return m;
+  }
+
+  void onMovableCreateAdvanced(Map<String, dynamic> json) {
+    for (var m in json['movables']) {
+      onMovableCreate(m);
+    }
   }
 
   void onMovableCreate(Map<String, dynamic> json) {
@@ -664,7 +709,12 @@ class Board {
   void onMovableMove(json) =>
       _movableEvent(json, (m) => m.onMove(parsePoint(json)));
 
-  void onMovableRemove(json) => _movableEvent(json, (m) => m.onRemove());
+  void onMovableRemove(json) => _movableEvent(json, (m) {
+        if (selected.contains(m)) {
+          toggleSelect([m], additive: true, state: false);
+        }
+        m.onRemove();
+      });
 
   void onMovableUpdate(json) => _movableEvent(json, (m) => m.fromJson(json));
 

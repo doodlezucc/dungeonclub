@@ -13,6 +13,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_MOVABLE_CREATE:
       return user.session.board.onMovableCreate(params);
 
+    case GAME_MOVABLE_CREATE_ADVANCED:
+      return user.session.board.onMovableCreateAdvanced(params);
+
     case GAME_MOVABLE_MOVE:
       return user.session.board.onMovableMove(params);
 

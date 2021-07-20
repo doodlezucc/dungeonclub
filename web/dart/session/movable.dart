@@ -1,6 +1,7 @@
 import 'dart:html';
 import 'dart:math' as math;
 
+import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
 
 import '../font_awesome.dart';
@@ -141,6 +142,13 @@ class Movable extends EntityBase {
     e.remove();
   }
 
+  Map<String, dynamic> toCloneJson() => {
+        'prefab': prefab.id,
+        'conds': _conds.toList(),
+        ...writePoint(position),
+        ...super.toJson(),
+      };
+
   @override
   Map<String, dynamic> toJson() => {
         'movable': id,
@@ -181,6 +189,12 @@ class EmptyMovable extends Movable {
       ..classes.add('empty')
       ..append(_labelSpan = SpanElement());
   }
+
+  @override
+  Map<String, dynamic> toCloneJson() => {
+        ...super.toCloneJson(),
+        'label': label,
+      };
 
   @override
   Map<String, dynamic> toJson() => {

@@ -256,6 +256,17 @@ class Connection extends Socket {
         }
         return null;
 
+      case a.GAME_MOVABLE_CREATE_ADVANCED:
+        if (scene != null) {
+          List source = params['movables'];
+
+          var dest = source.map((src) => scene.addMovable(src)).toList();
+
+          notifyOthers(action, {'movables': dest});
+          return dest.map((m) => m.id).toList();
+        }
+        return null;
+
       case a.GAME_MOVABLE_MOVE:
         List ids = params['movables'];
         var delta = parsePoint(params);

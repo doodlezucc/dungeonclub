@@ -68,6 +68,7 @@
         display: flex;
         flex-direction: column;
         z-index: 6;
+        pointer-events: none;
 
         > .panel {
             padding: 8px;
@@ -665,7 +666,7 @@
     }
     &.selected {
         border-width: 3px;
-        border-color: white !important;
+        border-color: var(--color-primary);
         box-shadow: 0 0 16px 4px #000a,
                     0 0 8px #0008 inset;
         z-index: 3;
@@ -675,6 +676,8 @@
         }
     }
     &.active {
+        border-color: white !important;
+
         > .ring {
             border: 3px solid white;
         }
