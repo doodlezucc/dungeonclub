@@ -13,7 +13,7 @@ import 'data.dart';
 import 'mail.dart';
 import 'server.dart';
 
-const campaignsPerAccount = 10; // TODO
+const campaignsPerAccount = 10;
 const scenesPerCampaign = 10;
 const prefabsPerCampaign = 20;
 const mapsPerCampaign = 10;
@@ -139,7 +139,10 @@ class Connection extends Socket {
         return loginAccount(acc);
 
       case a.GAME_CREATE_NEW:
-        if (account == null) return false;
+        if (account == null ||
+            account.ownedGames.length > campaignsPerAccount) {
+          return false;
+        }
 
         var createdGame = Game(account, '');
         if (!createdGame.applyChanges(params['data'])) return false;
