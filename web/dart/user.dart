@@ -7,8 +7,8 @@ import 'section_page.dart';
 import 'session/session.dart';
 
 class User {
-  MyAccount _account;
-  MyAccount get account => _account;
+  Account _account;
+  Account get account => _account;
 
   bool get registered => account != null;
 
@@ -35,7 +35,7 @@ class User {
   }
 
   void onActivate([Map<String, dynamic> accJson]) {
-    _account = MyAccount(accJson);
+    _account = Account(accJson);
     home.onLogin();
   }
 

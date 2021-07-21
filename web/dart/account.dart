@@ -8,14 +8,10 @@ import 'panels/edit_game.dart' as edit_game;
 import 'panels/panel_overlay.dart';
 
 class Account {
-  //final String name = 'noname';
-}
-
-class MyAccount extends Account {
   final String email;
   final List<Game> games;
 
-  MyAccount(Map<String, dynamic> json)
+  Account(Map<String, dynamic> json)
       : email = json['email'],
         games = List.from(json['games'])
             .map((e) => Game(e['id'], e['name'], e['mine']))
