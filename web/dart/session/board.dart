@@ -708,13 +708,17 @@ class Board {
     }
   }
 
-  Future<List<Movable>> cloneMovables(Iterable<Movable> source) async {
+  Future<void> cloneMovables(Iterable<Movable> source) async {
     var jsons = source.map((m) => m.toCloneJson());
 
     var ids =
         List<int>.from(await socket.request(a.GAME_MOVABLE_CREATE_ADVANCED, {
       'movables': jsons.toList(),
     }));
+
+    if (ids == null) {
+      return print('Limit of 50 movables reached.');
+    }
 
     var dest = <Movable>[];
     for (var i = 0; i < ids.length; i++) {
@@ -739,7 +743,6 @@ class Board {
     _deselectAll();
     _syncMovableAnim();
     toggleSelect(dest, state: true);
-    return dest;
   }
 
   Future<Movable> addMovable(Prefab prefab, Point pos) async {

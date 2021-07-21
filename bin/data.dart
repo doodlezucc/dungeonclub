@@ -451,8 +451,8 @@ class PlayerCharacter {
 }
 
 class Scene {
-  final List<Movable> _movables;
-  int get nextMovableId => _movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
+  final List<Movable> movables;
+  int get nextMovableId => movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
   Point gridOffset;
   int tiles;
   String tileUnit;
@@ -461,7 +461,7 @@ class Scene {
   String fogOfWar;
 
   Scene(Map<String, dynamic> json)
-      : _movables = List.from(json['movables'] ?? [])
+      : movables = List.from(json['movables'] ?? [])
             .map((j) => Movable.create(j['id'], j))
             .toList() {
     applyGrid(json['grid'] ?? {});
@@ -470,20 +470,20 @@ class Scene {
 
   Movable addMovable(Map<String, dynamic> json) {
     var m = Movable.create(nextMovableId, json);
-    _movables.add(m);
+    movables.add(m);
     return m;
   }
 
   Movable getMovable(int id) {
-    return _movables.firstWhere((m) => m.id == id, orElse: () => null);
+    return movables.firstWhere((m) => m.id == id, orElse: () => null);
   }
 
   void removeMovablesOfPrefab(String prefabId) {
-    _movables.removeWhere((m) => m.prefab == prefabId);
+    movables.removeWhere((m) => m.prefab == prefabId);
   }
 
   void removeMovable(int id) {
-    _movables.removeWhere((m) => m.id == id);
+    movables.removeWhere((m) => m.id == id);
   }
 
   void applyGrid(Map<String, dynamic> json) {
@@ -497,7 +497,7 @@ class Scene {
   void applyMovables(Iterable jsons) {
     for (var mj in jsons) {
       var id = mj['id'];
-      var m = _movables.firstWhere((m) => m.id == id, orElse: () => null);
+      var m = movables.firstWhere((m) => m.id == id, orElse: () => null);
       if (m != null) {
         var point = parsePoint(mj);
         m.x = point.x;
@@ -514,7 +514,7 @@ class Scene {
           'color': gridColor,
           'alpha': gridAlpha,
         },
-        'movables': _movables.map((e) => e.toJson()).toList(),
+        'movables': movables.map((e) => e.toJson()).toList(),
         'fow': fogOfWar,
       };
 }

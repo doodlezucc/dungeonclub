@@ -13,6 +13,12 @@ import 'data.dart';
 import 'mail.dart';
 import 'server.dart';
 
+const campaignsPerAccount = 10; // TODO
+const scenesPerCampaign = 10;
+const prefabsPerCampaign = 20; // TODO
+const mapsPerCampaign = 10; // TODO
+const movablesPerScene = 50;
+
 final connections = <Connection>[];
 final activationCodes = <Connection, String>{};
 final resets = <Connection, PasswordReset>{};
@@ -244,8 +250,9 @@ class Connection extends Socket {
         return notifyOthers(action, params, true);
 
       case a.GAME_MOVABLE_CREATE:
-        if (scene != null) {
+        if (scene != null && scene.movables.length < movablesPerScene) {
           var m = scene.addMovable(params);
+          if (m == null) return null;
           notifyOthers(action, {
             'id': m.id,
             'x': m.x,
@@ -259,11 +266,12 @@ class Connection extends Socket {
       case a.GAME_MOVABLE_CREATE_ADVANCED:
         if (scene != null) {
           List source = params['movables'];
+          if (scene.movables.length + source.length <= movablesPerScene) {
+            var dest = source.map((src) => scene.addMovable(src)).toList();
 
-          var dest = source.map((src) => scene.addMovable(src)).toList();
-
-          notifyOthers(action, {'movables': dest});
-          return dest.map((m) => m.id).toList();
+            notifyOthers(action, {'movables': dest});
+            return dest.map((m) => m.id).toList();
+          }
         }
         return null;
 
@@ -337,7 +345,7 @@ class Connection extends Socket {
 
       case a.GAME_SCENE_ADD:
         var id = _game.sceneCount;
-        if (id >= 10) return null; // Limit to 10 scenes
+        if (id >= scenesPerCampaign) return null;
 
         var s = _game?.addScene();
         if (s == null) return null;
