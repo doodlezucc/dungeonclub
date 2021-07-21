@@ -55,6 +55,7 @@ class Dialog<T> {
   Future<T> display() async {
     overlayVisible = true;
     _overlay.append(_e);
+    _e.innerText; // Trigger reflow
     _e.classes.add('show');
     (_input ?? _okButton).focus();
 
