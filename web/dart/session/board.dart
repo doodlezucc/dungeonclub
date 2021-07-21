@@ -9,6 +9,7 @@ import 'package:meta/meta.dart';
 
 import '../communication.dart';
 import '../font_awesome.dart';
+import '../notif.dart';
 import '../panels/upload.dart' as upload;
 import 'condition.dart';
 import 'fog_of_war.dart';
@@ -458,9 +459,12 @@ class Board {
                 var gridPos = grid.offsetToGridSpace(
                     start.p * (1 / scaledZoom), selectedPrefab.size);
 
-                toggleSelect([await addMovable(selectedPrefab, gridPos)],
-                    state: true);
-                pan = false;
+                var newMov = await addMovable(selectedPrefab, gridPos);
+
+                if (newMov != null) {
+                  toggleSelect([newMov], state: true);
+                  pan = false;
+                }
               } else if (!start.shift) {
                 _deselectAll();
               }
@@ -711,14 +715,15 @@ class Board {
   Future<void> cloneMovables(Iterable<Movable> source) async {
     var jsons = source.map((m) => m.toCloneJson());
 
-    var ids =
-        List<int>.from(await socket.request(a.GAME_MOVABLE_CREATE_ADVANCED, {
+    var result = await socket.request(a.GAME_MOVABLE_CREATE_ADVANCED, {
       'movables': jsons.toList(),
-    }));
+    });
 
-    if (ids == null) {
-      return print('Limit of 50 movables reached.');
+    if (result == null) {
+      return _onMovableCountLimitReached();
     }
+
+    var ids = List<int>.from(result);
 
     var dest = <Movable>[];
     for (var i = 0; i < ids.length; i++) {
@@ -750,12 +755,22 @@ class Board {
       ...writePoint(pos),
       'prefab': prefab.id,
     });
+
+    if (id == null) {
+      _onMovableCountLimitReached();
+      return null;
+    }
+
     var m = Movable.create(
         board: this, prefab: prefab, id: id, pos: pos, conds: []);
     movables.add(m);
     grid.e.append(m.e);
     _syncMovableAnim();
     return m;
+  }
+
+  void _onMovableCountLimitReached() {
+    HtmlNotification('Limit of 50 movables reached.').display();
   }
 
   void onMovableCreateAdvanced(Map<String, dynamic> json) {
