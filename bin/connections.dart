@@ -337,6 +337,8 @@ class Connection extends Socket {
 
       case a.GAME_SCENE_ADD:
         var id = _game.sceneCount;
+        if (id >= 10) return null; // Limit to 10 scenes
+
         var s = _game?.addScene();
         if (s == null) return null;
 

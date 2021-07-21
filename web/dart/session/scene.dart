@@ -26,6 +26,13 @@ final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
 
 List<Scene> _allScenes = [];
 
+void _updateAddSceneButton() {
+  var reachedLimit = _allScenes.length >= 10;
+  _addScene.disabled = reachedLimit;
+  _addScene.title =
+      reachedLimit ? "You can't have more than 10 scenes at a time." : '';
+}
+
 class Scene {
   final HtmlElement e;
   int id;
@@ -55,6 +62,7 @@ class Scene {
     image = getSceneImage(id, cacheBreak: true);
     _scenesContainer.insertBefore(e, _addScene);
     _allScenes.add(this);
+    _updateAddSceneButton();
   }
 
   Future<void> remove() async {
@@ -66,6 +74,7 @@ class Scene {
       _allScenes[i].id = i - 1;
     }
     _allScenes.remove(this);
+    _updateAddSceneButton();
 
     var next = _allScenes[max(0, id - 1)];
     if (playing) {
