@@ -593,6 +593,15 @@
     --cell-size: 4;
 }
 
+@keyframes movable-spawn {
+    0%   { margin-top: 20px; opacity: 0; }
+    100% { margin-top: 0; opacity: 1; }
+}
+@keyframes movable-remove {
+    0%   { margin-top: 0; opacity: 1; }
+    100% { margin-top: 40px; opacity: 0; }
+}
+
 .movable {
     @include base.center-background;
     position: absolute;
@@ -607,11 +616,22 @@
     transform-origin: top left;
     transform: scale(calc(var(--cell-size) / 70));
     transition: border-color 0.25s,
-                border-width 0.05s;
+                border-width 0.05s,
+                width 0.1s, height 0.1s;
 
     --size: 1;
     --x: 0;
     --y: 0;
+
+    &:not(#movableGhost) {
+        animation: movable-spawn 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+    }
+    &.animate-move {
+        transition: left 0.3s, top 0.3s;
+    }
+    &.animate-remove {
+        animation: movable-remove 0.5s forwards cubic-bezier(0.6, -0.28, 0.735, 0.045) !important;
+    }
 
     > .conds {
         position: absolute;

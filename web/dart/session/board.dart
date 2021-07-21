@@ -451,7 +451,8 @@ class Board {
                 var gridPos = grid.offsetToGridSpace(
                     start.p * (1 / scaledZoom), selectedPrefab.size);
 
-                toggleSelect([await addMovable(selectedPrefab, gridPos)]);
+                toggleSelect([await addMovable(selectedPrefab, gridPos)],
+                    state: true);
                 pan = false;
               } else if (!start.shift) {
                 _deselectAll();

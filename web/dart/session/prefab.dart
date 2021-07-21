@@ -22,7 +22,7 @@ abstract class EntityBase {
       };
 
   void fromJson(Map<String, dynamic> json) {
-    size = json['size'] ?? 1;
+    size = json['size'] ?? 0;
   }
 }
 

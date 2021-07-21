@@ -86,8 +86,11 @@ class Movable extends EntityBase {
     e.classes.toggle('accessible', accessible);
   }
 
-  void onMove(Point delta) {
+  void onMove(Point delta) async {
+    e.classes.add('animate-move');
     position += delta;
+    await Future.delayed(Duration(milliseconds: 300));
+    e.classes.remove('animate-move');
   }
 
   void onImageChange(String img) {
@@ -137,8 +140,11 @@ class Movable extends EntityBase {
     _applyConds();
   }
 
-  void onRemove() {
+  void onRemove() async {
     prefab.movables.remove(this);
+
+    e.classes.add('animate-remove');
+    await Future.delayed(Duration(milliseconds: 500));
     e.remove();
   }
 
