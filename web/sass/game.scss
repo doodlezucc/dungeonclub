@@ -237,6 +237,13 @@
         }
     }
 
+    #sizeInherit {
+        position: absolute;
+        left: 64px;
+        color: var(--color-note);
+        pointer-events: none;
+    }
+
     #sceneSelector {
         @include panels.hooked(172px);
         width: 100%;

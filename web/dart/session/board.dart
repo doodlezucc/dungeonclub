@@ -123,6 +123,7 @@ class Board {
       }
 
       _selectedSize.valueAsNumber = activeMovable.size;
+      _updateSelectionSizeInherit();
       _selectedConds.querySelectorAll('.active').classes.remove('active');
       for (var cond in activeMovable.conds) {
         _selectedConds.children[cond].classes.add('active');
@@ -297,6 +298,11 @@ class Board {
     selectedPrefab = null;
   }
 
+  void _updateSelectionSizeInherit() {
+    _selectedSize.parent.children.last.style.display =
+        activeMovable.size == 0 ? '' : 'none';
+  }
+
   void _initSelectionHandler() {
     _selectedRemove.onClick.listen((_) async {
       _removeSelectedMovables();
@@ -307,6 +313,7 @@ class Board {
     });
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
       m.size = int.parse(value);
+      _updateSelectionSizeInherit();
     });
   }
 
@@ -821,7 +828,6 @@ class Board {
     measuringRoot.setAttribute('viewBox', '-0.5 -0.5 $x $y');
 
     for (var m in json['movables']) {
-      print(m);
       onMovableCreate(m);
     }
 
