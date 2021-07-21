@@ -149,6 +149,7 @@ class Game {
   Scene get playingScene =>
       playingSceneId < _scenes.length ? _scenes[playingSceneId] : null;
   Iterable<PlayerCharacter> get characters => _characters;
+  int get prefabCount => _prefabs.length;
 
   int get _nextPrefabId => _prefabs.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
   int get _nextMapId => _maps.fold(-1, (v, m) => max<int>(v, m.id)) + 1;

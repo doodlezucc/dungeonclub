@@ -6,13 +6,14 @@ import 'package:meta/meta.dart';
 import '../../main.dart';
 import '../communication.dart';
 import '../edit_image.dart';
+import '../notif.dart';
 import '../panels/upload.dart' as upload;
 import 'prefab.dart';
 
 final HtmlElement _palette = querySelector('#prefabPalette');
 final HtmlElement _pcPrefs = _palette.querySelector('#pcPrefabs');
 final HtmlElement _otherPrefs = _palette.querySelector('#otherPrefabs');
-final HtmlElement _addPref = _palette.querySelector('#addPrefab');
+final ButtonElement _addPref = _palette.querySelector('#addPrefab');
 
 final HtmlElement _movableGhost = querySelector('#movableGhost');
 
@@ -168,7 +169,14 @@ void _initPrefabProperties() {
   _prefabRemove.onClick.listen((_) async {
     var p = selectedPrefab;
     if (p != null) {
-      selectedPrefab = null;
+      // Select preceding prefab
+      var index = prefabs.indexOf(p);
+      if (index == 0) {
+        selectedPrefab = null;
+      } else {
+        selectedPrefab = prefabs[index - 1];
+      }
+
       onPrefabRemove(p);
       await socket.sendAction(GAME_PREFAB_REMOVE, {
         'prefab': p.id,
@@ -202,7 +210,20 @@ void _sendUpdate() {
   });
 }
 
+void _updateAddButton() {
+  var limitReached = prefabs.length >= 20;
+  _addPref.disabled = limitReached;
+  _addPref.querySelector('span').text =
+      limitReached ? 'Limit reached' : 'Add prefab';
+}
+
+void _displayLimitMsg() {
+  HtmlNotification('Limit of 20 prefabs reached.').display();
+}
+
 Future<void> createPrefab() async {
+  if (prefabs.length >= 20) return _displayLimitMsg();
+
   var result = await upload.display(
     action: GAME_PREFAB_CREATE,
     type: IMAGE_TYPE_ENTITY,
@@ -210,7 +231,7 @@ Future<void> createPrefab() async {
 
   if (result == null) return null;
 
-  selectedPrefab = onPrefabCreate(result);
+  selectedPrefab = onPrefabCreate(result)..updateImage();
   _prefabName.focus();
 }
 
@@ -218,6 +239,7 @@ CustomPrefab onPrefabCreate(Map<String, dynamic> json) {
   var p = CustomPrefab(id: json['id'])..fromJson(json);
   prefabs.add(p);
   _otherPrefs.insertBefore(p.e, _addPref);
+  _updateAddButton();
   return p;
 }
 
@@ -244,4 +266,6 @@ void onPrefabRemove(Prefab prefab) {
       m.onRemove();
     }
   });
+  prefabs.remove(prefab);
+  _updateAddButton();
 }

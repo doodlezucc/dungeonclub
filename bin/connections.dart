@@ -15,7 +15,7 @@ import 'server.dart';
 
 const campaignsPerAccount = 10; // TODO
 const scenesPerCampaign = 10;
-const prefabsPerCampaign = 20; // TODO
+const prefabsPerCampaign = 20;
 const mapsPerCampaign = 10; // TODO
 const movablesPerScene = 50;
 
@@ -216,7 +216,7 @@ class Connection extends Socket {
         return 'Game "$id" not found!';
 
       case a.GAME_PREFAB_CREATE:
-        if (_game != null) {
+        if (_game != null || _game.prefabCount < prefabsPerCampaign) {
           var p = _game.addPrefab();
           await _uploadGameImageJson(params, id: p.id);
           var json = p.toJson();

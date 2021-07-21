@@ -771,6 +771,7 @@ class Board {
 
   void _onMovableCountLimitReached() {
     HtmlNotification('Limit of 50 movables reached.').display();
+    _deselectAll();
   }
 
   void onMovableCreateAdvanced(Map<String, dynamic> json) {
