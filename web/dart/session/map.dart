@@ -86,7 +86,14 @@ class MapTab {
       var icon = showAdd ? 'plus' : 'chevron-right';
       _navRight.classes.toggle('add-map', showAdd);
       _navRight.children.first.className = 'fas fa-$icon';
-      _navRight.disabled = maps.isEmpty;
+
+      if (showAdd && maps.length >= 10) {
+        _navRight.disabled = true;
+        _navRight.querySelector('span').text = 'Limit of 10 maps reached!';
+      } else {
+        _navRight.disabled = maps.isEmpty;
+        _navRight.querySelector('span').text = 'Create new map';
+      }
     } else {
       _navRight.disabled = mapIndex >= maps.length - 1;
     }
@@ -109,6 +116,8 @@ class MapTab {
   }
 
   Future<bool> _uploadNewMap() async {
+    if (maps.length >= 10) return false;
+
     var id = await uploader.display(
       action: GAME_MAP_CREATE,
       type: IMAGE_TYPE_MAP,

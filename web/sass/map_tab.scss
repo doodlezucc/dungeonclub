@@ -89,6 +89,8 @@
             }
         }
 
+        > .navigate { z-index: 1; }
+
         > button.dm {
             position: absolute;
         }

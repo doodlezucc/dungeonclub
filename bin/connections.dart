@@ -16,7 +16,7 @@ import 'server.dart';
 const campaignsPerAccount = 10; // TODO
 const scenesPerCampaign = 10;
 const prefabsPerCampaign = 20;
-const mapsPerCampaign = 10; // TODO
+const mapsPerCampaign = 10;
 const movablesPerScene = 50;
 
 final connections = <Connection>[];
@@ -400,6 +400,8 @@ class Connection extends Socket {
         return results;
 
       case a.GAME_MAP_CREATE:
+        if (_game.mapCount >= mapsPerCampaign) return null;
+
         var id = _game.addMap();
         await _uploadGameImageJson(params, id: id);
         _game.notify(action, {'map': id}, exclude: this, allScenes: true);
