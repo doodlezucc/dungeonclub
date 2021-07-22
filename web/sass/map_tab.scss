@@ -294,3 +294,13 @@
         padding: 6px 4px;
     }
 }
+
+#mapIndex {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    font-size: 14px;
+    text-align: center;
+    color: var(--color-note);
+}

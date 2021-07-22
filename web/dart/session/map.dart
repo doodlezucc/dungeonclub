@@ -22,6 +22,7 @@ final HtmlElement _tools = _e.querySelector('#mapTools');
 final HtmlElement _toolInfo = _e.querySelector('#toolInfo');
 final InputElement _color = _e.querySelector('#activeColor');
 
+final HtmlElement _indexText = _e.querySelector('#mapIndex');
 final ButtonElement _navLeft = _name.previousElementSibling;
 final ButtonElement _navRight = _name.parent.children.last;
 
@@ -40,6 +41,7 @@ class MapTab {
     map._fixScaling();
     _updateHistoryButtons();
     _updateNavigateButtons();
+    _updateIndexText();
   }
 
   GameMap get map => maps.isNotEmpty ? maps[mapIndex] : null;
@@ -318,6 +320,8 @@ class MapTab {
     }
   }
 
+  void _updateIndexText() => _indexText.text = '${mapIndex + 1}/${maps.length}';
+
   void addMap(int id, String name, [String encodedData]) {
     var map = GameMap(id, name: name, encodedData: encodedData);
     map.whiteboard.history.onChange.listen((_) => _updateHistoryButtons());
@@ -326,6 +330,7 @@ class MapTab {
     if (maps.length == 1) _onFirstUpload();
 
     _updateNavigateButtons();
+    _updateIndexText();
   }
 
   void onMapUpdate(Map<String, dynamic> json) {
