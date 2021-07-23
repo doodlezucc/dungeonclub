@@ -572,12 +572,17 @@
 
     > * { pointer-events: none; }
     
-    path {
+    path, circle.sphere {
         fill: none !important;
     }
-
-    circle {
+    circle:not(.sphere) {
         stroke: none !important;
+    }
+    g > rect {
+        fill: #fb86 !important;
+        stroke: #fff !important;
+        width: 1px;
+        height: 1px;
     }
 }
 .distance-text {

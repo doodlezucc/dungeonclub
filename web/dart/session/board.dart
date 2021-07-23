@@ -426,7 +426,7 @@ class Board {
 
         if (start.button == 0) {
           if (mode == MEASURE) {
-            _handleMeasuring(start, stream, MeasuringPath());
+            _handleMeasuring(start, stream, MEASURING_CIRCLE);
           } else if (mode == PAN) {
             if (start.ctrl) {
               _handleSelectArea(start, stream);
@@ -607,16 +607,20 @@ class Board {
   }
 
   void _handleMeasuring(
-      SimpleEvent first, Stream<SimpleEvent> moveStream, Measuring m) {
+      SimpleEvent first, Stream<SimpleEvent> moveStream, int type) {
     var p = first.p * (1 / scaledZoom);
+
+    var origin = grid.offsetToGridSpaceUnscaled(p, offset: const Point(0, 0)) -
+        Point(0.5, 0.5);
+
+    var m = Measuring.create(type, origin);
     m.alignDistanceText(p);
-    m.addPoint(grid.offsetToGridSpaceUnscaled(p));
 
     zoom = zoom; // Rescale distance text
 
     moveStream.listen((ev) {
       p = ev.p * (1 / scaledZoom);
-      var measureEnd = grid.offsetToGridSpaceUnscaled(p);
+      var measureEnd = grid.offsetToGridSpaceUnscaled(p, round: false);
       if (ev.button == 2) {
         m.addPoint(measureEnd);
       }
