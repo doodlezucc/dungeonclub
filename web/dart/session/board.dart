@@ -153,7 +153,7 @@ class Board {
     _scaledZoom = exp(_zoom);
 
     var invZoomScale = 'scale(${1 / scaledZoom})';
-    distanceText.style.transform = invZoomScale;
+    querySelectorAll('.distance-text').style.transform = invZoomScale;
 
     _transform();
   }
@@ -361,11 +361,6 @@ class Board {
     input.onChange.listen((_) => update());
   }
 
-  void alignDistanceText(Point p) {
-    distanceText.style.left = '${p.x}px';
-    distanceText.style.top = '${p.y}px';
-  }
-
   void _initMouseControls() {
     StreamController<SimpleEvent> moveStreamCtrl;
     Timer timer;
@@ -431,7 +426,7 @@ class Board {
 
         if (start.button == 0) {
           if (mode == MEASURE) {
-            _handleMeasuring(start, stream);
+            _handleMeasuring(start, stream, MeasuringPath());
           } else if (mode == PAN) {
             if (start.ctrl) {
               _handleSelectArea(start, stream);
@@ -611,22 +606,24 @@ class Board {
     });
   }
 
-  void _handleMeasuring(SimpleEvent first, Stream<SimpleEvent> moveStream) {
+  void _handleMeasuring(
+      SimpleEvent first, Stream<SimpleEvent> moveStream, Measuring m) {
     var p = first.p * (1 / scaledZoom);
-    alignDistanceText(p);
-    var mPath = MeasuringPath();
-    mPath.addPoint(grid.offsetToGridSpaceUnscaled(p));
+    m.alignDistanceText(p);
+    m.addPoint(grid.offsetToGridSpaceUnscaled(p));
+
+    zoom = zoom; // Rescale distance text
 
     moveStream.listen((ev) {
       p = ev.p * (1 / scaledZoom);
       var measureEnd = grid.offsetToGridSpaceUnscaled(p);
       if (ev.button == 2) {
-        mPath.addPoint(measureEnd);
+        m.addPoint(measureEnd);
       }
-      mPath.redraw(measureEnd);
-      alignDistanceText(p);
+      m.redraw(measureEnd);
+      m.alignDistanceText(p);
     }, onDone: () {
-      mPath.dispose();
+      m.dispose();
     });
   }
 
