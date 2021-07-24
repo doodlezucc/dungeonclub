@@ -125,15 +125,14 @@
         }
 
         > div {
-            @extend %toolbox;
+            @extend .toolbox;
             grid-template-columns: auto auto;
         }
 
         button {
             @extend %toolbox-item;
-            background-color: var(--color-background);
             border-radius: 0;
-            align-items: center;
+            font-size: 17px;
 
             &:nth-child(odd) > span {
                 left: -8px;

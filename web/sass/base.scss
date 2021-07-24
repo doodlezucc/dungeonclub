@@ -547,43 +547,7 @@ footer {
     gap: 24px;
     padding: 12px 24px;
     background-color: #060606;
-}
-
-.dropdown {
-    @extend %clickable;
-    display: inline-block;
-    position: relative;
-    border-radius: $radius $radius 0 0;
-
-    > div {
-        @extend %vertical;
-        gap: 12px;
-        background-color: var(--color-not-intense);
-        padding: 16px 20px;
-        position: absolute;
-        z-index: 4;
-        top: 100%;
-        right: 0;
-        opacity: 0;
-        pointer-events: none;
-        cursor: default;
-        transition-duration: 0.2s;
-        border-radius: $radius 0 $radius $radius;
-    }
-
-    &:hover {
-        background-color: var(--color-button-hover) !important;
-
-        > div {
-            opacity: 1;
-            pointer-events: all;
-        }
-    }
-
-    &.hidden {
-        display: none;
-    }
-}
+} 
 
 .space-between {
     display: flex;
@@ -623,15 +587,24 @@ footer {
     @extend %with-tooltip;
 }
 
-%toolbox {
+.toolbox {
     display: grid;
     background-color: #aaa;
     border: 1px solid #ddd;
     gap: 1px;
+
+    > i {
+        @extend %toolbox-item;
+    }
 }
 
 %toolbox-item {
     @extend %with-tooltip;
+    background-color: var(--color-background);
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    align-items: center;
 
     &:hover {
         background-color: var(--color-button-hover);

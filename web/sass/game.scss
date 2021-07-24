@@ -72,6 +72,7 @@
 
         > .panel {
             padding: 8px;
+            transition: opacity 0.1s;
         }
     }
 
@@ -212,18 +213,9 @@
         }
 
         > #conds {
-            @extend %toolbox;
+            @extend .toolbox;
             grid-template-rows: min-content min-content;
             grid-auto-flow: column;
-
-            > i {
-                @extend %toolbox-item;
-                width: 36px;
-                height: 36px;
-                font-size: 20px;
-                align-items: center;
-                background-color: var(--color-background);
-            }
         }
 
         &.hidden {
@@ -352,32 +344,19 @@
             
             .content {
                 position: absolute;
-                top: 0;
-                left: calc(100%);
-                background-color: var(--color-background);
-                border-collapse: collapse;
+                top: -4px;
+                left: calc(100% - 4px);
                 pointer-events: none;
                 opacity: 0;
                 transition-duration: 0.1s;
-                overflow: hidden;
-
-                td {
-                    @extend %clickable;
-                    padding: 4px;
-                    min-width: 20px;
-                    border: 1px solid var(--color-not-intense);
-                    border-radius: 0%;
-                    transition-duration: 0s;
-                }
+                padding: 4px;
             }
 
-            &:hover {
-                border-radius: base.$radius 0 0 base.$radius;
-                background-color: var(--color-button-hover);
-
+            &:hover, &.active {
                 .content {
                     pointer-events: all;
                     opacity: 1;
+                    left: 100%;
                 }
             }
         }
@@ -769,4 +748,31 @@ $ping-radius: 100px;
         border-radius: 100px;
         box-sizing: border-box;
     }
+}
+
+#dice {
+    border-collapse: collapse;
+    background-color: var(--color-background);
+
+    td {
+        @extend %clickable;
+        padding: 4px;
+        min-width: 20px;
+        border: 1px solid var(--color-not-intense);
+        border-radius: 0%;
+        transition-duration: 0s;
+    }
+}
+
+#measureDistance {
+    z-index: 1;
+
+    .toolbox {
+        grid-auto-flow: column;
+        border-color: var(--color-not-intense);
+        background-color: var(--color-not-intense) !important;
+        color: var(--color-text-primary);
+    }
+
+    &:not(.active) .active { color: unset; background-color: var(--color-background); }
 }

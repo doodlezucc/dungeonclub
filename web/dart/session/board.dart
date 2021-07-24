@@ -50,7 +50,7 @@ class Board {
   final movables = <Movable>[];
   final selected = <Movable>{};
   final fogOfWar = FogOfWar();
-  var clipboard = <Movable>[];
+  List<Movable> clipboard = [];
 
   static const PAN = 'pan';
   static const MEASURE = 'measure';
@@ -174,7 +174,23 @@ class Board {
   void _initBoard() {
     _initMouseControls();
     initDiceTable();
-    _measureToggle.onClick.listen((_) => mode = MEASURE);
+    measureMode = 0;
+    _measureToggle.onClick.listen((ev) {
+      var target = ev.target;
+
+      if (target is HtmlElement) {
+        var mMode = target.getAttribute('mode');
+        if (mMode != null) {
+          var oldMode = measureMode;
+          measureMode = int.parse(mMode);
+
+          // Prevent mode toggle
+          if (mode == MEASURE && measureMode != oldMode) return null;
+        }
+      }
+
+      return mode = MEASURE;
+    });
     _fowToggle.onClick.listen((_) => mode = FOG_OF_WAR);
 
     _container.onMouseWheel.listen((event) {
@@ -426,7 +442,7 @@ class Board {
 
         if (start.button == 0) {
           if (mode == MEASURE) {
-            _handleMeasuring(start, stream, MEASURING_CUBE);
+            _handleMeasuring(start, stream, measureMode);
           } else if (mode == PAN) {
             if (start.ctrl) {
               _handleSelectArea(start, stream);
@@ -610,8 +626,11 @@ class Board {
       SimpleEvent first, Stream<SimpleEvent> moveStream, int type) {
     var p = first.p * (1 / scaledZoom);
 
-    var origin = grid.offsetToGridSpaceUnscaled(p, offset: const Point(0, 0)) -
-        Point(0.5, 0.5);
+    var offset = type == MEASURING_PATH ? Point(0.5, 0.5) : Point(0.0, 0.0);
+
+    var origin = grid.offsetToGridSpaceUnscaled(p, offset: offset) -
+        Point(0.5, 0.5) +
+        offset;
 
     var m = Measuring.create(type, origin);
     m.alignDistanceText(p);
@@ -620,7 +639,11 @@ class Board {
 
     moveStream.listen((ev) {
       p = ev.p * (1 / scaledZoom);
-      var measureEnd = grid.offsetToGridSpaceUnscaled(p, round: false);
+      var measureEnd = grid.offsetToGridSpaceUnscaled(
+        p,
+        round: false,
+        offset: Point(0.5, 0.5) - offset,
+      );
       if (ev.button == 2) {
         m.addPoint(measureEnd);
       }

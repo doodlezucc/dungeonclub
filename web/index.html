@@ -86,14 +86,32 @@
                         Fog of War
                         <i class="fas fa-cloud"></i>
                     </button>
-                    <button class="icon toggle" id="measureDistance">
-                        Measuring
+                    <button class="tab toggle" id="measureDistance">
                         <i class="fas fa-ruler"></i>
+                        Measuring
+                        <div class="content">
+                            <div class="toolbox" id="measureTools">
+                                <i class="fas fa-ruler" mode="0">
+                                    <span>Path</span>
+                                </i>
+                                <i class="fas fa-square" mode="3">
+                                    <span>Square/Cube</span>
+                                </i>
+                                <i class="fas fa-circle" mode="1">
+                                    <span>Circle/Sphere</span>
+                                </i>
+                                <i class="fas fa-lightbulb" mode="2">
+                                    <span>Cone</span>
+                                </i>
+                            </div>
+                        </div>
                     </button>
                     <button class="icon tab" id="diceTab">
                         Roll Dice
                         <i class="fas fa-dice-d20"></i>
-                        <table class="content" id="dice"></table>
+                        <div class="content">
+                            <table id="dice"></table>
+                        </div>
                     </button>
                     <button class="icon" id="openMap">
                         Map View
@@ -126,8 +144,8 @@
                         <i class="fas fa-save"></i>
                     </button>
                 </div>
-                <div id="rightControls" class="dm no-edit panning-only">
-                    <div id="prefabPalette" class="controls panel">
+                <div id="rightControls" class="dm no-edit">
+                    <div id="prefabPalette" class="controls panel panning-only">
                         <h3>Prefab Palette</h3>
                         <div class="prefab-selection">
                             <p>Players</p>

@@ -11,7 +11,16 @@ const MEASURING_CIRCLE = 1;
 const MEASURING_CONE = 2;
 const MEASURING_CUBE = 3;
 
+final HtmlElement _toolbox = querySelector('#measureTools');
 final svg.SvgSvgElement measuringRoot = querySelector('#distanceCanvas');
+
+int _measureMode;
+int get measureMode => _measureMode;
+set measureMode(int measureMode) {
+  _measureMode = measureMode;
+  _toolbox.querySelectorAll('.active').classes.remove('active');
+  _toolbox.querySelector('[mode="$measureMode"]').classes.add('active');
+}
 
 abstract class Measuring {
   static Measuring create(int type, Point origin) {
@@ -232,14 +241,15 @@ class MeasuringCone extends CoveredMeasuring {
     var affected = <Point<int>>{};
     var lengthStep = 0.3;
 
-    for (var w = 0.0; w <= 1; w += 0.5 / distance) {
-      var p = origin;
+    for (var w = 0.0; w <= 1; w += 0.2 / distance) {
       var q = p1 + (p2 - p1) * w;
       var vec = (q - origin) * (lengthStep / distance);
 
-      for (var l = 0.0; l < distance; l += lengthStep) {
-        p += vec;
+      var p = origin + vec;
+
+      for (var l = lengthStep; l < distance; l += lengthStep) {
         affected.add(fixPoint(p));
+        p += vec;
       }
     }
 
