@@ -182,13 +182,26 @@ class MeasuringCircle extends CoveredMeasuring {
 }
 
 class MeasuringCone extends CoveredMeasuring {
+  double lockedRadius;
+  bool lockRadius = false;
+
   MeasuringCone(Point origin) : super(origin, svg.PolygonElement()) {
     _e.classes.add('no-fill');
   }
 
   @override
+  void addPoint(Point<num> point) {
+    lockRadius = !lockRadius;
+  }
+
+  @override
   void redraw(Point extra) {
-    var distance = origin.distanceTo(extra).roundToDouble();
+    var distance =
+        lockRadius ? lockedRadius : origin.distanceTo(extra).roundToDouble();
+
+    if (!lockRadius) {
+      lockedRadius = distance;
+    }
 
     if (distance > 0) {
       var vec = extra - origin;
@@ -212,22 +225,24 @@ class MeasuringCone extends CoveredMeasuring {
   static String _toSvg(Point p) => '${p.x},${p.y}';
 
   void _updateSquares(Point p1, Point p2, double distance) {
-    var affected = {Point(origin.x.floor(), origin.y.floor())};
+    Point<int> fixPoint(Point p) =>
+        Point((p.x + 0.5).floor(), (p.y + 0.5).floor());
 
-    var lengthStep = 0.5;
+    var affected = <Point<int>>{};
+    var lengthStep = 0.3;
 
-    _squares.children.clear();
-    for (var w = 0.0; w <= 1; w += 0.75 / distance) {
+    for (var w = 0.0; w <= 1; w += 0.5 / distance) {
       var p = origin;
       var q = p1 + (p2 - p1) * w;
       var vec = (q - origin) * (lengthStep / distance);
 
       for (var l = 0.0; l < distance; l += lengthStep) {
         p += vec;
-        affected.add(Point((p.x + 0.5).floor(), (p.y + 0.5).floor()));
+        affected.add(fixPoint(p));
       }
     }
 
+    _squares.children.clear();
     for (var p in affected) {
       _squares.append(svg.RectElement()
         ..setAttribute('x', '${p.x - 0.5}')
