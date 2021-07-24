@@ -8,10 +8,23 @@ import '../../main.dart';
 
 const MEASURING_PATH = 0;
 const MEASURING_CIRCLE = 1;
+const MEASURING_CONE = 2;
 
 final svg.SvgSvgElement measuringRoot = querySelector('#distanceCanvas');
 
 abstract class Measuring {
+  static Measuring create(int type, Point origin) {
+    switch (type) {
+      case MEASURING_PATH:
+        return MeasuringPath(origin);
+      case MEASURING_CIRCLE:
+        return MeasuringCircle(origin);
+      case MEASURING_CONE:
+        return MeasuringCone(origin);
+    }
+    return null;
+  }
+
   final svg.SvgElement _e;
   final HtmlElement _distanceText;
   final Point origin;
@@ -37,16 +50,6 @@ abstract class Measuring {
 
   void updateDistanceText(double distance) {
     _distanceText.text = user.session.board.grid.tileUnitString(distance);
-  }
-
-  static Measuring create(int type, Point origin) {
-    switch (type) {
-      case MEASURING_PATH:
-        return MeasuringPath(origin);
-      case MEASURING_CIRCLE:
-        return MeasuringCircle(origin);
-    }
-    return null;
   }
 }
 
@@ -82,11 +85,6 @@ class MeasuringPath extends Measuring {
     previousDistance += _lastSegmentLength(p);
     points.add(p);
     redraw(p);
-  }
-
-  void _applyCircle(svg.CircleElement elem, Point p) {
-    elem.setAttribute('cx', '${p.x}');
-    elem.setAttribute('cy', '${p.y}');
   }
 
   double _lastSegmentLength(Point<int> end) {
@@ -131,27 +129,29 @@ class MeasuringPath extends Measuring {
   }
 }
 
-class MeasuringCircle extends Measuring {
-  final _squares = svg.GElement();
+abstract class CoveredMeasuring extends Measuring {
   final _center = svg.CircleElement();
-  double _bufferedRadius = -1;
+  final _squares = svg.GElement();
 
-  MeasuringCircle(Point origin) : super(origin, svg.CircleElement()) {
-    _applyCircle(_e..classes.add('sphere'), origin);
-    _applyCircle(_center..setAttribute('r', '0.2'), origin);
-    measuringRoot.insertAllBefore([_center, _squares], _e);
-  }
-
-  void _applyCircle(svg.CircleElement elem, Point p) {
-    elem.setAttribute('cx', '${p.x}');
-    elem.setAttribute('cy', '${p.y}');
+  CoveredMeasuring(Point origin, svg.SvgElement elem) : super(origin, elem) {
+    _applyCircle(_center..setAttribute('r', '0.25'), origin);
+    measuringRoot.insertBefore(_squares, _e);
+    measuringRoot.append(_center);
   }
 
   @override
   void dispose() {
     super.dispose();
-    _squares.remove();
     _center.remove();
+    _squares.remove();
+  }
+}
+
+class MeasuringCircle extends CoveredMeasuring {
+  double _bufferedRadius = -1;
+
+  MeasuringCircle(Point origin) : super(origin, svg.CircleElement()) {
+    _applyCircle(_e..classes.add('no-fill'), origin);
   }
 
   @override
@@ -179,4 +179,64 @@ class MeasuringCircle extends Measuring {
       }
     }
   }
+}
+
+class MeasuringCone extends CoveredMeasuring {
+  MeasuringCone(Point origin) : super(origin, svg.PolygonElement()) {
+    _e.classes.add('no-fill');
+  }
+
+  @override
+  void redraw(Point extra) {
+    var distance = origin.distanceTo(extra).roundToDouble();
+
+    if (distance > 0) {
+      var vec = extra - origin;
+      var rounded = vec * (distance / vec.distanceTo(Point(0, 0)));
+
+      var p1 = origin + rounded + Point(-rounded.y / 2, rounded.x / 2);
+      var p2 = origin + rounded + Point(rounded.y / 2, -rounded.x / 2);
+
+      _e.setAttribute(
+          'points', '${_toSvg(origin)} ${_toSvg(p1)} ${_toSvg(p2)}');
+      _updateSquares(p1, p2, distance);
+    } else {
+      _e.setAttribute('points', '');
+      _squares.children.clear();
+    }
+
+    alignDistanceText(extra);
+    updateDistanceText(distance);
+  }
+
+  static String _toSvg(Point p) => '${p.x},${p.y}';
+
+  void _updateSquares(Point p1, Point p2, double distance) {
+    var affected = {Point(origin.x.floor(), origin.y.floor())};
+
+    var lengthStep = 0.5;
+
+    _squares.children.clear();
+    for (var w = 0.0; w <= 1; w += 0.75 / distance) {
+      var p = origin;
+      var q = p1 + (p2 - p1) * w;
+      var vec = (q - origin) * (lengthStep / distance);
+
+      for (var l = 0.0; l < distance; l += lengthStep) {
+        p += vec;
+        affected.add(Point((p.x + 0.5).floor(), (p.y + 0.5).floor()));
+      }
+    }
+
+    for (var p in affected) {
+      _squares.append(svg.RectElement()
+        ..setAttribute('x', '${p.x - 0.5}')
+        ..setAttribute('y', '${p.y - 0.5}'));
+    }
+  }
+}
+
+void _applyCircle(svg.CircleElement elem, Point p) {
+  elem.setAttribute('cx', '${p.x}');
+  elem.setAttribute('cy', '${p.y}');
 }

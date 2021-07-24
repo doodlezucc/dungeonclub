@@ -572,10 +572,10 @@
 
     > * { pointer-events: none; }
     
-    path, circle.sphere {
+    path, .no-fill {
         fill: none !important;
     }
-    circle:not(.sphere) {
+    circle:not(.no-fill) {
         stroke: none !important;
     }
     g > rect {
