@@ -426,7 +426,7 @@ class Board {
 
         if (start.button == 0) {
           if (mode == MEASURE) {
-            _handleMeasuring(start, stream, MEASURING_CONE);
+            _handleMeasuring(start, stream, MEASURING_CUBE);
           } else if (mode == PAN) {
             if (start.ctrl) {
               _handleSelectArea(start, stream);

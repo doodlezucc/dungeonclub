@@ -9,6 +9,7 @@ import '../../main.dart';
 const MEASURING_PATH = 0;
 const MEASURING_CIRCLE = 1;
 const MEASURING_CONE = 2;
+const MEASURING_CUBE = 3;
 
 final svg.SvgSvgElement measuringRoot = querySelector('#distanceCanvas');
 
@@ -21,6 +22,8 @@ abstract class Measuring {
         return MeasuringCircle(origin);
       case MEASURING_CONE:
         return MeasuringCone(origin);
+      case MEASURING_CUBE:
+        return MeasuringCube(origin);
     }
     return null;
   }
@@ -135,7 +138,7 @@ abstract class CoveredMeasuring extends Measuring {
 
   CoveredMeasuring(Point origin, svg.SvgElement elem) : super(origin, elem) {
     _applyCircle(_center..setAttribute('r', '0.25'), origin);
-    measuringRoot.insertBefore(_squares, _e);
+    measuringRoot.insertBefore(_squares, _e..classes.add('no-fill'));
     measuringRoot.append(_center);
   }
 
@@ -151,7 +154,7 @@ class MeasuringCircle extends CoveredMeasuring {
   double _bufferedRadius = -1;
 
   MeasuringCircle(Point origin) : super(origin, svg.CircleElement()) {
-    _applyCircle(_e..classes.add('no-fill'), origin);
+    _applyCircle(_e, origin);
   }
 
   @override
@@ -185,9 +188,7 @@ class MeasuringCone extends CoveredMeasuring {
   double lockedRadius;
   bool lockRadius = false;
 
-  MeasuringCone(Point origin) : super(origin, svg.PolygonElement()) {
-    _e.classes.add('no-fill');
-  }
+  MeasuringCone(Point origin) : super(origin, svg.PolygonElement());
 
   @override
   void addPoint(Point<num> point) {
@@ -247,6 +248,42 @@ class MeasuringCone extends CoveredMeasuring {
       _squares.append(svg.RectElement()
         ..setAttribute('x', '${p.x - 0.5}')
         ..setAttribute('y', '${p.y - 0.5}'));
+    }
+  }
+}
+
+class MeasuringCube extends CoveredMeasuring {
+  MeasuringCube(Point origin) : super(origin, svg.RectElement());
+
+  @override
+  void redraw(Point extra) {
+    var distance = max((extra.x - origin.x).abs(), (extra.y - origin.y).abs())
+        .roundToDouble();
+
+    var signed = Point((extra.x - origin.x).sign * distance,
+        (extra.y - origin.y).sign * distance);
+    var rect = Rectangle.fromPoints(origin, origin + signed);
+
+    _e
+      ..setAttribute('x', '${rect.left}')
+      ..setAttribute('y', '${rect.top}')
+      ..setAttribute('width', '${rect.width}')
+      ..setAttribute('height', '${rect.height}');
+    _updateSquares(rect);
+
+    alignDistanceText(extra);
+    updateDistanceText(distance);
+  }
+
+  void _updateSquares(Rectangle rect) {
+    _squares.children.clear();
+
+    for (var x = rect.left; x < rect.right; x++) {
+      for (var y = rect.top; y < rect.bottom; y++) {
+        _squares.append(svg.RectElement()
+          ..setAttribute('x', '$x')
+          ..setAttribute('y', '$y'));
+      }
     }
   }
 }

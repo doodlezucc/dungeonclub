@@ -7,7 +7,7 @@ $margin: 80px;
     height: 100%;
 }
 
-svg rect {
+svg:not(#distanceCanvas) rect {
     width: 100%;
     height: 100%;
 }
