@@ -451,7 +451,7 @@
 }
 
 #log {
-    min-width: 15vw;
+    min-width: calc(150px + 8vw);
     width: 25vw;
     max-width: 300px;
     z-index: 2;
@@ -637,12 +637,12 @@
             align-items: center;
             justify-content: center;
             border-radius: 100%;
-            width: 22px;
-            height: 22px;
-            font-size: 12px;
+            width: 26px;
+            height: 26px;
+            font-size: 14px;
             background-color: var(--color-background);
 
-            > span { font-size: 12px; }
+            > span { font-size: inherit; }
         }
     }
 

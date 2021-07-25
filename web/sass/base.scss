@@ -16,6 +16,7 @@ body {
     flex-direction: column;
     color: var(--color-text-primary);
     background-color: var(--color-background);
+    overflow: hidden;
 
     --color-background: white;
     --color-primary: #5f4b46;
@@ -517,6 +518,10 @@ section.show {
     pointer-events: none;
 }
 
+.stretch-vertical {
+    height: 100%;
+}
+
 header {
     display: flex;
     justify-content: space-between;
@@ -537,7 +542,7 @@ header {
 }
 
 footer {
-    position: absolute;
+    position: sticky;
     bottom: 0;
     left: 0;
     width: 100%;

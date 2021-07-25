@@ -4,10 +4,9 @@
 #home {
     display: flex;
     flex-direction: column;
+    overflow: auto;
 
-    h1 {
-        font-size: 2em;
-    }
+    h1 { font-size: 2em; }
 
     span {
         display: flex;
@@ -30,6 +29,7 @@
         border-bottom: 2px solid var(--color-separator);
         text-align: center;
         overflow: hidden;
+        flex: none;
         max-height: 500px;
         transition: max-height 0.5s 0.25s,
                     padding 0.5s 0.25s,
