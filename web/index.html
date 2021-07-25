@@ -86,9 +86,16 @@
                         Fog of War
                         <i class="fas fa-cloud"></i>
                     </button>
-                    <button class="tab toggle" id="measureDistance">
-                        <i class="fas fa-ruler"></i>
+                    <button class="icon tab" id="diceTab">
+                        Roll Dice
+                        <i class="fas fa-dice-d20"></i>
+                        <div class="content">
+                            <table id="dice"></table>
+                        </div>
+                    </button>
+                    <button class="icon tab toggle" id="measureDistance">
                         Measuring
+                        <i class="fas fa-ruler"></i>
                         <div class="content">
                             <div class="toolbox" id="measureTools">
                                 <i class="fas fa-ruler" mode="0">
@@ -107,13 +114,6 @@
                                     <span>Line</span>
                                 </i>
                             </div>
-                        </div>
-                    </button>
-                    <button class="icon tab" id="diceTab">
-                        Roll Dice
-                        <i class="fas fa-dice-d20"></i>
-                        <div class="content">
-                            <table id="dice"></table>
                         </div>
                     </button>
                     <button class="icon" id="openMap">

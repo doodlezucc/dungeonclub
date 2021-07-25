@@ -764,9 +764,8 @@ $ping-radius: 100px;
     }
 }
 
+#diceTab { z-index: 1; }
 #measureDistance {
-    z-index: 1;
-
     .toolbox {
         grid-auto-flow: column;
         border-color: var(--color-not-intense);
