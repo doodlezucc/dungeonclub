@@ -10,9 +10,11 @@ const MEASURING_PATH = 0;
 const MEASURING_CIRCLE = 1;
 const MEASURING_CONE = 2;
 const MEASURING_CUBE = 3;
+const MEASURING_LINE = 4;
 
 final HtmlElement _toolbox = querySelector('#measureTools');
 final svg.SvgSvgElement measuringRoot = querySelector('#distanceCanvas');
+double _bufferedLineWidth = 1;
 
 int _measureMode;
 int get measureMode => _measureMode;
@@ -33,6 +35,8 @@ abstract class Measuring {
         return MeasuringCone(origin);
       case MEASURING_CUBE:
         return MeasuringCube(origin);
+      case MEASURING_LINE:
+        return MeasuringLine(origin);
     }
     return null;
   }
@@ -294,6 +298,85 @@ class MeasuringCube extends CoveredMeasuring {
           ..setAttribute('x', '$x')
           ..setAttribute('y', '$y'));
       }
+    }
+  }
+}
+
+class MeasuringLine extends CoveredMeasuring {
+  Point endBuffered;
+  double width = _bufferedLineWidth;
+  bool changeWidth = false;
+
+  MeasuringLine(Point origin) : super(origin, svg.PolygonElement());
+
+  @override
+  void addPoint(Point<num> point) {
+    changeWidth = !changeWidth;
+  }
+
+  @override
+  void redraw(Point extra) {
+    alignDistanceText(extra);
+    if (!changeWidth) {
+      _update(extra);
+    } else {
+      var distance = endBuffered.distanceTo(extra).roundToDouble();
+      width = distance;
+      _bufferedLineWidth = distance;
+      _update(endBuffered);
+    }
+  }
+
+  void _update(Point extra) {
+    var distance = origin.distanceTo(extra).roundToDouble();
+    distance = max(0, distance - 1);
+
+    if (distance > 0) {
+      var vec = extra - origin;
+      var norm = vec * (1 / vec.distanceTo(Point(0, 0)));
+      var end = origin + norm * distance;
+      var right = Point(-norm.y, norm.x) * (width / 2);
+
+      var p1 = origin + right;
+      var p2 = end + right;
+      var q1 = origin - right;
+      var q2 = end - right;
+
+      _e.setAttribute(
+          'points', '${_toSvg(p1)} ${_toSvg(p2)} ${_toSvg(q2)} ${_toSvg(q1)}');
+      _updateSquares(norm, right, distance);
+    } else {
+      _e.setAttribute('points', '');
+      _squares.children.clear();
+    }
+
+    endBuffered = extra;
+    updateDistanceText(changeWidth ? width : distance);
+  }
+
+  static String _toSvg(Point p) => '${p.x},${p.y}';
+
+  void _updateSquares(Point norm, Point right, double distance) {
+    Point<int> fixPoint(Point p) =>
+        Point((p.x + 0.5).floor(), (p.y + 0.5).floor());
+
+    var affected = <Point<int>>{};
+    var lengthStep = 1;
+
+    for (var w = -1.0; w <= 1; w += 0.5 / width) {
+      var p = origin + right * w;
+
+      for (var l = 0; l <= distance; l += lengthStep) {
+        affected.add(fixPoint(p));
+        p += norm * lengthStep;
+      }
+    }
+
+    _squares.children.clear();
+    for (var p in affected) {
+      _squares.append(svg.RectElement()
+        ..setAttribute('x', '${p.x - 0.5}')
+        ..setAttribute('y', '${p.y - 0.5}'));
     }
   }
 }

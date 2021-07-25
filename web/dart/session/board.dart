@@ -628,9 +628,16 @@ class Board {
 
     var offset = type == MEASURING_PATH ? Point(0.5, 0.5) : Point(0.0, 0.0);
 
-    var origin = grid.offsetToGridSpaceUnscaled(p, offset: offset) -
-        Point(0.5, 0.5) +
-        offset;
+    Point origin;
+
+    if (type == MEASURING_LINE) {
+      origin =
+          grid.offsetToGridSpaceUnscaled(p * 2, offset: Point(1, 1)) * (1 / 2);
+    } else {
+      origin = grid.offsetToGridSpaceUnscaled(p, offset: offset) -
+          Point(0.5, 0.5) +
+          offset;
+    }
 
     var m = Measuring.create(type, origin);
     m.alignDistanceText(p);
