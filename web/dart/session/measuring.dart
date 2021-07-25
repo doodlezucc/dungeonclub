@@ -1,16 +1,23 @@
 import 'dart:html';
 import 'dart:math';
 import 'dart:svg' as svg;
+import 'dart:typed_data';
 
+import 'package:web_whiteboard/binary.dart';
 import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';
+import '../communication.dart';
 
 const MEASURING_PATH = 0;
 const MEASURING_CIRCLE = 1;
 const MEASURING_CONE = 2;
 const MEASURING_CUBE = 3;
 const MEASURING_LINE = 4;
+
+const measuringPort = 80;
+const _precision = 8;
+final Map<int, Measuring> _pcMeasurings = {};
 
 final HtmlElement _toolbox = querySelector('#measureTools');
 final svg.SvgSvgElement measuringRoot = querySelector('#distanceCanvas');
@@ -22,6 +29,44 @@ set measureMode(int measureMode) {
   _measureMode = measureMode;
   _toolbox.querySelectorAll('.active').classes.remove('active');
   _toolbox.querySelector('[mode="$measureMode"]').classes.add('active');
+}
+
+void _writePrecision(BinaryWriter writer, Point p) {
+  var point = p * _precision;
+  writer.writePoint(Point(point.x.round(), point.y.round()));
+}
+
+Point _readPrecision(BinaryReader reader) {
+  return forceDoublePoint(reader.readPoint()) * (1 / _precision);
+}
+
+void sendCreationEvent(int type, Point origin) {
+  var writer = BinaryWriter();
+  writer.writeUInt8(measuringPort);
+  writer.writeUInt8(user.session.charId ?? 255);
+  writer.writeUInt8(0); // Creation event
+  writer.writeUInt8(type);
+  _writePrecision(writer, origin);
+
+  socket.send(writer.takeBytes());
+}
+
+void handleMeasuringEvent(Uint8List bytes) {
+  var reader = BinaryReader.fromList(bytes)..readUInt8(); // Skip port byte
+
+  var pc = reader.readUInt8();
+  var event = reader.readUInt8();
+
+  switch (event) {
+    case 0:
+      _pcMeasurings[pc] =
+          Measuring.create(reader.readUInt8(), _readPrecision(reader));
+      return;
+    case 1:
+      return _pcMeasurings[pc]?.handleUpdateEvent(reader);
+    case 2:
+      return _pcMeasurings.remove(pc)?.dispose();
+  }
 }
 
 abstract class Measuring {
@@ -67,6 +112,33 @@ abstract class Measuring {
   void updateDistanceText(double distance) {
     _distanceText.text = user.session.board.grid.tileUnitString(distance);
   }
+
+  void sendUpdateEvent(Point extra) {
+    var writer = BinaryWriter();
+    writer.writeUInt8(measuringPort);
+    writer.writeUInt8(user.session.charId ?? 255);
+    writer.writeUInt8(1); // Update event
+    _writePrecision(writer, extra);
+    writeSpecifics(writer);
+    socket.send(writer.takeBytes());
+  }
+
+  void sendRemovalEvent() {
+    var writer = BinaryWriter();
+    writer.writeUInt8(measuringPort);
+    writer.writeUInt8(user.session.charId ?? 255);
+    writer.writeUInt8(2); // Removal event
+    socket.send(writer.takeBytes());
+  }
+
+  void handleUpdateEvent(BinaryReader reader) {
+    var extra = _readPrecision(reader);
+    if (handleSpecifics(reader)) return;
+    redraw(extra);
+  }
+
+  void writeSpecifics(BinaryWriter writer) {}
+  bool handleSpecifics(BinaryReader reader) => false;
 }
 
 class MeasuringPath extends Measuring {
@@ -75,6 +147,7 @@ class MeasuringPath extends Measuring {
   final lastE = svg.CircleElement()..setAttribute('r', '$_stopRadius');
   final stops = <svg.CircleElement>[];
   final points = <Point<int>>[];
+  int pointsSinceSync = 0;
   double previousDistance = 0;
 
   MeasuringPath(Point origin) : super(origin, svg.PathElement()) {
@@ -90,6 +163,24 @@ class MeasuringPath extends Measuring {
   }
 
   @override
+  void writeSpecifics(BinaryWriter writer) {
+    writer.writeUInt8(pointsSinceSync);
+    for (var i = pointsSinceSync; i > 0; i--) {
+      _writePrecision(writer, points[points.length - i]);
+    }
+    pointsSinceSync = 0;
+  }
+
+  @override
+  bool handleSpecifics(BinaryReader reader) {
+    var nPoints = reader.readUInt8();
+    for (var i = 0; i < nPoints; i++) {
+      addPoint(_readPrecision(reader));
+    }
+    return false;
+  }
+
+  @override
   void addPoint(Point point) {
     var p = forceIntPoint(point);
 
@@ -100,6 +191,7 @@ class MeasuringPath extends Measuring {
 
     previousDistance += _lastSegmentLength(p);
     points.add(p);
+    pointsSinceSync++;
     redraw(p);
   }
 
@@ -201,7 +293,8 @@ class MeasuringCone extends CoveredMeasuring {
   double lockedRadius;
   bool lockRadius = false;
 
-  MeasuringCone(Point origin) : super(origin, svg.PolygonElement());
+  MeasuringCone(Point origin)
+      : super(forceDoublePoint(origin), svg.PolygonElement());
 
   @override
   void addPoint(Point<num> point) {
@@ -209,20 +302,33 @@ class MeasuringCone extends CoveredMeasuring {
   }
 
   @override
+  void writeSpecifics(BinaryWriter writer) {
+    writer.writeUInt8(lockedRadius.toInt());
+  }
+
+  @override
+  bool handleSpecifics(BinaryReader reader) {
+    lockRadius = true;
+    lockedRadius = reader.readUInt8().toDouble();
+    return false;
+  }
+
+  @override
   void redraw(Point extra) {
-    var distance =
-        lockRadius ? lockedRadius : origin.distanceTo(extra).roundToDouble();
+    var distance = lockRadius
+        ? lockedRadius
+        : origin.distanceTo(forceDoublePoint(extra)).roundToDouble();
 
     if (!lockRadius) {
       lockedRadius = distance;
     }
 
     if (distance > 0) {
-      var vec = extra - origin;
+      var vec = forceDoublePoint(extra) - origin;
       var rounded = vec * (distance / vec.distanceTo(Point(0, 0)));
 
-      var p1 = origin + rounded + Point(-rounded.y / 2, rounded.x / 2);
-      var p2 = origin + rounded + Point(rounded.y / 2, -rounded.x / 2);
+      var p1 = origin + rounded + Point<double>(-rounded.y / 2, rounded.x / 2);
+      var p2 = origin + rounded + Point<double>(rounded.y / 2, -rounded.x / 2);
 
       _e.setAttribute(
           'points', '${_toSvg(origin)} ${_toSvg(p1)} ${_toSvg(p2)}');
@@ -238,7 +344,7 @@ class MeasuringCone extends CoveredMeasuring {
 
   static String _toSvg(Point p) => '${p.x},${p.y}';
 
-  void _updateSquares(Point p1, Point p2, double distance) {
+  void _updateSquares(Point<double> p1, Point<double> p2, double distance) {
     Point<int> fixPoint(Point p) =>
         Point((p.x + 0.5).floor(), (p.y + 0.5).floor());
 
@@ -276,7 +382,8 @@ class MeasuringCube extends CoveredMeasuring {
 
     var signed = Point((extra.x - origin.x).sign * distance,
         (extra.y - origin.y).sign * distance);
-    var rect = Rectangle.fromPoints(origin, origin + signed);
+    var rect = Rectangle.fromPoints(
+        origin, forceDoublePoint(origin) + forceDoublePoint(signed));
 
     _e
       ..setAttribute('x', '${rect.left}')
@@ -307,11 +414,27 @@ class MeasuringLine extends CoveredMeasuring {
   double width = _bufferedLineWidth;
   bool changeWidth = false;
 
-  MeasuringLine(Point origin) : super(origin, svg.PolygonElement());
+  MeasuringLine(Point origin)
+      : super(forceDoublePoint(origin), svg.PolygonElement());
 
   @override
   void addPoint(Point<num> point) {
     changeWidth = !changeWidth;
+  }
+
+  @override
+  void writeSpecifics(BinaryWriter writer) {
+    _writePrecision(writer, endBuffered);
+    writer.writeUInt8(width.round());
+  }
+
+  @override
+  bool handleSpecifics(BinaryReader reader) {
+    endBuffered = _readPrecision(reader);
+    width = reader.readUInt8().toDouble();
+    changeWidth = true;
+    _update(endBuffered);
+    return true;
   }
 
   @override
@@ -320,7 +443,8 @@ class MeasuringLine extends CoveredMeasuring {
     if (!changeWidth) {
       _update(extra);
     } else {
-      var distance = endBuffered.distanceTo(extra).roundToDouble();
+      var distance =
+          endBuffered.distanceTo(forceDoublePoint(extra)).roundToDouble();
       width = distance;
       _bufferedLineWidth = distance;
       _update(endBuffered);
@@ -328,11 +452,12 @@ class MeasuringLine extends CoveredMeasuring {
   }
 
   void _update(Point extra) {
+    extra = forceDoublePoint(extra);
     var distance = origin.distanceTo(extra).roundToDouble();
     distance = max(0, distance - 1);
 
     if (distance > 0) {
-      var vec = extra - origin;
+      var vec = forceDoublePoint(extra - origin);
       var norm = vec * (1 / vec.distanceTo(Point(0, 0)));
       var end = origin + norm * distance;
       var right = Point(-norm.y, norm.x) * (width / 2);

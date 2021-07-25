@@ -5,7 +5,6 @@ import 'dart:typed_data';
 
 import 'package:async/async.dart';
 import 'package:dnd_interactive/actions.dart';
-import 'package:web_whiteboard/communication/web_socket.dart';
 import 'package:web_whiteboard/whiteboard.dart';
 
 import '../../main.dart';
@@ -344,8 +343,7 @@ class MapTab {
     }
   }
 
-  void handleEvent(Blob blob) async {
-    var bytes = await blobToBytes(blob);
+  void handleEvent(Uint8List bytes) async {
     var map = maps.firstWhere((m) => m.id == bytes.first);
 
     map.whiteboard.socket.handleEventBytes(bytes.sublist(1));

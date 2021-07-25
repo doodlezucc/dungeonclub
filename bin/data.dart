@@ -180,6 +180,16 @@ class Game {
     }
   }
 
+  void notifyBinary(List<int> data,
+      {Connection exclude, bool allScenes = false}) {
+    for (var c in _connections) {
+      if (exclude == null ||
+          (c != exclude && (allScenes || c.scene == exclude.scene))) {
+        c.send(data);
+      }
+    }
+  }
+
   Future<File> getFile(String filePath) async {
     if (!await resources.exists()) {
       await resources.create(recursive: true);

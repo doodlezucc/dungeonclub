@@ -515,8 +515,18 @@ class Connection extends Socket {
 
   @override
   void handleBinary(data) {
-    if (_game != null) {
-      _game.handleMapEvent(data, this);
+    if (data is List<int>) {
+      if (_game != null) {
+        var port = data.first;
+
+        if (port == 80) {
+          // Forward measuring event
+          _game.notifyBinary(data, exclude: this);
+        } else {
+          // Forward map event
+          _game.handleMapEvent(data, this);
+        }
+      }
     }
   }
 }

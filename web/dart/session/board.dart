@@ -629,10 +629,8 @@ class Board {
     var offset = type == MEASURING_PATH ? Point(0.5, 0.5) : Point(0.0, 0.0);
 
     Point origin;
-
     if (type == MEASURING_LINE) {
-      origin =
-          grid.offsetToGridSpaceUnscaled(p * 2, offset: Point(1, 1)) * (1 / 2);
+      origin = grid.offsetToGridSpaceUnscaled(p * 2, offset: Point(1, 1)) * 0.5;
     } else {
       origin = grid.offsetToGridSpaceUnscaled(p, offset: offset) -
           Point(0.5, 0.5) +
@@ -640,13 +638,23 @@ class Board {
     }
 
     var m = Measuring.create(type, origin);
+    sendCreationEvent(type, origin);
     m.alignDistanceText(p);
-
     zoom = zoom; // Rescale distance text
+
+    Point measureEnd;
+    var hasChanged = false;
+
+    var syncTimer = Timer.periodic(Duration(milliseconds: 300), (_) {
+      if (hasChanged) {
+        hasChanged = false;
+        m.sendUpdateEvent(measureEnd);
+      }
+    });
 
     moveStream.listen((ev) {
       p = ev.p * (1 / scaledZoom);
-      var measureEnd = grid.offsetToGridSpaceUnscaled(
+      measureEnd = grid.offsetToGridSpaceUnscaled(
         p,
         round: false,
         offset: Point(0.5, 0.5) - offset,
@@ -656,8 +664,11 @@ class Board {
       }
       m.redraw(measureEnd);
       m.alignDistanceText(p);
+      hasChanged = true;
     }, onDone: () {
+      syncTimer.cancel();
       m.dispose();
+      m.sendRemovalEvent();
     });
   }
 

@@ -3,9 +3,11 @@ import 'dart:html';
 
 import 'package:dnd_interactive/comms.dart';
 import 'package:path/path.dart';
+import 'package:web_whiteboard/communication/web_socket.dart';
 
 import '../main.dart';
 import 'action_handler.dart' as handler;
+import 'session/measuring.dart';
 
 final socket = FrontSocket();
 
@@ -65,7 +67,16 @@ class FrontSocket extends Socket {
       handler.handleAction(action, params);
 
   @override
-  void handleBinary(data) {
-    user.session?.board?.mapTab?.handleEvent(data);
+  void handleBinary(data) async {
+    if (data is Blob) {
+      var bytes = await blobToBytes(data);
+      var port = bytes.first;
+
+      if (port == measuringPort) {
+        handleMeasuringEvent(bytes);
+      } else {
+        user.session?.board?.mapTab?.handleEvent(bytes);
+      }
+    }
   }
 }
