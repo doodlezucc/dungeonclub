@@ -60,7 +60,7 @@ void handleMeasuringEvent(Uint8List bytes) {
   switch (event) {
     case 0:
       _pcMeasurings[pc] =
-          Measuring.create(reader.readUInt8(), _readPrecision(reader));
+          Measuring.create(reader.readUInt8(), _readPrecision(reader), pc);
       return;
     case 1:
       return _pcMeasurings[pc]?.handleUpdateEvent(reader);
@@ -70,18 +70,20 @@ void handleMeasuringEvent(Uint8List bytes) {
 }
 
 abstract class Measuring {
-  static Measuring create(int type, Point origin) {
+  static Measuring create(int type, Point origin, int player) {
+    if (player == 255) player = null; // Reset DM color
+
     switch (type) {
       case MEASURING_PATH:
-        return MeasuringPath(origin);
+        return MeasuringPath(origin, player);
       case MEASURING_CIRCLE:
-        return MeasuringCircle(origin);
+        return MeasuringCircle(origin, player);
       case MEASURING_CONE:
-        return MeasuringCone(origin);
+        return MeasuringCone(origin, player);
       case MEASURING_CUBE:
-        return MeasuringCube(origin);
+        return MeasuringCube(origin, player);
       case MEASURING_LINE:
-        return MeasuringLine(origin);
+        return MeasuringLine(origin, player);
     }
     return null;
   }
@@ -89,8 +91,11 @@ abstract class Measuring {
   final svg.SvgElement _e;
   final HtmlElement _distanceText;
   final Point origin;
+  final String color;
 
-  Measuring(this.origin, this._e) : _distanceText = SpanElement() {
+  Measuring(this.origin, this._e, int pc)
+      : _distanceText = SpanElement(),
+        color = user.session.getPlayerColor(pc) {
     measuringRoot.append(_e);
     measuringRoot.parent.append(_distanceText..className = 'distance-text');
     redraw(origin);
@@ -150,7 +155,7 @@ class MeasuringPath extends Measuring {
   int pointsSinceSync = 0;
   double previousDistance = 0;
 
-  MeasuringPath(Point origin) : super(origin, svg.PathElement()) {
+  MeasuringPath(Point origin, int pc) : super(origin, svg.PathElement(), pc) {
     measuringRoot.append(lastE);
     addPoint(origin);
   }
@@ -241,9 +246,11 @@ abstract class CoveredMeasuring extends Measuring {
   final _center = svg.CircleElement();
   final _squares = svg.GElement();
 
-  CoveredMeasuring(Point origin, svg.SvgElement elem) : super(origin, elem) {
+  CoveredMeasuring(Point origin, svg.SvgElement elem, int pc)
+      : super(origin, elem, pc) {
     _applyCircle(_center..setAttribute('r', '0.25'), origin);
-    measuringRoot.insertBefore(_squares, _e..classes.add('no-fill'));
+    measuringRoot.insertBefore(_squares..setAttribute('fill', '${color}60'),
+        _e..classes.add('no-fill'));
     measuringRoot.append(_center);
   }
 
@@ -258,7 +265,8 @@ abstract class CoveredMeasuring extends Measuring {
 class MeasuringCircle extends CoveredMeasuring {
   double _bufferedRadius = -1;
 
-  MeasuringCircle(Point origin) : super(origin, svg.CircleElement()) {
+  MeasuringCircle(Point origin, int pc)
+      : super(origin, svg.CircleElement(), pc) {
     _applyCircle(_e, origin);
   }
 
@@ -293,8 +301,8 @@ class MeasuringCone extends CoveredMeasuring {
   double lockedRadius;
   bool lockRadius = false;
 
-  MeasuringCone(Point origin)
-      : super(forceDoublePoint(origin), svg.PolygonElement());
+  MeasuringCone(Point origin, int pc)
+      : super(forceDoublePoint(origin), svg.PolygonElement(), pc);
 
   @override
   void addPoint(Point<num> point) {
@@ -373,7 +381,7 @@ class MeasuringCone extends CoveredMeasuring {
 }
 
 class MeasuringCube extends CoveredMeasuring {
-  MeasuringCube(Point origin) : super(origin, svg.RectElement());
+  MeasuringCube(Point origin, int pc) : super(origin, svg.RectElement(), pc);
 
   @override
   void redraw(Point extra) {
@@ -414,8 +422,8 @@ class MeasuringLine extends CoveredMeasuring {
   double width = _bufferedLineWidth;
   bool changeWidth = false;
 
-  MeasuringLine(Point origin)
-      : super(forceDoublePoint(origin), svg.PolygonElement());
+  MeasuringLine(Point origin, int pc)
+      : super(forceDoublePoint(origin), svg.PolygonElement(), pc);
 
   @override
   void addPoint(Point<num> point) {
