@@ -61,6 +61,7 @@ void handleMeasuringEvent(Uint8List bytes) {
     case 0:
       _pcMeasurings[pc] =
           Measuring.create(reader.readUInt8(), _readPrecision(reader), pc);
+      user.session.board.zoom += 0; // Rescale distance text
       return;
     case 1:
       return _pcMeasurings[pc]?.handleUpdateEvent(reader);
@@ -138,6 +139,7 @@ abstract class Measuring {
 
   void handleUpdateEvent(BinaryReader reader) {
     var extra = _readPrecision(reader);
+    alignDistanceText(extra * user.session.board.grid.cellSize);
     if (handleSpecifics(reader)) return;
     redraw(extra);
   }
@@ -278,7 +280,6 @@ class MeasuringCircle extends CoveredMeasuring {
     _bufferedRadius = distance;
 
     _e.setAttribute('r', '$distance');
-    alignDistanceText(extra);
     updateDistanceText(distance);
     _updateSquares(distance);
   }
@@ -346,7 +347,6 @@ class MeasuringCone extends CoveredMeasuring {
       _squares.children.clear();
     }
 
-    alignDistanceText(extra);
     updateDistanceText(distance);
   }
 
@@ -400,7 +400,6 @@ class MeasuringCube extends CoveredMeasuring {
       ..setAttribute('height', '${rect.height}');
     _updateSquares(rect);
 
-    alignDistanceText(extra);
     updateDistanceText(distance);
   }
 
@@ -447,7 +446,6 @@ class MeasuringLine extends CoveredMeasuring {
 
   @override
   void redraw(Point extra) {
-    alignDistanceText(extra);
     if (!changeWidth) {
       _update(extra);
     } else {

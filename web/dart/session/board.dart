@@ -645,7 +645,7 @@ class Board {
     Point measureEnd;
     var hasChanged = false;
 
-    var syncTimer = Timer.periodic(Duration(milliseconds: 300), (_) {
+    var syncTimer = Timer.periodic(Duration(milliseconds: 100), (_) {
       if (hasChanged) {
         hasChanged = false;
         m.sendUpdateEvent(measureEnd);
