@@ -105,7 +105,7 @@ void _addEnteredGame(Game game) {
     ..append(topRow = SpanElement()
       ..append(nameEl = HeadingElement.h3()..text = game.name))
     ..append(ButtonElement()
-      ..text = 'Join session'
+      ..text = 'Join Session'
       ..onClick.listen((event) {
         if (game.owned) {
           user.joinSession(game.id);

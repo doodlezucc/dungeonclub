@@ -214,7 +214,7 @@ void _updateAddButton() {
   var limitReached = prefabs.length >= 20;
   _addPref.disabled = limitReached;
   _addPref.querySelector('span').text =
-      limitReached ? 'Limit reached' : 'Add prefab';
+      limitReached ? 'Limit Reached' : 'Add Prefab';
 }
 
 void _displayLimitMsg() {

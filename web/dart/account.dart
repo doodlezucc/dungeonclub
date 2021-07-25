@@ -55,7 +55,7 @@ class Account {
     HtmlElement roster = parent.querySelector('.roster');
     List.from(roster.children).forEach((e) => e.remove());
 
-    parent.querySelector('span').innerHtml = "Pick <b>$name</b>'s character";
+    parent.querySelector('span').innerHtml = "Pick <b>$name</b>'s Character";
 
     for (var i = 0; i < chars.length; i++) {
       var ch = chars[i];

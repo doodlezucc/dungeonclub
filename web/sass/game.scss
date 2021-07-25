@@ -378,7 +378,7 @@
 
         #gridCanvas {
             &.blink path {
-                animation: blink 1s infinite linear;
+                animation: blink 2s infinite linear;
                 fill: none !important;
                 opacity: 1 !important;
             }
@@ -546,7 +546,7 @@
 }
 
 #distanceCanvas {
-    animation: blink 1s infinite linear;
+    animation: blink 2s infinite linear;
     stroke-width: 0.1;
 
     > * { pointer-events: none; }

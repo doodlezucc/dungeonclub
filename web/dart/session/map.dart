@@ -90,10 +90,10 @@ class MapTab {
 
       if (showAdd && maps.length >= 10) {
         _navRight.disabled = true;
-        _navRight.querySelector('span').text = 'Limit of 10 maps reached!';
+        _navRight.querySelector('span').text = 'Limit of 10 Maps Reached!';
       } else {
         _navRight.disabled = maps.isEmpty;
-        _navRight.querySelector('span').text = 'Create new map';
+        _navRight.querySelector('span').text = 'Create New Map';
       }
     } else {
       _navRight.disabled = mapIndex >= maps.length - 1;
