@@ -42,3 +42,5 @@ const IMAGE_TYPE_PC = 'pc';
 const IMAGE_TYPE_SCENE = 'scene';
 const IMAGE_TYPE_ENTITY = 'entity';
 const IMAGE_TYPE_MAP = 'map';
+
+const MAINTENANCE = 'maintenance';

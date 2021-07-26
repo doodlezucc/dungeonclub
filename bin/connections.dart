@@ -63,6 +63,10 @@ class Connection extends Socket {
         print(ws.closeReason);
       },
     );
+
+    if (maintainer.shutdownTime != null) {
+      sendAction(a.MAINTENANCE, maintainer.jsonEntry);
+    }
   }
 
   @override

@@ -1,8 +1,12 @@
+import 'dart:html';
+
 import 'package:dnd_interactive/actions.dart';
 
+import '../main.dart';
 import 'account.dart';
 import 'communication.dart';
 import 'home.dart' as home;
+import 'notif.dart';
 import 'section_page.dart';
 import 'session/session.dart';
 
@@ -36,6 +40,26 @@ class User {
     _session.fromJson(s, instantEdit: instantEdit);
     showPage('session');
     home.iconWall.stop();
+  }
+
+  void onMaintenanceScheduled(Map<String, dynamic> params) async {
+    int timestamp = params['shutdown'];
+    if (timestamp == null) return;
+
+    var d = DateTime.fromMillisecondsSinceEpoch(timestamp);
+
+    var min = d.minute.toString().padLeft(2, '0');
+
+    HtmlNotification(
+            '''<b>Attention, please!</b> $appName will be down for a couple of
+            minutes <br> for maintenance purposes.
+            Execute your last moves before ${d.hour}:$min!''')
+        .display();
+
+    var now = DateTime.now().millisecondsSinceEpoch;
+    await Future.delayed(Duration(milliseconds: timestamp - now + 3000));
+
+    window.location.href = homeUrl;
   }
 
   void onActivate([Map<String, dynamic> accJson]) {

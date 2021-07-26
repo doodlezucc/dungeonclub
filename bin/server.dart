@@ -11,6 +11,7 @@ import 'autosave.dart';
 import 'connections.dart';
 import 'data.dart';
 import 'mail.dart';
+import 'maintenance.dart';
 
 // For Google Cloud Run, set _hostname to '0.0.0.0'.
 const _hostname = 'localhost';
@@ -20,6 +21,7 @@ String get address => _address;
 
 final data = ServerData();
 final autoSaver = AutoSaver(data);
+final maintainer = Maintainer('maintenance');
 
 void main(List<String> args) async {
   var parser = ArgParser()..addOption('port', abbr: 'p');
@@ -63,6 +65,7 @@ void main(List<String> args) async {
 
   await initializeMailServer();
   autoSaver.init();
+  maintainer.autoCheckForScheduleFile();
   listenToExit();
 }
 

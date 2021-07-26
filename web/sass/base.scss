@@ -396,14 +396,13 @@ li {
     box-shadow: 0 0 8px #0008;
     border-radius: $radius;
     padding: 4px;
-    align-items: baseline;
+    align-items: center;
     gap: 2px;
     width: fit-content;
     animation: notif-in 0.5s cubic-bezier(0.23, 1, 0.320, 1) forwards;
 
-    span {
-        margin: 0 4px;
-    }
+    b { color: var(--color-primary); }
+    span { margin: 4px; }
 }
 
 @keyframes notif-in {
@@ -552,7 +551,7 @@ footer {
     justify-content: center;
     gap: 24px;
     padding: 12px 24px;
-    background-color: #060606;
+    background-color: #030303c0;
 } 
 
 .space-between {

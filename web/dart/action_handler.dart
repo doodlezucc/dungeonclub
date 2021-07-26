@@ -73,6 +73,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
 
     case GAME_CHAT:
       return onChat(params);
+
+    case MAINTENANCE:
+      return user.onMaintenanceScheduled(params);
   }
 
   window.console.warn('Unhandled action!');
