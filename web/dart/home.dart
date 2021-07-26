@@ -4,6 +4,7 @@ import 'dart:html';
 import '../main.dart';
 import 'font_awesome.dart';
 import 'game.dart';
+import 'icon_wall.dart';
 import 'notif.dart';
 import 'panels/code_panel.dart';
 import 'panels/edit_game.dart' as edit_game;
@@ -19,7 +20,11 @@ final ButtonElement _logout = querySelector('#logOut')
     window.location.reload();
   });
 
+final iconWall = IconWall(querySelector('#iconWall'));
+
 Future<void> init() {
+  iconWall.spawnParticles();
+
   _createGameButton.onClick.listen((event) async {
     if (!user.registered) {
       return HtmlNotification('No permissions to create a new game!').display();

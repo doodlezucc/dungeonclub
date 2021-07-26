@@ -1,6 +1,45 @@
 @use 'base.scss';
 @use 'panels.scss';
 
+@keyframes fade-in {
+    0%   { opacity: 0; font-size: 20px; }
+    100% { opacity: 1; font-size: 40px; }
+}
+
+@keyframes shake {
+    0%   { transform: rotate(-10deg); }
+    50%  { transform: rotate(10deg); }
+    100% { transform: rotate(-10deg); }
+}
+
+#iconWall {
+    position: absolute;
+    z-index: -100;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    > i {
+        position: absolute;
+        text-align: center;
+        color: var(--color-icon-wall);
+        pointer-events: none;
+        font-size: 40px;
+        opacity: 1;
+        transition: top 20s, left 20s, opacity 3s;
+        transition-timing-function: linear;
+        animation: fade-in 4s ease-out 0s,
+                   shake 4s ease-in-out infinite;
+
+        &.remove {
+            opacity: 0;
+        }
+    }
+}
+
 #home {
     display: flex;
     flex-direction: column;

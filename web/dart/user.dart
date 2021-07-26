@@ -23,15 +23,19 @@ class User {
     if (s is String) return StateError(s);
 
     _session = Session(id, s['name'], s['dm'] != null);
-    _session.fromJson(s);
-    showPage('session');
+    _onSessionJoin(s, false);
     return null;
   }
 
   void joinFromJson(Map<String, dynamic> s, bool instantEdit) {
     _session = Session(s['id'], s['name'], s['dm'] != null);
+    _onSessionJoin(s, instantEdit);
+  }
+
+  void _onSessionJoin(Map<String, dynamic> s, bool instantEdit) {
     _session.fromJson(s, instantEdit: instantEdit);
     showPage('session');
+    home.iconWall.stop();
   }
 
   void onActivate([Map<String, dynamic> accJson]) {
