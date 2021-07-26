@@ -36,11 +36,6 @@ class Maintainer {
   void _waitForShutdown() async {
     var now = DateTime.now().millisecondsSinceEpoch;
     await Future.delayed(Duration(milliseconds: shutdownTime - now));
-
-    if (await timeFile.exists()) {
-      await timeFile.delete();
-    }
-
     onExit();
   }
 

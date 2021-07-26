@@ -24,6 +24,12 @@ final autoSaver = AutoSaver(data);
 final maintainer = Maintainer('maintenance');
 
 void main(List<String> args) async {
+  if (await maintainer.timeFile.exists()) {
+    print('Server restart blocked by maintenance file!');
+    await Future.delayed(Duration(seconds: 5));
+    return;
+  }
+
   var parser = ArgParser()..addOption('port', abbr: 'p');
   var result = parser.parse(args);
 

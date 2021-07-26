@@ -48,12 +48,13 @@ class User {
 
     var d = DateTime.fromMillisecondsSinceEpoch(timestamp);
 
+    var hour = d.hour.toString().padLeft(2, '0');
     var min = d.minute.toString().padLeft(2, '0');
 
     HtmlNotification(
             '''<b>Attention, please!</b> $appName will be down for a couple of
-            minutes <br> for maintenance purposes.
-            Execute your last moves before ${d.hour}:$min!''')
+            minutes <br> for maintenance purposes,
+            starting at $hour:$min!''')
         .display();
 
     var now = DateTime.now().millisecondsSinceEpoch;
