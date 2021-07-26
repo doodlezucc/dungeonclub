@@ -68,8 +68,10 @@
     }
 
     &.dialog {
-        min-width: 350px;
+        min-width: calc(20vw + 250px);
         max-width: 500px;
+        text-align: center;
+        align-items: center;
     }
 }
 
@@ -286,4 +288,14 @@
         pointer-events: all;
         transform: none;
     }
+}
+
+@keyframes spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner {
+    animation: spin 1.8s linear infinite;
+    font-size: 20px;
 }

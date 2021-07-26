@@ -7,6 +7,8 @@ import 'package:web_whiteboard/communication/web_socket.dart';
 
 import '../main.dart';
 import 'action_handler.dart' as handler;
+import 'font_awesome.dart';
+import 'panels/dialog.dart';
 import 'session/measuring.dart';
 
 final socket = FrontSocket();
@@ -30,15 +32,38 @@ String getGameFile(String path, {String gameId, bool cacheBreak = true}) {
 class FrontSocket extends Socket {
   WebSocket _webSocket;
   final _waitForOpen = Completer();
+  Timer _retryTimer;
+  ConstantDialog _errorDialog;
 
   void connect() {
+    _retryTimer?.cancel();
     _webSocket =
         WebSocket(getFile('ws', cacheBreak: false).replaceFirst('http', 'ws'))
-          ..onOpen.listen((e) => _waitForOpen.complete())
-          ..onClose.listen((e) => print('CLOSE'))
-          ..onError.listen((e) => print(e));
+          ..onOpen.listen((e) {
+            if (_errorDialog != null) {
+              window.location.href = homeUrl;
+            }
+            _waitForOpen.complete();
+          })
+          ..onClose.listen((e) => print('Websocket closed.'))
+          ..onError.listen((e) => _handleConnectionError());
 
     listen();
+  }
+
+  void _handleConnectionError() async {
+    document.title = 'Reconnecting...';
+    _errorDialog ??= ConstantDialog('Connection Error')
+      ..addParagraph('''The $appName server seems to be offline.
+        It's probably under maintenance or loading a cool new feature.
+        You may go get a coffee or some bread if you feel like it.''')
+      ..addParagraph('''The server should be back up
+        in a few minutes or seconds, even.
+        As soon as possible, you will be automatically reconnected!''')
+      ..append(icon('spinner')..classes.add('spinner'))
+      ..display();
+
+    _retryTimer = Timer(Duration(seconds: 10), () => connect());
   }
 
   @override
