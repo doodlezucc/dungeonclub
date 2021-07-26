@@ -11,9 +11,14 @@ const icons = [
   'bong',
   'fire-alt',
   'atlas',
+  'book',
   'book-medical',
   'hand-holding-medical',
-  'heart',
+  'hand-holding-heart',
+  'drafting-compass',
+  'gem',
+  'feather-alt',
+  'hamsa',
   'ghost',
   'dice-d20',
   'dungeon',
@@ -22,7 +27,13 @@ const icons = [
   'dove',
   'beer',
   'star',
-  'map-marker-alt',
+  'map-marked-alt',
+  'map-signs',
+  'sun',
+  'theater-masks',
+  'cloud',
+  'place-of-worship',
+  'handshake',
   'cross',
   'bolt',
   'scroll',
@@ -40,6 +51,7 @@ class IconWall {
   final HtmlElement container;
   final Random random;
   bool _hasStopped = false;
+  int _iconIndex = 0;
 
   IconWall(this.container) : random = Random();
 
@@ -60,12 +72,15 @@ class IconWall {
         Point(cos(random.nextDouble() * pi), cos(random.nextDouble() * pi)) *
             300;
 
-    var id = icons[random.nextInt(icons.length)];
+    var id = icons[_iconIndex];
+    _iconIndex = (_iconIndex + 1) % icons.length;
     var isBrand = id.startsWith('B');
 
-    var ico = icon(isBrand ? id.substring(1) : id, isBrand: isBrand)
+    var ico = DivElement()
+      ..append(icon(isBrand ? id.substring(1) : id, isBrand: isBrand))
       ..style.left = '${random.nextDouble() * 140 - 20}%'
-      ..style.top = '${random.nextDouble() * 140 - 20}%';
+      ..style.top = '${random.nextDouble() * 140 - 20}%'
+      ..style.fontSize = '${random.nextInt(20) + 30}px';
 
     if (random.nextDouble() <= 0.2) {
       ico.style.color = 'var(--color-not-intense)';
@@ -74,9 +89,7 @@ class IconWall {
 
     await Future.delayed(Duration(milliseconds: 100));
 
-    ico
-      ..style.left = 'calc(${ico.style.left} + ${velocity.x}px)'
-      ..style.top = 'calc(${ico.style.top} + ${velocity.y}px)';
+    ico.style.transform = 'translate(${velocity.x}px, ${velocity.y}px)';
 
     await Future.delayed(Duration(
       milliseconds: 5000 + random.nextInt(8000),

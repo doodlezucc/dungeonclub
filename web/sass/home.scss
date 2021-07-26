@@ -2,8 +2,8 @@
 @use 'panels.scss';
 
 @keyframes fade-in {
-    0%   { opacity: 0; font-size: 20px; }
-    100% { opacity: 1; font-size: 40px; }
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
 }
 
 @keyframes shake {
@@ -22,21 +22,22 @@
     box-sizing: border-box;
     overflow: hidden;
 
-    > i {
+    i {
+        opacity: 1;
+        transition: opacity 3s;
+        font-size: 40px;
+        animation: fade-in 4s ease-out,
+                   shake 4s ease-in-out infinite;
+    }
+
+    > div {
         position: absolute;
         text-align: center;
         color: var(--color-icon-wall);
         pointer-events: none;
-        font-size: 40px;
-        opacity: 1;
-        transition: top 20s, left 20s, opacity 3s;
-        transition-timing-function: linear;
-        animation: fade-in 4s ease-out 0s,
-                   shake 4s ease-in-out infinite;
+        transition: transform 20s linear;
 
-        &.remove {
-            opacity: 0;
-        }
+        &.remove > i { opacity: 0; }
     }
 }
 
