@@ -34,6 +34,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       if (grid != null) {
         user.session?.board?.grid?.fromJson(grid);
         user.session?.board?.onAllMovablesMove(params['movables']);
+        user.session?.board?.rescaleMeasurings();
       }
       return user.session?.board?.onImgChange();
 

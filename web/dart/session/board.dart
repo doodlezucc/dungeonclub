@@ -73,6 +73,7 @@ class Board {
                 })
             .toList()
       });
+      rescaleMeasurings();
     }
   }
 
@@ -873,6 +874,12 @@ class Board {
 
   void onMovableUpdate(json) => _movableEvent(json, (m) => m.fromJson(json));
 
+  void rescaleMeasurings() {
+    var x = grid.tiles;
+    var y = x * (_ground.height / _ground.width);
+    measuringRoot.setAttribute('viewBox', '-0.5 -0.5 $x $y');
+  }
+
   void fromJson(int id, Map<String, dynamic> json) async {
     clear();
 
@@ -883,10 +890,7 @@ class Board {
 
     fogOfWar.load(json['fow']);
     grid.fromJson(json['grid']);
-
-    var x = grid.tiles;
-    var y = x * (_ground.height / _ground.width);
-    measuringRoot.setAttribute('viewBox', '-0.5 -0.5 $x $y');
+    rescaleMeasurings();
 
     for (var m in json['movables']) {
       onMovableCreate(m);
