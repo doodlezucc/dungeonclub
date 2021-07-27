@@ -408,6 +408,10 @@ class Connection extends Socket {
           _game.notify(action, params, exclude: this, allScenes: true);
         }
         return true;
+
+      case a.GAME_ROLL_INITIATIVE:
+        _game.notify(action, {}, exclude: this, allScenes: true);
+        return true;
     }
   }
 

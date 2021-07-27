@@ -12,6 +12,7 @@ import '../panels/upload.dart' as upload;
 import 'condition.dart';
 import 'fog_of_war.dart';
 import 'grid.dart';
+import 'initiative_tracker.dart';
 import 'map.dart';
 import 'measuring.dart';
 import 'movable.dart';
@@ -169,6 +170,7 @@ class Board {
   void _initBoard() {
     _initDragControls();
     initDiceTable();
+    initInitiativeTracker();
     _measureToggle.onClick.listen((_) => mode = MEASURE);
     _fowToggle.onClick.listen((_) => mode = FOG_OF_WAR);
 

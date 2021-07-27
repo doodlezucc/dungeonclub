@@ -37,6 +37,8 @@ const GAME_MAP_CREATE = 'gameMapCreate';
 const GAME_MAP_UPDATE = 'gameMapUpdate';
 const GAME_MAP_REMOVE = 'gameMapRemove';
 
+const GAME_ROLL_INITIATIVE = 'gameRollInitiative';
+
 const IMAGE_TYPE_PC = 'pc';
 const IMAGE_TYPE_SCENE = 'scene';
 const IMAGE_TYPE_ENTITY = 'entity';
