@@ -14,6 +14,7 @@ import 'package:web_whiteboard/layers/drawing_data.dart';
 import 'package:web_whiteboard/whiteboard_data.dart';
 
 import 'connections.dart';
+import 'playing_histogram.dart';
 import 'server.dart';
 
 class ServerData {
@@ -21,12 +22,15 @@ class ServerData {
   static final directory = Directory('database');
   static final file = File(path.join(directory.path, 'data.json'));
 
+  final histogram = PlayingHistogram(path.join(directory.path, 'histogram'));
   final accounts = <Account>[];
   final games = <Game>[];
   final Random rng = Random();
 
   void init() async {
     await load();
+    await histogram.load();
+    histogram.startTracking();
     _manualSaveWatch.start();
   }
 
@@ -69,17 +73,16 @@ class ServerData {
   Future<void> save() async {
     var json = JsonEncoder.withIndent(' ').convert(toJson());
     // print(json);
-
-    if (!await file.exists()) {
-      await file.create(recursive: true);
-    }
-
     await file.writeAsString(json);
+    await histogram.save();
     print('Saved!');
   }
 
   Future<void> load() async {
-    if (!await file.exists()) return;
+    if (!await file.exists()) {
+      await file.create(recursive: true);
+      return file.writeAsString('{}');
+    }
 
     var s = await file.readAsString();
     var json = jsonDecode(s);
