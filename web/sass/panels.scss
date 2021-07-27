@@ -46,7 +46,8 @@
     border-radius: base.$radius;
     padding: 24px 32px 16px 32px;
     gap: 16px;
-    min-width: 222px;
+    min-width: 250px;
+    pointer-events: all;
 
     h2 {
         text-align: center;
@@ -67,7 +68,10 @@
     }
 
     &.dialog {
+        min-width: calc(20vw + 250px);
         max-width: 500px;
+        text-align: center;
+        align-items: center;
     }
 }
 
@@ -99,8 +103,7 @@
         grid-template-columns: auto auto;
         grid-auto-rows: min-content;
         gap: 4px;
-        // padding: 4px;
-        min-height: 20vh;
+        min-height: calc(40vh - 80px);
         max-height: 25vh;
         overflow-y: auto;
         overflow-x: hidden;
@@ -110,8 +113,8 @@
         }
 
         img {
-            width: 64px;
-            height: 64px;
+            width: 56px;
+            height: 56px;
         }
 
         input { width: 100%; }
@@ -285,4 +288,14 @@
         pointer-events: all;
         transform: none;
     }
+}
+
+@keyframes spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner {
+    animation: spin 1.8s linear infinite;
+    font-size: 20px;
 }

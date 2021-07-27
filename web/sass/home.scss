@@ -1,13 +1,52 @@
 @use 'base.scss';
 @use 'panels.scss';
 
+@keyframes fade-in {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes shake {
+    0%   { transform: rotate(-10deg); }
+    50%  { transform: rotate(10deg); }
+    100% { transform: rotate(-10deg); }
+}
+
+#iconWall {
+    position: absolute;
+    z-index: -100;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    i {
+        opacity: 1;
+        transition: opacity 3s;
+        font-size: 40px;
+        animation: fade-in 4s ease-out,
+                   shake 4s ease-in-out infinite;
+    }
+
+    > div {
+        position: absolute;
+        text-align: center;
+        color: var(--color-icon-wall);
+        pointer-events: none;
+        transition: transform 20s linear;
+
+        &.remove > i { opacity: 0; }
+    }
+}
+
 #home {
     display: flex;
     flex-direction: column;
+    overflow: auto;
 
-    h1 {
-        font-size: 2em;
-    }
+    h1 { font-size: 2em; }
 
     span {
         display: flex;
@@ -30,6 +69,7 @@
         border-bottom: 2px solid var(--color-separator);
         text-align: center;
         overflow: hidden;
+        flex: none;
         max-height: 500px;
         transition: max-height 0.5s 0.25s,
                     padding 0.5s 0.25s,

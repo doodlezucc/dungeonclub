@@ -52,17 +52,52 @@ class Dialog<T> {
     return this;
   }
 
-  Future<T> display() async {
-    overlayVisible = true;
-    _overlay.append(_e);
-    _e.classes.add('show');
-    (_input ?? _okButton).focus();
-
-    var result = await _completer.future;
+  void close() {
     _e.classes.remove('show');
     unawaited(
         Future.delayed(Duration(seconds: 1)).then((value) => _e.remove()));
     overlayVisible = false;
+  }
+
+  Future<T> display() async {
+    overlayVisible = true;
+    _overlay.append(_e);
+    _e.innerText; // Trigger reflow
+    _e.classes.add('show');
+    (_input ?? _okButton).focus();
+
+    var result = await _completer.future;
+    close();
     return result;
+  }
+}
+
+class ConstantDialog {
+  final HtmlElement _e;
+
+  ConstantDialog(String title) : _e = DivElement()..className = 'panel dialog' {
+    _e.append(HeadingElement.h2()..text = title);
+  }
+
+  void addParagraph(String html) {
+    _e.append(ParagraphElement()..innerHtml = html);
+  }
+
+  void append(Element element) {
+    _e.append(element);
+  }
+
+  void display() {
+    overlayVisible = true;
+    _overlay.append(_e);
+    _e.innerText; // Trigger reflow
+    _e.classes.add('show');
+  }
+
+  void close() async {
+    _e.classes.remove('show');
+    overlayVisible = false;
+    await Future.delayed(Duration(seconds: 1));
+    _e.remove();
   }
 }

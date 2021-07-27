@@ -5,7 +5,6 @@ import 'dart:typed_data';
 
 import 'package:async/async.dart';
 import 'package:dnd_interactive/actions.dart';
-import 'package:web_whiteboard/communication/web_socket.dart';
 import 'package:web_whiteboard/whiteboard.dart';
 
 import '../../main.dart';
@@ -22,6 +21,7 @@ final HtmlElement _tools = _e.querySelector('#mapTools');
 final HtmlElement _toolInfo = _e.querySelector('#toolInfo');
 final InputElement _color = _e.querySelector('#activeColor');
 
+final HtmlElement _indexText = _e.querySelector('#mapIndex');
 final ButtonElement _navLeft = _name.previousElementSibling;
 final ButtonElement _navRight = _name.parent.children.last;
 
@@ -40,6 +40,7 @@ class MapTab {
     map._fixScaling();
     _updateHistoryButtons();
     _updateNavigateButtons();
+    _updateIndexText();
   }
 
   GameMap get map => maps.isNotEmpty ? maps[mapIndex] : null;
@@ -86,7 +87,14 @@ class MapTab {
       var icon = showAdd ? 'plus' : 'chevron-right';
       _navRight.classes.toggle('add-map', showAdd);
       _navRight.children.first.className = 'fas fa-$icon';
-      _navRight.disabled = maps.isEmpty;
+
+      if (showAdd && maps.length >= 10) {
+        _navRight.disabled = true;
+        _navRight.querySelector('span').text = 'Limit of 10 Maps Reached!';
+      } else {
+        _navRight.disabled = maps.isEmpty;
+        _navRight.querySelector('span').text = 'Create New Map';
+      }
     } else {
       _navRight.disabled = mapIndex >= maps.length - 1;
     }
@@ -109,6 +117,8 @@ class MapTab {
   }
 
   Future<bool> _uploadNewMap() async {
+    if (maps.length >= 10) return false;
+
     var id = await uploader.display(
       action: GAME_MAP_CREATE,
       type: IMAGE_TYPE_MAP,
@@ -309,6 +319,8 @@ class MapTab {
     }
   }
 
+  void _updateIndexText() => _indexText.text = '${mapIndex + 1}/${maps.length}';
+
   void addMap(int id, String name, [String encodedData]) {
     var map = GameMap(id, name: name, encodedData: encodedData);
     map.whiteboard.history.onChange.listen((_) => _updateHistoryButtons());
@@ -317,6 +329,7 @@ class MapTab {
     if (maps.length == 1) _onFirstUpload();
 
     _updateNavigateButtons();
+    _updateIndexText();
   }
 
   void onMapUpdate(Map<String, dynamic> json) {
@@ -330,8 +343,7 @@ class MapTab {
     }
   }
 
-  void handleEvent(Blob blob) async {
-    var bytes = await blobToBytes(blob);
+  void handleEvent(Uint8List bytes) async {
     var map = maps.firstWhere((m) => m.id == bytes.first);
 
     map.whiteboard.socket.handleEventBytes(bytes.sublist(1));

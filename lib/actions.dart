@@ -14,6 +14,7 @@ const GAME_JOIN = 'gameJoin';
 const GAME_CONNECTION = 'gameConnection';
 
 const GAME_MOVABLE_CREATE = 'gameMovableCreate';
+const GAME_MOVABLE_CREATE_ADVANCED = 'gameMovableCreateAdvanced';
 const GAME_MOVABLE_MOVE = 'gameMovableMove';
 const GAME_MOVABLE_UPDATE = 'gameMovableUpdate';
 const GAME_MOVABLE_REMOVE = 'gameMovableRemove';
@@ -43,3 +44,5 @@ const IMAGE_TYPE_PC = 'pc';
 const IMAGE_TYPE_SCENE = 'scene';
 const IMAGE_TYPE_ENTITY = 'entity';
 const IMAGE_TYPE_MAP = 'map';
+
+const MAINTENANCE = 'maintenance';

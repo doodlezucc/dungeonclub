@@ -1,14 +1,18 @@
+import 'dart:html';
+
 import 'package:dnd_interactive/actions.dart';
 
+import '../main.dart';
 import 'account.dart';
 import 'communication.dart';
 import 'home.dart' as home;
+import 'notif.dart';
 import 'section_page.dart';
 import 'session/session.dart';
 
 class User {
-  MyAccount _account;
-  MyAccount get account => _account;
+  Account _account;
+  Account get account => _account;
 
   bool get registered => account != null;
 
@@ -23,19 +27,44 @@ class User {
     if (s is String) return StateError(s);
 
     _session = Session(id, s['name'], s['dm'] != null);
-    _session.fromJson(s);
-    showPage('session');
+    _onSessionJoin(s, false);
     return null;
   }
 
   void joinFromJson(Map<String, dynamic> s, bool instantEdit) {
     _session = Session(s['id'], s['name'], s['dm'] != null);
+    _onSessionJoin(s, instantEdit);
+  }
+
+  void _onSessionJoin(Map<String, dynamic> s, bool instantEdit) {
     _session.fromJson(s, instantEdit: instantEdit);
     showPage('session');
+    home.iconWall.stop();
+  }
+
+  void onMaintenanceScheduled(Map<String, dynamic> params) async {
+    int timestamp = params['shutdown'];
+    if (timestamp == null) return;
+
+    var d = DateTime.fromMillisecondsSinceEpoch(timestamp);
+
+    var hour = d.hour.toString().padLeft(2, '0');
+    var min = d.minute.toString().padLeft(2, '0');
+
+    HtmlNotification(
+            '''<b>Attention, please!</b> $appName will be down for a couple of
+            minutes <br> for maintenance purposes,
+            starting at $hour:$min!''')
+        .display();
+
+    var now = DateTime.now().millisecondsSinceEpoch;
+    await Future.delayed(Duration(milliseconds: timestamp - now + 3000));
+
+    window.location.href = homeUrl;
   }
 
   void onActivate([Map<String, dynamic> accJson]) {
-    _account = MyAccount(accJson);
+    _account = Account(accJson);
     home.onLogin();
   }
 

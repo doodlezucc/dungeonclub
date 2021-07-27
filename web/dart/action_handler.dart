@@ -15,6 +15,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_MOVABLE_CREATE:
       return user.session.board.onMovableCreate(params);
 
+    case GAME_MOVABLE_CREATE_ADVANCED:
+      return user.session.board.onMovableCreateAdvanced(params);
+
     case GAME_MOVABLE_MOVE:
       return user.session.board.onMovableMove(params);
 
@@ -74,9 +77,10 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return onChat(params);
 
     case GAME_ROLL_INITIATIVE:
-      print('Roll for Initiative');
       showRollerPanel();
       return Null;
+    case MAINTENANCE:
+      return user.onMaintenanceScheduled(params);
   }
 
   window.console.warn('Unhandled action!');

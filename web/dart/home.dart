@@ -4,6 +4,8 @@ import 'dart:html';
 import '../main.dart';
 import 'font_awesome.dart';
 import 'game.dart';
+import 'icon_wall.dart';
+import 'notif.dart';
 import 'panels/code_panel.dart';
 import 'panels/edit_game.dart' as edit_game;
 import 'panels/join_session.dart' as join_session;
@@ -18,9 +20,19 @@ final ButtonElement _logout = querySelector('#logOut')
     window.location.reload();
   });
 
+final iconWall = IconWall(querySelector('#iconWall'));
+
 Future<void> init() {
+  iconWall.spawnParticles();
+
   _createGameButton.onClick.listen((event) async {
-    if (!user.registered) return print('No permissions to create a new game!');
+    if (!user.registered) {
+      return HtmlNotification('No permissions to create a new game!').display();
+    }
+
+    if (_gamesContainer.children.length > 10) {
+      return HtmlNotification('Limit of 10 campaigns reached!').display();
+    }
 
     var game = await user.account.createNewGame();
 
@@ -98,7 +110,7 @@ void _addEnteredGame(Game game) {
     ..append(topRow = SpanElement()
       ..append(nameEl = HeadingElement.h3()..text = game.name))
     ..append(ButtonElement()
-      ..text = 'Join session'
+      ..text = 'Join Session'
       ..onClick.listen((event) {
         if (game.owned) {
           user.joinSession(game.id);

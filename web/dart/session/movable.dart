@@ -1,10 +1,9 @@
 import 'dart:html';
 import 'dart:math' as math;
 
-import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
 
-import '../communication.dart';
 import '../font_awesome.dart';
 import 'board.dart';
 import 'condition.dart';
@@ -56,47 +55,12 @@ class Movable extends EntityBase {
     @required Iterable<int> conds,
   }) : e = DivElement()
           ..className = 'movable'
-          ..append(DivElement()..className = 'conds') {
+          ..append(DivElement()..className = 'conds')
+          ..append(DivElement()..className = 'ring') {
     prefab.movables.add(this);
     onImageChange(prefab.img(cacheBreak: false));
     position = pos ?? Point(0, 0);
     applyConditions(conds);
-
-    var drag = false;
-    Point startPos;
-    Point start;
-    Point offset;
-
-    e.onMouseDown.listen((event) async {
-      if (!accessible || event.button != 0 || event.target != e) return;
-      startPos = position;
-
-      var inset = board.grid.cellSize * displaySize / 2;
-
-      var posScaled = startPos * board.grid.cellSize;
-
-      start = posScaled + event.offset - Point(inset, inset);
-
-      offset = Point(0, 0);
-      drag = true;
-      await window.onMouseUp.first;
-      drag = false;
-      if (startPos != position) {
-        return socket.sendAction(GAME_MOVABLE_MOVE, {
-          'movable': id,
-          'x': position.x,
-          'y': position.y,
-        });
-      }
-    });
-
-    window.onMouseMove.listen((event) {
-      if (drag && !board.editingGrid) {
-        offset += event.movement * (1 / board.scaledZoom);
-
-        snapToGrid(start + offset);
-      }
-    });
 
     super.size = 0;
     onPrefabUpdate();
@@ -122,8 +86,11 @@ class Movable extends EntityBase {
     e.classes.toggle('accessible', accessible);
   }
 
-  void onMove(Point pos) {
-    position = pos;
+  void onMove(Point delta) async {
+    e.classes.add('animate-move');
+    position += delta;
+    await Future.delayed(Duration(milliseconds: 300));
+    e.classes.remove('animate-move');
   }
 
   void onImageChange(String img) {
@@ -173,10 +140,20 @@ class Movable extends EntityBase {
     _applyConds();
   }
 
-  void onRemove() {
+  void onRemove() async {
     prefab.movables.remove(this);
+
+    e.classes.add('animate-remove');
+    await Future.delayed(Duration(milliseconds: 500));
     e.remove();
   }
+
+  Map<String, dynamic> toCloneJson() => {
+        'prefab': prefab.id,
+        'conds': _conds.toList(),
+        ...writePoint(position),
+        ...super.toJson(),
+      };
 
   @override
   Map<String, dynamic> toJson() => {
@@ -220,6 +197,12 @@ class EmptyMovable extends Movable {
   }
 
   @override
+  Map<String, dynamic> toCloneJson() => {
+        ...super.toCloneJson(),
+        'label': label,
+      };
+
+  @override
   Map<String, dynamic> toJson() => {
         ...super.toJson(),
         'label': label,
@@ -228,6 +211,6 @@ class EmptyMovable extends Movable {
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
-    label = json['label'] ?? 'AAAH';
+    label = json['label'] ?? '';
   }
 }

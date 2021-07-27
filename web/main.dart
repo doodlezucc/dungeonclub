@@ -11,6 +11,8 @@ import 'dart/user.dart';
 
 final user = User();
 const appName = 'D&D Interactive';
+String _homeUrl;
+String get homeUrl => _homeUrl;
 
 void main() async {
   _listenToCssReload();
@@ -50,13 +52,13 @@ Future<void> testFlow() async {
 }
 
 void processUrlPath() {
-  var homeUrl = dirname(window.location.href);
+  _homeUrl = dirname(window.location.href);
   if (window.location.href.contains('game')) {
     var gameId = window.location.pathname;
 
     if (gameId.contains('game/')) {
       gameId = gameId.substring(gameId.indexOf('game/') + 5);
-      homeUrl = dirname(homeUrl);
+      _homeUrl = dirname(_homeUrl);
     } else {
       gameId = window.location.search;
       gameId = gameId.substring(gameId.indexOf('?game=') + 6);
@@ -75,7 +77,7 @@ void processUrlPath() {
     }
   }
 
-  (querySelector('a.title') as AnchorElement).href = homeUrl;
+  (querySelector('a.title') as AnchorElement).href = _homeUrl;
 }
 
 void _listenToCssReload() {

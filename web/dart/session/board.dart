@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 import 'dart:math';
+import 'dart:svg' as svg;
 
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/point_json.dart';
@@ -8,6 +9,7 @@ import 'package:meta/meta.dart';
 
 import '../communication.dart';
 import '../font_awesome.dart';
+import '../notif.dart';
 import '../panels/upload.dart' as upload;
 import 'condition.dart';
 import 'fog_of_war.dart';
@@ -32,6 +34,7 @@ final ButtonElement _exitEdit = _container.querySelector('#exitEdit');
 final HtmlElement _controls = _container.querySelector('#sceneEditor');
 final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
+final svg.RectElement _selectionArea = _e.querySelector('#selectionArea');
 final HtmlElement _selectionProperties = querySelector('#selectionProperties');
 final InputElement _selectedLabel = querySelector('#movableLabel');
 final InputElement _selectedSize = querySelector('#movableSize');
@@ -46,7 +49,9 @@ class Board {
   final grid = Grid();
   final mapTab = MapTab();
   final movables = <Movable>[];
+  final selected = <Movable>{};
   final fogOfWar = FogOfWar();
+  List<Movable> clipboard = [];
 
   static const PAN = 'pan';
   static const MEASURE = 'measure';
@@ -90,43 +95,44 @@ class Board {
     }
   }
 
-  Movable _selectedMovable;
-  Movable get selectedMovable => _selectedMovable;
-  set selectedMovable(Movable selectedMovable) {
-    if (_selectedMovable == selectedMovable) return;
+  Movable _activeMovable;
+  Movable get activeMovable => _activeMovable;
+  set activeMovable(Movable activeMovable) {
+    if (_activeMovable == activeMovable) return;
 
-    _selectedMovable?.e?.classes?.remove('selected');
-
-    if (_selectedMovable != null) {
+    if (_activeMovable != null) {
       // Firefox doesn't automatically blurrr inputs when their parent
       // element gets moved or removed
       _selectedLabel.blur();
       _selectedSize.blur();
+      _activeMovable.e.classes.remove('active');
     }
 
-    if (selectedMovable != null && !selectedMovable.accessible) {
-      selectedMovable = null;
+    if (activeMovable != null && !activeMovable.accessible) {
+      activeMovable = null;
     }
-    _selectedMovable = selectedMovable;
+    _activeMovable = activeMovable;
 
-    if (selectedMovable != null) {
-      selectedPrefab = selectedMovable.prefab;
-      selectedMovable.e.classes.add('selected');
+    if (activeMovable != null) {
+      activeMovable.e.classes.add('active');
 
-      if (selectedMovable is EmptyMovable) {
-        _selectedLabel.value = selectedMovable.label;
+      // Assign current values to HTML inputs
+      if (activeMovable is EmptyMovable) {
+        _selectedLabel.value = activeMovable.label;
+        _selectionProperties.classes.add('empty');
+      } else {
+        _selectionProperties.classes.remove('empty');
       }
 
-      // Assign current values to property inputs
-      _selectedSize.valueAsNumber = selectedMovable.size;
-      selectedMovable.e.append(_selectionProperties);
+      _selectedSize.valueAsNumber = activeMovable.size;
+      _updateSelectionSizeInherit();
       _selectedConds.querySelectorAll('.active').classes.remove('active');
-      for (var cond in selectedMovable.conds) {
+      for (var cond in activeMovable.conds) {
         _selectedConds.children[cond].classes.add('active');
       }
-    } else {
-      _selectionProperties.remove();
     }
+
+    _selectionProperties.classes.toggle('hidden', activeMovable == null);
   }
 
   Point _position;
@@ -148,8 +154,7 @@ class Board {
     _scaledZoom = exp(_zoom);
 
     var invZoomScale = 'scale(${1 / scaledZoom})';
-    _selectionProperties.style.transform = invZoomScale;
-    distanceText.style.transform = invZoomScale;
+    querySelectorAll('.distance-text').style.transform = invZoomScale;
 
     _transform();
   }
@@ -168,10 +173,27 @@ class Board {
   }
 
   void _initBoard() {
-    _initDragControls();
+    _initMouseControls();
     initDiceTable();
     initInitiativeTracker();
     _measureToggle.onClick.listen((_) => mode = MEASURE);
+    measureMode = 0;
+    _measureToggle.onClick.listen((ev) {
+      var target = ev.target;
+
+      if (target is HtmlElement) {
+        var mMode = target.getAttribute('mode');
+        if (mMode != null) {
+          var oldMode = measureMode;
+          measureMode = int.parse(mMode);
+
+          // Prevent mode toggle
+          if (mode == MEASURE && measureMode != oldMode) return null;
+        }
+      }
+
+      return mode = MEASURE;
+    });
     _fowToggle.onClick.listen((_) => mode = FOG_OF_WAR);
 
     _container.onMouseWheel.listen((event) {
@@ -194,7 +216,7 @@ class Board {
       mapTab.visible = true;
     });
 
-    _e.onContextMenu.listen((ev) {
+    _container.onContextMenu.listen((ev) {
       ev.preventDefault();
       _deselectAll();
     });
@@ -205,10 +227,41 @@ class Board {
       if (ev.keyCode == 27 && selectedPrefab != null) {
         ev.preventDefault();
         _deselectAll();
-      } else if (ev.keyCode == 46 && session.isDM && selectedMovable != null) {
-        _removeSelectedMovable();
       } else if (ev.key == 'm') {
         mapTab.visible = !mapTab.visible;
+      } else if (session.isDM) {
+        if (ev.keyCode == 46 || ev.keyCode == 8) {
+          // Delete/Backspace
+          ev.preventDefault();
+          _removeSelectedMovables();
+        }
+        // Paste from clipboard
+        else if (ev.key == 'v') {
+          ev.preventDefault();
+          if (clipboard.isNotEmpty) {
+            cloneMovables(clipboard);
+          }
+        }
+        // Copy to clipboard or duplicate
+        else if (selected.isNotEmpty) {
+          if (ev.ctrlKey) {
+            // Copy with Ctrl+C
+            if (ev.key == 'c') {
+              ev.preventDefault();
+              clipboard = selected.toList();
+            }
+            // Cut with Ctrl+X
+            else if (ev.key == 'x') {
+              ev.preventDefault();
+              clipboard = selected.toList();
+              _removeSelectedMovables();
+            }
+          }
+          // Duplicate with Shift+D
+          else if (ev.key == 'D') {
+            cloneMovables(selected);
+          }
+        }
       }
     });
 
@@ -218,24 +271,61 @@ class Board {
     fogOfWar.initFogOfWar(this);
   }
 
-  void _removeSelectedMovable() async {
-    if (selectedMovable != null) {
-      await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
-        'movable': selectedMovable.id,
-      });
-      selectedMovable.onRemove();
-      selectedMovable = null;
+  void toggleSelect(Iterable<Movable> movables,
+      {bool additive = false, bool state}) {
+    if (!additive) {
+      _deselectAll();
+    }
+
+    state ??= !movables.any((m) => selected.contains(m));
+
+    movables.forEach((m) {
+      if (m.e.classes.toggle('selected', state)) {
+        selected.add(m);
+      } else {
+        selected.remove(m);
+
+        if (m == activeMovable) activeMovable = null;
+      }
+    });
+
+    if (state && movables.length == 1) {
+      activeMovable = movables.first;
     }
   }
 
+  void _removeSelectedMovables() async {
+    await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
+      'movables': selected.map((m) => m.id).toList(),
+    });
+
+    for (var m in selected) {
+      m.onRemove();
+      movables.remove(m);
+      if (m == activeMovable) {
+        activeMovable = null;
+      }
+    }
+    selected.clear();
+  }
+
   void _deselectAll() {
-    selectedMovable = null;
+    for (var m in selected) {
+      m.e.classes.remove('selected');
+    }
+    selected.clear();
+    activeMovable = null;
     selectedPrefab = null;
+  }
+
+  void _updateSelectionSizeInherit() {
+    _selectedSize.parent.children.last.style.display =
+        activeMovable.size == 0 ? '' : 'none';
   }
 
   void _initSelectionHandler() {
     _selectedRemove.onClick.listen((_) async {
-      _removeSelectedMovable();
+      _removeSelectedMovables();
     });
 
     _listenSelectedLazyUpdate(_selectedLabel, onChange: (m, value) {
@@ -243,8 +333,8 @@ class Board {
     });
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
       m.size = int.parse(value);
+      _updateSelectionSizeInherit();
     });
-    _selectionProperties.remove();
   }
 
   void _listenSelectedLazyUpdate(
@@ -268,7 +358,7 @@ class Board {
 
     void onFocus() {
       startValue = input.value;
-      bufferedMovable = selectedMovable;
+      bufferedMovable = activeMovable;
       typedValue = input.value;
     }
 
@@ -290,112 +380,298 @@ class Board {
     input.onChange.listen((_) => update());
   }
 
-  void alignDistanceText(MouseEvent event) {
-    var p = event.offset;
-    distanceText.style.left = '${p.x}px';
-    distanceText.style.top = '${p.y}px';
-  }
-
-  void _initDragControls() {
-    var isBoardDrag = false;
-    var drag = false;
-    var button = -1;
-
-    MeasuringPath mPath;
-
+  void _initMouseControls() {
+    StreamController<SimpleEvent> moveStreamCtrl;
     Timer timer;
-    _container.onMouseDown.listen((event) async {
-      if (mapTab.visible) return;
+    Point previous;
+    int initialButton;
 
-      button = event.button;
-      isBoardDrag = event.path.contains(_e);
+    void listenToCursorEvents<T extends Event>(
+      Point Function(T ev) evToPoint,
+      Stream<T> startEvent,
+      Stream<T> moveEvent,
+      Stream<T> endEvent,
+    ) {
+      SimpleEvent toSimple(T ev) {
+        var delta = evToPoint(ev) - previous;
+        previous = evToPoint(ev);
+        return SimpleEvent(
+          previous - _e.getBoundingClientRect().topLeft,
+          delta,
+          (ev as dynamic).shiftKey,
+          (ev as dynamic).ctrlKey,
+          ev is MouseEvent ? ev.button : 0,
+        );
+      }
 
-      if (isBoardDrag && button == 0) {
-        timer = Timer(Duration(milliseconds: 300), () {
-          var pos = (event.page - _e.getBoundingClientRect().topLeft) *
-              (1 / scaledZoom);
+      startEvent.listen((ev) async {
+        if (mapTab.visible ||
+            ev.path
+                .any((e) => e is Element && e.classes.contains('controls'))) {
+          return;
+        }
 
-          socket.sendAction(a.GAME_PING, {
-            ...writePoint(pos),
-            'player': session.charId,
+        ev.preventDefault();
+        document.activeElement.blur();
+
+        previous = evToPoint(ev);
+        var start = toSimple(ev);
+
+        if (start.button != initialButton && moveStreamCtrl != null) {
+          return moveStreamCtrl.add(start);
+        }
+
+        initialButton = start.button;
+        var isBoardDrag = ev.path.contains(_e);
+
+        if (isBoardDrag) {
+          timer = Timer(Duration(milliseconds: 300), () {
+            var pos = start.p * (1 / scaledZoom);
+
+            socket.sendAction(a.GAME_PING, {
+              ...writePoint(pos),
+              'player': session.charId,
+            });
+            displayPing(pos, session.charId);
           });
-          displayPing(pos, session.charId);
-        });
-      }
+        }
 
-      if (mode != PAN) {
-        if (mode == MEASURE && isBoardDrag) {
-          if (button == 0 || mPath != null) {
-            alignDistanceText(event);
-            mPath ??= MeasuringPath();
-            // add point to path
-            mPath.addPoint(grid.evToGridSpaceUnscaled(event));
-            return;
-          }
-        } else if (button == 0) return;
-      }
+        moveStreamCtrl = StreamController();
+        var stream = moveStreamCtrl.stream;
 
-      var movable = event.path
-          .any((e) => e is HtmlElement && e.classes.contains('movable'));
+        var pan = !(start.button == 0 && mode != PAN);
 
-      if (button == 0 && !editingGrid) {
-        if (movable) {
-          for (var mv in movables) {
-            if (mv.e == event.target) {
-              alignMovableGhost(event, mv);
-              selectedMovable = mv;
-              break;
+        Movable clickedMovable;
+
+        if (start.button == 0) {
+          if (mode == MEASURE) {
+            _handleMeasuring(start, stream, measureMode);
+          } else if (mode == PAN) {
+            if (start.ctrl) {
+              _handleSelectArea(start, stream);
+              pan = false;
+            } else {
+              var movableElem = ev.path.firstWhere(
+                (e) =>
+                    e is Element &&
+                    e.classes.contains('movable') &&
+                    e.classes.contains('accessible'),
+                orElse: () => null,
+              );
+
+              if (movableElem != null) {
+                for (var mv in movables) {
+                  if (mv.e == movableElem) {
+                    clickedMovable = mv;
+                    break;
+                  }
+                }
+
+                _handleMovableMove(start, stream, clickedMovable);
+                pan = false;
+              } else if (selectedPrefab != null) {
+                var gridPos = grid.offsetToGridSpace(
+                    start.p * (1 / scaledZoom), selectedPrefab.size);
+
+                var newMov = await addMovable(selectedPrefab, gridPos);
+
+                if (newMov != null) {
+                  toggleSelect([newMov], state: true);
+                  pan = false;
+                }
+              } else if (!start.shift) {
+                _deselectAll();
+              }
             }
           }
-          return;
-        } else if (isBoardDrag) {
+        }
+
+        if (pan) {
+          _handlePanning(start, stream);
+        }
+
+        await endEvent.firstWhere((ev) => toSimple(ev).button == initialButton);
+
+        var isClickEvent = false;
+        if (timer != null && timer.isActive) {
+          timer.cancel();
+          isClickEvent = true;
+        }
+
+        if (clickedMovable != null) {
+          toggleSelect(
+            [clickedMovable],
+            additive: !isClickEvent || (ev as dynamic).shiftKey,
+            state: isClickEvent ? null : true,
+          );
+        }
+
+        var streamCopy = moveStreamCtrl;
+        moveStreamCtrl = null;
+        await streamCopy.close();
+      });
+
+      moveEvent.listen((ev) {
+        if (moveStreamCtrl != null) {
+          timer?.cancel();
+          moveStreamCtrl.add(toSimple(ev));
+        } else {
           if (selectedPrefab != null) {
-            var gridPos = grid.evToGridSpace(event, selectedPrefab.size);
-            selectedMovable = await addMovable(selectedPrefab, pos: gridPos);
+            var p = evToPoint(ev) - _e.getBoundingClientRect().topLeft;
+            alignMovableGhost(p * (1 / scaledZoom), selectedPrefab);
+            toggleMovableGhostVisible(true);
           }
         }
-      }
+      });
+    }
 
-      if (event.path
-          .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
-        return;
-      }
+    listenToCursorEvents<MouseEvent>((ev) => ev.page, _container.onMouseDown,
+        window.onMouseMove, window.onMouseUp);
 
-      drag = true;
-      await window.onMouseUp.first;
-      drag = false;
+    listenToCursorEvents<TouchEvent>((ev) => ev.targetTouches[0].page,
+        _container.onTouchStart, window.onTouchMove, window.onTouchEnd);
+  }
+
+  void _handleSelectArea(SimpleEvent first, Stream<SimpleEvent> moveStream) {
+    void setAnimLen(svg.AnimatedLength len, num v) =>
+        len.baseVal.newValueSpecifiedUnits(svg.Length.SVG_LENGTHTYPE_PX, v);
+
+    var p = first.p * (1 / scaledZoom);
+    var q = p;
+
+    void scaleArea() {
+      var rect = Rectangle.fromPoints(p, q);
+      setAnimLen(_selectionArea.x, rect.left);
+      setAnimLen(_selectionArea.y, rect.top);
+      _selectionArea.style.width = '${rect.width}px';
+      _selectionArea.style.height = '${rect.height}px';
+    }
+
+    moveStream.listen((ev) {
+      q += ev.movement * (1 / scaledZoom);
+      scaleArea();
+    }, onDone: () {
+      // Select area
+      if (!first.shift) _deselectAll();
+      _selectMovablesInScreenRect(Rectangle.fromPoints(p, q));
+      q = p;
+      scaleArea();
     });
-    window.onMouseMove.listen((event) {
-      timer?.cancel();
-      var parentIsBoard =
-          event.target is Element && (event.target as Element).parent == _e;
+  }
 
-      if (drag) {
-        var delta = event.movement * (1 / _scaledZoom);
-        position += delta;
-      }
-      // Update distance measuring path
-      else if (mode == MEASURE && mPath != null && parentIsBoard) {
-        var measureEnd = grid.evToGridSpaceUnscaled(event);
-        mPath.redraw(measureEnd);
-        alignDistanceText(event);
-      }
-      // Update ghost movable
-      else if (selectedPrefab != null) {
-        if (!parentIsBoard) {
-          toggleMovableGhostVisible(false);
-        } else {
-          alignMovableGhost(event, selectedPrefab);
-          toggleMovableGhostVisible(true);
+  void _selectMovablesInScreenRect(Rectangle r) {
+    Point scale(Point p) => grid.offsetToGridSpaceUnscaled(p,
+        round: false, offset: const Point(0, 0));
+
+    var rect = Rectangle.fromPoints(scale(r.topLeft), scale(r.bottomRight));
+
+    var validMovables = movables.where((m) {
+      var mRect = Rectangle(
+        m.position.x,
+        m.position.y,
+        m.displaySize,
+        m.displaySize,
+      );
+      return rect.intersects(mRect);
+    }).toList();
+
+    toggleSelect(validMovables, additive: true);
+  }
+
+  void _handlePanning(SimpleEvent first, Stream<SimpleEvent> moveStream) {
+    moveStream.listen((ev) {
+      position += ev.movement * (1 / scaledZoom);
+    });
+  }
+
+  void _handleMovableMove(
+      SimpleEvent first, Stream<SimpleEvent> moveStream, Movable extra) {
+    toggleMovableGhostVisible(false);
+    var off = Point<num>(0, 0);
+    var starts = <Movable, Point>{};
+    var movedOnce = false;
+    var affected = {extra, ...selected};
+
+    for (var mv in affected) {
+      starts[mv] = mv.position;
+    }
+
+    Point rounded() {
+      return scalePoint(off, (v) => (v / grid.cellSize).round());
+    }
+
+    moveStream.listen((ev) {
+      if (!movedOnce) {
+        movedOnce = true;
+        if (!extra.e.classes.contains('selected') && !first.shift) {
+          _deselectAll();
+          affected = {extra};
         }
       }
-    });
-    window.onMouseUp.listen((event) {
-      timer?.cancel();
-      if (mode == MEASURE && event.button == 0 && mPath != null) {
-        mPath.dispose();
-        mPath = null;
+      off += ev.movement * (1 / scaledZoom);
+
+      var delta = rounded();
+
+      for (var mv in affected) {
+        mv.position = starts[mv] + delta;
       }
+    }, onDone: () {
+      if (rounded() != Point(0, 0)) {
+        return socket.sendAction(a.GAME_MOVABLE_MOVE, {
+          'movables': affected.map((e) => e.id).toList(),
+          ...writePoint(rounded())
+        });
+      }
+    });
+  }
+
+  void _handleMeasuring(
+      SimpleEvent first, Stream<SimpleEvent> moveStream, int type) {
+    var p = first.p * (1 / scaledZoom);
+
+    var offset = type == MEASURING_PATH ? Point(0.5, 0.5) : Point(0.0, 0.0);
+
+    Point origin;
+    if (type == MEASURING_LINE) {
+      origin = grid.offsetToGridSpaceUnscaled(p * 2, offset: Point(1, 1)) * 0.5;
+    } else {
+      origin = grid.offsetToGridSpaceUnscaled(p, offset: offset) -
+          Point(0.5, 0.5) +
+          offset;
+    }
+
+    var m = Measuring.create(type, origin, session.charId);
+    sendCreationEvent(type, origin);
+    m.alignDistanceText(p);
+    zoom = zoom; // Rescale distance text
+
+    Point measureEnd;
+    var hasChanged = false;
+
+    var syncTimer = Timer.periodic(Duration(milliseconds: 100), (_) {
+      if (hasChanged) {
+        hasChanged = false;
+        m.sendUpdateEvent(measureEnd);
+      }
+    });
+
+    moveStream.listen((ev) {
+      p = ev.p * (1 / scaledZoom);
+      measureEnd = grid.offsetToGridSpaceUnscaled(
+        p,
+        round: false,
+        offset: Point(0.5, 0.5) - offset,
+      );
+      if (ev.button == 2) {
+        m.addPoint(measureEnd);
+      }
+      m.redraw(measureEnd);
+      m.alignDistanceText(p);
+      hasChanged = true;
+    }, onDone: () {
+      syncTimer.cancel();
+      m.dispose();
+      m.sendRemovalEvent();
     });
   }
 
@@ -407,17 +683,17 @@ class Board {
 
       _selectedConds.append(ico
         ..onClick.listen((_) {
-          ico.classes.toggle('active', _selectedMovable.toggleCondition(i));
+          ico.classes.toggle('active', _activeMovable.toggleCondition(i));
 
-          socket.sendAction(a.GAME_MOVABLE_UPDATE, _selectedMovable.toJson());
+          socket.sendAction(a.GAME_MOVABLE_UPDATE, _activeMovable.toJson());
         }));
     }
 
     _selectionProperties.querySelector('a').onClick.listen((_) {
-      if (_selectedMovable.conds.isNotEmpty) {
-        _selectedMovable.applyConditions([]);
+      if (_activeMovable.conds.isNotEmpty) {
+        _activeMovable.applyConditions([]);
         _selectedConds.querySelectorAll('.active').classes.remove('active');
-        socket.sendAction(a.GAME_MOVABLE_UPDATE, _selectedMovable.toJson());
+        socket.sendAction(a.GAME_MOVABLE_UPDATE, _activeMovable.toJson());
       }
     });
   }
@@ -465,21 +741,88 @@ class Board {
   }
 
   void clear() {
+    _deselectAll();
     movables.forEach((m) => m.e.remove());
     movables.clear();
   }
 
-  Future<Movable> addMovable(Prefab prefab, {Point pos}) async {
+  void _syncMovableAnim() async {
+    var elems = _e.querySelectorAll('.movable .ring');
+    for (var m in elems) {
+      m.style.animation = 'none';
+      m.innerText; // Trigger reflow
+    }
+    for (var m in elems) {
+      m.style.animation = '';
+    }
+  }
+
+  Future<void> cloneMovables(Iterable<Movable> source) async {
+    var jsons = source.map((m) => m.toCloneJson());
+
+    var result = await socket.request(a.GAME_MOVABLE_CREATE_ADVANCED, {
+      'movables': jsons.toList(),
+    });
+
+    if (result == null) {
+      return _onMovableCountLimitReached();
+    }
+
+    var ids = List<int>.from(result);
+
+    var dest = <Movable>[];
+    for (var i = 0; i < ids.length; i++) {
+      var src = source.elementAt(i);
+
+      var m = Movable.create(
+        board: this,
+        prefab: src.prefab,
+        id: ids[i],
+        pos: src.position,
+        conds: src.conds,
+      );
+
+      if (src is EmptyMovable) {
+        (m as EmptyMovable).label = src.label;
+      }
+
+      dest.add(m);
+      movables.add(m);
+      grid.e.append(m.e);
+    }
+    _deselectAll();
+    _syncMovableAnim();
+    toggleSelect(dest, state: true);
+  }
+
+  Future<Movable> addMovable(Prefab prefab, Point pos) async {
     var id = await socket.request(a.GAME_MOVABLE_CREATE, {
-      'x': pos.x,
-      'y': pos.y,
+      ...writePoint(pos),
       'prefab': prefab.id,
     });
+
+    if (id == null) {
+      _onMovableCountLimitReached();
+      return null;
+    }
+
     var m = Movable.create(
         board: this, prefab: prefab, id: id, pos: pos, conds: []);
     movables.add(m);
     grid.e.append(m.e);
+    _syncMovableAnim();
     return m;
+  }
+
+  void _onMovableCountLimitReached() {
+    HtmlNotification('Limit of 50 movables reached.').display();
+    _deselectAll();
+  }
+
+  void onMovableCreateAdvanced(Map<String, dynamic> json) {
+    for (var m in json['movables']) {
+      onMovableCreate(m);
+    }
   }
 
   void onMovableCreate(Map<String, dynamic> json) {
@@ -512,9 +855,11 @@ class Board {
   }
 
   void _movableEvent(json, void Function(Movable m) action) {
-    for (var m in movables) {
-      if (m.id == json['movable']) {
-        return action(m);
+    List ids = json['movables'] ?? [json['movable']];
+
+    for (var m in List.from(movables)) {
+      if (ids.contains(m.id)) {
+        action(m);
       }
     }
   }
@@ -522,7 +867,12 @@ class Board {
   void onMovableMove(json) =>
       _movableEvent(json, (m) => m.onMove(parsePoint(json)));
 
-  void onMovableRemove(json) => _movableEvent(json, (m) => m.onRemove());
+  void onMovableRemove(json) => _movableEvent(json, (m) {
+        if (selected.contains(m)) {
+          toggleSelect([m], additive: true, state: false);
+        }
+        m.onRemove();
+      });
 
   void onMovableUpdate(json) => _movableEvent(json, (m) => m.fromJson(json));
 
@@ -544,5 +894,18 @@ class Board {
     for (var m in json['movables']) {
       onMovableCreate(m);
     }
+
+    zoom = -0.5;
+    position = Point(0, 0);
   }
+}
+
+class SimpleEvent {
+  final Point p;
+  final Point movement;
+  final bool shift;
+  final bool ctrl;
+  final int button;
+
+  SimpleEvent(this.p, this.movement, this.shift, this.ctrl, this.button);
 }

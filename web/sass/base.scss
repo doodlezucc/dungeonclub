@@ -16,6 +16,7 @@ body {
     flex-direction: column;
     color: var(--color-text-primary);
     background-color: var(--color-background);
+    overflow: hidden;
 
     --color-background: white;
     --color-primary: #5f4b46;
@@ -61,6 +62,7 @@ body {
         --color-panel-border: #72534aaa;
         --color-header: #2e2926;
         --color-separator: #614f4a;
+        --color-icon-wall: #251f1d;
     
         --weight-thick: 500;
         --shadow-panel: 0 0 12px 6px #0006;
@@ -227,7 +229,7 @@ button.compact {
     padding: 4px 8px;
 }
 button.toggle.active {
-    background-color: var(--color-good) !important;
+    background-color: var(--color-primary) !important;
     color: var(--color-text-inverse) !important;
 }
 
@@ -394,14 +396,13 @@ li {
     box-shadow: 0 0 8px #0008;
     border-radius: $radius;
     padding: 4px;
-    align-items: baseline;
+    align-items: center;
     gap: 2px;
     width: fit-content;
     animation: notif-in 0.5s cubic-bezier(0.23, 1, 0.320, 1) forwards;
 
-    span {
-        margin: 0 4px;
-    }
+    b { color: var(--color-primary); }
+    span { margin: 4px; }
 }
 
 @keyframes notif-in {
@@ -517,6 +518,10 @@ section.show {
     pointer-events: none;
 }
 
+.stretch-vertical {
+    height: 100%;
+}
+
 header {
     display: flex;
     justify-content: space-between;
@@ -537,53 +542,18 @@ header {
 }
 
 footer {
-    position: absolute;
+    position: sticky;
     bottom: 0;
     left: 0;
     width: 100%;
+    z-index: 101;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
     gap: 24px;
     padding: 12px 24px;
-    background-color: #060606;
-}
-
-.dropdown {
-    @extend %clickable;
-    display: inline-block;
-    position: relative;
-    border-radius: $radius $radius 0 0;
-
-    > div {
-        @extend %vertical;
-        gap: 12px;
-        background-color: var(--color-not-intense);
-        padding: 16px 20px;
-        position: absolute;
-        z-index: 4;
-        top: 100%;
-        right: 0;
-        opacity: 0;
-        pointer-events: none;
-        cursor: default;
-        transition-duration: 0.2s;
-        border-radius: $radius 0 $radius $radius;
-    }
-
-    &:hover {
-        background-color: var(--color-button-hover) !important;
-
-        > div {
-            opacity: 1;
-            pointer-events: all;
-        }
-    }
-
-    &.hidden {
-        display: none;
-    }
-}
+    background-color: #030303c0;
+} 
 
 .space-between {
     display: flex;
@@ -623,15 +593,24 @@ footer {
     @extend %with-tooltip;
 }
 
-%toolbox {
+.toolbox {
     display: grid;
     background-color: #aaa;
     border: 1px solid #ddd;
     gap: 1px;
+
+    > i {
+        @extend %toolbox-item;
+    }
 }
 
 %toolbox-item {
     @extend %with-tooltip;
+    background-color: var(--color-background);
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    align-items: center;
 
     &:hover {
         background-color: var(--color-button-hover);

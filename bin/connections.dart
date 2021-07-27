@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/comms.dart';
+import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
 import 'package:pedantic/pedantic.dart';
 import 'package:random_string/random_string.dart';
@@ -11,6 +12,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'data.dart';
 import 'mail.dart';
 import 'server.dart';
+
+const campaignsPerAccount = 10;
+const scenesPerCampaign = 10;
+const prefabsPerCampaign = 20;
+const mapsPerCampaign = 10;
+const movablesPerScene = 50;
 
 final connections = <Connection>[];
 final activationCodes = <Connection, String>{};
@@ -56,6 +63,10 @@ class Connection extends Socket {
         print(ws.closeReason);
       },
     );
+
+    if (maintainer.shutdownTime != null) {
+      sendAction(a.MAINTENANCE, maintainer.jsonEntry);
+    }
   }
 
   @override
@@ -132,7 +143,10 @@ class Connection extends Socket {
         return loginAccount(acc);
 
       case a.GAME_CREATE_NEW:
-        if (account == null) return false;
+        if (account == null ||
+            account.ownedGames.length > campaignsPerAccount) {
+          return false;
+        }
 
         var createdGame = Game(account, '');
         if (!createdGame.applyChanges(params['data'])) return false;
@@ -209,7 +223,7 @@ class Connection extends Socket {
         return 'Game "$id" not found!';
 
       case a.GAME_PREFAB_CREATE:
-        if (_game != null) {
+        if (_game != null || _game.prefabCount < prefabsPerCampaign) {
           var p = _game.addPrefab();
           await _uploadGameImageJson(params, id: p.id);
           var json = p.toJson();
@@ -243,8 +257,9 @@ class Connection extends Socket {
         return notifyOthers(action, params, true);
 
       case a.GAME_MOVABLE_CREATE:
-        if (scene != null) {
+        if (scene != null && scene.movables.length < movablesPerScene) {
           var m = scene.addMovable(params);
+          if (m == null) return null;
           notifyOthers(action, {
             'id': m.id,
             'x': m.x,
@@ -255,13 +270,29 @@ class Connection extends Socket {
         }
         return null;
 
-      case a.GAME_MOVABLE_MOVE:
-        var m = scene?.getMovable(params['movable']);
-        if (m != null) {
-          m
-            ..x = params['x']
-            ..y = params['y'];
+      case a.GAME_MOVABLE_CREATE_ADVANCED:
+        if (scene != null) {
+          List source = params['movables'];
+          if (scene.movables.length + source.length <= movablesPerScene) {
+            var dest = source.map((src) => scene.addMovable(src)).toList();
+
+            notifyOthers(action, {'movables': dest});
+            return dest.map((m) => m.id).toList();
+          }
         }
+        return null;
+
+      case a.GAME_MOVABLE_MOVE:
+        List ids = params['movables'];
+        var delta = parsePoint(params);
+        if (ids == null || delta == null || scene == null) return null;
+
+        for (int movableId in ids) {
+          scene.getMovable(movableId)
+            ..x += delta.x
+            ..y += delta.y;
+        }
+
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_UPDATE:
@@ -270,7 +301,11 @@ class Connection extends Socket {
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_REMOVE:
-        scene?.removeMovable(params['movable']);
+        List ids = params['movables'];
+
+        for (int id in ids) {
+          scene?.removeMovable(id);
+        }
         return notifyOthers(action, params);
 
       case a.GAME_CHARACTER_UPLOAD:
@@ -317,6 +352,8 @@ class Connection extends Socket {
 
       case a.GAME_SCENE_ADD:
         var id = _game.sceneCount;
+        if (id >= scenesPerCampaign) return null;
+
         var s = _game?.addScene();
         if (s == null) return null;
 
@@ -370,6 +407,8 @@ class Connection extends Socket {
         return results;
 
       case a.GAME_MAP_CREATE:
+        if (_game.mapCount >= mapsPerCampaign) return null;
+
         var id = _game.addMap();
         await _uploadGameImageJson(params, id: id);
         _game.notify(action, {'map': id}, exclude: this, allScenes: true);
@@ -484,8 +523,18 @@ class Connection extends Socket {
 
   @override
   void handleBinary(data) {
-    if (_game != null) {
-      _game.handleMapEvent(data, this);
+    if (data is List<int>) {
+      if (_game != null) {
+        var port = data.first;
+
+        if (port == 80) {
+          // Forward measuring event
+          _game.notifyBinary(data, exclude: this);
+        } else {
+          // Forward map event
+          _game.handleMapEvent(data, this);
+        }
+      }
     }
   }
 }
