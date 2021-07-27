@@ -32,8 +32,8 @@ void main() async {
   document.onDragOver.listen((e) => e.preventDefault());
   window.onPopState.listen((_) => window.location.reload());
 
-  processUrlPath();
   await home.init();
+  processUrlPath();
 
   //await testFlow();
 }
