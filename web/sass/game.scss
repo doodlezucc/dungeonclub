@@ -481,15 +481,30 @@
             display: inline-flex;
         }
 
-        &.hidden {
-            opacity: 0.6;
-        }
-        &:hover {
-            opacity: 1;
-        }
+        > b { color: var(--color-primary); }
+
+        &.hidden { opacity: 0.6; }
+        &:hover { opacity: 1; }
 
         &.mine {
             background-color: var(--color-not-intense);
+        }
+    }
+
+    > .clickable {
+        @extend %responsive;
+        @extend %with-tooltip;
+        cursor: pointer;
+        display: block;
+        
+        &:hover { background-color: var(--color-button-hover); }
+
+        > span {
+            bottom: calc(50% - 16px);
+            left: 25%;
+            width: 50%;
+            max-width: 50%;
+            color: white;
         }
     }
 }

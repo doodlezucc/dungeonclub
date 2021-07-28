@@ -4,6 +4,7 @@ import 'package:dnd_interactive/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import 'session.dart';
 
 final HtmlElement _messages = querySelector('#messages');
 final ButtonElement _sendButton = querySelector('#chat button')
@@ -46,11 +47,12 @@ void onChat(Map<String, dynamic> params) {
   _performChat(id, msg);
 }
 
-void gameLog(String s, {bool mine = false}) async {
-  // Initialize chat
+void initGameLog() {
   _chat.classes.add('ready');
   _sendButton.classes.add('ready');
+}
 
+SpanElement gameLog(String s, {bool mine = false}) {
   var line = SpanElement()..innerHtml = s;
   if (mine) {
     line.className = 'mine';
@@ -59,10 +61,30 @@ void gameLog(String s, {bool mine = false}) async {
   _messages.append(line);
   _messages.scrollTop = _messages.scrollHeight;
 
-  await Future.delayed(Duration(seconds: 8));
-  line.animate([
-    {'opacity': 1},
-    {'opacity': 0.6},
-  ], 2000);
-  line.classes.add('hidden');
+  Future.delayed(Duration(seconds: 8), () {
+    line.animate([
+      {'opacity': 1},
+      {'opacity': 0.6},
+    ], 2000);
+    line.classes.add('hidden');
+  });
+
+  return line;
+}
+
+void logInviteLink(Session session) {
+  var tooltip = SpanElement()..text = 'Copied to Clipboard!';
+
+  var line = gameLog('''Hello, DM!<br>Players can join at
+    <b>${session.inviteLink}</b>.''')..classes.add('clickable');
+
+  line
+    ..onClick.listen((_) {
+      window.navigator.clipboard.writeText(session.inviteLink);
+      line.append(tooltip);
+    })
+    ..onMouseLeave.listen((_) async {
+      await Future.delayed(Duration(milliseconds: 500));
+      tooltip.remove();
+    });
 }
