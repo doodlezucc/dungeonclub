@@ -98,6 +98,8 @@ class Scene {
         ..refScene = this
         ..fromJson(id, json);
     }
+
+    user.session.board.showInactiveSceneWarning = false;
     _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
     editing = true;
     _scenesContainer.querySelectorAll('.playing').classes.remove('playing');
@@ -110,6 +112,7 @@ class Scene {
     json = json ?? await socket.request(GAME_SCENE_GET, {'id': id});
     user.session.board
       ..refScene = this
+      ..showInactiveSceneWarning = !playing
       ..fromJson(id, json);
     _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
     editing = true;

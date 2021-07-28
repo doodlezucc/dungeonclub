@@ -56,6 +56,11 @@ class Board {
   static const MEASURE = 'measure';
   static const FOG_OF_WAR = 'fow';
 
+  set showInactiveSceneWarning(bool v) => _container
+      .querySelector('#inactiveSceneWarning')
+      .classes
+      .toggle('hidden', !v);
+
   bool get editingGrid => _container.classes.contains('edit');
   set editingGrid(bool v) {
     _container.classes.toggle('edit', v);
@@ -209,6 +214,10 @@ class Board {
     _changeImage.onClick.listen((_) => _changeImageDialog());
     _editScene.onClick.listen((_) => editingGrid = true);
     _exitEdit.onClick.listen((_) => editingGrid = false);
+
+    _container.querySelector('#inactiveSceneWarning').onClick.listen((_) {
+      refScene.enterPlay();
+    });
 
     _container.querySelector('#openMap').onClick.listen((_) {
       mapTab.visible = true;

@@ -79,7 +79,7 @@ void logInviteLink(Session session) {
     <b>${session.inviteLink}</b>.''')..classes.add('clickable');
 
   line
-    ..onClick.listen((_) {
+    ..onMouseDown.listen((_) {
       window.navigator.clipboard.writeText(session.inviteLink);
       line.append(tooltip);
     })

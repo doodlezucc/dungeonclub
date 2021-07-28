@@ -481,8 +481,6 @@
             display: inline-flex;
         }
 
-        > b { color: var(--color-primary); }
-
         &.hidden { opacity: 0.6; }
         &:hover { opacity: 1; }
 
@@ -743,6 +741,22 @@ $ping-radius: 100px;
         transform: translate(-$ping-radius, -$ping-radius);
         opacity: 0;
     }
+}
+
+#inactiveSceneWarning {
+    @extend %responsive;
+    position: absolute;
+    top: 16px;
+    background-color: var(--color-background);
+    box-shadow: 0 0 8px 2px #0006;
+    box-sizing: border-box;
+    padding: 8px;
+    border-radius: base.$radius;
+    text-align: center;
+    transition-property: transform, opacity;
+    cursor: pointer;
+
+    &.hidden { @extend .invisible; }
 }
 
 #online {
