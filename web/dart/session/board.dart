@@ -231,9 +231,20 @@ class Board {
     window.onKeyDown.listen((ev) {
       if (ev.target is InputElement || ev.target is TextAreaElement) return;
 
-      if (ev.keyCode == 27 && selectedPrefab != null) {
-        ev.preventDefault();
-        _deselectAll();
+      if (ev.keyCode == 27) {
+        // Escape
+        if (selectedPrefab != null) {
+          ev.preventDefault();
+          _deselectAll();
+        } else if (mode != PAN) {
+          Future.delayed(Duration(milliseconds: 4), () {
+            // Event might be handled by polymask or map view
+            if (!ev.defaultPrevented) {
+              mode = PAN;
+              ev.preventDefault();
+            }
+          });
+        }
       } else if (ev.key == 'm') {
         mapTab.visible = !mapTab.visible;
       } else if (session.isDM) {
