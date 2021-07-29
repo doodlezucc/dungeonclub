@@ -79,6 +79,11 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_ROLL_INITIATIVE:
       showRollerPanel();
       return Null;
+
+    case GAME_ADD_INITIATIVE:
+      addToInBar(params);
+      return Null;
+
     case MAINTENANCE:
       return user.onMaintenanceScheduled(params);
   }

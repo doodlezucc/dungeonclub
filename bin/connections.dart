@@ -451,6 +451,11 @@ class Connection extends Socket {
       case a.GAME_ROLL_INITIATIVE:
         _game.notify(action, {}, exclude: this, allScenes: true);
         return true;
+
+      case a.GAME_ADD_INITIATIVE:
+        _game.notify(action, params, exclude: this, allScenes: true);
+        //_game.dm.sendAction(action, params);
+        return true;
     }
   }
 
