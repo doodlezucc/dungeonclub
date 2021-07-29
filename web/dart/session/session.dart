@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
 
+import '../communication.dart';
 import '../game.dart';
 import 'board.dart';
 import 'character.dart';
@@ -17,6 +18,9 @@ class Session extends Game {
   int _charId;
   int get charId => _charId;
   Character get myCharacter => _charId != null ? characters[_charId] : null;
+  String get inviteLink => isOnLocalHost
+      ? 'http://localhost:8080/index.html?game=$id'
+      : window.location.href;
 
   Session(String id, String name, this.isDM) : super(id, name, null) {
     _board = Board(this);
@@ -85,7 +89,12 @@ class Session extends Game {
     }
 
     _charId = json['mine'];
-    gameLog('Hello, ' + (myCharacter?.name ?? 'DM') + '!', mine: true);
+
+    if (isDM) {
+      logInviteLink(this);
+    } else {
+      gameLog('Hello, ${myCharacter.name}!', mine: true);
+    }
 
     // Depends on global session object
     Future.microtask(() {

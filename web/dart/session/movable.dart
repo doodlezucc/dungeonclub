@@ -172,7 +172,7 @@ class Movable extends EntityBase {
 class EmptyMovable extends Movable {
   SpanElement _labelSpan;
 
-  String _label;
+  String _label = '';
   String get label => _label;
   set label(String label) {
     _label = label;

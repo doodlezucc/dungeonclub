@@ -57,6 +57,11 @@ class Board {
   static const MEASURE = 'measure';
   static const FOG_OF_WAR = 'fow';
 
+  set showInactiveSceneWarning(bool v) => _container
+      .querySelector('#inactiveSceneWarning')
+      .classes
+      .toggle('hidden', !v);
+
   bool get editingGrid => _container.classes.contains('edit');
   set editingGrid(bool v) {
     _container.classes.toggle('edit', v);
@@ -74,6 +79,7 @@ class Board {
                 })
             .toList()
       });
+      rescaleMeasurings();
     }
   }
 
@@ -211,6 +217,10 @@ class Board {
     _changeImage.onClick.listen((_) => _changeImageDialog());
     _editScene.onClick.listen((_) => editingGrid = true);
     _exitEdit.onClick.listen((_) => editingGrid = false);
+
+    _container.querySelector('#inactiveSceneWarning').onClick.listen((_) {
+      refScene.enterPlay();
+    });
 
     _container.querySelector('#openMap').onClick.listen((_) {
       mapTab.visible = true;
@@ -876,6 +886,12 @@ class Board {
 
   void onMovableUpdate(json) => _movableEvent(json, (m) => m.fromJson(json));
 
+  void rescaleMeasurings() {
+    var x = grid.tiles;
+    var y = x * (_ground.height / _ground.width);
+    measuringRoot.setAttribute('viewBox', '-0.5 -0.5 $x $y');
+  }
+
   void fromJson(int id, Map<String, dynamic> json) async {
     clear();
 
@@ -886,10 +902,7 @@ class Board {
 
     fogOfWar.load(json['fow']);
     grid.fromJson(json['grid']);
-
-    var x = grid.tiles;
-    var y = x * (_ground.height / _ground.width);
-    measuringRoot.setAttribute('viewBox', '-0.5 -0.5 $x $y');
+    rescaleMeasurings();
 
     for (var m in json['movables']) {
       onMovableCreate(m);

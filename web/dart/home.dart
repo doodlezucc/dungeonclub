@@ -120,9 +120,24 @@ void _addEnteredGame(Game game) {
       }));
 
   if (game.owned) {
-    topRow.append(iconButton('cog')
-      ..onClick.listen((_) => edit_game.display(game, nameEl, e)));
+    topRow.append(iconButton('cog', className: 'with-tooltip')
+      ..onClick.listen((_) => edit_game.display(game, nameEl, e))
+      ..append(SpanElement()..text = 'Settings'));
+  } else {
+    topRow.append(iconButton('times', className: 'with-tooltip')
+      ..onClick.listen((_) {
+        e.remove();
+        _unsaveGame(game.id);
+      })
+      ..append(SpanElement()..text = 'Unsave Campaign'));
   }
 
   _gamesContainer.insertBefore(e, _createGameButton);
+}
+
+void _unsaveGame(String id) {
+  var idNames = Map<String, String>.from(
+      jsonDecode(window.localStorage['joined'] ?? '{}'));
+  idNames.remove(id);
+  window.localStorage['joined'] = jsonEncode(idNames);
 }

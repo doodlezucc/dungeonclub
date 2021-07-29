@@ -137,6 +137,7 @@ a {
 
 b {
     font-weight: var(--weight-thick);
+    color: var(--color-primary);
 }
 
 p {
@@ -401,7 +402,6 @@ li {
     width: fit-content;
     animation: notif-in 0.5s cubic-bezier(0.23, 1, 0.320, 1) forwards;
 
-    b { color: var(--color-primary); }
     span { margin: 4px; }
 }
 

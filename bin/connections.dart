@@ -368,17 +368,10 @@ class Connection extends Socket {
             _game.owner != _account ||
             id == null) return;
 
-        var doNotifyOthers = _game.playingSceneId == id;
-
         var removed = await _game.removeScene(id);
         if (!removed) return;
 
-        var result = _game.playingScene.toJson();
-        if (doNotifyOthers) {
-          _game.notify(action, {'id': _game.playingSceneId, ...result},
-              exclude: this, allScenes: true);
-        }
-        return result;
+        return _game.playingScene.toJson();
 
       case a.GAME_SCENE_FOG_OF_WAR:
         var data = params['data'];
