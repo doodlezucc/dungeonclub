@@ -99,6 +99,26 @@
     }
 }
 
+@keyframes grow-shrink {
+    0%   { max-height: 0; padding: 0; }
+    15%  { max-height: 60px; padding: 4px; }
+    85%  { max-height: 60px; padding: 4px; }
+    100% { max-height: 0; padding: 0; }
+}
+
+#loginText {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: var(--color-separator);
+    justify-content: center !important;
+    
+    animation: grow-shrink 2s 0.5s ease-in-out paused both;
+    overflow: hidden;
+}
+
 #gamesContainer {
     display: flex;
     flex-wrap: wrap;

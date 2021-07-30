@@ -74,6 +74,7 @@ Future<bool> _initLogInTab() async {
 }
 
 void onLogin() {
+  querySelector('#loginText').style.animationPlayState = 'running';
   _loginTab.classes.add('hidden');
   _logout.classes.remove('hidden');
   _displayAccountEnteredGames();
