@@ -100,18 +100,17 @@
 
     #editChars {
         display: grid;
-        grid-template-columns: auto auto;
+        grid-template-columns: calc(50% - 2px) calc(50% - 2px);
         grid-auto-rows: min-content;
         gap: 4px;
-        min-width: 604px;
+        min-width: 600px;
         min-height: calc(30vh - 80px);
         max-height: 25vh;
         overflow-y: auto;
         overflow-x: hidden;
 
         > li {
-            width: 300px;
-            box-sizing: border-box;
+            border-radius: base.$radius;
             animation: popup 0.1s cubic-bezier(0.165, 0.84, 0.44, 1) backwards;
         }
 
