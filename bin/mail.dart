@@ -53,7 +53,7 @@ Future<bool> sendMailWithCode({
     ..recipients.add(email)
     ..subject = subject
     ..html = content
-    ..attachments.add(FileAttachment(File('web/sass/icon32.png'))
+    ..attachments.add(FileAttachment(File('web/images/icon32.png'))
       ..location = Location.inline
       ..cid = '<logo>');
 
