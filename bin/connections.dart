@@ -178,14 +178,21 @@ class Connection extends Socket {
         if (account == null) return false;
 
         var gameId = params['id'];
-        var game = account.ownedGames.firstWhere(
-            (g) => g.id == gameId && g.online == 0,
-            orElse: () => null);
+        var game = account.ownedGames
+            .firstWhere((g) => g.id == gameId, orElse: () => null);
         if (game == null) return 'Access denied!';
 
         var data = params['data'];
         if (data != null) {
           // User wants to save changes.
+          game.notify(
+            a.GAME_KICK,
+            {
+              'reason': '''Your DM updated the campaign settings.
+                To correctly reflect all changes, please join again.''',
+            },
+            allScenes: true,
+          );
           return game.applyChanges(data);
         }
 

@@ -14,6 +14,7 @@ import '../panels/upload.dart' as upload;
 import 'condition.dart';
 import 'fog_of_war.dart';
 import 'grid.dart';
+import 'log.dart';
 import 'map.dart';
 import 'measuring.dart';
 import 'movable.dart';
@@ -180,6 +181,7 @@ class Board {
   void _initBoard() {
     _initMouseControls();
     initDiceTable();
+    initGameLog();
     measureMode = 0;
     _measureToggle.onClick.listen((ev) {
       var target = ev.target;

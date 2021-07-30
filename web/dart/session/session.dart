@@ -3,7 +3,9 @@ import 'dart:html';
 import 'dart:math';
 
 import '../communication.dart';
+import '../font_awesome.dart';
 import '../game.dart';
+import '../panels/dialog.dart';
 import 'board.dart';
 import 'character.dart';
 import 'log.dart';
@@ -21,6 +23,7 @@ class Session extends Game {
   String get inviteLink => isOnLocalHost
       ? 'http://localhost:8080/index.html?game=$id'
       : window.location.href;
+  ConstantDialog _dmDisconnectedDialog;
 
   Session(String id, String name, this.isDM) : super(id, name, null) {
     _board = Board(this);
@@ -66,7 +69,19 @@ class Session extends Game {
     return '#' + hex(r) + hex(g) + hex(b);
   }
 
-  void onConnectionChange(Map<String, dynamic> params) {
+  void onKick(String reason) {
+    socket.close();
+    _dmDisconnectedDialog?.close();
+    ConstantDialog('You have been kicked')
+      ..addParagraph(reason)
+      ..append(ButtonElement()
+        ..className = 'big'
+        ..text = 'OK'
+        ..onClick.listen((_) => window.location.reload()))
+      ..display();
+  }
+
+  void onConnectionChange(Map<String, dynamic> params) async {
     bool join = params['join'];
     int id = params['pc'];
 
@@ -81,7 +96,19 @@ class Session extends Game {
         gameLog('$name left the game.');
       }
     } else {
-      window.location.reload();
+      if (!join) {
+        _dmDisconnectedDialog = ConstantDialog('Your DM disconnected')
+          ..addParagraph('''
+              If they happen to reconnect anytime soon,
+              you'll return to the game.''')
+          ..append(icon('spinner')..classes.add('spinner'))
+          ..display();
+      } else {
+        if (_dmDisconnectedDialog != null) {
+          _dmDisconnectedDialog.close();
+          _dmDisconnectedDialog = null;
+        }
+      }
     }
   }
 

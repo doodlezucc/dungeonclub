@@ -52,6 +52,8 @@ class FrontSocket extends Socket {
     listen();
   }
 
+  void close() => _webSocket.close();
+
   void _handleConnectionError() async {
     document.title = 'Reconnecting...';
     _errorDialog ??= ConstantDialog('Connection Error')

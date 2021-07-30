@@ -75,6 +75,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_CHAT:
       return onChat(params);
 
+    case GAME_KICK:
+      return user.session?.onKick(params['reason']);
+
     case MAINTENANCE:
       return user.onMaintenanceScheduled(params);
   }
