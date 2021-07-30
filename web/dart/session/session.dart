@@ -69,15 +69,19 @@ class Session extends Game {
   void onConnectionChange(Map<String, dynamic> params) {
     bool join = params['join'];
     int id = params['pc'];
-    var pc = characters[id];
 
-    var name = pc?.name ?? 'DM';
+    if (id >= 0) {
+      var pc = characters[id];
+      var name = pc?.name;
 
-    pc.hasJoined = join;
-    if (join) {
-      gameLog('$name joined the game.');
+      pc.hasJoined = join;
+      if (join) {
+        gameLog('$name joined the game.');
+      } else {
+        gameLog('$name left the game.');
+      }
     } else {
-      gameLog('$name left the game.');
+      window.location.reload();
     }
   }
 

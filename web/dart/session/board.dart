@@ -588,6 +588,7 @@ class Board {
     var rect = Rectangle.fromPoints(scale(r.topLeft), scale(r.bottomRight));
 
     var validMovables = movables.where((m) {
+      if (!m.accessible) return false;
       var mRect = Rectangle(
         m.position.x,
         m.position.y,
