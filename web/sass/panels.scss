@@ -76,7 +76,7 @@
 }
 
 #editGamePanel {
-    min-width: 500px;
+    // min-width: 500px;
 
     &.upload {
         pointer-events: none !important;
@@ -103,13 +103,16 @@
         grid-template-columns: auto auto;
         grid-auto-rows: min-content;
         gap: 4px;
-        min-height: calc(40vh - 80px);
+        min-width: 604px;
+        min-height: calc(30vh - 80px);
         max-height: 25vh;
         overflow-y: auto;
         overflow-x: hidden;
 
         > li {
-            animation: popup 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) backwards;
+            width: 300px;
+            box-sizing: border-box;
+            animation: popup 0.1s cubic-bezier(0.165, 0.84, 0.44, 1) backwards;
         }
 
         img {
@@ -119,8 +122,13 @@
 
         input { width: 100%; }
 
+        &:empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         &:empty:after {
-            content: "No characters added";
+            content: "No characters added.";
             color: var(--color-note);
         }
     }
