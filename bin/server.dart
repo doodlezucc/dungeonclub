@@ -127,11 +127,13 @@ Future<Response> _echoRequest(Request request) async {
           : File('web/' + path));
 
   if (!await file.exists()) {
-    if (!path.startsWith('game/') && path.isNotEmpty) {
+    if (isDataFile && path.contains('/pc')) {
+      return Response.seeOther('$address/images/default_pc.jpg');
+    } else if (!path.startsWith('game/') && path.isNotEmpty) {
       return Response.notFound('Request for "${request.url}"');
+    } else {
+      file = File('web/index.html');
     }
-
-    file = File('web/index.html');
   }
 
   var type = isDataFile ? 'image/jpeg' : getMimeType(file);

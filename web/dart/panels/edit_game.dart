@@ -147,7 +147,9 @@ class _EditChar {
   InputElement _nameInput;
   String get name => _nameInput.value;
 
-  _EditChar(this.id, {String name = '', String imgUrl = ''}) : e = LIElement() {
+  _EditChar(this.id,
+      {String name = '', String imgUrl = 'images/default_pc.jpg'})
+      : e = LIElement() {
     e
       ..append(registerEditImage(
         DivElement()
