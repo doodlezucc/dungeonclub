@@ -109,6 +109,8 @@
                 opacity: 0.5;
                 box-sizing: border-box;
                 border: 2px solid transparent;
+                align-items: center;
+                font-size: 24px;
 
                 &.selected {
                     opacity: 1;
@@ -127,6 +129,11 @@
         #prefabImage {
             width: 80px;
             height: 80px;
+            align-self: center;
+        }
+        #emptyIcon {
+            font-size: 80px;
+            opacity: 0.5;
             align-self: center;
         }
 
@@ -502,6 +509,7 @@
             left: 25%;
             width: 50%;
             max-width: 50%;
+            text-align: center;
             color: white;
         }
     }
@@ -676,7 +684,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #222;
+        background: #222 !important;
 
         > span {
             pointer-events: none;

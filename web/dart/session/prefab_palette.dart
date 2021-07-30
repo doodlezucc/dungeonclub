@@ -21,6 +21,7 @@ final HtmlElement _prefabProperties = querySelector('#prefabProperties');
 
 final HtmlElement _prefabImage = querySelector('#prefabImage');
 final ImageElement _prefabImageImg = _prefabImage.querySelector('img');
+final HtmlElement _prefabEmptyIcon = querySelector('#emptyIcon');
 final InputElement _prefabName = querySelector('#prefabName');
 final InputElement _prefabSize = querySelector('#prefabSize');
 final UListElement _prefabAccess = querySelector('#prefabAccess');
@@ -29,7 +30,7 @@ final ButtonElement _prefabRemove = querySelector('#prefabRemove');
 
 final List<CharacterPrefab> pcPrefabs = [];
 final List<CustomPrefab> prefabs = [];
-final emptyPrefab = EmptyPrefab();
+final emptyPrefab = EmptyPrefab()..updateImage(cacheBreak: false);
 
 Prefab _selectedPrefab;
 Prefab get selectedPrefab => _selectedPrefab;
@@ -45,14 +46,21 @@ set selectedPrefab(Prefab p) {
   var isCustom = p is CustomPrefab;
   var isEmpty = p is EmptyPrefab;
 
-  _prefabImage.classes.toggle('disabled', !isCustom);
-  _prefabName.disabled = !isCustom;
-  _prefabRemove.disabled = !isCustom;
-  _prefabSize.disabled = isEmpty;
   _prefabAccess.classes.toggle('disabled', !isCustom);
   _updateAccessSpan();
 
   if (p != null) {
+    _prefabImage.classes.toggle('disabled', !isCustom);
+    _prefabName.disabled = !isCustom;
+    _prefabRemove.disabled = !isCustom;
+    _prefabSize.disabled = isEmpty;
+
+    _prefabImage.style.display = isEmpty ? 'none' : '';
+    _prefabEmptyIcon.style.display = isEmpty ? '' : 'none';
+    if (isEmpty) {
+      _prefabEmptyIcon.className = 'fas fa-${emptyPrefab.iconId}';
+    }
+
     _prefabName.value = p.name;
     _prefabSize.valueAsNumber = p.size;
 
@@ -214,11 +222,11 @@ void _updateAddButton() {
   var limitReached = prefabs.length >= 20;
   _addPref.disabled = limitReached;
   _addPref.querySelector('span').text =
-      limitReached ? 'Limit Reached' : 'Add Prefab';
+      limitReached ? 'Limit Reached' : 'Add Token';
 }
 
 void _displayLimitMsg() {
-  HtmlNotification('Limit of 20 prefabs reached.').display();
+  HtmlNotification('Limit of 20 custom tokens reached.').display();
 }
 
 Future<void> createPrefab() async {

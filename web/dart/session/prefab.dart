@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../font_awesome.dart';
 import 'character.dart';
 import 'movable.dart';
 import 'prefab_palette.dart';
@@ -77,9 +78,12 @@ class EmptyPrefab extends Prefab {
   String img({bool cacheBreak = true}) => '';
 
   @override
-  String get name => 'Empty';
+  String get name => 'Labeled Token';
+
+  String get iconId => 'pen';
 
   EmptyPrefab() {
+    this.e.append(icon(iconId));
     updateName();
   }
 }
