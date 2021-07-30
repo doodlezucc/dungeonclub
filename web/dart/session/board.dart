@@ -496,6 +496,10 @@ class Board {
                 if (newMov != null) {
                   toggleSelect([newMov], state: true);
                   pan = false;
+                  if (newMov is EmptyMovable) {
+                    Future.delayed(Duration(milliseconds: 4),
+                        () => _selectedLabel.focus());
+                  }
                 }
               } else if (!start.shift) {
                 _deselectAll();
