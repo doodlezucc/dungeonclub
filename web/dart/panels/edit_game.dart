@@ -79,6 +79,7 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
       _saveButton.disabled = true;
       if (await _saveChanges(game.id)) {
         title?.text = _gameNameInput.value;
+        game.name = _gameNameInput.value;
         closer.complete();
       }
     }),
