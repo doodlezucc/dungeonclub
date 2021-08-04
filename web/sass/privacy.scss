@@ -1,0 +1,39 @@
+body.document {
+    overflow: auto;
+    padding: 0 10vw;
+    text-align: justify;
+
+    > div {
+        padding: 100px 0 160px 0;
+        max-width: 1200px;
+        width: 100%;
+        align-self: center;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        box-sizing: border-box;
+    }
+
+    h2 { margin-top: 24px; }
+    h3 { margin-top: 24px; }
+
+    header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    ul {
+        margin: 0;
+    }
+
+    li {
+        display: list-item;
+        color: var(--color-note);
+    }
+
+    a {
+        text-decoration: none;
+    }
+}
