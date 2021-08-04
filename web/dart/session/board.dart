@@ -98,6 +98,12 @@ class Board {
 
     if (!isPan) {
       _deselectAll();
+
+      if (mode == MEASURE) {
+        displayTooltip(getMeasureTooltip());
+      }
+    } else {
+      displayTooltip('');
     }
   }
 
@@ -191,13 +197,14 @@ class Board {
         if (mMode != null) {
           var oldMode = measureMode;
           measureMode = int.parse(mMode);
+          displayTooltip(getMeasureTooltip());
 
           // Prevent mode toggle
           if (mode == MEASURE && measureMode != oldMode) return null;
         }
       }
 
-      return mode = MEASURE;
+      mode = MEASURE;
     });
     _fowToggle.onClick.listen((_) => mode = FOG_OF_WAR);
 
@@ -444,7 +451,7 @@ class Board {
         initialButton = start.button;
         var isBoardDrag = ev.path.contains(_e);
 
-        if (isBoardDrag) {
+        if (mode == PAN && isBoardDrag) {
           timer = Timer(Duration(milliseconds: 300), () {
             var pos = start.p * (1 / scaledZoom);
 
@@ -721,6 +728,10 @@ class Board {
         socket.sendAction(a.GAME_MOVABLE_UPDATE, _activeMovable.toJson());
       }
     });
+  }
+
+  void displayTooltip(String text) {
+    _container.querySelector('#tooltip').innerHtml = text;
   }
 
   void displayPing(Point p, int player) async {

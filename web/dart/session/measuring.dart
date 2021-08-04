@@ -31,6 +31,27 @@ set measureMode(int measureMode) {
   _toolbox.querySelector('[mode="$measureMode"]').classes.add('active');
 }
 
+String getMeasureTooltip() {
+  switch (measureMode) {
+    case MEASURING_PATH:
+      return '''Hold left click to draw a path. Rightclick to make points.''';
+    case MEASURING_CIRCLE:
+      return '''Leftclick an intersection and drag outwards
+                to visualize a circular shape.''';
+    case MEASURING_CONE:
+      return '''Leftclick an intersection and drag outwards
+                to visualize a cone.<br>
+                Rightclick to lock its radius.''';
+    case MEASURING_CUBE:
+      return '''Leftclick an intersection and drag outwards
+                to visualize a cube.''';
+    case MEASURING_LINE:
+      return '''Hold left click to draw a line of specified width.<br>
+                Rightclick to switch to width modification.''';
+  }
+  return '';
+}
+
 void _writePrecision(BinaryWriter writer, Point p) {
   var point = p * _precision;
   writer.writePoint(Point(point.x.round(), point.y.round()));
