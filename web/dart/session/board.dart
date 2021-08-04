@@ -101,6 +101,10 @@ class Board {
 
       if (mode == MEASURE) {
         displayTooltip(getMeasureTooltip());
+      } else {
+        displayTooltip('''Hold left click to draw continuous shapes or click
+                          once<br> to add individual points. Hold shift to
+                          make holes.''');
       }
     } else {
       displayTooltip('');

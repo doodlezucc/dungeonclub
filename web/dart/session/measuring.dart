@@ -39,9 +39,8 @@ String getMeasureTooltip() {
       return '''Leftclick an intersection and drag outwards
                 to visualize a circular shape.''';
     case MEASURING_CONE:
-      return '''Leftclick an intersection and drag outwards
-                to visualize a cone.<br>
-                Rightclick to lock its radius.''';
+      return '''Leftclick an intersection and drag outwards to visualize<br>
+                a cone. Rightclick to lock its radius.''';
     case MEASURING_CUBE:
       return '''Leftclick an intersection and drag outwards
                 to visualize a cube.''';
