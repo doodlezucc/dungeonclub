@@ -47,6 +47,7 @@
     overflow: auto;
 
     h1 { font-size: 2em; }
+    p:empty { display: none; }
 
     span {
         display: flex;
@@ -70,7 +71,7 @@
         text-align: center;
         overflow: hidden;
         flex: none;
-        max-height: 500px;
+        max-height: 600px;
         transition: max-height 0.5s 0.25s,
                     padding 0.5s 0.25s,
                     border-bottom 0.5s 0.25s;
@@ -96,6 +97,14 @@
             border-bottom: 0 solid transparent;
             pointer-events: none;
         }
+    }
+}
+
+#rememberMe {
+    .with-tooltip {
+        align-self: flex-start;
+
+        span { max-width: max-content; }
     }
 }
 

@@ -346,6 +346,20 @@ input {
             background: white;
         }
     }
+
+    &[type=checkbox] {
+        margin-right: 6px;
+
+        /* Change checkbox color to primary color */
+        --brightness: 1.65;
+        &:checked {
+            filter: invert(90%) hue-rotate(-30deg) brightness(var(--brightness));
+        }
+    }
+}
+
+@supports (-moz-appearance:none) {
+    input[type=checkbox] { --brightness: 1.4; }
 }
 
 .disabled {

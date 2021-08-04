@@ -51,13 +51,21 @@ Future<bool> _initLogInTab() async {
   ButtonElement loginButton = querySelector('button#login');
   HtmlElement loginError = querySelector('#loginError');
   AnchorElement resetPassword = querySelector('#resetPassword');
+  CheckboxInputElement rememberMe = querySelector('#rememberMe input');
 
   resetPassword.onClick.listen((_) => resetPanel.display());
 
   loginButton.onClick.listen((_) async {
     loginButton.disabled = true;
     loginError.text = null;
-    if (!await user.login(loginEmail.value, loginPassword.value)) {
+
+    var loggedIn = await user.login(
+      loginEmail.value,
+      loginPassword.value,
+      rememberMe: rememberMe.checked,
+    );
+
+    if (!loggedIn) {
       loginError.text = 'Failed to log in.';
       loginButton.disabled = false;
     } else {

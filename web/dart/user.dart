@@ -68,12 +68,14 @@ class User {
     home.onLogin();
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String email, String password,
+      {bool rememberMe = true}) async {
     var response = await socket.request(
       ACCOUNT_LOGIN,
       {
         'email': email,
         'password': password,
+        'remember': rememberMe,
       },
     );
     if (response != false) {

@@ -18,7 +18,6 @@ class Account {
             .toList() {
     var token = json['token'];
     if (token != null) {
-      print('Saving token $token');
       window.localStorage['token'] = token;
     }
   }

@@ -108,6 +108,7 @@ class Connection extends Socket {
         String email = params['email'];
         String password = params['password'];
         String token = params['token'];
+        bool remember = params['remember'] ?? false;
         if (email == null || password == null) {
           if (token == null || tokenAccounts[token] == null) return false;
 
@@ -115,7 +116,8 @@ class Connection extends Socket {
           return loginAccount(tokenAccounts[token]);
         }
 
-        return login(params['email'], params['password']);
+        return login(params['email'], params['password'],
+            provideToken: remember);
 
       case a.ACCOUNT_RESET_PASSWORD:
         var email = params['email'];
