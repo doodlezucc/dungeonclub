@@ -21,6 +21,10 @@ Future<void> display() async {
   _allowAcc.disabled = !user.registered;
   _allowAcc.checked = false;
 
+  for (var opt in _select.options) {
+    if (opt.value == 'account') opt.disabled = !user.registered;
+  }
+
   _content.select();
   _updateSendButton();
 

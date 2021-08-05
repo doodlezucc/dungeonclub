@@ -464,6 +464,7 @@ class Connection extends Socket {
           type,
           content,
           acc ? account?.encryptedEmail?.toString() : null,
+          _game?.id,
         ));
         return true;
     }

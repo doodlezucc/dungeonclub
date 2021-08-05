@@ -15,14 +15,18 @@ class Feedback {
   final String type;
   final String content;
   final String account;
+  final String game;
 
-  Feedback(this.type, this.content, this.account);
+  Feedback(this.type, this.content, this.account, this.game);
 
   @override
   String toString() {
     var s = 'Type: ${type.toUpperCase()}';
     if (account != null) {
       s += '\nAccount: $account';
+    }
+    if (game != null) {
+      s += '\nGame: $game';
     }
     return '$s\n$content';
   }
@@ -94,7 +98,7 @@ Future<bool> _sendFeedbackMail() async {
     ..recipients.add(_mailAddress)
     ..subject = 'Feedback'
     ..text = '${pendingFeedback.length} new feedback letters:\n\n' +
-        pendingFeedback.join('\n\n');
+        pendingFeedback.join('\n------------------------------------\n\n');
 
   if (await _sendMessage(message)) {
     pendingFeedback.clear();
