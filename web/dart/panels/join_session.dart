@@ -8,7 +8,7 @@ final HtmlElement _panel = querySelector('#joinPanel');
 final InputElement _sessionNameInput = _panel.querySelector('#sessionName')
   ..onInput.listen((_) => _updateJoinButton());
 
-// final ButtonElement _cancelButton = _panel.querySelector('button.close');
+final ButtonElement _cancelButton = _panel.querySelector('button.close');
 final ButtonElement _joinButton = _panel.querySelector('button#join');
 final HtmlElement _error = _panel.querySelector('#joinError');
 
@@ -26,14 +26,18 @@ Future<void> display(String gameId) async {
   var closer = Completer();
   var subs = [
     _joinButton.onClick.listen((_) async {
+      _cancelButton.disabled = true;
       if (await _tryJoin(gameId)) closer.complete();
+      _cancelButton.disabled = false;
     }),
     _sessionNameInput.onKeyDown.listen((ev) async {
       if (ev.keyCode == 13 && !_joinButton.disabled) {
+        _cancelButton.disabled = true;
         if (await _tryJoin(gameId)) closer.complete();
+        _cancelButton.disabled = false;
       }
-    })
-    // _cancelButton.onClick.listen((event) => closer.complete()),
+    }),
+    _cancelButton.onClick.listen((event) => closer.complete()),
   ];
 
   _panel.classes.add('show');
@@ -49,7 +53,7 @@ Future<bool> _tryJoin(String gameId) async {
   _joinButton.disabled = true;
   _error
     ..className = ''
-    ..text = 'Requesting access...';
+    ..text = 'Access requested...';
 
   var err = await user.joinSession(gameId, _sessionNameInput.value);
 

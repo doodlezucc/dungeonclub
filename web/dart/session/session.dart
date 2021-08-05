@@ -72,7 +72,7 @@ class Session extends Game {
   void onKick(String reason) {
     socket.close();
     _dmDisconnectedDialog?.close();
-    ConstantDialog('You have been kicked')
+    ConstantDialog('You Have Been Kicked')
       ..addParagraph(reason)
       ..append(ButtonElement()
         ..className = 'big'
@@ -97,7 +97,7 @@ class Session extends Game {
       }
     } else {
       if (!join) {
-        _dmDisconnectedDialog = ConstantDialog('Your DM disconnected')
+        _dmDisconnectedDialog = ConstantDialog('Your DM Disconnected')
           ..addParagraph('''
               If they happen to reconnect anytime soon,
               you'll return to the game.''')
