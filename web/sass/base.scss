@@ -357,9 +357,18 @@ input {
         }
     }
 }
-
 @supports (-moz-appearance:none) {
     input[type=checkbox] { --brightness: 1.4; }
+}
+
+select {
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    border: none;
+    background-color: var(--color-background);
+    color: inherit;
+    padding: 4px 0;
 }
 
 .disabled {

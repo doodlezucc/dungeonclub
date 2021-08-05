@@ -7,6 +7,7 @@ import 'dart/home.dart' as home;
 import 'dart/panels/code_panel.dart';
 import 'dart/panels/edit_game.dart' as edit_game;
 import 'dart/panels/join_session.dart' as join_session;
+import 'dart/panels/feedback.dart' as feedback;
 import 'dart/user.dart';
 
 final user = User();
@@ -22,6 +23,9 @@ void main() async {
 
   querySelector('#signup').onClick.listen((_) {
     registerPanel.display();
+  });
+  querySelector('#feedback').onClick.listen((_) {
+    feedback.display();
   });
 
   querySelector('button#save').onClick.listen((_) {

@@ -45,3 +45,4 @@ const IMAGE_TYPE_ENTITY = 'entity';
 const IMAGE_TYPE_MAP = 'map';
 
 const MAINTENANCE = 'maintenance';
+const FEEDBACK = 'feedback';

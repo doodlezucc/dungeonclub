@@ -67,6 +67,11 @@
         align-self: center;
     }
 
+    textarea {
+        width: 400px;
+        height: 100px;
+    }
+
     &.dialog {
         min-width: calc(20vw + 250px);
         max-width: 500px;

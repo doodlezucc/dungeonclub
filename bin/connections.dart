@@ -449,6 +449,21 @@ class Connection extends Socket {
           _game.notify(action, params, exclude: this, allScenes: true);
         }
         return true;
+
+      case a.FEEDBACK:
+        String type = params['type'];
+        String content = params['content'];
+        bool acc = params['acc'] ?? false;
+        if (content == null ||
+            !(type == 'feature' ||
+                type == 'bug' ||
+                type == 'account' ||
+                type == 'other')) return false;
+
+        return sendFeedbackMail(
+            type: type,
+            content: content,
+            account: acc ? account?.encryptedEmail?.toString() : null);
     }
   }
 

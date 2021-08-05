@@ -57,6 +57,24 @@ Future<bool> sendMailWithCode({
       ..location = Location.inline
       ..cid = '<logo>');
 
+  return _sendMessage(message);
+}
+
+Future<bool> sendFeedbackMail({
+  @required String type,
+  @required String content,
+  @required String account,
+}) async {
+  final message = Message()
+    ..from = Address(_mailAddress, 'D&D Interactive')
+    ..recipients.add(_mailAddress)
+    ..subject = 'Feedback: $type'
+    ..text = '$content\n\nAccount: $account';
+
+  return _sendMessage(message);
+}
+
+Future<bool> _sendMessage(Message message) async {
   try {
     final sendReport = await send(message, smtpServer);
     print('Message sent: ' + sendReport.toString());

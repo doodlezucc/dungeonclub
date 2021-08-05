@@ -22,6 +22,7 @@
 
         <span>
             <button id="logOut" class="hidden">Log Out</button>
+            <button id="feedback">Send Feedback</button>
             <button id="save" style="display: none;">Save Server Data</button>
         </span>
     </header>
@@ -409,6 +410,32 @@
                 <input id="sessionName" placeholder="Name..." maxlength="25">
                 <p id="joinError"></p>
                 <button id="join" class="big">Join</button>
+            </div>
+        </div>
+
+        <div class="panel" id="feedbackPanel">
+            <h2>Send Feedback</h2>
+            <button class="close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <select>
+                <option value="feature">Request a feature</option>
+                <option value="bug">Report a bug</option>
+                <option value="account">Remove account</option>
+                <option value="other">Other</option>
+            </select>
+
+            <textarea maxlength="2000" placeholder="Message content..."></textarea>
+
+            <label>
+                <input type="checkbox" id="allowAcc">
+                Allow viewing/modifying your account
+            </label>
+
+            <div>
+                <p id="joinError"></p>
+                <button id="sendFeedback" class="big">Send</button>
             </div>
         </div>
 
