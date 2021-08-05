@@ -460,10 +460,12 @@ class Connection extends Socket {
                 type == 'account' ||
                 type == 'other')) return false;
 
-        return sendFeedbackMail(
-            type: type,
-            content: content,
-            account: acc ? account?.encryptedEmail?.toString() : null);
+        pendingFeedback.add(Feedback(
+          type,
+          content,
+          acc ? account?.encryptedEmail?.toString() : null,
+        ));
+        return true;
     }
   }
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:mailer/mailer.dart';
@@ -7,6 +8,25 @@ import 'package:meta/meta.dart';
 String _mailAddress;
 SmtpServer _smtpServer;
 SmtpServer get smtpServer => _smtpServer;
+
+final pendingFeedback = <Feedback>[];
+
+class Feedback {
+  final String type;
+  final String content;
+  final String account;
+
+  Feedback(this.type, this.content, this.account);
+
+  @override
+  String toString() {
+    var s = 'Type: ${type.toUpperCase()}';
+    if (account != null) {
+      s += '\nAccount: $account';
+    }
+    return '$s\n$content';
+  }
+}
 
 Future<void> initializeMailServer() async {
   var file = File('mail/gmail_credentials');
@@ -19,6 +39,12 @@ Future<void> initializeMailServer() async {
   // ignore: deprecated_member_use
   _smtpServer = gmail(lines[0], lines[1]);
   _mailAddress = lines[0] + '@gmail.com';
+
+  Timer.periodic(Duration(minutes: 15), (_) {
+    if (pendingFeedback.isNotEmpty) {
+      _sendFeedbackMail();
+    }
+  });
 }
 
 Future<bool> sendVerifyCreationMail(String email, String code) {
@@ -60,18 +86,21 @@ Future<bool> sendMailWithCode({
   return _sendMessage(message);
 }
 
-Future<bool> sendFeedbackMail({
-  @required String type,
-  @required String content,
-  @required String account,
-}) async {
+Future<bool> _sendFeedbackMail() async {
+  pendingFeedback.sort((a, b) => a.type.compareTo(b.type));
+
   final message = Message()
     ..from = Address(_mailAddress, 'D&D Interactive')
     ..recipients.add(_mailAddress)
-    ..subject = 'Feedback: $type'
-    ..text = '$content\n\nAccount: $account';
+    ..subject = 'Feedback'
+    ..text = '${pendingFeedback.length} new feedback letters:\n\n' +
+        pendingFeedback.join('\n\n');
 
-  return _sendMessage(message);
+  if (await _sendMessage(message)) {
+    pendingFeedback.clear();
+    return true;
+  }
+  return false;
 }
 
 Future<bool> _sendMessage(Message message) async {
