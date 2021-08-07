@@ -15,6 +15,7 @@ import 'condition.dart';
 import 'fog_of_war.dart';
 import 'grid.dart';
 import 'log.dart';
+import 'initiative_tracker.dart';
 import 'map.dart';
 import 'measuring.dart';
 import 'movable.dart';
@@ -192,6 +193,8 @@ class Board {
     _initMouseControls();
     initDiceTable();
     initGameLog();
+    initInitiativeTracker();
+    _measureToggle.onClick.listen((_) => mode = MEASURE);
     measureMode = 0;
     _measureToggle.onClick.listen((ev) {
       var target = ev.target;

@@ -14,6 +14,13 @@
     box-sizing: border-box;
 }
 
+#initiativeBar{
+    //position: absolute;
+    flex-direction: row;
+    top: 16px;
+    justify-content: center;
+}
+
 #boardContainer {
     position: relative;
     overflow: hidden;
