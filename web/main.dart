@@ -36,6 +36,7 @@ void main() async {
   document.onDragOver.listen((e) => e.preventDefault());
   window.onPopState.listen((_) => window.location.reload());
 
+  _homeUrl = dirname(window.location.href);
   await home.init();
   processUrlPath();
 
@@ -56,7 +57,6 @@ Future<void> testFlow() async {
 }
 
 void processUrlPath() {
-  _homeUrl = dirname(window.location.href);
   if (window.location.href.contains('game')) {
     var gameId = window.location.pathname;
 
