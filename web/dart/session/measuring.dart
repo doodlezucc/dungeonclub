@@ -71,6 +71,10 @@ void sendCreationEvent(int type, Point origin) {
   socket.send(writer.takeBytes());
 }
 
+void removeMeasuring(int pc) {
+  _pcMeasurings.remove(pc)?.dispose();
+}
+
 void handleMeasuringEvent(Uint8List bytes) {
   var reader = BinaryReader.fromList(bytes)..readUInt8(); // Skip port byte
 
@@ -86,7 +90,7 @@ void handleMeasuringEvent(Uint8List bytes) {
     case 1:
       return _pcMeasurings[pc]?.handleUpdateEvent(reader);
     case 2:
-      return _pcMeasurings.remove(pc)?.dispose();
+      return removeMeasuring(pc);
   }
 }
 

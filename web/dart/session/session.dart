@@ -9,6 +9,7 @@ import '../panels/dialog.dart';
 import 'board.dart';
 import 'character.dart';
 import 'log.dart';
+import 'measuring.dart';
 import 'prefab_palette.dart';
 import 'scene.dart';
 
@@ -94,6 +95,7 @@ class Session extends Game {
         gameLog('$name joined the game.');
       } else {
         gameLog('$name left the game.');
+        removeMeasuring(id);
       }
     } else {
       if (!join) {
@@ -103,6 +105,7 @@ class Session extends Game {
               you'll return to the game.''')
           ..append(icon('spinner')..classes.add('spinner'))
           ..display();
+        removeMeasuring(255);
       } else {
         if (_dmDisconnectedDialog != null) {
           _dmDisconnectedDialog.close();
