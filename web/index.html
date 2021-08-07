@@ -110,6 +110,8 @@
 
         <section id="session">
             <div id="boardContainer">
+                <div class="controls" id="initiativeBar">
+                </div>
                 <div id="playerControls" class="controls no-edit">
                     <button class="icon dm" id="editScene">
                         Edit Scene
@@ -155,6 +157,10 @@
                     <button class="icon" id="openMap">
                         Map View
                         <i class="fas fa-map"></i>
+                    </button>
+                    <button class="icon dm" id="initiativeTracker">
+                        Initiative Tracker
+                        <i class="fas fa-sort-numeric-up-alt"></i>
                     </button>
                 </div>
                 <div id="sceneEditor" class="controls panel dm edit-only">
@@ -440,6 +446,13 @@
                 <p id="joinError"></p>
                 <button id="sendFeedback" class="big">Send</button>
             </div>
+        </div>
+
+        <div id="initiativeRoll" class="panel">
+            <p class="initiativeMod">Initiative Modifier: <input type="number" id="initiativeMod"></p>
+            <button class="initiativeRollButton">
+                <i class="fas fa-dice-d20"></i>
+            </button>
         </div>
 
         <div class="panel" id="editGamePanel">
