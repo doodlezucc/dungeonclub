@@ -691,6 +691,13 @@ class Board {
       }
     });
 
+    var keySub = window.onKeyDown.listen((ev) {
+      // Space
+      if (ev.keyCode == 32) {
+        m.addPoint(measureEnd);
+      }
+    });
+
     moveStream.listen((ev) {
       p = ev.p * (1 / scaledZoom);
       measureEnd = grid.offsetToGridSpaceUnscaled(
@@ -705,6 +712,7 @@ class Board {
       m.alignDistanceText(p);
       hasChanged = true;
     }, onDone: () {
+      keySub.cancel();
       syncTimer.cancel();
       m.dispose();
       m.sendRemovalEvent();
