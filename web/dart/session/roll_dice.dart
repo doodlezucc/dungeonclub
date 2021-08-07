@@ -7,8 +7,27 @@ import '../communication.dart';
 import 'log.dart';
 
 final TableElement _table = querySelector('table#dice');
+bool _visible = true;
+
+void _initVisibility() {
+  var button = _table.parent.querySelector('span');
+
+  void update() {
+    var icon = _visible ? 'eye' : 'eye-slash';
+    button.querySelector('i').className = 'fas fa-$icon';
+    button.querySelector('span').text = _visible ? 'All Players' : 'Only You';
+  }
+
+  button.onClick.listen((_) {
+    _visible = !_visible;
+    update();
+  });
+  update();
+}
 
 void initDiceTable() {
+  _initVisibility();
+
   var maxRolls = 5;
 
   [4, 6, 8, 10, 12, 20, 100].forEach((sides) {
@@ -31,6 +50,7 @@ Future<void> _rollDice(int sides, int repeat) async {
     'sides': sides,
     'repeat': repeat,
     'id': user.session.charId,
+    if (user.session.isDM) 'public': _visible,
   });
 
   onDiceRoll(results);

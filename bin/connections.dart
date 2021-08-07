@@ -395,6 +395,7 @@ class Connection extends Socket {
         int charId = params['id'];
         int sides = params['sides'];
         int repeat = params['repeat'];
+        bool public = params['public'] ?? true;
         if (sides == null || repeat == null || _game == null) return;
 
         var results = {
@@ -403,7 +404,7 @@ class Connection extends Socket {
           'id': charId,
         };
 
-        if (charId != null) {
+        if (public) {
           _game.notify(action, results, exclude: this, allScenes: true);
         }
         return results;

@@ -800,8 +800,24 @@ $ping-radius: 100px;
 #dice {
     border-collapse: collapse;
     background-color: var(--color-background);
+}
 
-    td {
+#diceTab {
+    z-index: 1;
+
+    .with-tooltip {
+        position: absolute;
+        bottom: calc(100% - 4px);
+        width: calc(100% - 8px);
+        border-bottom: none !important;
+        box-sizing: border-box;
+        background-color: var(--color-background);
+        display: flex;
+        gap: 4px;
+        align-items: center;
+    }
+
+    td, .with-tooltip {
         @extend %clickable;
         padding: 4px;
         min-width: 20px;
@@ -811,7 +827,6 @@ $ping-radius: 100px;
     }
 }
 
-#diceTab { z-index: 1; }
 #measureDistance {
     .toolbox {
         grid-auto-flow: column;
