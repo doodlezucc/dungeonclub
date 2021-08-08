@@ -17,8 +17,11 @@
 #initiativeBar {
     top: 16px;
 
-    &.hidden {
-        display: none;
+    &.hidden { display: none; }
+
+    .roster:empty::after {
+        content: "Waiting for players to roll...";
+        color: var(--color-note);
     }
 }
 

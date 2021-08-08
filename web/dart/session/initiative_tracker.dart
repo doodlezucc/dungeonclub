@@ -22,10 +22,11 @@ class InitiativeTracker {
 
   InitiativeSummary summary;
 
+  set showBar(bool v) => initiativeBar.classes.toggle('hidden', !v);
+
   void init() {
     callRollsButton.onClick.listen((event) {
       _trackerActive = callRollsButton.classes.toggle('active');
-      initiativeBar.classes.toggle('hidden', !_trackerActive);
 
       if (_trackerActive) {
         rollForInitiative();
@@ -41,8 +42,11 @@ class InitiativeTracker {
   }
 
   void rollForInitiative() {
-    clearInBar();
+    resetBar();
     socket.sendAction(GAME_ROLL_INITIATIVE);
+    // for (var i = 0; i < 15; i++) {
+    //   onRollAdd(i % 2, Random().nextInt(20));
+    // }
   }
 
   void randomResultInChat() {
@@ -79,14 +83,15 @@ class InitiativeTracker {
   }
 
   void showRollerPanel() {
-    clearInBar();
+    resetBar();
     panel.classes.add('show');
     overlayVisible = true;
   }
 
-  void clearInBar() {
+  void resetBar() {
     summary = InitiativeSummary();
     charContainer.children.clear();
+    showBar = true;
   }
 
   void addToInBar(Map<String, dynamic> json) {
@@ -96,9 +101,7 @@ class InitiativeTracker {
   }
 
   void outOfCombat() {
-    print('out of combat');
-
-    initiativeBar.classes.add('hidden');
+    showBar = false;
     if (panel.classes.remove('show')) overlayVisible = false;
   }
 }
@@ -107,10 +110,7 @@ class InitiativeSummary {
   List<int> totals = [];
 
   void registerRoll(Movable movable, int total) {
-    int index;
-    for (index = 0; index < totals.length; index++) {
-      if (totals[index] > total) break;
-    }
+    var index = totals.lastIndexWhere((other) => total <= other) + 1;
 
     totals.insert(index, total);
     print(totals);

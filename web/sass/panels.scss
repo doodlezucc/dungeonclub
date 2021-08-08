@@ -175,6 +175,7 @@
 
     .char {
         @extend %responsive;
+        cursor: pointer;
         width: 80px;
 
         img { height: 80px; }
