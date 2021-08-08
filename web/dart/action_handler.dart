@@ -80,12 +80,10 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session?.onKick(params['reason']);
 
     case GAME_ROLL_INITIATIVE:
-      showRollerPanel();
-      return Null;
+      return showRollerPanel();
 
     case GAME_ADD_INITIATIVE:
-      addToInBar(params);
-      return Null;
+      return addToInBar(params);
 
     case MAINTENANCE:
       return user.onMaintenanceScheduled(params);
