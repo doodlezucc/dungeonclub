@@ -110,7 +110,9 @@
 
         <section id="session">
             <div id="boardContainer">
-                <div class="controls" id="initiativeBar">
+                <div id="initiativeBar" class="controls panel hidden no-edit">
+                    <span>uhm hell ye</span>
+                    <div class="roster"></div>
                 </div>
                 <div id="playerControls" class="controls no-edit">
                     <button class="icon dm" id="editScene">
@@ -158,8 +160,8 @@
                         Map View
                         <i class="fas fa-map"></i>
                     </button>
-                    <button class="icon dm" id="initiativeTracker">
-                        Initiative Tracker
+                    <button class="icon dm toggle" id="initiativeTracker">
+                        Roll Initiative
                         <i class="fas fa-sort-numeric-up-alt"></i>
                     </button>
                 </div>
@@ -448,9 +450,9 @@
             </div>
         </div>
 
-        <div id="initiativeRoll" class="panel">
-            <p class="initiativeMod">Initiative Modifier: <input type="number" id="initiativeMod"></p>
-            <button class="initiativeRollButton">
+        <div class="panel" id="initiativePanel">
+            <p>Initiative Modifier: <input type="number" id="initiativeMod" value="0"></p>
+            <button id="initiativeRoll">
                 <i class="fas fa-dice-d20"></i>
             </button>
         </div>

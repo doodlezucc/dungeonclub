@@ -4,7 +4,6 @@ import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/point_json.dart';
 
 import '../main.dart';
-import 'session/initiative_tracker.dart';
 import 'session/log.dart';
 import 'session/prefab_palette.dart';
 import 'session/roll_dice.dart';
@@ -80,10 +79,13 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session?.onKick(params['reason']);
 
     case GAME_ROLL_INITIATIVE:
-      return showRollerPanel();
+      return user.session?.board?.initiativeTracker?.showRollerPanel();
 
     case GAME_ADD_INITIATIVE:
-      return addToInBar(params);
+      return user.session?.board?.initiativeTracker?.addToInBar(params);
+
+    case GAME_CLEAR_INITIATIVE:
+      return user.session?.board?.initiativeTracker?.outOfCombat();
 
     case MAINTENANCE:
       return user.onMaintenanceScheduled(params);

@@ -41,6 +41,7 @@ const GAME_MAP_REMOVE = 'gameMapRemove';
 
 const GAME_ROLL_INITIATIVE = 'gameRollInitiative';
 const GAME_ADD_INITIATIVE = 'gameAddInitiative';
+const GAME_CLEAR_INITIATIVE = 'gameClearInitiative';
 
 const IMAGE_TYPE_PC = 'pc';
 const IMAGE_TYPE_SCENE = 'scene';

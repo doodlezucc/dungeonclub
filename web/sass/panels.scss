@@ -165,14 +165,6 @@
     }
 }
 
-
-#closeButton{
-    position: absolute;
-    right: 3px;
-    top: 3px;
-}
-
-
 #charPick {
     max-width: 70%;
     align-items: center;
@@ -183,20 +175,9 @@
 
     .char {
         @extend %responsive;
-        display: flex;
-        flex-direction: column;
-        text-align: center;
-        align-items: center;
-        cursor: pointer;
-        transition-duration: 0.1s;
         width: 80px;
 
-        img {
-            height: 80px;
-            border-radius: 6px;
-            box-shadow: 0 0 2px var(--color-text-primary);
-            box-sizing: border-box;
-        }
+        img { height: 80px; }
 
         &.reserved {
             pointer-events: none;

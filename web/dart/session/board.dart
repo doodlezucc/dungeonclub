@@ -52,6 +52,7 @@ class Board {
   final movables = <Movable>[];
   final selected = <Movable>{};
   final fogOfWar = FogOfWar();
+  final initiativeTracker = InitiativeTracker();
   List<Movable> clipboard = [];
 
   static const PAN = 'pan';
@@ -193,8 +194,7 @@ class Board {
     _initMouseControls();
     initDiceTable();
     initGameLog();
-    initInitiativeTracker();
-    _measureToggle.onClick.listen((_) => mode = MEASURE);
+    initiativeTracker.init();
     measureMode = 0;
     _measureToggle.onClick.listen((ev) {
       var target = ev.target;

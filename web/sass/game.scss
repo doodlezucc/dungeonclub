@@ -14,11 +14,12 @@
     box-sizing: border-box;
 }
 
-#initiativeBar{
-    //position: absolute;
-    flex-direction: row;
+#initiativeBar {
     top: 16px;
-    justify-content: center;
+
+    &.hidden {
+        display: none;
+    }
 }
 
 #boardContainer {
