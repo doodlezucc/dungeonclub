@@ -29,7 +29,6 @@
     position: relative;
     overflow: hidden;
     user-select: none;
-    min-height: 500px;
     box-sizing: border-box;
 
     > .controls {
@@ -619,6 +618,10 @@
     padding: 8px 12px;
     text-shadow: 0 0 3px #000,
                  0 0 8px #000a;
+
+    &:empty {
+        display: none;
+    }
 }
 
 #grid {
