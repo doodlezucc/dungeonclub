@@ -29,7 +29,7 @@ class Account {
   }
 
   Future displayPickCharacterDialog(String name) async {
-    var notif = HtmlNotification('<b>$name</b> wants to join');
+    var notif = HtmlNotification('<b>$name</b> wants to join.');
     document.title = '$name wants to join | $appName';
 
     var letIn = await notif.prompt();
@@ -43,8 +43,8 @@ class Account {
     var available = chars.where((c) => !c.hasJoined);
 
     if (available.isEmpty) {
-      print('Every available character is already assigned!');
-      return null;
+      return HtmlNotification('Every available character is already assigned!')
+          .display();
     }
     if (available.length == 1) {
       return available.first.id;

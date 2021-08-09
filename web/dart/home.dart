@@ -31,7 +31,7 @@ Future<void> init() {
     }
 
     if (_gamesContainer.children.length > 10) {
-      return HtmlNotification('Limit of 10 campaigns reached!').display();
+      return HtmlNotification('Limit of 10 campaigns reached.').display();
     }
 
     var game = await user.account.createNewGame();
