@@ -361,6 +361,24 @@ input {
     input[type=checkbox] { --brightness: 1.4; }
 }
 
+.step-input {
+    display: flex;
+    justify-content: space-between;
+    width: 80px;
+    height: 24px;
+
+    i {
+        align-self: center;
+        border-radius: 4px;
+        font-size: 14px;
+        padding: 4px;
+        cursor: pointer;
+
+        &:hover { background-color: var(--color-button-hover); }
+        &:active { background-color: var(--color-button-active); }
+    }
+}
+
 select {
     font-family: inherit;
     font-size: inherit;
@@ -437,6 +455,13 @@ li {
     100% { transform: none; opacity: 1; }
 }
 
+@mixin center-background {
+    background-size: cover;
+    background-origin: border-box;
+    background-position: center;
+    background-clip: content-box;
+}
+
 .roster {
     display: flex;
     flex-wrap: wrap;
@@ -452,7 +477,9 @@ li {
         transition-duration: 0.1s;
         width: 48px;
 
-        img {
+        img, div {
+            @include center-background;
+            width: 100%;
             height: 48px;
             border-radius: 6px;
             box-shadow: 0 0 2px var(--color-text-primary);
@@ -513,13 +540,6 @@ li {
     position: absolute;
     right: 4px;
     top: 4px;
-}
-
-@mixin center-background {
-    background-size: cover;
-    background-origin: border-box;
-    background-position: center;
-    background-clip: content-box;
 }
 
 %vertical {

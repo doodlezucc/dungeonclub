@@ -87,6 +87,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_CLEAR_INITIATIVE:
       return user.session?.board?.initiativeTracker?.outOfCombat();
 
+    case GAME_UPDATE_INITIATIVE:
+      return user.session?.board?.initiativeTracker?.onUpdate(params);
+
     case MAINTENANCE:
       return user.onMaintenanceScheduled(params);
   }

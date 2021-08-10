@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 import 'dart:math';
 
@@ -5,22 +6,25 @@ import 'package:dnd_interactive/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../font_awesome.dart';
 import '../panels/panel_overlay.dart';
-import 'log.dart';
 import 'movable.dart';
 import 'prefab.dart';
 
 HtmlElement get initiativeBar => querySelector('#initiativeBar');
 HtmlElement get charContainer => initiativeBar.querySelector('.roster');
+InitiativeSummary _summary;
 
 class InitiativeTracker {
+  final rng = Random();
+
   bool _trackerActive = false;
   ButtonElement get callRollsButton => querySelector('#initiativeTracker');
-  InputElement get initiativeModInput => querySelector('#initiativeMod');
+  SpanElement get initiativeDice => querySelector('#initiativeDice');
   ButtonElement get userRollButton => querySelector('#initiativeRoll');
   HtmlElement get panel => querySelector('#initiativePanel');
 
-  InitiativeSummary summary;
+  Timer diceAnim;
 
   set showBar(bool v) => initiativeBar.classes.toggle('hidden', !v);
 
@@ -37,7 +41,7 @@ class InitiativeTracker {
     });
 
     userRollButton.onClick.listen((event) {
-      randomResultInChat();
+      rollDice();
     });
   }
 
@@ -49,25 +53,19 @@ class InitiativeTracker {
     // }
   }
 
-  void randomResultInChat() {
-    var value = initiativeModInput.valueAsNumber;
-    print(value);
-    if (!value.isFinite) return;
-
-    var mod = value.toInt();
+  void rollDice() {
+    diceAnim?.cancel();
     var r = Random().nextInt(20) + 1;
-    var total = r + mod;
-
-    gameLog('''You rolled $r with an initiative modifier of
-          $mod for a total of $total for initiative.''', mine: true);
-
-    panel.classes.remove('show');
-    overlayVisible = false;
+    initiativeDice.text = '$r';
 
     var pc = user.session.charId;
+    onRollAdd(pc, r);
+    socket.sendAction(GAME_ADD_INITIATIVE, {'id': pc, 'roll': r});
 
-    onRollAdd(pc, total);
-    socket.sendAction(GAME_ADD_INITIATIVE, {'id': pc, 'total': total});
+    Future.delayed(Duration(milliseconds: 500), () {
+      panel.classes.remove('show');
+      overlayVisible = false;
+    });
   }
 
   void onRollAdd(int pc, int total) {
@@ -79,24 +77,30 @@ class InitiativeTracker {
       return false;
     });
 
-    summary.registerRoll(movable, total);
+    _summary.registerRoll(movable, total);
   }
 
   void showRollerPanel() {
     resetBar();
+    diceAnim?.cancel();
+
+    diceAnim = Timer.periodic(Duration(milliseconds: 50), (_) {
+      initiativeDice.text = '${rng.nextInt(20) + 1}';
+    });
+
     panel.classes.add('show');
     overlayVisible = true;
   }
 
   void resetBar() {
-    summary = InitiativeSummary();
+    _summary = InitiativeSummary();
     charContainer.children.clear();
     showBar = true;
   }
 
   void addToInBar(Map<String, dynamic> json) {
     int id = json['id'];
-    int total = json['total'];
+    int total = json['roll'];
     onRollAdd(id, total);
   }
 
@@ -104,22 +108,99 @@ class InitiativeTracker {
     showBar = false;
     if (panel.classes.remove('show')) overlayVisible = false;
   }
+
+  void onUpdate(Map<String, dynamic> json) {
+    int id = json['id'];
+    int mod = json['mod'];
+    for (var entry in _summary.entries) {
+      if (entry.movable.id == id) {
+        entry.modifier = mod;
+        _summary.sort();
+      }
+    }
+  }
 }
 
 class InitiativeSummary {
-  List<int> totals = [];
+  List<InitiativeEntry> entries = [];
 
-  void registerRoll(Movable movable, int total) {
-    var index = totals.lastIndexWhere((other) => total <= other) + 1;
+  void registerRoll(Movable movable, int base) {
+    var index = entries.lastIndexWhere((other) => base <= other.total) + 1;
 
-    totals.insert(index, total);
-    print(totals);
+    var entry = InitiativeEntry(movable, base);
+    entries.insert(index, entry);
 
-    var elem = DivElement()
+    charContainer.children.insert(index, entry.e);
+  }
+
+  void sort() {
+    for (var n = entries.length; n > 1; --n) {
+      for (var i = 0; i < n - 1; ++i) {
+        var a = entries[i];
+        var b = entries[i + 1];
+
+        if (a.total < b.total) {
+          charContainer.insertBefore(b.e, a.e);
+
+          entries[i] = b;
+          entries[i + 1] = a;
+        }
+      }
+    }
+  }
+}
+
+class InitiativeEntry {
+  final e = DivElement();
+  final modText = SpanElement();
+  final totalText = SpanElement();
+  final Movable movable;
+  final int base;
+
+  int get total => base + modifier;
+
+  int _modifier;
+  int get modifier => _modifier;
+  set modifier(int modifier) {
+    _modifier = modifier;
+    modText.text = (modifier >= 0 ? '+$modifier' : '$modifier');
+    totalText.text = '$total';
+  }
+
+  InitiativeEntry(this.movable, this.base) {
+    int _bufferedModifier;
+
+    var img = movable.prefab.img(cacheBreak: false);
+    e
       ..className = 'char'
-      ..append(ImageElement(src: movable.prefab.img(cacheBreak: false)))
-      ..append(SpanElement()..text = movable.prefab.name);
+      ..append(SpanElement()
+        ..className = 'step-input'
+        ..append(icon('minus')..onClick.listen((_) => modifier--))
+        ..append(modText)
+        ..append(icon('plus')..onClick.listen((_) => modifier++)))
+      ..append(DivElement()
+        ..style.backgroundImage = 'url($img)'
+        ..append(totalText))
+      ..append(SpanElement()..text = movable.prefab.name)
+      ..onMouseEnter.listen((_) {
+        movable.e.classes.add('hovered');
+        _bufferedModifier = modifier;
+      })
+      ..onMouseLeave.listen((_) {
+        movable.e.classes.remove('hovered');
+        if (modifier != _bufferedModifier) {
+          _summary.sort();
+          sendUpdate();
+        }
+      });
 
-    charContainer.children.insert(index, elem);
+    modifier = 0;
+  }
+
+  void sendUpdate() {
+    socket.sendAction(GAME_UPDATE_INITIATIVE, {
+      'id': movable.id,
+      'mod': modifier,
+    });
   }
 }

@@ -375,43 +375,16 @@ class Board {
     InputElement input, {
     @required void Function(Movable m, String value) onChange,
   }) {
-    String startValue;
-    String typedValue;
     Movable bufferedMovable;
-
-    void update() async {
-      if (startValue != typedValue) {
-        startValue = typedValue;
-        onChange(bufferedMovable, typedValue);
-        await socket.sendAction(
-          a.GAME_MOVABLE_UPDATE,
-          bufferedMovable.toJson(),
-        );
-      }
-    }
-
-    void onFocus() {
-      startValue = input.value;
-      bufferedMovable = activeMovable;
-      typedValue = input.value;
-    }
-
-    input.onMouseDown.listen((_) {
-      // Firefox number inputs can trigger onInput without being focused
-      var isFocused = document.activeElement == input;
-      if (!isFocused) {
-        input.focus();
-        onFocus();
-      }
-    });
-
-    input.onFocus.listen((_) => onFocus());
-    input.onInput.listen((_) {
-      typedValue = input.value;
-      onChange(bufferedMovable, typedValue);
-    });
-    input.onBlur.listen((_) => update());
-    input.onChange.listen((_) => update());
+    listenLazyUpdate(
+      input,
+      onFocus: () => bufferedMovable = activeMovable,
+      onChange: (value) => onChange(bufferedMovable, value),
+      onSubmit: (value) => socket.sendAction(
+        a.GAME_MOVABLE_UPDATE,
+        bufferedMovable.toJson(),
+      ),
+    );
   }
 
   void _initMouseControls() {
@@ -962,4 +935,45 @@ class SimpleEvent {
   final int button;
 
   SimpleEvent(this.p, this.movement, this.shift, this.ctrl, this.button);
+}
+
+void listenLazyUpdate(
+  InputElement input, {
+  @required void Function(String s) onChange,
+  @required void Function(String s) onSubmit,
+  @required void Function() onFocus,
+}) {
+  String startValue;
+  String typedValue;
+
+  void update() {
+    if (startValue != typedValue) {
+      startValue = typedValue;
+      onChange(typedValue);
+      onSubmit(typedValue);
+    }
+  }
+
+  void onFoc() {
+    startValue = input.value;
+    onFocus();
+    typedValue = input.value;
+  }
+
+  input.onMouseDown.listen((_) {
+    // Firefox number inputs can trigger onInput without being focused
+    var isFocused = document.activeElement == input;
+    if (!isFocused) {
+      input.focus();
+      onFoc();
+    }
+  });
+
+  input.onFocus.listen((_) => onFoc());
+  input.onInput.listen((_) {
+    typedValue = input.value;
+    onChange(typedValue);
+  });
+  input.onBlur.listen((_) => update());
+  input.onChange.listen((_) => update());
 }

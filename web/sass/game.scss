@@ -14,10 +14,45 @@
     box-sizing: border-box;
 }
 
+#initiativePanel {
+    > span {
+        font-size: 20px;
+    }
+}
+
 #initiativeBar {
     top: 16px;
 
     &.hidden { display: none; }
+
+    .char {
+        &:not(:hover) {
+            .step-input { pointer-events: none; }
+            i { opacity: 0; }
+        }
+
+        &:hover {
+            > .step-input {
+                background-color: var(--color-background);
+            }
+        }
+
+        > .step-input { margin-bottom: 4px; }
+
+        > div {
+            overflow: hidden;
+    
+            > span {
+                width: 100%;
+                height: 100%;
+                font-size: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #0005;
+            }
+        }
+    }
 
     .roster:empty::after {
         content: "Waiting for players to roll...";
@@ -446,6 +481,12 @@
             border-width: 3px;
             border-color: white;
             box-shadow: 0 0 8px #0008 inset;
+        }
+
+        .step-input {
+            background-color: transparent !important;
+
+            i { visibility: hidden; }
         }
     }
 

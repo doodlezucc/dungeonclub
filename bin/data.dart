@@ -451,16 +451,21 @@ class GameMap {
 class PlayerCharacter {
   Connection connection;
   String name;
+  int initiativeMod;
   final CharacterPrefab prefab;
 
-  PlayerCharacter(this.name) : prefab = CharacterPrefab();
+  PlayerCharacter(this.name)
+      : prefab = CharacterPrefab(),
+        initiativeMod = 0;
   PlayerCharacter.fromJson(Map<String, dynamic> json)
       : name = json['name'],
-        prefab = CharacterPrefab()..fromJson(json['prefab'] ?? {});
+        prefab = CharacterPrefab()..fromJson(json['prefab'] ?? {}),
+        initiativeMod = json['mod'] ?? 0;
 
   Map<String, dynamic> toJson({bool includeStatus = false}) => {
         'name': name,
         'prefab': prefab.toJson(),
+        'mod': initiativeMod,
         if (includeStatus) 'connected': connection != null,
       };
 }

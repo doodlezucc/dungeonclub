@@ -472,6 +472,7 @@ class Connection extends Socket {
       case a.GAME_ROLL_INITIATIVE:
       case a.GAME_ADD_INITIATIVE:
       case a.GAME_CLEAR_INITIATIVE:
+      case a.GAME_UPDATE_INITIATIVE:
         return _game.notify(action, params, exclude: this, allScenes: true);
     }
   }
