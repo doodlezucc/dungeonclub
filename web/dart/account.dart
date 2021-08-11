@@ -10,6 +10,8 @@ import 'panels/panel_overlay.dart';
 class Account {
   final String email;
   final List<Game> games;
+  final _joinStream = StreamController<bool>();
+  bool _lockJoin = false;
 
   Account(Map<String, dynamic> json)
       : email = json['email'],
@@ -37,6 +39,11 @@ class Account {
 
     if (!letIn) return null;
 
+    if (_lockJoin) {
+      await _joinStream.stream.first;
+    }
+
+    _lockJoin = true;
     var completer = Completer<int>();
     var chars = user.session.characters;
 
@@ -72,6 +79,9 @@ class Account {
 
     overlayVisible = false;
     parent.classes.remove('show');
+
+    _lockJoin = false;
+    _joinStream.add(true);
     return result;
   }
 }
