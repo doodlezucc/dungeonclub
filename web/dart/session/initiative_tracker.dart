@@ -20,14 +20,16 @@ class InitiativeTracker {
   final rng = Random();
 
   bool _trackerActive = false;
+  Timer diceAnim;
+
   ButtonElement get callRollsButton => querySelector('#initiativeTracker');
   SpanElement get initiativeDice => querySelector('#initiativeDice');
+  SpanElement get targetText => querySelector('#initiativeTarget');
   ButtonElement get userRollButton => querySelector('#initiativeRoll');
   HtmlElement get panel => querySelector('#initiativePanel');
 
-  Timer diceAnim;
-
   set showBar(bool v) => initiativeBar.classes.toggle('hidden', !v);
+  set disabled(bool disabled) => callRollsButton.disabled = disabled;
 
   void init() {
     callRollsButton.onClick.listen((event) {
@@ -56,38 +58,53 @@ class InitiativeTracker {
 
   void rollDice() {
     diceAnim?.cancel();
-    var r = Random().nextInt(20) + 1;
+    var r = rng.nextInt(20) + 1;
     initiativeDice.text = '$r';
 
-    var pc = user.session.charId;
-    onRollAdd(pc, r);
-    socket.sendAction(GAME_ADD_INITIATIVE, {'id': pc, 'roll': r});
+    var movable = _summary.mine.removeAt(0);
+
+    _summary.registerRoll(movable, r);
+    socket.sendAction(GAME_ADD_INITIATIVE, {'id': movable.id, 'roll': r});
 
     Future.delayed(Duration(milliseconds: 500), () {
       panel.classes.remove('show');
       overlayVisible = false;
+      nextRoll();
     });
   }
 
-  void onRollAdd(int pc, int total) {
-    var movable = user.session.board.movables.firstWhere((m) {
-      var pref = m.prefab;
-      if (pref is CharacterPrefab) {
-        return pref.character.id == pc;
+  void onRollAdd(int mov, int base) {
+    for (var movable in user.session.board.movables) {
+      if (mov == movable.id) {
+        return _summary.registerRoll(movable, base);
       }
-      return false;
-    });
-
-    _summary.registerRoll(movable, total);
+    }
   }
 
   void showRollerPanel() {
     resetBar();
+    nextRoll();
+  }
+
+  void nextRoll() {
+    if (_summary.mine.isEmpty) return;
+
     diceAnim?.cancel();
 
+    var roll = -1;
     diceAnim = Timer.periodic(Duration(milliseconds: 50), (_) {
-      initiativeDice.text = '${rng.nextInt(20) + 1}';
+      int r;
+      do {
+        r = rng.nextInt(20) + 1;
+      } while (r == roll);
+
+      roll = r;
+      initiativeDice.text = '$r';
     });
+
+    var movable = _summary.mine.first;
+    var name = movable is EmptyMovable ? movable.label : movable.prefab.name;
+    targetText.innerHtml = "<b>$name</b>'s Initiative";
 
     panel.classes.add('show');
     overlayVisible = true;
@@ -123,7 +140,21 @@ class InitiativeTracker {
 }
 
 class InitiativeSummary {
+  List<Movable> mine;
   List<InitiativeEntry> entries = [];
+
+  InitiativeSummary() {
+    mine = user.session.board.movables.where((m) {
+      if (!m.accessible) return false;
+
+      var prefab = m.prefab;
+      if (prefab is CustomPrefab) {
+        return prefab.accessIds.length == 1;
+      }
+
+      return true;
+    }).toList();
+  }
 
   void registerRoll(Movable movable, int base) {
     var index = entries.lastIndexWhere((other) => base <= other.total) + 1;
