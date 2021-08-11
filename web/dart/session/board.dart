@@ -59,10 +59,13 @@ class Board {
   static const MEASURE = 'measure';
   static const FOG_OF_WAR = 'fow';
 
-  set showInactiveSceneWarning(bool v) => _container
-      .querySelector('#inactiveSceneWarning')
-      .classes
-      .toggle('hidden', !v);
+  set showInactiveSceneWarning(bool v) {
+    initiativeTracker.disabled = v;
+    _container
+        .querySelector('#inactiveSceneWarning')
+        .classes
+        .toggle('hidden', !v);
+  }
 
   bool get editingGrid => _container.classes.contains('edit');
   set editingGrid(bool v) {

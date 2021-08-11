@@ -73,10 +73,12 @@ class InitiativeTracker {
     });
   }
 
-  void onRollAdd(int mov, int base) {
+  void addToInBar(Map<String, dynamic> json) {
+    int id = json['id'];
+    int total = json['roll'];
     for (var movable in user.session.board.movables) {
-      if (mov == movable.id) {
-        return _summary.registerRoll(movable, base);
+      if (id == movable.id) {
+        return _summary.registerRoll(movable, total);
       }
     }
   }
@@ -114,12 +116,6 @@ class InitiativeTracker {
     _summary = InitiativeSummary();
     charContainer.children.clear();
     showBar = true;
-  }
-
-  void addToInBar(Map<String, dynamic> json) {
-    int id = json['id'];
-    int total = json['roll'];
-    onRollAdd(id, total);
   }
 
   void outOfCombat() {
