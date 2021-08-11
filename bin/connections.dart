@@ -469,10 +469,17 @@ class Connection extends Socket {
         ));
         return true;
 
+      case a.GAME_UPDATE_INITIATIVE:
+        int pc = params['pc'];
+        if (pc != null) {
+          _game.characters.elementAt(pc).initiativeMod = params['mod'];
+        }
+        continue notify;
+
+      notify:
       case a.GAME_ROLL_INITIATIVE:
       case a.GAME_ADD_INITIATIVE:
       case a.GAME_CLEAR_INITIATIVE:
-      case a.GAME_UPDATE_INITIATIVE:
         return _game.notify(action, params, exclude: this, allScenes: true);
     }
   }

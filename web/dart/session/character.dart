@@ -10,6 +10,7 @@ class Character {
   final String name;
   final int id;
   final CharacterPrefab prefab;
+  int defaultModifier;
 
   final HtmlElement _onlineIndicator;
   bool _hasJoined = false;
@@ -28,6 +29,7 @@ class Character {
 
   Character(this.id, String color, Map<String, dynamic> json)
       : name = json['name'],
+        defaultModifier = json['mod'],
         prefab = CharacterPrefab(),
         _onlineIndicator = SpanElement() {
     _onlineIndicator

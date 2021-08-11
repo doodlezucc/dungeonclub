@@ -8,6 +8,7 @@ import '../../main.dart';
 import '../communication.dart';
 import '../font_awesome.dart';
 import '../panels/panel_overlay.dart';
+import 'character.dart';
 import 'movable.dart';
 import 'prefab.dart';
 
@@ -157,6 +158,9 @@ class InitiativeEntry {
   final Movable movable;
   final int base;
 
+  bool get isChar => movable.prefab is CharacterPrefab;
+  Character get char =>
+      isChar ? (movable.prefab as CharacterPrefab).character : null;
   int get total => base + modifier;
 
   int _modifier;
@@ -165,6 +169,8 @@ class InitiativeEntry {
     _modifier = modifier;
     modText.text = (modifier >= 0 ? '+$modifier' : '$modifier');
     totalText.text = '$total';
+
+    char?.defaultModifier = modifier;
   }
 
   InitiativeEntry(this.movable, this.base) {
@@ -194,13 +200,14 @@ class InitiativeEntry {
         }
       });
 
-    modifier = 0;
+    modifier = char?.defaultModifier ?? 0;
   }
 
   void sendUpdate() {
     socket.sendAction(GAME_UPDATE_INITIATIVE, {
       'id': movable.id,
       'mod': modifier,
+      if (isChar) 'pc': char.id,
     });
   }
 }
