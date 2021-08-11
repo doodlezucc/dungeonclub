@@ -197,7 +197,7 @@ class Board {
     _initMouseControls();
     initDiceTable();
     initGameLog();
-    initiativeTracker.init();
+    initiativeTracker.init(session.isDM);
     measureMode = 0;
     _measureToggle.onClick.listen((ev) {
       var target = ev.target;

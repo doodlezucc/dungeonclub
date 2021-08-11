@@ -17,6 +17,8 @@ class Movable extends EntityBase {
   final Set<int> _conds = {};
   Iterable<int> get conds => _conds;
 
+  String get name => prefab.name;
+
   bool get accessible {
     if (board.session.isDM) return true;
 
@@ -183,6 +185,9 @@ class EmptyMovable extends Movable {
     var length = lines.fold(0, (len, line) => math.max<int>(len, line.length));
     _labelSpan.style.setProperty('--length', '${length + 1}');
   }
+
+  @override
+  String get name => label;
 
   EmptyMovable._({
     @required Board board,

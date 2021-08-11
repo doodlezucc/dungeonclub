@@ -26,34 +26,48 @@ class InitiativeTracker {
   SpanElement get initiativeDice => querySelector('#initiativeDice');
   SpanElement get targetText => querySelector('#initiativeTarget');
   ButtonElement get userRollButton => querySelector('#initiativeRoll');
+  ButtonElement get skipButton => querySelector('#initiativeSkip');
   HtmlElement get panel => querySelector('#initiativePanel');
 
   set showBar(bool v) => initiativeBar.classes.toggle('hidden', !v);
   set disabled(bool disabled) => callRollsButton.disabled = disabled;
 
-  void init() {
-    callRollsButton.onClick.listen((event) {
+  void init(bool isDM) {
+    callRollsButton.onClick.listen((_) {
       _trackerActive = callRollsButton.classes.toggle('active');
 
       if (_trackerActive) {
-        rollForInitiative();
+        sendRollForInitiative();
       } else {
         outOfCombat();
         socket.sendAction(GAME_CLEAR_INITIATIVE);
       }
     });
 
-    userRollButton.onClick.listen((event) {
-      rollDice();
-    });
+    userRollButton.onClick.listen((_) => rollDice());
+    skipButton.classes.toggle('hidden', !isDM);
+    if (isDM) {
+      skipButton.onClick.listen((_) {
+        _summary.mine.removeAt(0);
+        nextRoll();
+      });
+    }
   }
 
-  void rollForInitiative() {
+  void sendRollForInitiative() {
     resetBar();
     socket.sendAction(GAME_ROLL_INITIATIVE);
-    // for (var i = 0; i < 15; i++) {
-    //   onRollAdd(i % 2, Random().nextInt(20));
-    // }
+    _summary.mine = user.session.board.movables.where((m) {
+      var prefab = m.prefab;
+      if (prefab is CharacterPrefab) {
+        return !prefab.character.hasJoined;
+      }
+      if (prefab is CustomPrefab) {
+        return prefab.accessIds.length != 1;
+      }
+      return true;
+    }).toList();
+    nextRoll();
   }
 
   void rollDice() {
@@ -62,13 +76,19 @@ class InitiativeTracker {
     initiativeDice.text = '$r';
 
     var movable = _summary.mine.removeAt(0);
+    var prefab = movable.prefab;
+    var dmOnly = user.session.isDM &&
+        (prefab is EmptyPrefab ||
+            (prefab is CustomPrefab && prefab.accessIds.isNotEmpty));
 
-    _summary.registerRoll(movable, r);
-    socket.sendAction(GAME_ADD_INITIATIVE, {'id': movable.id, 'roll': r});
+    _summary.registerRoll(movable, r, dmOnly);
+    if (!dmOnly) {
+      socket.sendAction(GAME_ADD_INITIATIVE, {'id': movable.id, 'roll': r});
+    }
+
+    skipButton.disabled = userRollButton.disabled = true;
 
     Future.delayed(Duration(milliseconds: 500), () {
-      panel.classes.remove('show');
-      overlayVisible = false;
       nextRoll();
     });
   }
@@ -78,7 +98,7 @@ class InitiativeTracker {
     int total = json['roll'];
     for (var movable in user.session.board.movables) {
       if (id == movable.id) {
-        return _summary.registerRoll(movable, total);
+        return _summary.registerRoll(movable, total, false);
       }
     }
   }
@@ -89,7 +109,10 @@ class InitiativeTracker {
   }
 
   void nextRoll() {
-    if (_summary.mine.isEmpty) return;
+    if (_summary.mine.isEmpty) {
+      if (panel.classes.remove('show')) overlayVisible = false;
+      return;
+    }
 
     diceAnim?.cancel();
 
@@ -104,12 +127,11 @@ class InitiativeTracker {
       initiativeDice.text = '$r';
     });
 
-    var movable = _summary.mine.first;
-    var name = movable is EmptyMovable ? movable.label : movable.prefab.name;
+    var name = _summary.mine.first.name;
     targetText.innerHtml = "<b>$name</b>'s Initiative";
 
-    panel.classes.add('show');
-    overlayVisible = true;
+    if (panel.classes.add('show')) overlayVisible = true;
+    skipButton.disabled = userRollButton.disabled = false;
   }
 
   void resetBar() {
@@ -152,13 +174,11 @@ class InitiativeSummary {
     }).toList();
   }
 
-  void registerRoll(Movable movable, int base) {
-    var index = entries.lastIndexWhere((other) => base <= other.total) + 1;
-
-    var entry = InitiativeEntry(movable, base);
-    entries.insert(index, entry);
-
-    charContainer.children.insert(index, entry.e);
+  void registerRoll(Movable movable, int base, bool dmOnly) {
+    var entry = InitiativeEntry(movable, base, dmOnly);
+    entries.add(entry);
+    charContainer.append(entry.e);
+    sort();
   }
 
   void sort() {
@@ -184,6 +204,7 @@ class InitiativeEntry {
   final totalText = SpanElement();
   final Movable movable;
   final int base;
+  final bool dmOnly;
 
   bool get isChar => movable.prefab is CharacterPrefab;
   Character get char =>
@@ -200,7 +221,7 @@ class InitiativeEntry {
     char?.defaultModifier = modifier;
   }
 
-  InitiativeEntry(this.movable, this.base) {
+  InitiativeEntry(this.movable, this.base, this.dmOnly) {
     int _bufferedModifier;
 
     var img = movable.prefab.img(cacheBreak: false);
@@ -214,7 +235,7 @@ class InitiativeEntry {
       ..append(DivElement()
         ..style.backgroundImage = 'url($img)'
         ..append(totalText))
-      ..append(SpanElement()..text = movable.prefab.name)
+      ..append(SpanElement()..text = movable.name)
       ..onMouseEnter.listen((_) {
         movable.e.classes.add('hovered');
         _bufferedModifier = modifier;
@@ -231,10 +252,12 @@ class InitiativeEntry {
   }
 
   void sendUpdate() {
-    socket.sendAction(GAME_UPDATE_INITIATIVE, {
-      'id': movable.id,
-      'mod': modifier,
-      if (isChar) 'pc': char.id,
-    });
+    if (!dmOnly) {
+      socket.sendAction(GAME_UPDATE_INITIATIVE, {
+        'id': movable.id,
+        'mod': modifier,
+        if (isChar) 'pc': char.id,
+      });
+    }
   }
 }
