@@ -10,7 +10,8 @@ import 'condition.dart';
 import 'prefab.dart';
 
 class Movable extends EntityBase {
-  final HtmlElement e;
+  final e = DivElement();
+  final _aura = DivElement();
   final Board board;
   final Prefab prefab;
   final int id;
@@ -30,6 +31,14 @@ class Movable extends EntityBase {
       return (prefab as CustomPrefab).accessIds.contains(charId);
     }
     return false;
+  }
+
+  double _auraRadius;
+  double get auraRadius => _auraRadius;
+  set auraRadius(double auraRadius) {
+    _auraRadius = auraRadius;
+    _aura.style.display = auraRadius == 0 ? 'none' : '';
+    _aura.style.setProperty('--aura', '$auraRadius');
   }
 
   Point _position;
@@ -55,10 +64,14 @@ class Movable extends EntityBase {
     @required this.id,
     @required Point pos,
     @required Iterable<int> conds,
-  }) : e = DivElement()
-          ..className = 'movable'
-          ..append(DivElement()..className = 'conds')
-          ..append(DivElement()..className = 'ring') {
+  }) {
+    e
+      ..className = 'movable'
+      ..append(_aura..className = 'aura')
+      ..append(DivElement()..className = 'ring')
+      ..append(DivElement()..className = 'img')
+      ..append(DivElement()..className = 'conds');
+
     prefab.movables.add(this);
     onImageChange(prefab.img(cacheBreak: false));
     position = pos ?? Point(0, 0);
@@ -96,7 +109,7 @@ class Movable extends EntityBase {
   }
 
   void onImageChange(String img) {
-    e.style.backgroundImage = 'url($img)';
+    e.querySelector('.img').style.backgroundImage = 'url($img)';
   }
 
   void roundToGrid() {
@@ -124,7 +137,7 @@ class Movable extends EntityBase {
   }
 
   void _applyConds() {
-    var container = e.children[0];
+    var container = e.children.last;
     for (var child in List<Element>.from(container.children)) {
       child.remove();
     }
@@ -153,6 +166,7 @@ class Movable extends EntityBase {
   Map<String, dynamic> toCloneJson() => {
         'prefab': prefab.id,
         'conds': _conds.toList(),
+        'aura': auraRadius,
         ...writePoint(position),
         ...super.toJson(),
       };
@@ -161,12 +175,14 @@ class Movable extends EntityBase {
   Map<String, dynamic> toJson() => {
         'movable': id,
         'conds': _conds.toList(),
+        'aura': auraRadius,
         ...super.toJson(),
       };
 
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
+    auraRadius = json['aura'] ?? 0;
     applyConditions(List<int>.from(json['conds'] ?? []));
   }
 }
@@ -200,6 +216,9 @@ class EmptyMovable extends Movable {
       ..classes.add('empty')
       ..append(_labelSpan = SpanElement());
   }
+
+  @override
+  void onImageChange(String img) {}
 
   @override
   Map<String, dynamic> toCloneJson() => {

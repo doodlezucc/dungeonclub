@@ -39,6 +39,7 @@ final svg.RectElement _selectionArea = _e.querySelector('#selectionArea');
 final HtmlElement _selectionProperties = querySelector('#selectionProperties');
 final InputElement _selectedLabel = querySelector('#movableLabel');
 final InputElement _selectedSize = querySelector('#movableSize');
+final InputElement _selectedAura = querySelector('#movableAura');
 final ButtonElement _selectedRemove = querySelector('#movableRemove');
 final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
 
@@ -145,6 +146,7 @@ class Board {
         _selectionProperties.classes.remove('empty');
       }
 
+      _selectedAura.valueAsNumber = activeMovable.auraRadius;
       _selectedSize.valueAsNumber = activeMovable.size;
       _updateSelectionSizeInherit();
       _selectedConds.querySelectorAll('.active').classes.remove('active');
@@ -368,6 +370,9 @@ class Board {
     _listenSelectedLazyUpdate(_selectedLabel, onChange: (m, value) {
       (m as EmptyMovable).label = value;
     });
+    _listenSelectedLazyUpdate(_selectedAura, onChange: (m, value) {
+      m.auraRadius = double.parse(value);
+    });
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
       m.size = int.parse(value);
       _updateSelectionSizeInherit();
@@ -581,12 +586,8 @@ class Board {
 
     var validMovables = movables.where((m) {
       if (!m.accessible) return false;
-      var mRect = Rectangle(
-        m.position.x,
-        m.position.y,
-        m.displaySize,
-        m.displaySize,
-      );
+      var mRect =
+          Rectangle(m.position.x, m.position.y, m.displaySize, m.displaySize);
       return rect.intersects(mRect);
     }).toList();
 
@@ -611,9 +612,7 @@ class Board {
       starts[mv] = mv.position;
     }
 
-    Point rounded() {
-      return scalePoint(off, (v) => (v / grid.cellSize).round());
-    }
+    Point rounded() => scalePoint(off, (v) => (v / grid.cellSize).round());
 
     moveStream.listen((ev) {
       if (!movedOnce) {
@@ -669,9 +668,8 @@ class Board {
     });
 
     var keySub = window.onKeyDown.listen((ev) {
-      // Space
       if (ev.keyCode == 32) {
-        m.addPoint(measureEnd);
+        m.addPoint(measureEnd); // Trigger with spacebar
       }
     });
 
@@ -738,9 +736,7 @@ class Board {
     var img = await upload.display(
       action: a.GAME_SCENE_UPDATE,
       type: a.IMAGE_TYPE_SCENE,
-      extras: {
-        'id': _sceneId,
-      },
+      extras: {'id': _sceneId},
     );
 
     if (img != null) {
