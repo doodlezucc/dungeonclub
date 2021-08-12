@@ -644,21 +644,19 @@ class Board {
       SimpleEvent first, Stream<SimpleEvent> moveStream, int type) {
     var p = first.p * (1 / scaledZoom);
 
-    var offset = type == MEASURING_PATH ? Point(0.5, 0.5) : Point(0.0, 0.0);
+    var doOffset = type != MEASURING_CUBE && first.shift;
+    if (type == MEASURING_PATH) doOffset = !doOffset;
 
-    Point origin;
-    if (type == MEASURING_LINE) {
-      origin = grid.offsetToGridSpaceUnscaled(p * 2, offset: Point(1, 1)) * 0.5;
-    } else {
-      origin = grid.offsetToGridSpaceUnscaled(p, offset: offset) -
-          Point(0.5, 0.5) +
-          offset;
-    }
+    var offset = doOffset ? Point(0.5, 0.5) : Point(0.0, 0.0);
+
+    var origin = grid.offsetToGridSpaceUnscaled(p, offset: offset) -
+        Point(0.5, 0.5) +
+        offset;
 
     var m = Measuring.create(type, origin, session.charId);
     sendCreationEvent(type, origin);
     m.alignDistanceText(p);
-    zoom = zoom; // Rescale distance text
+    zoom += 0; // Rescale distance text
 
     Point measureEnd;
     var hasChanged = false;

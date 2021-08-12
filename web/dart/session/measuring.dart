@@ -34,19 +34,23 @@ set measureMode(int measureMode) {
 String getMeasureTooltip() {
   switch (measureMode) {
     case MEASURING_PATH:
-      return '''Hold left click to draw a path. Rightclick to make points.''';
+      return '''Hold left click to draw a path. Rightclick to make points.<br>
+                Hold shift to start at an intersection of squares.''';
     case MEASURING_CIRCLE:
       return '''Leftclick an intersection and drag outwards
-                to visualize a circular shape.''';
+                to visualize a circular<br>
+                shape. Hold shift to start at a square's center.''';
     case MEASURING_CONE:
-      return '''Leftclick an intersection and drag outwards to visualize<br>
-                a cone. Rightclick to lock its radius.''';
+      return '''Leftclick an intersection and drag outwards to visualize
+                a cone.<br>Rightclick to lock its radius. Hold shift to start
+                at a square's center.''';
     case MEASURING_CUBE:
       return '''Leftclick an intersection and drag outwards
                 to visualize a cube.''';
     case MEASURING_LINE:
-      return '''Hold left click to draw a line of specified width.<br>
-                Rightclick to switch to width modification.''';
+      return '''Hold left click to draw a line of specified width.
+                Rightclick to switch to<br>width modification. Hold shift to
+                start at a square's center.''';
   }
   return '';
 }
@@ -175,22 +179,17 @@ abstract class Measuring {
 class MeasuringPath extends Measuring {
   static const _stopRadius = 0.2;
 
+  final path = svg.PathElement();
   final lastE = svg.CircleElement()..setAttribute('r', '$_stopRadius');
-  final stops = <svg.CircleElement>[];
   final points = <Point<int>>[];
   int pointsSinceSync = 0;
   double previousDistance = 0;
 
-  MeasuringPath(Point origin, int pc) : super(origin, svg.PathElement(), pc) {
-    measuringRoot.append(lastE);
+  MeasuringPath(Point origin, int pc) : super(origin, svg.GElement(), pc) {
+    _e.setAttribute(
+        'transform', 'translate(${origin.x % 1.0}, ${origin.y % 1.0})');
+    _e..append(path)..append(lastE);
     addPoint(origin);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    stops.forEach((e) => e.remove());
-    lastE.remove();
   }
 
   @override
@@ -217,8 +216,7 @@ class MeasuringPath extends Measuring {
 
     var stop = svg.CircleElement()..setAttribute('r', '$_stopRadius');
     _applyCircle(stop, p);
-    measuringRoot.append(stop);
-    stops.add(stop);
+    _e.append(stop);
 
     previousDistance += _lastSegmentLength(p);
     points.add(p);
@@ -239,7 +237,7 @@ class MeasuringPath extends Measuring {
   @override
   void redraw(Point extra) {
     var end = forceIntPoint(extra);
-    _e.setAttribute('d', _toPathData(end));
+    path.setAttribute('d', _toPathData(end));
     _applyCircle(lastE, end);
     _updateDistanceText(end);
   }
