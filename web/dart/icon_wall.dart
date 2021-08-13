@@ -42,9 +42,9 @@ const icons = [
   'khanda',
   'fist-raised',
   'landmark',
-  'Bd-and-d',
-  'Bwizards-of-the-coast',
-  'Bcritical-role',
+  // 'Bd-and-d',
+  // 'Bwizards-of-the-coast',
+  // 'Bcritical-role',
 ];
 
 class IconWall {

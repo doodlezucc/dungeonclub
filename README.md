@@ -1,11 +1,10 @@
 # D&D Interactive <img align="right" src="web/images/icon.png" alt="Icon" height=96 />
 
-**Dungeons & Dragons** is a pen-and-paper RPG offering tons of fun! Like every tabletop game, however, you'll need a table for everyone to gather around.
+**Dungeons & Dragons** is an immersive pen-and-paper RPG. Like every tabletop game, you'll surely need a table for everyone to gather around.
 Now, if your group of adventurous travelers and travelling adventurers is scattered all across the country and you don't have the chance to meet up a lot,
-a virtual tabletop can be of great help to carry out a buttery smooth game of D&D.
+virtual tabletops can be of great help to carry out a game of D&D.
 
-**D&D Interactive** strives to be the nicest-looking, most user friendly application when it comes to online session simulators,
-while at the same time aiming for broad fully-fletched functionality. And that's all open source, completely free of charge and without ads, mind you!
+[**D&D Interactive**](https://theoretically.online/dnd) strives to be the most user-friendly online session tool, with a high standard of functionality range and design. Feel free to contribute!
 
 
 ## Running the Code Yourself
