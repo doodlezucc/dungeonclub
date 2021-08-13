@@ -137,7 +137,7 @@ class Movable extends EntityBase {
   }
 
   void _applyConds() {
-    var container = e.children.last;
+    var container = e.querySelector('.conds');
     for (var child in List<Element>.from(container.children)) {
       child.remove();
     }

@@ -728,7 +728,6 @@
         border: 3px solid;
         border-color: inherit;
         border-radius: 50%;
-        z-index: 1;
     }
 
     > .conds {
@@ -782,6 +781,7 @@
             color: var(--color-bad);
             text-align: center;
             font-size: calc(var(--size) * 110px / var(--length));
+            z-index: 3;
             --length: 1;
         }
     }
