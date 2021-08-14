@@ -64,6 +64,11 @@
         padding: 48px;
     }
 
+    > #savedGames {
+        display: none;
+        border-bottom: 2px solid var(--color-separator);
+    }
+
     #loginTab {
         align-items: center;
         gap: 28px;
@@ -170,7 +175,6 @@
 
 #features {
     align-items: center;
-    border-top: 2px solid var(--color-separator);
     gap: 32px !important;
 
     h1 { text-align: center; }

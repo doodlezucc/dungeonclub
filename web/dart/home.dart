@@ -111,6 +111,7 @@ Future<void> _displayLocalEnteredGames() async {
 }
 
 void _addEnteredGame(Game game) {
+  querySelector('#savedGames').style.display = 'flex';
   HtmlElement nameEl;
   HtmlElement topRow;
   var e = DivElement()
