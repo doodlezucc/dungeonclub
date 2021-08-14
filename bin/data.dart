@@ -24,7 +24,7 @@ class ServerData {
 
   final histogram = PlayingHistogram(path.join(directory.path, 'histogram'));
   final accounts = <Account>[];
-  final games = <Game>[];
+  final gameMeta = <GameMeta>[];
   final Random rng = Random();
 
   void init() async {
@@ -45,19 +45,24 @@ class ServerData {
 
   Map<String, dynamic> toJson() => {
         'accounts': accounts.map((e) => e.toJson()).toList(),
-        'games': games.map((e) => e.toJson()).toList(),
+        'gameMeta': gameMeta.map((e) => e.toJson()).toList(),
       };
 
   void fromJson(Map<String, dynamic> json) {
-    var owners = <Game, String>{};
+    var updateToDynamicLoading = json['games'] != null;
+    var owners = <GameMeta, String>{};
 
-    games.clear();
-    games.addAll(List.from(json['games']).map((j) {
-      var game = Game.fromJson(j);
-      owners[game] = j['owner'];
-      return game;
+    var jGames = updateToDynamicLoading ? json['games'] : json['gameMeta'];
+    gameMeta.clear();
+    gameMeta.addAll(List.from(jGames).map((j) {
+      var meta = GameMeta(j['id'], name: j['name']);
+      owners[meta] = j['owner'];
+
+      if (updateToDynamicLoading) meta.loadedGame = Game.fromJson(meta, j);
+
+      return meta;
     }));
-    print('Loaded ${games.length} games');
+    print('Loaded ${gameMeta.length} game meta entries');
 
     accounts.clear();
     accounts
@@ -67,7 +72,11 @@ class ServerData {
     owners.forEach((game, ownerEmail) {
       game.owner = data.getAccount(ownerEmail, alreadyEncrypted: true);
     });
-    print('Set all game owners');
+    print('Assigned all game owners');
+
+    if (updateToDynamicLoading) {
+      print('Updated to dynamic game loading system!');
+    }
   }
 
   Future<void> save() async {
@@ -75,6 +84,17 @@ class ServerData {
     // print(json);
     await file.writeAsString(json);
     await histogram.save();
+
+    for (var meta in gameMeta) {
+      if (meta.isLoaded) {
+        print('Saving ' + meta.id);
+        await meta._save();
+        if (meta.loadedGame._connections.isEmpty) {
+          print('Closing unused ' + meta.id);
+          meta.loadedGame = null;
+        }
+      }
+    }
     print('Saved!');
   }
 
@@ -100,12 +120,83 @@ class ServerData {
   }
 }
 
+class GameMeta {
+  final String id;
+  Account owner;
+  String name;
+  Game loadedGame;
+
+  File get dataFile => File(path.join(gameResources(id).path, 'data.json'));
+  bool get isLoaded => loadedGame != null;
+
+  GameMeta(this.id, {this.owner, this.name});
+  GameMeta.create(this.owner) : id = _generateId();
+
+  static String _generateId() {
+    String id;
+    do {
+      id = randomAlphaNumeric(10);
+    } while (data.gameMeta.any((g) => g.id == id));
+    return id;
+  }
+
+  Future<Game> open() async {
+    if (loadedGame != null) return loadedGame;
+
+    if (await dataFile.exists()) {
+      print('Opening $id');
+      var json = jsonDecode(await dataFile.readAsString());
+      return loadedGame = Game.fromJson(this, json);
+    }
+
+    return null;
+  }
+
+  Future<void> _save({bool close = false}) async {
+    if (loadedGame != null) {
+      var json = jsonEncode(loadedGame.toJson());
+      if (close) loadedGame = null;
+      await dataFile.create(recursive: true);
+      await dataFile.writeAsString(json);
+    }
+  }
+
+  Future<void> close() async {
+    if (loadedGame != null) {
+      print('Closing $id');
+      return _save(close: true);
+    }
+  }
+
+  Future<void> delete() async {
+    var resources = gameResources(id);
+    if (await resources.exists()) {
+      await resources.delete(recursive: true);
+    }
+    data.gameMeta.remove(this);
+    owner.enteredGames.remove(this);
+  }
+
+  Map<String, dynamic> toSnippet(Account acc) => {
+        'id': id,
+        'name': name,
+        'mine': acc == owner,
+      };
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'owner': owner.encryptedEmail.toString(),
+      };
+}
+
 class Account {
   final Crypt encryptedEmail;
   Crypt encryptedPassword;
 
-  var enteredGames = <Game>[];
-  Iterable<Game> get ownedGames => enteredGames.where((g) => g.owner == this);
+  var enteredGames = <GameMeta>[];
+  Iterable<GameMeta> get ownedGames =>
+      enteredGames.where((g) => g.owner == this);
 
   Account(String email, String password)
       : encryptedEmail = Crypt.sha256(email),
@@ -119,7 +210,7 @@ class Account {
       : encryptedEmail = Crypt(json['email']),
         encryptedPassword = Crypt(json['password']),
         enteredGames = List.from(json['games'])
-            .map((id) => data.games.firstWhere(
+            .map((id) => data.gameMeta.firstWhere(
                   (g) => g.id == id,
                   orElse: () => null,
                 ))
@@ -137,15 +228,15 @@ class Account {
       };
 }
 
-class Game {
-  final String id;
-  Directory get resources =>
-      Directory(path.join(ServerData.directory.path, 'games', id));
-  String name;
-  Account owner;
+Directory gameResources(String id) =>
+    Directory(path.join(ServerData.directory.path, 'games', id));
 
-  Connection get dm =>
-      _connections.firstWhere((c) => owner == c.account, orElse: () => null);
+class Game {
+  final GameMeta meta;
+  Directory get resources => gameResources(meta.id);
+
+  Connection get dm => _connections.firstWhere((c) => meta.owner == c.account,
+      orElse: () => null);
   bool get dmOnline => dm != null;
   int get online => _connections.length;
   int get sceneCount => _scenes.length;
@@ -164,14 +255,6 @@ class Game {
   final List<CustomPrefab> _prefabs;
   final List<GameMap> _maps;
   int playingSceneId = 0;
-
-  static String _generateId() {
-    String id;
-    do {
-      id = randomAlphaNumeric(10);
-    } while (data.games.any((g) => g.id == id));
-    return id;
-  }
 
   void notify(String action, Map<String, dynamic> params,
       {Connection exclude, bool allScenes = false}) {
@@ -200,9 +283,8 @@ class Game {
     return File(path.join(resources.path, filePath));
   }
 
-  Game(this.owner, this.name)
-      : id = _generateId(),
-        _scenes = [Scene({})],
+  Game(this.meta)
+      : _scenes = [Scene({})],
         _characters = [],
         _prefabs = [],
         _maps = [];
@@ -221,6 +303,10 @@ class Game {
     if (!join) {
       pc?.connection = null;
       _connections.remove(connection);
+
+      if (_connections.isEmpty) {
+        meta.close();
+      }
     } else {
       _connections.add(connection);
     }
@@ -269,14 +355,6 @@ class Game {
   Future<String> uploadImage(String type, int id, String base64) async {
     var file = await (await getFile('$type$id')).create();
     return '$address/${file.path}';
-  }
-
-  Future<void> delete() async {
-    if (await resources.exists()) {
-      await resources.delete(recursive: true);
-    }
-    data.games.remove(this);
-    owner.enteredGames.remove(this);
   }
 
   Scene getScene(int id) =>
@@ -353,10 +431,8 @@ class Game {
     }
   }
 
-  Game.fromJson(Map<String, dynamic> json)
-      : id = json['id'],
-        name = json['name'],
-        playingSceneId = json['scene'] ?? 0,
+  Game.fromJson(this.meta, Map<String, dynamic> json)
+      : playingSceneId = json['scene'] ?? 0,
         _scenes = List.from(json['scenes']).map((e) => Scene(e)).toList(),
         _characters = List.from(json['pcs'])
             .map((j) => PlayerCharacter.fromJson(j))
@@ -369,9 +445,6 @@ class Game {
             .toList();
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'owner': owner.encryptedEmail.toString(),
         'scene': playingSceneId,
         'pcs': _characters.map((e) => e.toJson()).toList(),
         'scenes': _scenes.map((e) => e.toJson()).toList(),
@@ -379,30 +452,22 @@ class Game {
         'maps': _maps.map((e) => e.toJson()).toList(),
       };
 
-  Map<String, dynamic> toSnippet(Account acc) => {
-        'id': id,
-        'name': name,
-        'mine': acc == owner,
+  Map<String, dynamic> toSessionSnippet(Connection c, [int mine]) => {
+        'id': meta.id,
+        'name': meta.name,
+        'sceneId': playingSceneId,
+        'scene': playingScene.toJson(),
+        'pcs': _characters.map((e) => e.toJson(includeStatus: true)).toList(),
+        'maps': _maps.map((e) => e.toJson()).toList(),
+        if (mine != null) 'mine': mine,
+        'prefabs': _prefabs.map((e) => e.toJson()).toList(),
+        if (meta.owner == c.account) 'dm': {'scenes': _scenes.length},
       };
-
-  Map<String, dynamic> toSessionSnippet(Connection c, [int mine]) {
-    return {
-      'id': id,
-      'name': name,
-      'sceneId': playingSceneId,
-      'scene': playingScene.toJson(),
-      'pcs': _characters.map((e) => e.toJson(includeStatus: true)).toList(),
-      'maps': _maps.map((e) => e.toJson()).toList(),
-      if (mine != null) 'mine': mine,
-      'prefabs': _prefabs.map((e) => e.toJson()).toList(),
-      if (owner == c.account) 'dm': {'scenes': _scenes.length},
-    };
-  }
 
   bool applyChanges(Map<String, dynamic> data) {
     var charCount = _characters.length;
     _characters.clear();
-    name = data['name'];
+    meta.name = data['name'];
     var pcs = List.from(data['pcs']);
     if (pcs.length >= 20) return false;
     _characters.addAll(pcs.map((e) => PlayerCharacter.fromJson(e)));

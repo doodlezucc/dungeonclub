@@ -150,13 +150,15 @@ class Connection extends Socket {
           return false;
         }
 
-        var createdGame = Game(account, '');
+        var createdMeta = GameMeta.create(account);
+        var createdGame = Game(createdMeta);
+
         if (!createdGame.applyChanges(params['data'])) return false;
 
         _game = createdGame..connect(this, true);
         scene = _game.playingScene;
-        data.games.add(_game);
-        account.enteredGames.add(_game);
+        data.gameMeta.add(createdMeta..loadedGame = createdGame);
+        account.enteredGames.add(createdMeta);
 
         // Wait for all images to be uploaded
         var countdown = _game.characters.length;
@@ -180,9 +182,11 @@ class Connection extends Socket {
         if (account == null) return false;
 
         var gameId = params['id'];
-        var game = account.ownedGames
+        var meta = account.ownedGames
             .firstWhere((g) => g.id == gameId, orElse: () => null);
-        if (game == null) return 'Access denied!';
+        if (meta == null) return 'Access denied!';
+
+        var game = await meta.open();
 
         var data = params['data'];
         if (data != null) {
@@ -195,6 +199,7 @@ class Connection extends Socket {
             },
             allScenes: true,
           );
+          await meta.close();
           return game.applyChanges(data);
         }
 
@@ -215,15 +220,23 @@ class Connection extends Socket {
       case a.GAME_JOIN:
         var id = params['id'];
         var name = params['name'];
-        var game = data.games.firstWhere((g) => g.id == id, orElse: () => null);
-        if (game != null) {
+        var meta =
+            data.gameMeta.firstWhere((g) => g.id == id, orElse: () => null);
+
+        if (meta != null) {
+          var game = meta.loadedGame;
+
           int id;
-          if (game.owner != account) {
-            if (!game.dmOnline) return 'Your DM is not online!';
+          if (meta.owner != account) {
+            if (!meta.isLoaded || !game.dmOnline) {
+              return 'Your DM is not online!';
+            }
 
             id = await game.dm.request(a.GAME_JOIN_REQUEST, {'name': name});
             if (id == null) return "You're not allowed to enter!";
             game.assignPC(id, this);
+          } else {
+            game = await meta.open();
           }
           _game = game..connect(this, true);
           scene = game.playingScene;
@@ -374,7 +387,7 @@ class Connection extends Socket {
         int id = params['id'];
         if (_game == null ||
             _account == null ||
-            _game.owner != _account ||
+            _game.meta.owner != _account ||
             id == null) return;
 
         var removed = await _game.removeScene(id);
@@ -465,7 +478,7 @@ class Connection extends Socket {
           type,
           content,
           acc ? account?.encryptedEmail?.toString() : null,
-          _game?.id,
+          _game?.meta?.id,
         ));
         return true;
 
@@ -492,13 +505,13 @@ class Connection extends Socket {
   }) async {
     if (base64 == null || type == null || id == null) return 'Missing info';
 
-    var game = gameId != null
+    var meta = gameId != null
         ? account.ownedGames
             .firstWhere((g) => g.id == gameId, orElse: () => null)
-        : _game;
+        : _game.meta;
 
-    if (game != null) {
-      var file = await (await game.getFile('$type$id')).create();
+    if (meta.isLoaded && meta != null) {
+      var file = await (await meta.loadedGame.getFile('$type$id')).create();
 
       await file.writeAsBytes(base64Decode(base64));
       return '$address/${file.path.replaceAll('\\', '/')}';
