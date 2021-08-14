@@ -173,6 +173,8 @@
     border-top: 2px solid var(--color-separator);
     gap: 32px !important;
 
+    h1 { text-align: center; }
+
     .info {
         @extend %vertical;
         gap: 16px;
