@@ -85,6 +85,7 @@ void onLogin() {
   querySelector('#loginText').style.animationPlayState = 'running';
   _loginTab.classes.add('hidden');
   _logout.classes.remove('hidden');
+  _showGamesContainer();
   _displayAccountEnteredGames();
   querySelectorAll('.acc-enable').forEach((element) {
     (element as ButtonElement).disabled = false;
@@ -110,8 +111,12 @@ Future<void> _displayLocalEnteredGames() async {
   }
 }
 
-void _addEnteredGame(Game game) {
+void _showGamesContainer() {
   querySelector('#savedGames').style.display = 'flex';
+}
+
+void _addEnteredGame(Game game) {
+  _showGamesContainer();
   HtmlElement nameEl;
   HtmlElement topRow;
   var e = DivElement()
