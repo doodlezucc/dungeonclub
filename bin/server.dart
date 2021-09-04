@@ -116,6 +116,10 @@ Future<Response> _echoRequest(Request request) async {
     return await ws.webSocketHandler(onConnect)(request);
   } else if (path.isEmpty || path == 'home') {
     path = 'index.html';
+  } else if (path == 'online') {
+    var count = connections.length;
+    var loggedIn = connections.where((e) => e.account != null).length;
+    return Response.ok('Connections: $count\nLogged in: $loggedIn');
   }
 
   var isDataFile = path.startsWith('database/games');
