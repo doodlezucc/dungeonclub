@@ -3,6 +3,7 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';
@@ -39,16 +40,6 @@ void setPosAndSize(Point<double> p, Point<double> s) {
   _crop.style.height = '${_size.y}px';
 
   _resizeOutside();
-}
-
-Point<T> clamp<T extends num>(Point<T> point, Point<T> pMin, Point<T> pMax,
-    [num inset = 0]) {
-  return Point<T>(min(max(point.x, pMin.x), pMax.x + inset),
-      min(max(point.y, pMin.y), pMax.y + inset));
-}
-
-Point<T> clampMin<T extends num>(Point<T> point, Point<T> pMin) {
-  return Point<T>(max(point.x, pMin.x), max(point.y, pMin.y));
 }
 
 Point<double> minSize = Point<double>(50, 50);

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:svg' as svg;
 
 import 'package:dnd_interactive/point_json.dart';
+import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';
 
@@ -11,6 +12,8 @@ final InputElement _gridTiles = _controls.querySelector('#gridTiles');
 final InputElement _gridTileUnit = _controls.querySelector('#gridTileUnit');
 final InputElement _gridColor = _controls.querySelector('#gridColor');
 final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
+final DivElement _crop = querySelector('#gridPadding');
+const minSize = Point<double>(200, 200);
 
 class Grid {
   final HtmlElement e;
@@ -25,27 +28,35 @@ class Grid {
   int get tiles => _tiles;
   set tiles(int tiles) {
     _tiles = max(8, tiles);
-    _clampOffset();
     _updateCellSize();
     user.session.board.movables.forEach((m) => m.roundToGrid());
     redrawCanvas();
   }
 
-  num get cellSize => (_canvas.clientWidth - 2) / _tiles;
+  Point _size = minSize;
+  Point get size => _size;
+  set size(Point size) {
+    _size = size;
+    user.session.board.movables.forEach((m) => m.roundToGrid());
+    _rect.setAttribute('width', '${size.x}');
+    _rect.setAttribute('height', '${size.y}');
+    e.style.width = '${size.x}px';
+    e.style.height = '${size.y}px';
+    redrawCanvas();
+    _updateCellSize();
+  }
 
-  Point _offset = Point(0, 0);
+  num get cellSize => (_size.x - 1) / _tiles;
+  Point<double> get _imgSize =>
+      Point(_canvas.clientWidth.toDouble(), _canvas.clientHeight.toDouble());
+
+  Point _offset = Point<double>(0, 0);
   Point get offset => _offset;
   set offset(Point offset) {
     _offset = offset;
-    _clampOffset();
     e.style.left = '${_offset.x}px';
     e.style.top = '${_offset.y}px';
-    redrawCanvas();
-  }
-
-  void _clampOffset() {
-    var size = cellSize;
-    _offset = Point((offset.x + size) % size, (offset.y + size) % size);
+    _rect.setAttribute('transform', 'translate(${offset.x}, ${offset.y})');
   }
 
   num _tileMultiply;
@@ -106,6 +117,82 @@ class Grid {
 
     _gridColor.onInput.listen((_) => redrawCanvas());
     _gridAlpha.onInput.listen((_) => redrawCanvas());
+
+    _crop.onMouseDown.listen((e) async {
+      if (e.button != 0) return;
+      e.preventDefault();
+      HtmlElement clicked = e.target;
+      var pos1 = offset;
+      var size1 = size;
+
+      void Function(Point<double>) action;
+      if (clicked != _crop) {
+        var cursorCss = clicked.style.cursor + ' !important';
+        document.body.style.cursor = cursorCss;
+        _crop.style.cursor = cursorCss;
+
+        var classes = clicked.classes;
+        var t = classes.contains('top');
+        var r = classes.contains('right');
+        var l = classes.contains('left');
+        var b = classes.contains('bottom');
+
+        action = (diff) {
+          var x = pos1.x;
+          var y = pos1.y;
+          var width = size1.x;
+          var height = size1.y;
+
+          var maxPosDiff = size1 - minSize;
+          var minPosDiff = pos1 * -1;
+
+          if (t) {
+            var v = min(max(diff.y, minPosDiff.y), maxPosDiff.y);
+            y += v;
+            height -= v;
+          }
+          if (r) width += diff.x;
+          if (b) height += diff.y;
+          if (l) {
+            var v = min(max(diff.x, minPosDiff.x), maxPosDiff.x);
+            x += v;
+            width -= v;
+          }
+
+          _setPosAndSize(Point(x, y), Point(width, height));
+        };
+      } else {
+        action = (diff) {
+          _setPosAndSize(pos1 + diff, forceDoublePoint(size));
+        };
+      }
+
+      var mouse1 = Point<double>(e.client.x, e.client.y);
+      var subMove = window.onMouseMove.listen((e) {
+        if (e.movement.magnitude == 0) return;
+        var diff = Point<double>(e.client.x, e.client.y) - mouse1;
+
+        action(diff * (1 / user.session.board.scaledZoom));
+      });
+
+      await window.onMouseUp.first;
+
+      document.body.style.cursor = '';
+      _crop.style.cursor = '';
+      await subMove.cancel();
+    });
+  }
+
+  void _setPosAndSize(Point p, Point<double> s) {
+    p = forceDoublePoint(p);
+    offset = clamp(p, Point(0, 0), _imgSize - forceDoublePoint(size));
+    size = clamp(s, minSize, _imgSize - forceDoublePoint(offset));
+    offset = clamp(p, Point(0, 0), _imgSize - forceDoublePoint(size));
+
+    _crop.style.left = '${_offset.x}px';
+    _crop.style.top = '${_offset.y}px';
+    _crop.style.width = '${_size.x}px';
+    _crop.style.height = '${_size.y}px';
   }
 
   void _updateCellSize() {
@@ -117,7 +204,7 @@ class Grid {
     bool round = true,
     Point offset = const Point(0.5, 0.5),
   }) {
-    var p = ((point - offset) * (1 / cellSize)) - offset;
+    var p = ((point - offset - _offset) * (1 / cellSize)) - offset;
 
     if (round) {
       p = Point(p.x.round(), p.y.round());
@@ -150,10 +237,9 @@ class Grid {
   }
 
   void resize(int width, int height) {
-    _rect.setAttribute('width', '$width');
-    _rect.setAttribute('height', '$height');
-    redrawCanvas();
-    _updateCellSize();
+    if (offset.x + size.x > width || offset.y + size.y > height) {
+      _setPosAndSize(Point(0, 0), Point(width.toDouble(), height.toDouble()));
+    }
   }
 
   void redrawCanvas() {
@@ -168,6 +254,7 @@ class Grid {
 
   Map<String, dynamic> toJson() => {
         'offset': writePoint(offset),
+        'size': writePoint(size),
         'tiles': tiles,
         'tileUnit': _gridTileUnit.value,
         'color': _gridColor.value,
@@ -181,6 +268,7 @@ class Grid {
     _validateTileUnit();
     _gridColor.value = json['color'];
     _gridAlpha.valueAsNumber = json['alpha'];
-    offset = Point(0, 0) ?? parsePoint(json['offset']);
+    _setPosAndSize(parsePoint(json['offset']),
+        forceDoublePoint(parsePoint(json['size']) ?? _imgSize));
   }
 }

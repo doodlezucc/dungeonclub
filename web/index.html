@@ -342,12 +342,23 @@
                         </defs>
                         <rect fill="url(#gridPattern)"></rect>
                     </svg>
+                    <div id="gridPadding" class="crop-container">
+                        <div class="width top" style="cursor: n-resize;"></div>
+                        <div class="height right" style="cursor: e-resize;"></div>
+                        <div class="width bottom" style="cursor: s-resize;"></div>
+                        <div class="height left" style="cursor: w-resize;"></div>
+
+                        <div class="corner top right" style="cursor: ne-resize;"></div>
+                        <div class="corner bottom right" style="cursor: se-resize;"></div>
+                        <div class="corner bottom left" style="cursor: sw-resize;"></div>
+                        <div class="corner top left" style="cursor: nw-resize;"></div>
+                    </div>
                     <div id="grid">
+                        <svg id="distanceCanvas" class="fill-board"></svg>
                         <div id="movableGhost" class="movable">
                             <div class="img"></div>
                         </div>
                     </div>
-                    <svg id="distanceCanvas" class="fill-board"></svg>
 
                     <svg class="fill-board" style="pointer-events: none;">
                         <rect id="selectionArea" x="-2000" y="-2000"></rect>

@@ -438,15 +438,13 @@
                 opacity: 1 !important;
             }
         }
+
+        #rightControls > div { pointer-events: none; }
     }
     &:not(.edit) {
-        .edit-only {
-            @extend .invisible;
-        }
-
-        .movable.accessible {
-            cursor: move;
-        }
+        .edit-only { @extend .invisible; }
+        #gridPadding { display: none; }
+        .movable.accessible { cursor: move; }
     }
     &:not([mode="pan"]) {
         .panning-only {
@@ -615,6 +613,18 @@
     > .hidden { display: none; }
 }
 
+#gridPadding {
+    outline: 2px solid white;
+    pointer-events: none;
+
+    > * { pointer-events: all; }
+
+    &:not(:active) > .corner {
+        border: 5px solid white;
+        background-color: white;
+    }
+}
+
 @keyframes blink {
     0%   { stroke: #000; fill: #000; }
     50%  { stroke: #fff; fill: #fff; }
@@ -624,6 +634,7 @@
 #distanceCanvas {
     animation: blink 2s infinite linear;
     stroke-width: 0.1;
+    z-index: 1;
 
     > * { pointer-events: none; }
     

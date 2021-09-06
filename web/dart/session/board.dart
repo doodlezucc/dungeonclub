@@ -164,7 +164,7 @@ class Board {
     var max = Point(_ground.naturalWidth / 2, _ground.naturalHeight / 2);
     var min = Point(-max.x, -max.y);
 
-    _position = upload.clamp(pos, min, max);
+    _position = clamp(pos, min, max);
     _transform();
   }
 
@@ -420,7 +420,13 @@ class Board {
       }
 
       startEvent.listen((ev) async {
+        previous = evToPoint(ev);
+        var start = toSimple(ev);
+
         if (mapTab.visible ||
+            (editingGrid &&
+                start.button == 0 &&
+                ev.path.any((e) => e is Element && e.id == 'gridPadding')) ||
             ev.path
                 .any((e) => e is Element && e.classes.contains('controls'))) {
           return;
@@ -428,9 +434,6 @@ class Board {
 
         ev.preventDefault();
         document.activeElement.blur();
-
-        previous = evToPoint(ev);
-        var start = toSimple(ev);
 
         if (start.button != initialButton && moveStreamCtrl != null) {
           return moveStreamCtrl.add(start);
@@ -899,7 +902,7 @@ class Board {
 
   void rescaleMeasurings() {
     var x = grid.tiles;
-    var y = x * (_ground.height / _ground.width);
+    var y = x * (grid.size.y / grid.size.x);
     measuringRoot.setAttribute('viewBox', '-0.5 -0.5 $x $y');
   }
 

@@ -7,11 +7,6 @@ $margin: 80px;
     height: 100%;
 }
 
-svg:not(#distanceCanvas) rect {
-    width: 100%;
-    height: 100%;
-}
-
 #polymaskWrapper {
     top: -$margin;
     left: -$margin;
@@ -22,6 +17,11 @@ svg:not(#distanceCanvas) rect {
 #polymask {
     width: 100%;
     height: 100%;
+
+    rect {
+        width: 100%;
+        height: 100%;
+    }
 
     .polypattern, .positive-pole {
         fill: url(#barrier) !important;

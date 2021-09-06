@@ -126,7 +126,7 @@ abstract class Measuring {
       : _distanceText = SpanElement(),
         color = user.session.getPlayerColor(pc) {
     measuringRoot.append(_e);
-    measuringRoot.parent.append(_distanceText..className = 'distance-text');
+    querySelector('#board').append(_distanceText..className = 'distance-text');
     redraw(origin);
   }
 
