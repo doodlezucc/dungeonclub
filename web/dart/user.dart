@@ -40,6 +40,12 @@ class User {
     _session.fromJson(s, instantEdit: instantEdit);
     showPage('session');
     home.iconWall.stop();
+
+    Future.delayed(Duration(seconds: 1), () {
+      for (var vid in querySelectorAll('#home video')) {
+        vid.remove();
+      }
+    });
   }
 
   void onMaintenanceScheduled(Map<String, dynamic> params) async {
