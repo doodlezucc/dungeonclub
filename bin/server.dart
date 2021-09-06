@@ -15,6 +15,8 @@ import 'maintenance.dart';
 
 // For Google Cloud Run, set _hostname to '0.0.0.0'.
 const _hostname = 'localhost';
+const githubUrl =
+    'https://raw.githubusercontent.com/doodlezucc/dnd_interactive/master';
 
 String _address;
 String get address => _address;
@@ -116,6 +118,10 @@ Future<Response> _echoRequest(Request request) async {
     return await ws.webSocketHandler(onConnect)(request);
   } else if (path.isEmpty || path == 'home') {
     path = 'index.html';
+  } else if (path.endsWith('.mp4')) {
+    return Response.seeOther('$githubUrl/web/$path', headers: {
+      'Set-Cookie': '',
+    });
   } else if (path == 'online') {
     var count = connections.length;
     var loggedIn = connections.where((e) => e.account != null).length;
