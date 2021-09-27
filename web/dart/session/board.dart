@@ -508,7 +508,9 @@ class Board {
           }
         }
 
-        if (pan) {
+        if (start.ctrl && initialButton == 1) {
+          _handleFineZooming(start, stream);
+        } else if (pan) {
           _handlePanning(start, stream);
         }
 
@@ -600,6 +602,12 @@ class Board {
   void _handlePanning(SimpleEvent first, Stream<SimpleEvent> moveStream) {
     moveStream.listen((ev) {
       position += ev.movement * (1 / scaledZoom);
+    });
+  }
+
+  void _handleFineZooming(SimpleEvent first, Stream<SimpleEvent> moveStream) {
+    moveStream.listen((ev) {
+      zoom -= 0.01 * ev.movement.y;
     });
   }
 
