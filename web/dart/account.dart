@@ -10,8 +10,8 @@ import 'panels/panel_overlay.dart';
 class Account {
   final String email;
   final List<Game> games;
-  final _joinStream = StreamController<bool>();
-  bool _lockJoin = false;
+  final _joinStream = StreamController<bool>.broadcast();
+  int _lockJoin = 0;
 
   Account(Map<String, dynamic> json)
       : email = json['email'],
@@ -39,11 +39,12 @@ class Account {
 
     if (!letIn) return null;
 
-    if (_lockJoin) {
+    _lockJoin++;
+    var count = _lockJoin;
+    for (var i = 1; i < count; i++) {
       await _joinStream.stream.first;
     }
 
-    _lockJoin = true;
     var completer = Completer<int>();
     var chars = user.session.characters;
 
@@ -70,7 +71,10 @@ class Account {
         ..classes.toggle('reserved', ch.hasJoined)
         ..append(ImageElement(src: ch.img))
         ..append(SpanElement()..text = ch.name)
-        ..onClick.listen((e) => completer.complete(i)));
+        ..onClick.listen((e) {
+          ch.hasJoined = true;
+          completer.complete(i);
+        }));
     }
 
     overlayVisible = true;
@@ -80,7 +84,7 @@ class Account {
     overlayVisible = false;
     parent.classes.remove('show');
 
-    _lockJoin = false;
+    _lockJoin--;
     _joinStream.add(true);
     return result;
   }
