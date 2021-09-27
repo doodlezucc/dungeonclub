@@ -615,15 +615,12 @@ class Board {
       SimpleEvent first, Stream<SimpleEvent> moveStream, Movable extra) {
     toggleMovableGhostVisible(false);
     var off = Point<num>(0, 0);
-    var starts = <Movable, Point>{};
     var movedOnce = false;
     var affected = {extra, ...selected};
 
-    for (var mv in affected) {
-      starts[mv] = mv.position;
-    }
-
     Point rounded() => scalePoint(off, (v) => (v / grid.cellSize).round());
+
+    var lastDelta = rounded();
 
     moveStream.listen((ev) {
       if (!movedOnce) {
@@ -637,8 +634,11 @@ class Board {
 
       var delta = rounded();
 
-      for (var mv in affected) {
-        mv.position = starts[mv] + delta;
+      if (delta != lastDelta) {
+        for (var mv in affected) {
+          mv.position += delta - lastDelta;
+        }
+        lastDelta = delta;
       }
     }, onDone: () {
       if (rounded() != Point(0, 0)) {
