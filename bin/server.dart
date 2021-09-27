@@ -56,10 +56,8 @@ void main(List<String> args) async {
 
   var _fixCORS = createMiddleware(responseHandler: _cors);
 
-  var handler = const Pipeline()
-      .addMiddleware(_fixCORS)
-      .addMiddleware(logRequests())
-      .addHandler(_echoRequest);
+  var handler =
+      const Pipeline().addMiddleware(_fixCORS).addHandler(_echoRequest);
 
   var server = await io.serve(handler, _hostname, port);
 
@@ -119,7 +117,8 @@ Future<Response> _echoRequest(Request request) async {
   } else if (path.isEmpty || path == 'home') {
     path = 'index.html';
   } else if (path.endsWith('.mp4')) {
-    return Response.seeOther('$githubUrl/web/$path', headers: {
+    var vid = path.substring(path.lastIndexOf('/'));
+    return Response.seeOther('$githubUrl/web/videos$vid', headers: {
       'Set-Cookie': '',
     });
   } else if (path == 'online') {
