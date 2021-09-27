@@ -872,15 +872,15 @@ $ping-radius: 100px;
     bottom: 16px;
     left: 16px;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap-reverse;
     gap: 4px;
-    width: 25vw;
+    width: 20vw;
 
     > span {
         display: flex;
         align-items: center;
         background-color: #111b;
-        padding: 8px 12px 8px 8px;
+        padding: 6px 10px 6px 8px;
         gap: 6px;
         border-radius: 100px;
         box-sizing: border-box;
