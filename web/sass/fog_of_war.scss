@@ -52,6 +52,7 @@ $margin: 80px;
 }
 
 #session:not(.is-dm) #polymaskWrapper {
+    z-index: 2;
     opacity: 1 !important;
 
     .polypattern {
