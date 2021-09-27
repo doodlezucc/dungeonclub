@@ -461,7 +461,7 @@ class MeasuringLine extends CoveredMeasuring {
   bool handleSpecifics(BinaryReader reader) {
     endBuffered = _readPrecision(reader);
     width = reader.readUInt8().toDouble();
-    changeWidth = true;
+    changeWidth = false;
     _update(endBuffered);
     return true;
   }
