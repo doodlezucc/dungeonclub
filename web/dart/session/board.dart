@@ -228,7 +228,8 @@ class Board {
       } else if (!mapTab.visible &&
           !event.path
               .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
-        zoom -= event.deltaY.sign / 3;
+        var v = min(50, event.deltaY.abs()) / 50;
+        zoom -= event.deltaY.sign * v / 3;
       }
     });
 
