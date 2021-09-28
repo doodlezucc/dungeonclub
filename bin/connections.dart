@@ -51,6 +51,9 @@ class Connection extends Socket {
     listen(
       onDone: () {
         print('Lost connection (${ws.closeCode})');
+        if (ws.closeCode != 1001) {
+          print(ws.closeReason);
+        }
         activationCodes.remove(this);
         resets.remove(this);
         _game?.connect(this, false);
@@ -112,7 +115,6 @@ class Connection extends Socket {
         if (email == null || password == null) {
           if (token == null || tokenAccounts[token] == null) return false;
 
-          print('this dude has a token!');
           return loginAccount(tokenAccounts[token]);
         }
 

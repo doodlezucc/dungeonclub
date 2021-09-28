@@ -36,23 +36,33 @@ class FrontSocket extends Socket {
   Timer _retryTimer;
   ConstantDialog _errorDialog;
 
-  void connect() {
+  void connect({bool goHome = true}) {
     _retryTimer?.cancel();
     _webSocket =
         WebSocket(getFile('ws', cacheBreak: false).replaceFirst('http', 'ws'))
           ..onOpen.listen((e) {
             if (_errorDialog != null) {
-              window.location.href = homeUrl;
+              window.location.href = goHome ? homeUrl : window.location.href;
             }
             _waitForOpen.complete();
           })
-          ..onClose.listen((e) => print('Websocket closed.'))
+          ..onClose.listen((e) => _handleConnectionClose())
           ..onError.listen((e) => _handleConnectionError());
 
     listen();
   }
 
   void close() => _webSocket.close();
+
+  void _handleConnectionClose() async {
+    _errorDialog ??= ConstantDialog('Connection Error')
+      ..addParagraph('Your connection to the server was closed unexpectedly.')
+      ..addParagraph('Reconnecting...')
+      ..append(icon('spinner')..classes.add('spinner'))
+      ..display();
+
+    _retryTimer = Timer(Duration(seconds: 1), () => connect(goHome: false));
+  }
 
   void _handleConnectionError() async {
     document.title = 'Reconnecting...';

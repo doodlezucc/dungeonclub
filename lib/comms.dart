@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'dart:math';
 
-final confidentialRegex = RegExp(r'email|password|token');
+final confidentialRegex = RegExp(r'email|password|token|gameJoin');
 const msgPrintLength = 200;
 const maxMsgLength = 1024 * 1024 * 20;
 
@@ -16,15 +16,15 @@ abstract class Socket {
 
   StreamSubscription listen({void Function() onDone, Function onError}) =>
       messageStream.listen((data) async {
-        var ds = data.toString();
-        var short =
-            ds.length <= msgPrintLength ? ds : ds.substring(0, msgPrintLength);
-
-        if (!confidentialRegex.hasMatch(short)) {
-          print(short);
-        }
-
         if (data is String) {
+          String s = data;
+          var short =
+              s.length <= msgPrintLength ? s : s.substring(0, msgPrintLength);
+
+          if (!confidentialRegex.hasMatch(short)) {
+            print(short);
+          }
+
           if (data[0] == '{') {
             if (data.length >= maxMsgLength) {
               print('Warning: Long websocket message (${data.length} chars)');

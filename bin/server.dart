@@ -24,6 +24,7 @@ String get address => _address;
 final data = ServerData();
 final autoSaver = AutoSaver(data);
 final maintainer = Maintainer('maintenance');
+const wsPing = Duration(seconds: 15);
 
 void main(List<String> args) async {
   if (await maintainer.timeFile.exists()) {
@@ -113,7 +114,7 @@ Future<Response> _echoRequest(Request request) async {
   var path = request.url.path;
 
   if (path == 'ws') {
-    return await ws.webSocketHandler(onConnect)(request);
+    return await ws.webSocketHandler(onConnect, pingInterval: wsPing)(request);
   } else if (path.isEmpty || path == 'home') {
     path = 'index.html';
   } else if (path.endsWith('.mp4')) {
