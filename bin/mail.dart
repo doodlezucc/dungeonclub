@@ -44,11 +44,14 @@ Future<void> initializeMailServer() async {
   _smtpServer = gmail(lines[0], lines[1]);
   _mailAddress = lines[0] + '@gmail.com';
 
-  Timer.periodic(Duration(minutes: 15), (_) {
-    if (pendingFeedback.isNotEmpty) {
-      _sendFeedbackMail();
-    }
-  });
+  Timer.periodic(Duration(minutes: 10), (_) => sendPendingFeedback());
+}
+
+Future<bool> sendPendingFeedback() async {
+  if (pendingFeedback.isNotEmpty) {
+    return _sendFeedbackMail();
+  }
+  return true;
 }
 
 Future<bool> sendVerifyCreationMail(String email, String code) {

@@ -78,7 +78,7 @@ void main(List<String> args) async {
 
 void onExit() async {
   try {
-    await data.save();
+    await Future.wait([data.save(), sendPendingFeedback()]);
   } finally {
     exit(0);
   }
