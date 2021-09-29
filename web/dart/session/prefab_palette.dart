@@ -81,6 +81,13 @@ set selectedPrefab(Prefab p) {
   toggleMovableGhostVisible(false);
 }
 
+bool get collapsed => _palette.classes.contains('collapsed');
+set collapsed(bool collapsed) {
+  _palette.classes.toggle('collapsed', collapsed);
+  querySelector('#paletteCollapse > i').className =
+      'fas fa-chevron-' + (collapsed ? 'down' : 'up');
+}
+
 void toggleMovableGhostVisible(bool v) {
   if (v == _movableGhost.isConnected) return;
   if (v) {
@@ -125,6 +132,9 @@ void _initPrefabPalette() {
   _otherPrefs.nodes.insert(0, emptyPrefab.e);
 
   _addPref.onClick.listen((_) => createPrefab());
+  _palette.querySelector('#paletteCollapse').onClick.listen((_) {
+    collapsed = !collapsed;
+  });
 }
 
 void _initPrefabProperties() {
