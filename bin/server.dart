@@ -24,10 +24,11 @@ String get address => _address;
 final data = ServerData();
 final autoSaver = AutoSaver(data);
 final maintainer = Maintainer('maintenance');
+final accountMaintainer = AccountMaintainer('account');
 const wsPing = Duration(seconds: 15);
 
 void main(List<String> args) async {
-  if (await maintainer.timeFile.exists()) {
+  if (await maintainer.file.exists()) {
     print('Server restart blocked by maintenance file!');
     await Future.delayed(Duration(seconds: 5));
     return;
@@ -72,7 +73,8 @@ void main(List<String> args) async {
 
   await initializeMailServer();
   autoSaver.init();
-  maintainer.autoCheckForScheduleFile();
+  maintainer.autoCheckForFile();
+  accountMaintainer.autoCheckForFile();
   listenToExit();
 }
 

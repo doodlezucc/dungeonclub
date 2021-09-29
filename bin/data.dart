@@ -217,6 +217,13 @@ class Account {
             .where((g) => g != null)
             .toList();
 
+  Future<void> delete() async {
+    for (var game in ownedGames) {
+      await game.delete();
+    }
+    data.accounts.remove(this);
+  }
+
   Map<String, dynamic> toJson() => {
         'email': encryptedEmail.toString(),
         'password': encryptedPassword.toString(),
