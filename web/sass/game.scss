@@ -555,6 +555,7 @@
         > span {
             color: #999;
             display: inline-flex;
+            flex-wrap: wrap;
         }
 
         &.hidden { opacity: 0.6; }
@@ -911,6 +912,7 @@ $ping-radius: 100px;
 
 #diceTab {
     z-index: 1;
+    --offset: 0;
 
     .with-tooltip {
         position: absolute;
@@ -922,6 +924,16 @@ $ping-radius: 100px;
         display: flex;
         gap: 4px;
         align-items: center;
+    }
+
+    tr {
+        counter-reset: drow;
+        counter-increment: drow var(--offset);
+    }
+
+    td:not(:first-child)::before {
+        counter-increment: drow;
+        content: counter(drow);
     }
 
     td, .with-tooltip {

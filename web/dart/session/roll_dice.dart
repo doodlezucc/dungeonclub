@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
 
@@ -8,6 +9,15 @@ import 'log.dart';
 
 final TableElement _table = querySelector('table#dice');
 bool _visible = true;
+
+const maxRolls = 5;
+
+int _offset = 0;
+int get offset => _offset;
+set offset(int offset) {
+  _offset = min(max(offset, 0), 20 - maxRolls);
+  _table.style.setProperty('--offset', '${_offset + 1}');
+}
 
 void _initVisibility() {
   var button = _table.parent.querySelector('span');
@@ -27,8 +37,7 @@ void _initVisibility() {
 
 void initDiceTable() {
   _initVisibility();
-
-  var maxRolls = 5;
+  _initScrollControls();
 
   [4, 6, 8, 10, 12, 20, 100].forEach((sides) {
     var row = TableRowElement();
@@ -38,10 +47,18 @@ void initDiceTable() {
 
     for (var i = 2; i <= maxRolls; i++) {
       row.append(TableCellElement()
-        ..text = '$i'
-        ..onClick.listen((_) => _rollDice(sides, i)));
+        ..onClick.listen((_) => _rollDice(sides, i + offset)));
     }
     _table.append(row);
+  });
+}
+
+void _initScrollControls() {
+  _table.onMouseWheel.listen((ev) {
+    offset -= ev.deltaY.sign.toInt();
+  });
+  querySelector('#diceTab').onMouseEnter.listen((_) {
+    offset = 0;
   });
 }
 
