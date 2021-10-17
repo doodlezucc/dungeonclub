@@ -112,7 +112,7 @@ class FrontSocket extends Socket {
 
       if (port == measuringPort) {
         handleMeasuringEvent(bytes);
-      } else {
+      } else if (port != 99) {
         user.session?.board?.mapTab?.handleEvent(bytes);
       }
     }

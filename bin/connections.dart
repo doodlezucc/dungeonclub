@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:crypt/crypt.dart';
@@ -12,6 +13,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'data.dart';
 import 'mail.dart';
 import 'server.dart';
+
+const sendPings = false;
 
 const campaignsPerAccount = 10;
 const scenesPerCampaign = 10;
@@ -40,6 +43,7 @@ class PasswordReset {
 class Connection extends Socket {
   final WebSocketChannel ws;
   final Stream broadcastStream;
+  Timer _pingTimer;
   Game _game;
 
   Scene scene;
@@ -58,6 +62,7 @@ class Connection extends Socket {
         resets.remove(this);
         _game?.connect(this, false);
         connections.remove(this);
+        _pingTimer?.cancel();
       },
       onError: (err) {
         print('ws error');
@@ -66,6 +71,10 @@ class Connection extends Socket {
         print(ws.closeReason);
       },
     );
+
+    if (sendPings) {
+      _pingTimer = Timer.periodic(wsPing, (timer) => send([99]));
+    }
 
     if (maintainer.shutdownTime != null) {
       sendAction(a.MAINTENANCE, maintainer.jsonEntry);
