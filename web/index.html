@@ -2,754 +2,754 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta property="og:title" content="D&D Interactive" />
-    <meta property="twitter:title" content="D&D Interactive" />
+	<meta property="og:title" content="D&D Interactive" />
+	<meta property="twitter:title" content="D&D Interactive" />
 
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://theoretically.online/dnd/images/banner.jpg" />
-    <meta property="twitter:image" content="https://theoretically.online/dnd/images/banner.jpg" />
+	<meta property="og:type" content="website" />
+	<meta property="og:image" content="https://theoretically.online/dnd/images/banner.jpg" />
+	<meta property="twitter:image" content="https://theoretically.online/dnd/images/banner.jpg" />
 
-    <meta property="og:description" content="Lead campaigns with players all over the world, whenever you want!" />
-    <meta property="description" content="Lead campaigns with players all over the world, whenever you want!" />
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:domain" content="theoretically.online" />
-    <meta property="twitter:url" content="https://theoretically.online/dnd" />
+	<meta property="og:description" content="Lead campaigns with players all over the world, whenever you want!" />
+	<meta property="description" content="Lead campaigns with players all over the world, whenever you want!" />
+	<meta property="twitter:card" content="summary_large_image" />
+	<meta property="twitter:domain" content="theoretically.online" />
+	<meta property="twitter:url" content="https://theoretically.online/dnd" />
 
-    <link rel="stylesheet" href="style/style.css">
-    <link rel="shortcut icon" type="image/png" sizes="128x128" href="images/icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="images/icon32.png">
-    <title>D&D Interactive</title>
-    <script defer src="main.dart.js"></script>
-    <script src="https://kit.fontawesome.com/a3de05bb60.js" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="style/style.css">
+	<link rel="shortcut icon" type="image/png" sizes="128x128" href="images/icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="images/icon32.png">
+	<title>D&D Interactive</title>
+	<script defer src="main.dart.js"></script>
+	<script src="https://kit.fontawesome.com/a3de05bb60.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
-    <header>
-        <a href="/" class="title">
-            <div><img src="images/icon.png"></div>
-            <h1>D&D Interactive</h1>
-        </a>
+	<header>
+		<a href="/" class="title">
+			<div><img src="images/icon.png"></div>
+			<h1>D&D Interactive</h1>
+		</a>
 
-        <span>
-            <button id="logOut" class="hidden">Log Out</button>
-            <button id="feedback">Feedback</button>
-            <button id="save" style="display: none;">Save Server Data</button>
-        </span>
-    </header>
+		<span>
+			<button id="logOut" class="hidden">Log Out</button>
+			<button id="feedback">Feedback</button>
+			<button id="save" style="display: none;">Save Server Data</button>
+		</span>
+	</header>
 
-    <div id="content">
-        <section id="home">
-            <span id="loginText">You're now logged in!</span>
+	<div id="content">
+		<section id="home">
+			<span id="loginText">You're now logged in!</span>
 
-            <div id="loginTab" class="hidden">
-                <h1>Sign in to D&D Interactive</h1>
+			<div id="loginTab" class="hidden">
+				<h1>Sign in to D&D Interactive</h1>
 
-                <p>
-                    An account gives you the possibility to create and lead your own campaigns.
-                    <br>It's <u>not required</u> for joining games!
-                </p>
+				<p>
+					An account gives you the possibility to create and lead your own campaigns.
+					<br>It's <u>not required</u> for joining games!
+				</p>
 
-                <form action="javascript:void(0);" class="panel">
-                    <div>
-                        <p>Email address</p>
-                        <input type="email" autocomplete="email" id="loginEmail">
-                    </div>
-                    <div>
-                        <span>
-                            <p>Password</p>
-                            <a id="resetPassword">Forgot password?</a>
-                        </span>
-                        <input type="password" autocomplete="current-password" id="loginPassword">
-                    </div>
-                    <div id="rememberMe">
-                        <label class="with-tooltip">
-                            <input type="checkbox">
-                            Remember me
-                            <span>Save a cookie on your machine to stay logged in.</span>
-                        </label>
-                    </div>
-                    <p id="loginError" class="bad"></p>
-                    <button id="login" class="big">Log In</button>
-                </form>
-                <span>
-                    or
-                    <button id="signup" class="big">Create a New Account</button>
-                </span>
-            </div>
+				<form action="javascript:void(0);" class="panel">
+					<div>
+						<p>Email address</p>
+						<input type="email" autocomplete="email" id="loginEmail">
+					</div>
+					<div>
+						<span>
+							<p>Password</p>
+							<a id="resetPassword">Forgot password?</a>
+						</span>
+						<input type="password" autocomplete="current-password" id="loginPassword">
+					</div>
+					<div id="rememberMe">
+						<label class="with-tooltip">
+							<input type="checkbox">
+							Remember me
+							<span>Save a cookie on your machine to stay logged in.</span>
+						</label>
+					</div>
+					<p id="loginError" class="bad"></p>
+					<button id="login" class="big">Log In</button>
+				</form>
+				<span>
+					or
+					<button id="signup" class="big">Create a New Account</button>
+				</span>
+			</div>
 
-            <div id="savedGames">
-                <h2>Saved Campaigns</h2>
-                <div id="gamesContainer">
-                    <button id="create" class="big acc-enable smooth" disabled>Create New Campaign</button>
-                </div>
-            </div>
+			<div id="savedGames">
+				<h2>Saved Campaigns</h2>
+				<div id="gamesContainer">
+					<button id="create" class="big acc-enable smooth" disabled>Create New Campaign</button>
+				</div>
+			</div>
 
-            <div id="features">
-                <h1>Fully-Fledged Features</h1>
+			<div id="features">
+				<h1>Fully-Fledged Features</h1>
 
-                <div>
-                    <div class="info">
-                        <h2>Token Managing</h2>
-                        <p>Set up your own <b>palette of tokens</b>. Every added token has a customizable default
-                            size and list of owners.</p>
-                        <p>Drag tokens into the scene to move and <b>fintune them individually</b>. A set of condition
-                            icons can be applied to keep track of a creature's state.</p>
-                        <img src="images/conditions.png">
-                    </div>
-                    <div class="media">
-                        <video src="videos/tokens.mp4" muted autoplay loop disablePictureInPicture
-                            disableRemotePlayback></video>
-                    </div>
-                </div>
-                <div style="flex-direction: row-reverse;">
-                    <div class="info">
-                        <h2>Area of Effect</h2>
-                        <p>Visualize your <b>spellcasting area</b> in whatever shape you need. Areas are calculated in
-                            the most common way and generally follow the DMG.</p>
-                        <p>All measurements are <b>shared live with other campaign members</b>. You can identify the
-                            player by their game-assigned color.</p>
-                    </div>
-                    <div class="media">
-                        <video src="videos/aoe.mp4" muted autoplay loop disablePictureInPicture
-                            disableRemotePlayback></video>
-                    </div>
-                </div>
-                <div>
-                    <div class="info">
-                        <h2>Fog of War</h2>
-                        <p>When planning out a large dungeon, you may not want your players to know what evil creatures
-                            lie ahead of them. By using the Fog of War tool, you can effectively
-                            <b>hide areas of a scene</b>.
-                        </p>
-                        <p>Drawn areas are automatically united and merged into bigger ones, which also allows
-                            you to easily <b>carve holes</b>.</p>
-                        <p>The battle map shown here was randomly generated using
-                            <a href="https://dungen.app/dungen/" target="_blank" rel="noopener noreferrer">DunGen</a>.
-                        </p>
-                    </div>
-                    <div class="media">
-                        <video src="videos/fow.mp4" muted autoplay loop disablePictureInPicture
-                            disableRemotePlayback></video>
-                    </div>
-                </div>
-                <div style="flex-direction: row-reverse;">
-                    <div class="info">
-                        <h2>Map View</h2>
-                        <p>Show your players the paths they've traveled and <b>where they are currently heading</b> on a
-                            map.</p>
-                        <p>You can upload multiple maps of varying scale to your campaign. Texts and strokes of a map
-                            are <b>updated live</b> for all campaign members.</p>
-                        <p>The world map shown here was randomly generated using
-                            <a href="https://azgaar.github.io/Fantasy-Map-Generator/" target="_blank"
-                                rel="noopener noreferrer">
-                                azgaar's Fantasy Map Generator</a>.
-                        </p>
-                    </div>
-                    <div class="media">
-                        <video src="videos/map.mp4" muted autoplay loop disablePictureInPicture
-                            disableRemotePlayback></video>
-                    </div>
-                </div>
-            </div>
+				<div>
+					<div class="info">
+						<h2>Token Managing</h2>
+						<p>Set up your own <b>palette of tokens</b>. Every added token has a customizable default
+							size and list of owners.</p>
+						<p>Drag tokens into the scene to move and <b>fintune them individually</b>. A set of condition
+							icons can be applied to keep track of a creature's state.</p>
+						<img src="images/conditions.png">
+					</div>
+					<div class="media">
+						<video src="videos/tokens.mp4" muted autoplay loop disablePictureInPicture
+							disableRemotePlayback></video>
+					</div>
+				</div>
+				<div style="flex-direction: row-reverse;">
+					<div class="info">
+						<h2>Area of Effect</h2>
+						<p>Visualize your <b>spellcasting area</b> in whatever shape you need. Areas are calculated in
+							the most common way and generally follow the DMG.</p>
+						<p>All measurements are <b>shared live with other campaign members</b>. You can identify the
+							player by their game-assigned color.</p>
+					</div>
+					<div class="media">
+						<video src="videos/aoe.mp4" muted autoplay loop disablePictureInPicture
+							disableRemotePlayback></video>
+					</div>
+				</div>
+				<div>
+					<div class="info">
+						<h2>Fog of War</h2>
+						<p>When planning out a large dungeon, you may not want your players to know what evil creatures
+							lie ahead of them. By using the Fog of War tool, you can effectively
+							<b>hide areas of a scene</b>.
+						</p>
+						<p>Drawn areas are automatically united and merged into bigger ones, which also allows
+							you to easily <b>carve holes</b>.</p>
+						<p>The battle map shown here was randomly generated using
+							<a href="https://dungen.app/dungen/" target="_blank" rel="noopener noreferrer">DunGen</a>.
+						</p>
+					</div>
+					<div class="media">
+						<video src="videos/fow.mp4" muted autoplay loop disablePictureInPicture
+							disableRemotePlayback></video>
+					</div>
+				</div>
+				<div style="flex-direction: row-reverse;">
+					<div class="info">
+						<h2>Map View</h2>
+						<p>Show your players the paths they've traveled and <b>where they are currently heading</b> on a
+							map.</p>
+						<p>You can upload multiple maps of varying scale to your campaign. Texts and strokes of a map
+							are <b>updated live</b> for all campaign members.</p>
+						<p>The world map shown here was randomly generated using
+							<a href="https://azgaar.github.io/Fantasy-Map-Generator/" target="_blank"
+								rel="noopener noreferrer">
+								azgaar's Fantasy Map Generator</a>.
+						</p>
+					</div>
+					<div class="media">
+						<video src="videos/map.mp4" muted autoplay loop disablePictureInPicture
+							disableRemotePlayback></video>
+					</div>
+				</div>
+			</div>
 
-            <footer>
-                <div style="justify-content: start; gap: 4px">
-                    Hosted at <a href="https://theoretically.online">Theoretically Online</a>
-                </div>
-                <div style="justify-content: center; width: 100%">
-                    <a href="https://github.com/doodlezucc/dnd_interactive" target="_blank" rel="noopener noreferrer">
-                        Source Code
-                    </a>
-                    <a href="privacy">Privacy Policy</a>
-                    <a href="https://ko-fi.com/doodlezucc" target="_blank" rel="noopener noreferrer">
-                        Buy Me a Coffee
-                    </a>
-                </div>
-                <div style="justify-content: flex-end">
-                    <a href="https://ko-fi.com/doodlezucc" class="icon with-tooltip" target="_blank"
-                        rel="noopener noreferrer">
-                        <i class="fas fa-coffee"></i>
-                        <span>Donate on Ko-fi</span>
-                    </a>
-                    <a href="https://github.com/doodlezucc" class="icon with-tooltip" target="_blank"
-                        rel="noopener noreferrer">
-                        <i class="fab fa-github"></i>
-                        <span>More Code on Github</span>
-                    </a>
-                    <a href="mailto:theoretically.online@gmail.com" class="icon with-tooltip" target="_blank"
-                        rel="noopener noreferrer">
-                        <i class="fas fa-envelope"></i>
-                        <span>Write a Mail</span>
-                    </a>
-                </div>
-            </footer>
-            <div id="iconWall"></div>
-        </section>
+			<footer>
+				<div style="justify-content: start; gap: 4px">
+					Hosted at <a href="https://theoretically.online">Theoretically Online</a>
+				</div>
+				<div style="justify-content: center; width: 100%">
+					<a href="https://github.com/doodlezucc/dnd_interactive" target="_blank" rel="noopener noreferrer">
+						Source Code
+					</a>
+					<a href="privacy">Privacy Policy</a>
+					<a href="https://ko-fi.com/doodlezucc" target="_blank" rel="noopener noreferrer">
+						Buy Me a Coffee
+					</a>
+				</div>
+				<div style="justify-content: flex-end">
+					<a href="https://ko-fi.com/doodlezucc" class="icon with-tooltip" target="_blank"
+						rel="noopener noreferrer">
+						<i class="fas fa-coffee"></i>
+						<span>Donate on Ko-fi</span>
+					</a>
+					<a href="https://github.com/doodlezucc" class="icon with-tooltip" target="_blank"
+						rel="noopener noreferrer">
+						<i class="fab fa-github"></i>
+						<span>More Code on Github</span>
+					</a>
+					<a href="mailto:theoretically.online@gmail.com" class="icon with-tooltip" target="_blank"
+						rel="noopener noreferrer">
+						<i class="fas fa-envelope"></i>
+						<span>Write a Mail</span>
+					</a>
+				</div>
+			</footer>
+			<div id="iconWall"></div>
+		</section>
 
-        <section id="session">
-            <div id="boardContainer">
-                <div id="initiativeBar" class="controls panel hidden no-edit">
-                    <div class="roster"></div>
-                </div>
-                <div id="playerControls" class="controls no-edit">
-                    <button class="icon dm" id="editScene">
-                        Edit Scene
-                        <i class="fas fa-wrench"></i>
-                    </button>
-                    <button class="icon tab" id="diceTab">
-                        Roll Dice
-                        <i class="fas fa-dice-d20"></i>
-                        <div class="content">
-                            <span class="with-tooltip icon dm">
-                                Visibility<i></i><span></span>
-                            </span>
-                            <table id="dice"></table>
-                        </div>
-                    </button>
-                    <button class="icon toggle dm" id="fogOfWar">
-                        Fog of War
-                        <i class="fas fa-cloud"></i>
-                    </button>
-                    <button class="icon tab toggle" id="measureDistance">
-                        Measuring
-                        <i class="fas fa-ruler"></i>
-                        <div class="content">
-                            <div class="toolbox" id="measureTools">
-                                <i class="fas fa-ruler-combined" mode="0">
-                                    <span>Path</span>
-                                </i>
-                                <i class="fas fa-square" mode="3">
-                                    <span>Square/Cube</span>
-                                </i>
-                                <i class="fas fa-circle" mode="1">
-                                    <span>Circle/Sphere</span>
-                                </i>
-                                <i class="fas fa-drafting-compass" mode="2">
-                                    <span>Cone</span>
-                                </i>
-                                <i class="fas fa-slash" mode="4">
-                                    <span>Line</span>
-                                </i>
-                            </div>
-                        </div>
-                    </button>
-                    <button class="icon" id="openMap">
-                        Map View
-                        <i class="fas fa-map"></i>
-                    </button>
-                    <button class="icon dm toggle" id="initiativeTracker">
-                        Roll Initiative
-                        <i class="fas fa-sort-numeric-up-alt"></i>
-                    </button>
-                </div>
-                <div id="sceneEditor" class="controls panel dm edit-only">
-                    <h3>Scene Editor</h3>
-                    <button id="changeImage" class="icon">
-                        Change Scene Image
-                        <i class="fas fa-image"></i>
-                    </button>
-                    <div id="gridControls">
-                        <span>Tiles in each row:
-                            <input id="gridTiles" placeholder="Total tiles in width..." type="number" min="2"
-                                value="16">
-                        </span>
-                        <span>Tile size unit:
-                            <input id="gridTileUnit">
-                        </span>
-                        <span>Grid color:
-                            <input id="gridColor" type="color" value="#000000">
-                        </span>
-                        <span>Grid opacity:
-                            <input id="gridAlpha" type="range" min="0" max="1" step="0.01">
-                        </span>
-                    </div>
-                    <button id="exitEdit" class="icon big">
-                        Save Changes
-                        <i class="fas fa-save"></i>
-                    </button>
-                </div>
-                <div id="rightControls" class="dm no-edit">
-                    <div id="prefabPalette" class="controls panel panning-only">
-                        <h3>Token Palette</h3>
-                        <button id="paletteCollapse" class="icon close">
-                            <i class="fas fa-chevron-up"></i>
-                        </button>
-                        <div class="prefab-selection">
-                            <p>Players</p>
-                            <div id="pcPrefabs" class="prefab-container"></div>
-                            <p>Custom</p>
-                            <div id="otherPrefabs" class="prefab-container">
-                                <button id="addPrefab" class="icon with-tooltip">
-                                    <i class="fas fa-plus"></i>
-                                    <span>Add Token</span>
-                                </button>
-                            </div>
-                        </div>
+		<section id="session">
+			<div id="boardContainer">
+				<div id="initiativeBar" class="controls panel hidden no-edit">
+					<div class="roster"></div>
+				</div>
+				<div id="playerControls" class="controls no-edit">
+					<button class="icon dm" id="editScene">
+						Edit Scene
+						<i class="fas fa-wrench"></i>
+					</button>
+					<button class="icon tab" id="diceTab">
+						Roll Dice
+						<i class="fas fa-dice-d20"></i>
+						<div class="content">
+							<span class="with-tooltip icon dm">
+								Visibility<i></i><span></span>
+							</span>
+							<table id="dice"></table>
+						</div>
+					</button>
+					<button class="icon toggle dm" id="fogOfWar">
+						Fog of War
+						<i class="fas fa-cloud"></i>
+					</button>
+					<button class="icon tab toggle" id="measureDistance">
+						Measuring
+						<i class="fas fa-ruler"></i>
+						<div class="content">
+							<div class="toolbox" id="measureTools">
+								<i class="fas fa-ruler-combined" mode="0">
+									<span>Path</span>
+								</i>
+								<i class="fas fa-square" mode="3">
+									<span>Square/Cube</span>
+								</i>
+								<i class="fas fa-circle" mode="1">
+									<span>Circle/Sphere</span>
+								</i>
+								<i class="fas fa-drafting-compass" mode="2">
+									<span>Cone</span>
+								</i>
+								<i class="fas fa-slash" mode="4">
+									<span>Line</span>
+								</i>
+							</div>
+						</div>
+					</button>
+					<button class="icon" id="openMap">
+						Map View
+						<i class="fas fa-map"></i>
+					</button>
+					<button class="icon dm toggle" id="initiativeTracker">
+						Roll Initiative
+						<i class="fas fa-sort-numeric-up-alt"></i>
+					</button>
+				</div>
+				<div id="sceneEditor" class="controls panel dm edit-only">
+					<h3>Scene Editor</h3>
+					<button id="changeImage" class="icon">
+						Change Scene Image
+						<i class="fas fa-image"></i>
+					</button>
+					<div id="gridControls">
+						<span>Tiles in each row:
+							<input id="gridTiles" placeholder="Total tiles in width..." type="number" min="2"
+								value="16">
+						</span>
+						<span>Tile size unit:
+							<input id="gridTileUnit">
+						</span>
+						<span>Grid color:
+							<input id="gridColor" type="color" value="#000000">
+						</span>
+						<span>Grid opacity:
+							<input id="gridAlpha" type="range" min="0" max="1" step="0.01">
+						</span>
+					</div>
+					<button id="exitEdit" class="icon big">
+						Save Changes
+						<i class="fas fa-save"></i>
+					</button>
+				</div>
+				<div id="rightControls" class="dm no-edit">
+					<div id="prefabPalette" class="controls panel panning-only">
+						<h3>Token Palette</h3>
+						<button id="paletteCollapse" class="icon close">
+							<i class="fas fa-chevron-up"></i>
+						</button>
+						<div class="prefab-selection">
+							<p>Players</p>
+							<div id="pcPrefabs" class="prefab-container"></div>
+							<p>Custom</p>
+							<div id="otherPrefabs" class="prefab-container">
+								<button id="addPrefab" class="icon with-tooltip">
+									<i class="fas fa-plus"></i>
+									<span>Add Token</span>
+								</button>
+							</div>
+						</div>
 
-                        <div id="prefabProperties" class="disabled">
-                            <h3>Properties</h3>
-                            <div id="prefabImage" class="edit-img responsive">
-                                <div>Change</div>
-                                <img>
-                            </div>
-                            <i id="emptyIcon"></i>
-                            <span>Name:
-                                <input id="prefabName" type="text">
-                            </span>
-                            <span>Default size:
-                                <input id="prefabSize" type="number" min="1" max="25" placeholder="Size...">
-                            </span>
-                            <span id="prefabAccessSpan">Access:</span>
-                            <ul id="prefabAccess"></ul>
-                            <button id="prefabRemove" class="bad">Remove From Campaign</button>
-                        </div>
-                    </div>
-                    <div id="selectionProperties" class="controls panel hidden">
-                        <span class="on-empty">Name:
-                            <input id="movableLabel" type="text" placeholder="Label...">
-                        </span>
-                        <span>Size:
-                            <input id="movableSize" type="number" min="0" max="25" placeholder="Size...">
-                            <span id="sizeInherit">(inherit from prefab)</span>
-                        </span>
-                        <span>Aura Radius:
-                            <input id="movableAura" type="number" min="0" max="25" placeholder="Radius...">
-                        </span>
-                        <span class="space-between">
-                            Conditions
-                            <a>Clear all</a>
-                        </span>
-                        <div id="conds"></div>
-                        <button id="movableRemove" class="bad compact">Remove From Scene</button>
-                    </div>
-                </div>
-                <div id="sceneSelector" class="controls panel dm hooked no-edit panning-only">
-                    <h3>Scene Selector</h3>
-                    <span class="top-hook">
-                        <div>
-                            <i class="fas fa-chevron-up"></i>
-                            Scene Selector
-                        </div>
-                    </span>
-                    <div id="scenes">
-                        <button id="addScene" class="big">Add Scene</button>
-                    </div>
-                </div>
-                <div id="board">
-                    <img id="ground">
-                    <svg id="gridCanvas" class="fill-board">
-                        <defs>
-                            <pattern id="gridPattern" width="80" height="80" patternUnits="userSpaceOnUse">
-                                <path d="M 1000 0 L 0 0 0 1000" fill="none" stroke="gray" stroke-width="4" />
-                            </pattern>
-                        </defs>
-                        <rect fill="url(#gridPattern)"></rect>
-                    </svg>
-                    <div id="gridPadding" class="crop-container">
-                        <div class="width top" style="cursor: n-resize;"></div>
-                        <div class="height right" style="cursor: e-resize;"></div>
-                        <div class="width bottom" style="cursor: s-resize;"></div>
-                        <div class="height left" style="cursor: w-resize;"></div>
+						<div id="prefabProperties" class="disabled">
+							<h3>Properties</h3>
+							<div id="prefabImage" class="edit-img responsive">
+								<div>Change</div>
+								<img>
+							</div>
+							<i id="emptyIcon"></i>
+							<span>Name:
+								<input id="prefabName" type="text">
+							</span>
+							<span>Default size:
+								<input id="prefabSize" type="number" min="1" max="25" placeholder="Size...">
+							</span>
+							<span id="prefabAccessSpan">Access:</span>
+							<ul id="prefabAccess"></ul>
+							<button id="prefabRemove" class="bad">Remove From Campaign</button>
+						</div>
+					</div>
+					<div id="selectionProperties" class="controls panel hidden">
+						<span class="on-empty">Name:
+							<input id="movableLabel" type="text" placeholder="Label...">
+						</span>
+						<span>Size:
+							<input id="movableSize" type="number" min="0" max="25" placeholder="Size...">
+							<span id="sizeInherit">(inherit from prefab)</span>
+						</span>
+						<span>Aura Radius:
+							<input id="movableAura" type="number" min="0" max="25" placeholder="Radius...">
+						</span>
+						<span class="space-between">
+							Conditions
+							<a>Clear all</a>
+						</span>
+						<div id="conds"></div>
+						<button id="movableRemove" class="bad compact">Remove From Scene</button>
+					</div>
+				</div>
+				<div id="sceneSelector" class="controls panel dm hooked no-edit panning-only">
+					<h3>Scene Selector</h3>
+					<span class="top-hook">
+						<div>
+							<i class="fas fa-chevron-up"></i>
+							Scene Selector
+						</div>
+					</span>
+					<div id="scenes">
+						<button id="addScene" class="big">Add Scene</button>
+					</div>
+				</div>
+				<div id="board">
+					<img id="ground">
+					<svg id="gridCanvas" class="fill-board">
+						<defs>
+							<pattern id="gridPattern" width="80" height="80" patternUnits="userSpaceOnUse">
+								<path d="M 1000 0 L 0 0 0 1000" fill="none" stroke="gray" stroke-width="4" />
+							</pattern>
+						</defs>
+						<rect fill="url(#gridPattern)"></rect>
+					</svg>
+					<div id="gridPadding" class="crop-container">
+						<div class="width top" style="cursor: n-resize;"></div>
+						<div class="height right" style="cursor: e-resize;"></div>
+						<div class="width bottom" style="cursor: s-resize;"></div>
+						<div class="height left" style="cursor: w-resize;"></div>
 
-                        <div class="corner top right" style="cursor: ne-resize;"></div>
-                        <div class="corner bottom right" style="cursor: se-resize;"></div>
-                        <div class="corner bottom left" style="cursor: sw-resize;"></div>
-                        <div class="corner top left" style="cursor: nw-resize;"></div>
-                    </div>
-                    <div id="grid">
-                        <svg id="distanceCanvas" class="fill-board"></svg>
-                        <div id="movableGhost" class="movable">
-                            <div class="img"></div>
-                        </div>
-                    </div>
+						<div class="corner top right" style="cursor: ne-resize;"></div>
+						<div class="corner bottom right" style="cursor: se-resize;"></div>
+						<div class="corner bottom left" style="cursor: sw-resize;"></div>
+						<div class="corner top left" style="cursor: nw-resize;"></div>
+					</div>
+					<div id="grid">
+						<svg id="distanceCanvas" class="fill-board"></svg>
+						<div id="movableGhost" class="movable">
+							<div class="img"></div>
+						</div>
+					</div>
 
-                    <svg class="fill-board" style="pointer-events: none;">
-                        <rect id="selectionArea" x="-2000" y="-2000"></rect>
-                    </svg>
+					<svg class="fill-board" style="pointer-events: none;">
+						<rect id="selectionArea" x="-2000" y="-2000"></rect>
+					</svg>
 
-                    <div id="polymaskWrapper" class="fill-board">
-                        <svg id="polymask">
-                            <defs>
-                                <pattern id="barrier" width="21" height="10" patternUnits="userSpaceOnUse"
-                                    patternTransform="rotate(45 50 50)">
-                                    <rect fill="#1115"></rect>
-                                    <line stroke="#fb8" stroke-width="20px" y2="10" />
-                                    <animateTransform attributeType="xml" attributeName="patternTransform"
-                                        type="translate" from="0" to="21" dur="3s" repeatCount="indefinite"
-                                        additive="sum" />
-                                </pattern>
+					<div id="polymaskWrapper" class="fill-board">
+						<svg id="polymask">
+							<defs>
+								<pattern id="barrier" width="21" height="10" patternUnits="userSpaceOnUse"
+									patternTransform="rotate(45 50 50)">
+									<rect fill="#1115"></rect>
+									<line stroke="#fb8" stroke-width="20px" y2="10" />
+									<animateTransform attributeType="xml" attributeName="patternTransform"
+										type="translate" from="0" to="21" dur="3s" repeatCount="indefinite"
+										additive="sum" />
+								</pattern>
 
-                                <g id="polyneg"></g>
+								<g id="polyneg"></g>
 
-                                <mask id="polynegmask" fill="black">
-                                    <rect fill="white"></rect>
-                                    <use href="#polyneg"></use>
-                                </mask>
-                            </defs>
+								<mask id="polynegmask" fill="black">
+									<rect fill="white"></rect>
+									<use href="#polyneg"></use>
+								</mask>
+							</defs>
 
-                            <g id="polypos" class="polypattern" mask="url(#polynegmask)"></g>
+							<g id="polypos" class="polypattern" mask="url(#polynegmask)"></g>
 
-                            <g id="polynegdisplay">
-                                <use href="#polyneg"></use>
-                            </g>
+							<g id="polynegdisplay">
+								<use href="#polyneg"></use>
+							</g>
 
-                            <polygon id="polyprev"></polygon>
-                        </svg>
-                    </div>
-                </div>
-                <span id="inactiveSceneWarning" class="hidden">
-                    Your players are <b>not looking at this scene</b> at the moment.
-                    <br>Click here to move them!
-                </span>
-                <span id="tooltip"></span>
-                <div id="map">
-                    <span>
-                        <button class="icon navigate">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <input id="mapName" placeholder="Map name..." disabled>
-                        <span id="mapIndex" class="needs-map hidden"></span>
-                        <button class="icon dm hidden">
-                            <i class="fas fa-check"></i>
-                        </button>
-                        <button class="icon navigate with-tooltip">
-                            <i class="fas fa-chevron-right"></i>
-                            <span>Create New Map</span>
-                        </button>
-                    </span>
-                    <div id="maps"></div>
-                    <div id="mapTools" class="needs-map hidden">
-                        <div>
-                            <button class="icon" mode="draw">
-                                <i class="fas fa-pen"></i>
-                                <span>Draw</span>
-                            </button>
-                            <button class="icon" mode="erase">
-                                <i class="fas fa-eraser"></i>
-                                <span>Erase</span>
-                            </button>
-                            <button class="icon dm" mode="text">
-                                T
-                                <span>Text</span>
-                            </button>
-                            <button class="icon dm" mode="pin">
-                                <i class="fas fa-street-view"></i>
-                                <span>Player Pin</span>
-                            </button>
-                        </div>
+							<polygon id="polyprev"></polygon>
+						</svg>
+					</div>
+				</div>
+				<span id="inactiveSceneWarning" class="hidden">
+					Your players are <b>not looking at this scene</b> at the moment.
+					<br>Click here to move them!
+				</span>
+				<span id="tooltip"></span>
+				<div id="map">
+					<span>
+						<button class="icon navigate">
+							<i class="fas fa-chevron-left"></i>
+						</button>
+						<input id="mapName" placeholder="Map name..." disabled>
+						<span id="mapIndex" class="needs-map hidden"></span>
+						<button class="icon dm hidden">
+							<i class="fas fa-check"></i>
+						</button>
+						<button class="icon navigate with-tooltip">
+							<i class="fas fa-chevron-right"></i>
+							<span>Create New Map</span>
+						</button>
+					</span>
+					<div id="maps"></div>
+					<div id="mapTools" class="needs-map hidden">
+						<div>
+							<button class="icon" mode="draw">
+								<i class="fas fa-pen"></i>
+								<span>Draw</span>
+							</button>
+							<button class="icon" mode="erase">
+								<i class="fas fa-eraser"></i>
+								<span>Erase</span>
+							</button>
+							<button class="icon dm" mode="text">
+								T
+								<span>Text</span>
+							</button>
+							<button class="icon dm" mode="pin">
+								<i class="fas fa-street-view"></i>
+								<span>Player Pin</span>
+							</button>
+						</div>
 
-                        <div>
-                            <button class="icon" action="undo">
-                                <i class="fas fa-undo-alt"></i>
-                                <span>Undo</span>
-                            </button>
-                            <button class="icon" action="redo">
-                                <i class="fas fa-redo-alt"></i>
-                                <span>Redo</span>
-                            </button>
-                        </div>
+						<div>
+							<button class="icon" action="undo">
+								<i class="fas fa-undo-alt"></i>
+								<span>Undo</span>
+							</button>
+							<button class="icon" action="redo">
+								<i class="fas fa-redo-alt"></i>
+								<span>Redo</span>
+							</button>
+						</div>
 
-                        <div class="dm">
-                            <button class="icon" action="change">
-                                <i class="fas fa-image"></i>
-                                <span>Change Image</span>
-                            </button>
-                            <button class="icon" action="clear">
-                                <i class="fas fa-tint-slash"></i>
-                                <span>Clear Map</span>
-                            </button>
-                        </div>
+						<div class="dm">
+							<button class="icon" action="change">
+								<i class="fas fa-image"></i>
+								<span>Change Image</span>
+							</button>
+							<button class="icon" action="clear">
+								<i class="fas fa-tint-slash"></i>
+								<span>Clear Map</span>
+							</button>
+						</div>
 
-                        <span id="toolInfo" title="Click to collapse info"></span>
+						<span id="toolInfo" title="Click to collapse info"></span>
 
-                        <button class="icon" id="infoShow">
-                            <i class="fas fa-question-circle"></i>
-                            <span>Show Tool Info</span>
-                        </button>
+						<button class="icon" id="infoShow">
+							<i class="fas fa-question-circle"></i>
+							<span>Show Tool Info</span>
+						</button>
 
-                        <input type="color" id="activeColor">
-                    </div>
-                    <button class="icon" type="reset">
-                        Exit Map View
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <button class="icon dm needs-map hidden with-tooltip" id="mapDelete">
-                        <i class="fas fa-trash"></i>
-                        <span>Remove This Map</span>
-                    </button>
-                    <button class="icon dm" id="changeMap">
-                        Create Map
-                        <i class="fas fa-image"></i>
-                    </button>
-                </div>
-                <div id="online"></div>
-            </div>
-            <div id="log">
-                <div id="messages"></div>
-                <div id="chat">
-                    <textarea cols="30" rows="10" maxlength="3000" placeholder="Chat with other players..."></textarea>
-                    <button class="icon close with-tooltip" disabled>
-                        <i class="fas fa-paper-plane"></i>
-                        <span>Send</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-    </div>
+						<input type="color" id="activeColor">
+					</div>
+					<button class="icon" type="reset">
+						Exit Map View
+						<i class="fas fa-arrow-left"></i>
+					</button>
+					<button class="icon dm needs-map hidden with-tooltip" id="mapDelete">
+						<i class="fas fa-trash"></i>
+						<span>Remove This Map</span>
+					</button>
+					<button class="icon dm" id="changeMap">
+						Create Map
+						<i class="fas fa-image"></i>
+					</button>
+				</div>
+				<div id="online"></div>
+			</div>
+			<div id="log">
+				<div id="messages"></div>
+				<div id="chat">
+					<textarea cols="30" rows="10" maxlength="3000" placeholder="Chat with other players..."></textarea>
+					<button class="icon close with-tooltip" disabled>
+						<i class="fas fa-paper-plane"></i>
+						<span>Send</span>
+					</button>
+				</div>
+			</div>
+		</section>
+	</div>
 
-    <div id="notifications"></div>
+	<div id="notifications"></div>
 
-    <div id="overlay">
-        <div class="panel" id="joinPanel">
-            <h2>Join Session</h2>
-            <button class="close">
-                <i class="fas fa-times"></i>
-            </button>
+	<div id="overlay">
+		<div class="panel" id="joinPanel">
+			<h2>Join Session</h2>
+			<button class="close">
+				<i class="fas fa-times"></i>
+			</button>
 
-            <p>
-                You're invited to join this session! Enter your name so the Dungeon Master can assign you the right
-                character.
-                <br><br>
-                (This name will be forwarded to the DM and is not saved anywhere but your machine.)
-            </p>
+			<p>
+				You're invited to join this session! Enter your name so the Dungeon Master can assign you the right
+				character.
+				<br><br>
+				(This name will be forwarded to the DM and is not saved anywhere but your machine.)
+			</p>
 
-            <div>
-                <input id="sessionName" placeholder="Name..." maxlength="25">
-                <p id="joinError"></p>
-                <button id="join" class="big">Join</button>
-            </div>
-        </div>
+			<div>
+				<input id="sessionName" placeholder="Name..." maxlength="25">
+				<p id="joinError"></p>
+				<button id="join" class="big">Join</button>
+			</div>
+		</div>
 
-        <div class="panel" id="feedbackPanel">
-            <h2>Send Feedback</h2>
-            <button class="close">
-                <i class="fas fa-times"></i>
-            </button>
+		<div class="panel" id="feedbackPanel">
+			<h2>Send Feedback</h2>
+			<button class="close">
+				<i class="fas fa-times"></i>
+			</button>
 
-            <select>
-                <option value="bug">Report a bug</option>
-                <option value="feature">Request a feature</option>
-                <option value="account">Request changes to your account</option>
-                <option value="other">Other</option>
-            </select>
+			<select>
+				<option value="bug">Report a bug</option>
+				<option value="feature">Request a feature</option>
+				<option value="account">Request changes to your account</option>
+				<option value="other">Other</option>
+			</select>
 
-            <textarea maxlength="2000" placeholder="Message content..."></textarea>
+			<textarea maxlength="2000" placeholder="Message content..."></textarea>
 
-            <label>
-                <input type="checkbox" id="allowAcc">
-                Allow viewing/modifying your account
-            </label>
+			<label>
+				<input type="checkbox" id="allowAcc">
+				Allow viewing/modifying your account
+			</label>
 
-            <div>
-                <p id="joinError"></p>
-                <button id="sendFeedback" class="big">Send</button>
-            </div>
-        </div>
+			<div>
+				<p id="joinError"></p>
+				<button id="sendFeedback" class="big">Send</button>
+			</div>
+		</div>
 
-        <div class="panel" id="initiativePanel">
-            <span id="initiativeTarget"></span>
-            <span id="initiativeDice"></span>
-            <span>
-                <button id="initiativeRoll" class="icon">
-                    Roll for Initiative
-                    <i class="fas fa-dice-d20"></i>
-                </button>
-                <button id="initiativeSkip" class="hidden">
-                    Skip Creature
-                </button>
-            </span>
-        </div>
+		<div class="panel" id="initiativePanel">
+			<span id="initiativeTarget"></span>
+			<span id="initiativeDice"></span>
+			<span>
+				<button id="initiativeRoll" class="icon">
+					Roll for Initiative
+					<i class="fas fa-dice-d20"></i>
+				</button>
+				<button id="initiativeSkip" class="hidden">
+					Skip Creature
+				</button>
+			</span>
+		</div>
 
-        <div class="panel" id="editGamePanel">
-            <h2>Campaign Settings</h2>
-            <button class="close">
-                <i class="fas fa-times"></i>
-            </button>
+		<div class="panel" id="editGamePanel">
+			<h2>Campaign Settings</h2>
+			<button class="close">
+				<i class="fas fa-times"></i>
+			</button>
 
-            <div>
-                <h3>Name</h3>
-                <input id="gameName" placeholder="Campaign name...">
-            </div>
-            <div>
-                <span>
-                    <h3>Playable Characters</h3>
-                    <a id="addChar">New Character</a>
-                </span>
-                <div id="editChars"></div>
-            </div>
+			<div>
+				<h3>Name</h3>
+				<input id="gameName" placeholder="Campaign name...">
+			</div>
+			<div>
+				<span>
+					<h3>Playable Characters</h3>
+					<a id="addChar">New Character</a>
+				</span>
+				<div id="editChars"></div>
+			</div>
 
-            <div class="on-prepare">
-                <h3>Starting Scene</h3>
-                <p>
-                    Scenes are usually used in combat, as they allow you and your players to navigate their pins on a
-                    grid.
-                </p>
-                <div id="startingScene" class="edit-img">
-                    <div>Upload Image</div>
-                    <img>
-                </div>
-            </div>
+			<div class="on-prepare">
+				<h3>Starting Scene</h3>
+				<p>
+					Scenes are usually used in combat, as they allow you and your players to navigate their pins on a
+					grid.
+				</p>
+				<div id="startingScene" class="edit-img">
+					<div>Upload Image</div>
+					<img>
+				</div>
+			</div>
 
-            <button id="save" class="big">Save Changes</button>
-            <button id="delete" class="bad">Delete Campaign</button>
-        </div>
+			<button id="save" class="big">Save Changes</button>
+			<button id="delete" class="bad">Delete Campaign</button>
+		</div>
 
-        <div class="panel" id="uploadPanel">
-            <h2>Upload Image</h2>
-            <button class="close">
-                <i class="fas fa-times"></i>
-            </button>
+		<div class="panel" id="uploadPanel">
+			<h2>Upload Image</h2>
+			<button class="close">
+				<i class="fas fa-times"></i>
+			</button>
 
-            <div>
-                <div id="crop" class="crop-container">
-                    <div class="width top" style="cursor: n-resize;"></div>
-                    <div class="height right" style="cursor: e-resize;"></div>
-                    <div class="width bottom" style="cursor: s-resize;"></div>
-                    <div class="height left" style="cursor: w-resize;"></div>
+			<div>
+				<div id="crop" class="crop-container">
+					<div class="width top" style="cursor: n-resize;"></div>
+					<div class="height right" style="cursor: e-resize;"></div>
+					<div class="width bottom" style="cursor: s-resize;"></div>
+					<div class="height left" style="cursor: w-resize;"></div>
 
-                    <div class="corner top right" style="cursor: ne-resize;"></div>
-                    <div class="corner bottom right" style="cursor: se-resize;"></div>
-                    <div class="corner bottom left" style="cursor: sw-resize;"></div>
-                    <div class="corner top left" style="cursor: nw-resize;"></div>
-                </div>
+					<div class="corner top right" style="cursor: ne-resize;"></div>
+					<div class="corner bottom right" style="cursor: se-resize;"></div>
+					<div class="corner bottom left" style="cursor: sw-resize;"></div>
+					<div class="corner top left" style="cursor: nw-resize;"></div>
+				</div>
 
-                <canvas></canvas>
-                <img>
-                <span id="dragText">Drag & Drop File Here</span>
-            </div>
+				<canvas></canvas>
+				<img>
+				<span id="dragText">Drag & Drop File Here</span>
+			</div>
 
-            <span>
-                <label class="file-upload">
-                    Open File
-                    <input id="imgUpload" type="file" accept="image/*">
-                </label>
-                <button class="big" type="submit">Upload</button>
-            </span>
-        </div>
+			<span>
+				<label class="file-upload">
+					Open File
+					<input id="imgUpload" type="file" accept="image/*">
+				</label>
+				<button class="big" type="submit">Upload</button>
+			</span>
+		</div>
 
-        <div id="charPick" class="panel">
-            <span>Pick dude's character</span>
-            <div class="roster"></div>
-        </div>
+		<div id="charPick" class="panel">
+			<span>Pick dude's character</span>
+			<div class="roster"></div>
+		</div>
 
-        <div class="panel" id="registerPanel">
-            <h2>Sign Up</h2>
-            <button class="close">
-                <i class="fas fa-times"></i>
-            </button>
+		<div class="panel" id="registerPanel">
+			<h2>Sign Up</h2>
+			<button class="close">
+				<i class="fas fa-times"></i>
+			</button>
 
-            <section class="credentials">
-                <form action="javascript:void(0);">
-                    <table>
-                        <tr>
-                            <td>Email address</td>
-                            <td><input type="email" class="email" autocomplete="email"
-                                    placeholder="e.g. sweetlilly93@hotmail.com..."></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">
-                                <p>Your password must consist of at least 7 characters.</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Password</td>
-                            <td>
-                                <input type="password" class="password" autocomplete="new-password"
-                                    placeholder="Password...">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Password (again)</td>
-                            <td><input type="password" class="confirm" autocomplete="new-password"
-                                    placeholder="Confirm password..."></td>
-                        </tr>
-                    </table>
+			<section class="credentials">
+				<form action="javascript:void(0);">
+					<table>
+						<tr>
+							<td>Email address</td>
+							<td><input type="email" class="email" autocomplete="email"
+									placeholder="e.g. sweetlilly93@hotmail.com..."></td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<p>Your password must consist of at least 7 characters.</p>
+							</td>
+						</tr>
+						<tr>
+							<td>Password</td>
+							<td>
+								<input type="password" class="password" autocomplete="new-password"
+									placeholder="Password...">
+							</td>
+						</tr>
+						<tr>
+							<td>Password (again)</td>
+							<td><input type="password" class="confirm" autocomplete="new-password"
+									placeholder="Confirm password..."></td>
+						</tr>
+					</table>
 
-                    <p>
-                        Your email address is exclusively used for identifying yourself.
-                        No messages unrelated to your specific account are going to appear in your inbox.
-                    </p>
-                    <p>
-                        Both your email and password will be encrypted and never viewed, transferred or sold in any way.
-                    </p>
+					<p>
+						Your email address is exclusively used for identifying yourself.
+						No messages unrelated to your specific account are going to appear in your inbox.
+					</p>
+					<p>
+						Both your email and password will be encrypted and never viewed, transferred or sold in any way.
+					</p>
 
-                    <p class="bad"></p>
-                    <button type="submit" class="send big">Register Account</button>
-                </form>
-            </section>
+					<p class="bad"></p>
+					<button type="submit" class="send big">Register Account</button>
+				</form>
+			</section>
 
-            <section class="activate">
-                <p>
-                    A confirmation code was sent to <span class="email-reader"></span>.
-                    Enter it below to activate your account.
-                </p>
+			<section class="activate">
+				<p>
+					A confirmation code was sent to <span class="email-reader"></span>.
+					Enter it below to activate your account.
+				</p>
 
-                <input type="text" class="code" maxlength="5" placeholder="CODE">
+				<input type="text" class="code" maxlength="5" placeholder="CODE">
 
-                <p class="bad"></p>
-                <button class="activate-code big">Activate Account</button>
-            </section>
-        </div>
+				<p class="bad"></p>
+				<button class="activate-code big">Activate Account</button>
+			</section>
+		</div>
 
-        <div class="panel" id="resetPanel">
-            <h2>Reset Password</h2>
-            <button class="close">
-                <i class="fas fa-times"></i>
-            </button>
+		<div class="panel" id="resetPanel">
+			<h2>Reset Password</h2>
+			<button class="close">
+				<i class="fas fa-times"></i>
+			</button>
 
-            <section class="credentials">
-                <p>
-                    When submitting the new password, a verification code will be sent to your email address.
-                </p>
+			<section class="credentials">
+				<p>
+					When submitting the new password, a verification code will be sent to your email address.
+				</p>
 
-                <form action="javascript:void(0);">
-                    <table>
-                        <tr>
-                            <td>Email address</td>
-                            <td><input type="email" class="email" autocomplete="email"
-                                    placeholder="e.g. sweetlilly93@hotmail.com..."></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2">
-                                <p>Your password must consist of at least 7 characters.</p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Password</td>
-                            <td>
-                                <input type="password" class="password" autocomplete="new-password"
-                                    placeholder="New password...">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Password (again)</td>
-                            <td><input type="password" class="confirm" autocomplete="new-password"
-                                    placeholder="Confirm new password..."></td>
-                        </tr>
-                    </table>
+				<form action="javascript:void(0);">
+					<table>
+						<tr>
+							<td>Email address</td>
+							<td><input type="email" class="email" autocomplete="email"
+									placeholder="e.g. sweetlilly93@hotmail.com..."></td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<p>Your password must consist of at least 7 characters.</p>
+							</td>
+						</tr>
+						<tr>
+							<td>Password</td>
+							<td>
+								<input type="password" class="password" autocomplete="new-password"
+									placeholder="New password...">
+							</td>
+						</tr>
+						<tr>
+							<td>Password (again)</td>
+							<td><input type="password" class="confirm" autocomplete="new-password"
+									placeholder="Confirm new password..."></td>
+						</tr>
+					</table>
 
-                    <p class="bad"></p>
-                    <button type="submit" class="send big">Send Verification Code</button>
-                </form>
-            </section>
+					<p class="bad"></p>
+					<button type="submit" class="send big">Send Verification Code</button>
+				</form>
+			</section>
 
-            <section class="activate">
-                <p>
-                    A confirmation code was sent to <span class="email-reader"></span>.
-                    Enter it below to activate your account.
-                </p>
+			<section class="activate">
+				<p>
+					A confirmation code was sent to <span class="email-reader"></span>.
+					Enter it below to activate your account.
+				</p>
 
-                <input type="text" class="code" maxlength="5" placeholder="CODE">
+				<input type="text" class="code" maxlength="5" placeholder="CODE">
 
-                <p class="bad"></p>
-                <button class="activate-code big">Activate New Password</button>
-            </section>
-        </div>
-    </div>
+				<p class="bad"></p>
+				<button class="activate-code big">Activate New Password</button>
+			</section>
+		</div>
+	</div>
 </body>
 
 </html>

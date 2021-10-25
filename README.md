@@ -34,7 +34,8 @@ This realtime compiler doesn't produce optimal JavaScript, but every change you 
 Sass/SCSS is a styling language, extending on CSS. Another Dart package is required to compile it.
 Similar to webdev, the [sass package](https://pub.dev/packages/sass) can be installed via `dart pub global activate sass`.
 
-Running `sass web/sass/style.scss web/style/style.css` will compile all stylesheets into a single CSS file. If you're not editing any Sass files, this must only be run once.
+Running `sass web/sass/style.scss web/style/style.css --style compressed` will compile all stylesheets into a single minified CSS file.
+If you're not editing any Sass files, this must only be run once.
 
 #### 3.1 Editing Sass
 You can append `--watch` to the command in order to keep the result up to date.
