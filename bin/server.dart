@@ -7,6 +7,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_web_socket/shelf_web_socket.dart' as ws;
 
+import 'audio.dart';
 import 'autosave.dart';
 import 'connections.dart';
 import 'data.dart';
@@ -76,6 +77,9 @@ void main(List<String> args) async {
   maintainer.autoCheckForFile();
   accountMaintainer.autoCheckForFile();
   listenToExit();
+
+  await loadAmbience();
+  print('Ambience audio synced!');
 }
 
 void onExit() async {
