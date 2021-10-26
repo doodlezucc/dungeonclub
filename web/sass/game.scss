@@ -956,3 +956,81 @@ $ping-radius: 100px;
 
     &:not(.active) .active { color: unset; background-color: var(--color-background); }
 }
+
+#ambience {
+    position: relative;
+    z-index: 1;
+
+    > button {
+        background: var(--color-header);
+        border-radius: 0%;
+        height: 48px;
+        padding: 14px;
+        gap: 6px;
+        border-bottom: 2px solid var(--color-separator);
+    }
+
+    &:hover {
+        > .content {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0px);
+        }
+    }
+
+    > .content {
+        @extend .invisible;
+        position: absolute;
+        z-index: -1;
+        left: 0;
+        top: 100%;
+        width: 100%;
+        transform: translateY(-4px);
+        transition-duration: 0.2s;
+        background: var(--color-background);
+        border-bottom: 2px solid var(--color-separator);
+
+        > div {
+            margin: 4px;
+            padding: 6px;
+            background: var(--color-header);
+        }
+
+        span {
+            display: flex;
+            padding: 4px;
+            gap: 6px;
+
+            > i {
+                width: 18px;
+                text-align: right;
+            }
+        }
+    }
+}
+
+#player {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    > p {
+        width: calc(100% - 44px);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    > button {
+        position: absolute;
+        right: 8px;
+    }
+}
+
+#playlists {
+    display: grid;
+    grid-template-columns: auto auto;
+    margin-top: 4px;
+    gap: 2px;
+}
