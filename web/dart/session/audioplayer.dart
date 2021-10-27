@@ -11,7 +11,7 @@ import 'session.dart';
 final _root = querySelector('#ambience');
 
 class AudioPlayer {
-  final ambience = Ambience();
+  final ambience = Ambience()..volume = 1;
   ClipPlaylist<AudioClipTrack> _playlist;
   Tracklist tracklist;
 
@@ -23,32 +23,39 @@ class AudioPlayer {
   }
 
   void init(Session session, json) {
+    _input('vMusic', (value) => _playlist.track.volume = value);
+
     if (session.isDM) {
       _root.querySelector('#audioSkip').onClick.listen((_) => sendSkip());
-    }
 
-    for (var pl in _root.querySelector('#playlists').children) {
-      var id = pl.attributes['value'];
+      for (var pl in _root.querySelector('#playlists').children) {
+        var id = pl.attributes['value'];
 
-      if (json != null && json['playlist'] == id) {
-        pl.classes.add('active');
-      }
-
-      pl.onClick.listen((_) {
-        var doSend = !pl.classes.contains('active');
-        if (doSend) {
-          _root
-              .querySelectorAll('#playlists > .active')
-              .classes
-              .remove('active');
+        if (json != null && json['playlist'] == id) {
+          pl.classes.add('active');
         }
 
-        pl.classes.toggle('active', doSend);
-        sendPlaylist(doSend ? id : null);
-      });
+        pl.onClick.listen((_) {
+          var doSend = !pl.classes.contains('active');
+          if (doSend) {
+            _root
+                .querySelectorAll('#playlists > .active')
+                .classes
+                .remove('active');
+          }
+
+          pl.classes.toggle('active', doSend);
+          sendPlaylist(doSend ? id : null);
+        });
+      }
     }
 
     onNewTracklist(json);
+  }
+
+  InputElement _input(String id, void Function(num value) onChange) {
+    InputElement input = _root.querySelector('#$id');
+    return input..onInput.listen((_) => onChange(input.valueAsNumber));
   }
 
   void sendSkip() {
