@@ -90,6 +90,12 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_UPDATE_INITIATIVE:
       return user.session?.board?.initiativeTracker?.onUpdate(params);
 
+    case GAME_MUSIC_PLAYLIST:
+      return user.session?.audioplayer?.onNewTracklist(params);
+
+    case GAME_MUSIC_SKIP:
+      return user.session?.audioplayer?.syncTracklist(params);
+
     case MAINTENANCE:
       return user.onMaintenanceScheduled(params);
   }

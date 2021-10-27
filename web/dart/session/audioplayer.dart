@@ -70,7 +70,10 @@ class AudioPlayer {
         tracklist, (t) => getFile('ambience/tracks/${t.id}.mp3'));
   }
 
-  void syncPlaylist() => _playlist.syncToTracklist(tracklist);
+  void syncTracklist(json) {
+    tracklist?.fromSyncJson(json);
+    _playlist.syncToTracklist(tracklist);
+  }
 
   void displayTrack(Track t) {
     var children = _root.querySelector('#player').children;
