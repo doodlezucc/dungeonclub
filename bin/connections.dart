@@ -10,6 +10,7 @@ import 'package:pedantic/pedantic.dart';
 import 'package:random_string/random_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import 'audio.dart';
 import 'data.dart';
 import 'mail.dart';
 import 'server.dart';
@@ -505,6 +506,35 @@ class Connection extends Socket {
       case a.GAME_ADD_INITIATIVE:
       case a.GAME_CLEAR_INITIATIVE:
         return _game.notify(action, params, exclude: this, allScenes: true);
+
+      case a.GAME_MUSIC_PLAYLIST:
+        var id = params['playlist'];
+        if (_game == null) return;
+
+        if (id == null) {
+          _game.ambience.list = null;
+          _game.notify(action, null, exclude: this, allScenes: true);
+          return null;
+        }
+
+        var pl = collection.playlists.firstWhere(
+          (pl) => pl.title == id,
+          orElse: () => null,
+        );
+
+        var tracklist = pl.toTracklist(shuffle: true);
+        _game.ambience.playlistName = pl.title;
+        _game.ambience.list = tracklist;
+
+        var response = tracklist.toJson();
+        _game.notify(action, response, exclude: this, allScenes: true);
+
+        return response;
+
+      case a.GAME_MUSIC_SKIP:
+        if (_game == null) return;
+        _game.ambience.list.fromSyncJson(params);
+        continue notify;
     }
   }
 

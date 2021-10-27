@@ -13,6 +13,7 @@ import 'package:web_whiteboard/communication/data_socket.dart';
 import 'package:web_whiteboard/layers/drawing_data.dart';
 import 'package:web_whiteboard/whiteboard_data.dart';
 
+import 'audio.dart';
 import 'connections.dart';
 import 'playing_histogram.dart';
 import 'server.dart';
@@ -261,6 +262,7 @@ class Game {
   final List<Scene> _scenes;
   final List<CustomPrefab> _prefabs;
   final List<GameMap> _maps;
+  final ambience = AmbienceState();
   int playingSceneId = 0;
 
   void notify(String action, Map<String, dynamic> params,
@@ -468,6 +470,7 @@ class Game {
         'maps': _maps.map((e) => e.toJson()).toList(),
         if (mine != null) 'mine': mine,
         'prefabs': _prefabs.map((e) => e.toJson()).toList(),
+        'ambience': ambience.toJson(),
         if (meta.owner == c.account) 'dm': {'scenes': _scenes.length},
       };
 

@@ -6,6 +6,7 @@ import '../communication.dart';
 import '../font_awesome.dart';
 import '../game.dart';
 import '../panels/dialog.dart';
+import 'audioplayer.dart';
 import 'board.dart';
 import 'character.dart';
 import 'log.dart';
@@ -16,6 +17,7 @@ import 'scene.dart';
 class Session extends Game {
   final bool isDM;
   final characters = <Character>[];
+  final audioplayer = AudioPlayer();
   Board _board;
   Board get board => _board;
   int _charId;
@@ -129,6 +131,8 @@ class Session extends Game {
     } else {
       gameLog('Hello, ${myCharacter.name}!', mine: true);
     }
+
+    audioplayer.init(this, json['ambience']);
 
     // Depends on global session object
     Future.microtask(() {

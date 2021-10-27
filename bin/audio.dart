@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ambience/metadata.dart';
 import 'package:ambience/server/playlists.dart';
 
 final PlaylistCollection collection = PlaylistCollection(Directory('ambience'));
@@ -27,4 +28,12 @@ void _customTrackMeta() {
   }
 
   collection.saveMeta();
+}
+
+class AmbienceState {
+  String playlistName;
+  Tracklist list;
+
+  Map<String, dynamic> toJson() =>
+      list == null ? null : {'playlist': playlistName, ...list.toJson()};
 }

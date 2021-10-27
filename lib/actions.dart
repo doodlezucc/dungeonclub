@@ -44,6 +44,9 @@ const GAME_ADD_INITIATIVE = 'gameAddInitiative';
 const GAME_CLEAR_INITIATIVE = 'gameClearInitiative';
 const GAME_UPDATE_INITIATIVE = 'gameUpdateInitiative';
 
+const GAME_MUSIC_PLAYLIST = 'gameMusicPlaylist';
+const GAME_MUSIC_SKIP = 'gameMusicSkip';
+
 const IMAGE_TYPE_PC = 'pc';
 const IMAGE_TYPE_SCENE = 'scene';
 const IMAGE_TYPE_ENTITY = 'entity';

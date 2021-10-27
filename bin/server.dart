@@ -79,7 +79,7 @@ void main(List<String> args) async {
   listenToExit();
 
   await loadAmbience();
-  print('Ambience audio synced!');
+  print('Ambience audio is up to date!');
 }
 
 void onExit() async {
@@ -134,7 +134,8 @@ Future<Response> _echoRequest(Request request) async {
     return Response.ok('Connections: $count\nLogged in: $loggedIn');
   }
 
-  var isDataFile = path.startsWith('database/games');
+  var isDataFile =
+      path.startsWith('database/games') || path.startsWith('ambience/');
 
   var file = isDataFile
       ? File(path)
@@ -153,9 +154,15 @@ Future<Response> _echoRequest(Request request) async {
   }
 
   var type = isDataFile ? 'image/jpeg' : getMimeType(file);
+  var length = await file.length();
   return Response(
     200,
     body: file.openRead(),
-    headers: {'Content-Type': type},
+    headers: {
+      'Content-Type': type,
+      'Content-Length': '$length',
+      'Content-Range': 'bytes */$length',
+      'Accept-Ranges': 'bytes',
+    },
   );
 }
