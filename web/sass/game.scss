@@ -506,6 +506,8 @@
 
             i { visibility: hidden; }
         }
+
+        #player > :not(button) { max-width: 100%; }
     }
 
     > *:not(:last-child) {
@@ -970,8 +972,6 @@ $ping-radius: 100px;
 
     &.keep-open {
         #pinPlayer { color: var(--color-primary); }
-
-        > button { background: var(--color-not-intense); }
     }
 
     &:hover, &.keep-open {
@@ -1015,28 +1015,24 @@ $ping-radius: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background-size: cover !important;
-    background-position: center;
+    background: var(--color-button-hover) !important;
 
-    > div {
-        position: absolute;
-        z-index: -1;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #000a;
-        backdrop-filter: blur(4px);
-    }
-
-    > p {
-        width: calc(100% - 44px);
+    > :not(button) {
+        width: max-content;
+        max-width: calc(100% - 44px);
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
         text-shadow: var(--shadow-text);
+        transition: opacity 0.4s;
+
+        &.transition {
+            opacity: 0;
+            transition: 0.2s;
+        }
     }
 
-    b { color: white; }
+    a { text-decoration: none; }
 
     > button {
         position: absolute;

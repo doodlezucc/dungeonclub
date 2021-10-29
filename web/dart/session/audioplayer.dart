@@ -34,7 +34,6 @@ class AudioPlayer {
     _input('vMusic', (value) => _playlist.track.volume = value);
 
     _root.querySelector('button').onClick.listen((_) {
-      print('CLICK');
       _root.classes.toggle('keep-open');
     });
 
@@ -95,18 +94,22 @@ class AudioPlayer {
 
   void displayTrack(Track t) {
     var player = _root.querySelector('#player');
-    player.style.background = 'url(${t.thumbnail})';
 
     var children = player.children;
-    children[1].innerHtml = '<b>${t.title}</b>';
-    children[2].text = t.artist;
+    var title = children[0];
+    title.attributes['href'] = 'https://www.youtube.com/watch?v=${t.id}';
+    title.title = t.title;
 
-    // window.navigator.mediaSession.metadata = MediaMetadata({
-    //   'title': t.title,
-    //   'artist': t.artist,
-    //   'artwork': [
-    //     {'src': t.thumbnail, 'sizes': '1280x720', 'type': 'image/webp'}
-    //   ],
-    // });
+    _changeText(title, t.title);
+    _changeText(children[1], t.artist);
+  }
+
+  Future<void> _changeText(HtmlElement e, String content) async {
+    if (e.innerHtml.trim() != content.trim()) {
+      e.classes.add('transition');
+      await Future.delayed(Duration(milliseconds: 200));
+      e.innerHtml = content;
+      e.classes.remove('transition');
+    }
   }
 }
