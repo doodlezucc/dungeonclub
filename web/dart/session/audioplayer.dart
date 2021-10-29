@@ -23,7 +23,20 @@ class AudioPlayer {
   }
 
   void init(Session session, json) {
+    window.navigator.mediaSession
+      ..setActionHandler('play', () {})
+      ..setActionHandler('pause', () {})
+      ..setActionHandler('stop', () {})
+      ..setActionHandler('seekbackward', () {})
+      ..setActionHandler('seekforward', () {})
+      ..setActionHandler('seekto', () {});
+
     _input('vMusic', (value) => _playlist.track.volume = value);
+
+    _root.querySelector('button').onClick.listen((_) {
+      print('CLICK');
+      _root.classes.toggle('keep-open');
+    });
 
     if (session.isDM) {
       _root.querySelector('#audioSkip').onClick.listen((_) => sendSkip());
@@ -70,8 +83,6 @@ class AudioPlayer {
   }
 
   void onNewTracklist(json) {
-    print('TRACKLIST');
-    print(json);
     tracklist = json == null ? null : Tracklist.fromJson(json);
     _playlist.fromTracklist(
         tracklist, (t) => getFile('ambience/tracks/${t.id}.mp3'));
@@ -83,8 +94,19 @@ class AudioPlayer {
   }
 
   void displayTrack(Track t) {
-    var children = _root.querySelector('#player').children;
-    children[0].innerHtml = '<b>${t.title}</b>';
-    children[1].text = t.artist;
+    var player = _root.querySelector('#player');
+    player.style.background = 'url(${t.thumbnail})';
+
+    var children = player.children;
+    children[1].innerHtml = '<b>${t.title}</b>';
+    children[2].text = t.artist;
+
+    // window.navigator.mediaSession.metadata = MediaMetadata({
+    //   'title': t.title,
+    //   'artist': t.artist,
+    //   'artwork': [
+    //     {'src': t.thumbnail, 'sizes': '1280x720', 'type': 'image/webp'}
+    //   ],
+    // });
   }
 }

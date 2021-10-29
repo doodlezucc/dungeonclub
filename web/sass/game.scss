@@ -962,33 +962,33 @@ $ping-radius: 100px;
     z-index: 1;
 
     > button {
+        position: relative;
         background: var(--color-header);
         border-radius: 0%;
-        height: 48px;
-        padding: 14px;
         gap: 6px;
-        border-bottom: 2px solid var(--color-separator);
     }
 
-    &:hover {
+    &.keep-open {
+        #pinPlayer { color: var(--color-primary); }
+
+        > button { background: var(--color-not-intense); }
+    }
+
+    &:hover, &.keep-open {
+
         > .content {
-            opacity: 1;
-            pointer-events: all;
-            transform: translateY(0px);
+            max-height: 400px;
         }
+
+        #pinPlayer { opacity: 1; }
     }
 
     > .content {
-        @extend .invisible;
-        position: absolute;
-        z-index: -1;
-        left: 0;
-        top: 100%;
-        width: 100%;
-        transform: translateY(-4px);
-        transition-duration: 0.2s;
+        max-height: 0;
+        transition: max-height 0.2s;
         background: var(--color-background);
         border-bottom: 2px solid var(--color-separator);
+        overflow: hidden;
 
         > div {
             margin: 4px;
@@ -1011,21 +1011,47 @@ $ping-radius: 100px;
 
 #player {
     position: relative;
+    z-index: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    background-size: cover !important;
+    background-position: center;
+
+    > div {
+        position: absolute;
+        z-index: -1;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000a;
+        backdrop-filter: blur(4px);
+    }
 
     > p {
         width: calc(100% - 44px);
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+        text-shadow: var(--shadow-text);
     }
+
+    b { color: white; }
 
     > button {
         position: absolute;
         right: 8px;
+        background-color: transparent;
     }
+}
+
+#pinPlayer {
+    color: var(--color-note);
+    position: absolute;
+    right: 16px;
+    top: 11px;
+    opacity: 0;
+    transition: opacity 0.2s;
 }
 
 #playlists {
