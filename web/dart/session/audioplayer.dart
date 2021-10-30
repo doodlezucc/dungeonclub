@@ -12,15 +12,34 @@ final _root = querySelector('#ambience');
 
 class AudioPlayer {
   final ambience = Ambience()..volume = 1;
+  FilterableAudioClipTrack _weather;
+  FilterableAudioClipTrack _crowd;
   ClipPlaylist<AudioClipTrack> _playlist;
   Tracklist tracklist;
 
+  num get volumeSfx => _crowd.volume;
+  set volumeSfx(num volume) {
+    _weather.volume = volume;
+    _crowd.volume = volume;
+  }
+
+  num get volumeMusic => _playlist.track.volume;
+  set volumeMusic(num volume) => _playlist.track.volume = volume;
+
   AudioPlayer() {
+    _weather = FilterableAudioClipTrack(ambience)
+      ..addAll(['wind', 'rain', 'heavy-rain'].map((s) => _toUrl('weather-$s')));
+
+    _crowd = FilterableAudioClipTrack(ambience)
+      ..addAll(['pub', 'market'].map((s) => _toUrl('crowd-$s')));
+
     _playlist = ClipPlaylist(AudioClipTrack(ambience));
     _playlist.onClipChange.listen((clip) {
       displayTrack(tracklist.tracks[clip.id]);
     });
   }
+
+  String _toUrl(String s) => getFile('ambience/sounds/$s.mp3');
 
   void init(Session session, json) {
     window.navigator.mediaSession
@@ -31,7 +50,9 @@ class AudioPlayer {
       ..setActionHandler('seekforward', () {})
       ..setActionHandler('seekto', () {});
 
-    _input('vMusic', (value) => _playlist.track.volume = value);
+    _input('vMusic', 0.6, (v) => volumeMusic = v);
+    _input('vAmbience', 0.4, (v) => volumeSfx = v);
+    _input('weather', -1, (v) => _weather.cueClip(v >= 0 ? v.toInt() : null));
 
     _root.querySelector('button').onClick.listen((_) {
       _root.classes.toggle('keep-open');
@@ -65,9 +86,19 @@ class AudioPlayer {
     onNewTracklist(json);
   }
 
-  InputElement _input(String id, void Function(num value) onChange) {
+  InputElement _input(String id, num init, void Function(num value) onChange) {
+    var stored = window.localStorage[id] ?? '$init';
+    var initial = num.tryParse(stored);
+
     InputElement input = _root.querySelector('#$id');
-    return input..onInput.listen((_) => onChange(input.valueAsNumber));
+    input.valueAsNumber = initial;
+    onChange(initial);
+
+    return input
+      ..onInput.listen((_) {
+        window.localStorage[id] = input.value;
+        onChange(input.valueAsNumber);
+      });
   }
 
   void sendSkip() {
