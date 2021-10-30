@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:ambience/ambience.dart';
 import 'package:ambience/audio_track.dart';
@@ -17,18 +18,27 @@ class AudioPlayer {
   ClipPlaylist<AudioClipTrack> _playlist;
   Tracklist tracklist;
 
-  num get volumeSfx => _crowd.volume;
+  num _volumeSfx = 0;
+  num get volumeSfx => _volumeSfx;
   set volumeSfx(num volume) {
-    _weather.volume = volume;
-    _crowd.volume = volume;
+    _volumeSfx = volume;
+    _weather.volume = volume * 0.2;
+    _crowd.volume = volume * 0.3;
   }
 
   num get volumeMusic => _playlist.track.volume;
   set volumeMusic(num volume) => _playlist.track.volume = volume;
 
+  num _filter = 0;
+  num get filter => _filter;
+  set filter(num filter) {
+    _filter = filter;
+    _weather.filter = 20000 - 19950 * pow(filter, 0.5);
+  }
+
   AudioPlayer() {
     _weather = FilterableAudioClipTrack(ambience)
-      ..addAll(['wind', 'rain', 'heavy-rain'].map((s) => _toUrl('weather-$s')));
+      ..addAll(['rain', 'heavy-rain'].map((s) => _toUrl('weather-$s')));
 
     _crowd = FilterableAudioClipTrack(ambience)
       ..addAll(['pub', 'market'].map((s) => _toUrl('crowd-$s')));
@@ -51,8 +61,10 @@ class AudioPlayer {
       ..setActionHandler('seekto', () {});
 
     _input('vMusic', 0.6, (v) => volumeMusic = v);
-    _input('vAmbience', 0.4, (v) => volumeSfx = v);
-    _input('weather', -1, (v) => _weather.cueClip(v >= 0 ? v.toInt() : null));
+    _input('vAmbience', 0.6, (v) => volumeSfx = v);
+    _input('weather', null, (v) => _weather.cueClip(v >= 0 ? v.toInt() : null));
+    _input('crowd', null, (v) => _crowd.cueClip(v >= 0 ? v.toInt() : null));
+    _input('weatherFilter', null, (v) => filter = v);
 
     _root.querySelector('button').onClick.listen((_) {
       _root.classes.toggle('keep-open');
@@ -87,16 +99,19 @@ class AudioPlayer {
   }
 
   InputElement _input(String id, num init, void Function(num value) onChange) {
-    var stored = window.localStorage[id] ?? '$init';
-    var initial = num.tryParse(stored);
-
     InputElement input = _root.querySelector('#$id');
+
+    var stored = window.localStorage[id] ?? '$init';
+    var initial = num.tryParse(stored) ?? input.valueAsNumber;
+
     input.valueAsNumber = initial;
     onChange(initial);
 
     return input
       ..onInput.listen((_) {
-        window.localStorage[id] = input.value;
+        if (init != null) {
+          window.localStorage[id] = input.value;
+        }
         onChange(input.valueAsNumber);
       });
   }
