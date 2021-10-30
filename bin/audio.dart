@@ -33,7 +33,21 @@ void _customTrackMeta() {
 class AmbienceState {
   String playlistName;
   Tracklist list;
+  int weather = -1;
+  num inside = 0;
+  int crowd = -1;
 
-  Map<String, dynamic> toJson() =>
-      list == null ? null : {'playlist': playlistName, ...list.toJson()};
+  Map<String, dynamic> toJson() => {
+        'playlist': playlistName,
+        'weather': weather,
+        'inside': inside,
+        'crowd': crowd,
+        if (list != null) ...list.toJson(),
+      };
+
+  void ambienceFromJson(json) {
+    weather = json['weather'];
+    inside = json['inside'];
+    crowd = json['crowd'];
+  }
 }

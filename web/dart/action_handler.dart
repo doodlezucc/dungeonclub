@@ -96,6 +96,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_MUSIC_SKIP:
       return user.session?.audioplayer?.syncTracklist(params);
 
+    case GAME_MUSIC_AMBIENCE:
+      return user.session?.audioplayer?.ambienceFromJson(params);
+
     case MAINTENANCE:
       return user.onMaintenanceScheduled(params);
   }

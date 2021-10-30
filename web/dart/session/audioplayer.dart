@@ -36,6 +36,16 @@ class AudioPlayer {
     _weather.filter = 20000 - 19950 * pow(filter, 0.5);
   }
 
+  int get weatherIntensity => _weather.activeClip?.id ?? -1;
+  set weatherIntensity(int v) {
+    _weather.cueClip(v >= 0 ? v.toInt() : null);
+  }
+
+  int get crowdedness => _crowd.activeClip?.id ?? -1;
+  set crowdedness(int v) {
+    _crowd.cueClip(v >= 0 ? v.toInt() : null);
+  }
+
   AudioPlayer() {
     _weather = FilterableAudioClipTrack(ambience)
       ..addAll(['rain', 'heavy-rain'].map((s) => _toUrl('weather-$s')));
@@ -62,9 +72,9 @@ class AudioPlayer {
 
     _input('vMusic', 0.6, (v) => volumeMusic = v);
     _input('vAmbience', 0.6, (v) => volumeSfx = v);
-    _input('weather', null, (v) => _weather.cueClip(v >= 0 ? v.toInt() : null));
-    _input('crowd', null, (v) => _crowd.cueClip(v >= 0 ? v.toInt() : null));
-    _input('weatherFilter', null, (v) => filter = v);
+    _input('weather', json['weather'], (v) => weatherIntensity = v, true);
+    _input('crowd', json['crowd'], (v) => crowdedness = v, true);
+    _input('weatherFilter', json['inside'], (v) => filter = v, true);
 
     if (window.localStorage['audioPin'] == 'true') {
       _root.classes.add('keep-open');
@@ -75,7 +85,7 @@ class AudioPlayer {
     });
 
     if (session.isDM) {
-      _root.querySelector('#audioSkip').onClick.listen((_) => sendSkip());
+      _root.querySelector('#audioSkip').onClick.listen((_) => _sendSkip());
 
       for (var pl in _root.querySelector('#playlists').children) {
         var id = pl.attributes['value'];
@@ -94,15 +104,18 @@ class AudioPlayer {
           }
 
           pl.classes.toggle('active', doSend);
-          sendPlaylist(doSend ? id : null);
+          _sendPlaylist(doSend ? id : null);
         });
       }
+    } else {
+      ambienceFromJson(json);
     }
 
     onNewTracklist(json);
   }
 
-  InputElement _input(String id, num init, void Function(num value) onChange) {
+  InputElement _input(String id, num init, void Function(num value) onChange,
+      [bool sendAmbience = false]) {
     InputElement input = _root.querySelector('#$id');
 
     var stored = window.localStorage[id] ?? '$init';
@@ -111,28 +124,48 @@ class AudioPlayer {
     input.valueAsNumber = initial;
     onChange(initial);
 
+    if (sendAmbience) {
+      input.onChange.listen((_) => _sendAmbience());
+    }
+
     return input
       ..onInput.listen((_) {
-        if (init != null) {
+        if (!sendAmbience) {
           window.localStorage[id] = input.value;
         }
         onChange(input.valueAsNumber);
       });
   }
 
-  void sendSkip() {
+  void _sendAmbience() {
+    socket.sendAction(GAME_MUSIC_AMBIENCE, ambienceToJson());
+  }
+
+  Map<String, dynamic> ambienceToJson() => {
+        'weather': weatherIntensity,
+        'inside': filter,
+        'crowd': crowdedness,
+      };
+
+  void ambienceFromJson(json) {
+    weatherIntensity = json['weather'];
+    filter = json['inside'];
+    crowdedness = json['crowd'];
+  }
+
+  void _sendSkip() {
     _playlist.skip();
     tracklist.setTrack(_playlist.index);
     socket.sendAction(GAME_MUSIC_SKIP, tracklist.toSyncJson());
   }
 
-  void sendPlaylist(String id) async {
+  void _sendPlaylist(String id) async {
     var json = await socket.request(GAME_MUSIC_PLAYLIST, {'playlist': id});
     onNewTracklist(json);
   }
 
   void onNewTracklist(json) {
-    tracklist = json == null ? null : Tracklist.fromJson(json);
+    tracklist = json['tracks'] == null ? null : Tracklist.fromJson(json);
     _playlist.fromTracklist(
         tracklist, (t) => getFile('ambience/tracks/${t.id}.mp3'));
   }

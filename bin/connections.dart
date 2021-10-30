@@ -512,6 +512,7 @@ class Connection extends Socket {
         if (_game == null) return;
 
         if (id == null) {
+          _game.ambience.playlistName = null;
           _game.ambience.list = null;
           _game.notify(action, null, exclude: this, allScenes: true);
           return null;
@@ -534,6 +535,11 @@ class Connection extends Socket {
       case a.GAME_MUSIC_SKIP:
         if (_game == null) return;
         _game.ambience.list.fromSyncJson(params);
+        continue notify;
+
+      case a.GAME_MUSIC_AMBIENCE:
+        if (_game == null) return;
+        _game.ambience.ambienceFromJson(params);
         continue notify;
     }
   }
