@@ -66,8 +66,12 @@ class AudioPlayer {
     _input('crowd', null, (v) => _crowd.cueClip(v >= 0 ? v.toInt() : null));
     _input('weatherFilter', null, (v) => filter = v);
 
+    if (window.localStorage['audioPin'] == 'true') {
+      _root.classes.add('keep-open');
+    }
+
     _root.querySelector('button').onClick.listen((_) {
-      _root.classes.toggle('keep-open');
+      window.localStorage['audioPin'] = '${_root.classes.toggle('keep-open')}';
     });
 
     if (session.isDM) {
