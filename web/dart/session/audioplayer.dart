@@ -31,7 +31,7 @@ class AudioPlayer {
   set volumeSfx(num volume) {
     _volumeSfx = volume;
     _weather.volume = volume * 0.2;
-    _crowd.volume = volume * 0.3;
+    _crowd.volume = volume * 0.25;
   }
 
   num get volumeMusic => _playlist.track.volume;
@@ -92,7 +92,7 @@ class AudioPlayer {
         _input('crowd', json['crowd'], (v) => crowdedness = v, true));
     _sFilter = SmoothSlider(
       _input('weatherFilter', json['inside'], (_) {}, true),
-      onSmoothChange: (v) => _weather.filter = 20000 - 19950 * pow(v, 0.5),
+      onSmoothChange: (v) => _weather.filter = 20000 - 19800 * pow(v, 0.5),
     );
 
     if (window.localStorage['audioPin'] == 'true') {
@@ -186,6 +186,18 @@ class AudioPlayer {
     if (user.session.isDM) {
       var json = await socket.request(GAME_MUSIC_PLAYLIST, {'playlist': id});
       onNewTracklist(json);
+
+      if (id == 'Tavern') {
+        crowdedness = 0;
+        filter = 0.8;
+      } else if (id == 'Dungeon') {
+        crowdedness = -1;
+        filter = 0.8;
+      } else if (id != null) {
+        crowdedness = -1;
+        filter = 0;
+      }
+      _sendAmbience();
     }
   }
 
