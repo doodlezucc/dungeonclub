@@ -970,8 +970,22 @@ $ping-radius: 100px;
         gap: 6px;
     }
 
+    .shrink {
+        max-height: 300px;
+        transition: max-height 0.3s, padding 0.3s;
+    }
+
     &.keep-open {
         #pinPlayer { color: var(--color-primary); }
+    }
+
+    &:not(:hover) {
+        .shrink {
+            max-height: 0;
+            padding: 0 !important;
+            transition: max-height 0.3s, padding 0.1s 0.2s;
+            overflow: hidden;
+        }
     }
 
     &:hover, &.keep-open {
@@ -1005,20 +1019,6 @@ $ping-radius: 100px;
                 text-align: right;
             }
         }
-    }
-}
-
-#audioSettings {
-    .shrink {
-        max-height: 300px;
-        transition: max-height 0.3s, padding 0.3s;
-    }
-
-    &:not(:hover) .shrink {
-        max-height: 0;
-        padding: 0;
-        transition: max-height 0.3s 1.5s, padding 0.1s 1.7s;
-        overflow: hidden;
     }
 }
 
