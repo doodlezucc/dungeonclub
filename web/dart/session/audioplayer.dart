@@ -195,7 +195,7 @@ class AudioPlayer {
         filter = 0.8;
       } else if (id != null) {
         crowdedness = -1;
-        filter = 0;
+        if (id == 'Overworld') filter = 0;
       }
       _sendAmbience();
     }

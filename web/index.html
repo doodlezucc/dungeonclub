@@ -496,7 +496,7 @@
 						<i id="pinPlayer" class="fas fa-thumbtack"></i>
 					</button>
 					<div class="content">
-						<div>
+						<div id="audioSettings">
 							<span>
 								<i class="fas fa-music"></i>
 								<input id="vMusic" type="range" min="0" max="1" value="0.8" step="0.005">
@@ -506,7 +506,7 @@
 								<input id="vAmbience" type="range" min="0" max="1" value="0.8" step="0.005">
 							</span>
 
-							<div id="playlists" class="dm">
+							<div id="playlists" class="dm shrink">
 								<button class="icon toggle" value="Tavern">
 									Tavern
 									<i class="fas fa-beer"></i>
@@ -533,19 +533,19 @@
 								</button>
 							</div>
 
-							<span class="dm with-tooltip">
+							<span class="dm shrink with-tooltip">
 								<i class="fas fa-sun"></i>
 								<input id="weather" type="range" min="-1" max="1" value="-1">
 								<i class="fas fa-cloud-showers-heavy"></i>
 								<span>Weather: Clear</span>
 							</span>
-							<span class="dm with-tooltip">
+							<span class="dm shrink with-tooltip">
 								<i class="fas fa-door-open"></i>
 								<input id="weatherFilter" type="range" min="0" max="1" value="0" step="0.005">
 								<i class="fas fa-door-closed"></i>
 								<span>Outside/Inside</span>
 							</span>
-							<span class="dm with-tooltip">
+							<span class="dm shrink with-tooltip">
 								<i class="fas fa-user"></i>
 								<input id="crowd" type="range" min="-1" max="1" value="-1">
 								<i class="fas fa-users"></i>

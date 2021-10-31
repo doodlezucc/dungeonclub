@@ -975,7 +975,6 @@ $ping-radius: 100px;
     }
 
     &:hover, &.keep-open {
-
         > .content {
             max-height: 400px;
         }
@@ -1006,6 +1005,20 @@ $ping-radius: 100px;
                 text-align: right;
             }
         }
+    }
+}
+
+#audioSettings {
+    .shrink {
+        max-height: 300px;
+        transition: max-height 0.3s, padding 0.3s;
+    }
+
+    &:not(:hover) .shrink {
+        max-height: 0;
+        padding: 0;
+        transition: max-height 0.3s 1.5s, padding 0.1s 1.7s;
+        overflow: hidden;
     }
 }
 
@@ -1054,6 +1067,6 @@ $ping-radius: 100px;
 #playlists {
     display: grid;
     grid-template-columns: auto auto;
-    margin-top: 4px;
     gap: 2px;
+    padding: 8px 0;
 }
