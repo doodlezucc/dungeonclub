@@ -13,7 +13,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "45a3cbf9e84f1d13ad6a8aee73a5a6febe534275"
+      resolved-ref: d5b9a69d93209128417d6b371441103a97bb8526
       url: "https://github.com/doodlezucc/ambience.git"
     source: git
     version: "1.0.0"
