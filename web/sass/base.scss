@@ -341,6 +341,13 @@ input {
         background: var(--color-input-underline);
         outline: none; /* Remove outline */
 
+        &.smooth-bg {
+            --v: 50%;
+            background: linear-gradient(to right,
+                                        var(--color-primary) var(--v),
+                                        var(--color-input-underline) var(--v));
+        }
+
         &:hover {
             &::-webkit-slider-thumb { background: var(--color-primary); }
             &::-moz-range-thumb     { background: var(--color-primary); }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 import 'dart:math';
 
@@ -7,6 +8,7 @@ import 'package:ambience/metadata.dart';
 import 'package:dnd_interactive/actions.dart';
 
 import '../communication.dart';
+import '../smooth_slider.dart';
 import 'session.dart';
 
 final _root = querySelector('#ambience');
@@ -17,6 +19,9 @@ class AudioPlayer {
   FilterableAudioClipTrack _crowd;
   ClipPlaylist<AudioClipTrack> _playlist;
   Tracklist tracklist;
+  SmoothSlider _sWeather;
+  SmoothSlider _sFilter;
+  SmoothSlider _sCrowd;
 
   num _volumeSfx = 0;
   num get volumeSfx => _volumeSfx;
@@ -29,20 +34,18 @@ class AudioPlayer {
   num get volumeMusic => _playlist.track.volume;
   set volumeMusic(num volume) => _playlist.track.volume = volume;
 
-  num _filter = 0;
-  num get filter => _filter;
-  set filter(num filter) {
-    _filter = filter;
-    _weather.filter = 20000 - 19950 * pow(filter, 0.5);
-  }
+  num get filter => _sFilter.goal;
+  set filter(num v) => _sFilter.goal = v;
 
-  int get weatherIntensity => _weather.activeClip?.id ?? -1;
+  int get weatherIntensity => _sWeather.goal;
   set weatherIntensity(int v) {
+    _sWeather.goal = v;
     _weather.cueClip(v >= 0 ? v.toInt() : null);
   }
 
-  int get crowdedness => _crowd.activeClip?.id ?? -1;
+  int get crowdedness => _sCrowd.goal;
   set crowdedness(int v) {
+    _sCrowd.goal = v;
     _crowd.cueClip(v >= 0 ? v.toInt() : null);
   }
 
@@ -72,9 +75,15 @@ class AudioPlayer {
 
     _input('vMusic', 0.6, (v) => volumeMusic = v);
     _input('vAmbience', 0.6, (v) => volumeSfx = v);
-    _input('weather', json['weather'], (v) => weatherIntensity = v, true);
-    _input('crowd', json['crowd'], (v) => crowdedness = v, true);
-    _input('weatherFilter', json['inside'], (v) => filter = v, true);
+
+    _sWeather = SmoothSlider(
+        _input('weather', json['weather'], (v) => weatherIntensity = v, true));
+    _sCrowd = SmoothSlider(
+        _input('crowd', json['crowd'], (v) => crowdedness = v, true));
+    _sFilter = SmoothSlider(
+      _input('weatherFilter', json['inside'], (_) {}, true),
+      onSmoothChange: (v) => _weather.filter = 20000 - 19950 * pow(v, 0.5),
+    );
 
     if (window.localStorage['audioPin'] == 'true') {
       _root.classes.add('keep-open');
@@ -122,7 +131,7 @@ class AudioPlayer {
     var initial = num.tryParse(stored) ?? input.valueAsNumber;
 
     input.valueAsNumber = initial;
-    onChange(initial);
+    if (!sendAmbience) onChange(initial);
 
     if (sendAmbience) {
       input.onChange.listen((_) => _sendAmbience());
