@@ -38,18 +38,25 @@ class AudioPlayer {
   set volumeMusic(num volume) => _playlist.track.volume = volume;
 
   num get filter => _sFilter.goal;
-  set filter(num v) => _sFilter.goal = v;
+  set filter(num v) {
+    _sFilter.goal = v;
+    _sFilter.input.parent.querySelector('span').text = _getTooltip(1, v);
+  }
 
   int get weatherIntensity => _sWeather.goal;
   set weatherIntensity(int v) {
     _sWeather.goal = v;
     _weather.cueClip(v >= 0 ? v.toInt() : null);
+    _sWeather.input.parent.querySelector('span').text =
+        'Weather: ${_getTooltip(0, v)}';
   }
 
   int get crowdedness => _sCrowd.goal;
   set crowdedness(int v) {
     _sCrowd.goal = v;
     _crowd.cueClip(v >= 0 ? v.toInt() : null);
+    _sCrowd.input.parent.querySelector('span').text =
+        'Crowd: ${_getTooltip(2, v)}';
   }
 
   AudioPlayer() {
@@ -134,7 +141,7 @@ class AudioPlayer {
     var initial = num.tryParse(stored) ?? input.valueAsNumber;
 
     input.valueAsNumber = initial;
-    if (!sendAmbience) onChange(initial);
+    scheduleMicrotask(() => onChange(initial));
 
     if (sendAmbience) {
       input.onChange.listen((_) => _sendAmbience());
@@ -224,5 +231,32 @@ class AudioPlayer {
         e.classes.remove('transition');
       }
     }
+  }
+
+  static String _getTooltip(int tool, num value) {
+    switch (tool) {
+      case 0:
+        switch (value) {
+          case -1:
+            return 'Clear';
+          case 0:
+            return 'Light Rain';
+          case 1:
+            return 'Heavy Rain';
+        }
+        return null;
+      case 1:
+        return 'Outside/Inside';
+      case 2:
+        switch (value) {
+          case -1:
+            return 'None';
+          case 0:
+            return 'Tavern';
+          case 1:
+            return 'Marketplace';
+        }
+    }
+    return null;
   }
 }
