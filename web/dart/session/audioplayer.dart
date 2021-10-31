@@ -7,6 +7,7 @@ import 'package:ambience/audio_track.dart';
 import 'package:ambience/metadata.dart';
 import 'package:dnd_interactive/actions.dart';
 
+import '../../main.dart';
 import '../communication.dart';
 import '../smooth_slider.dart';
 import 'session.dart';
@@ -22,6 +23,8 @@ class AudioPlayer {
   SmoothSlider _sWeather;
   SmoothSlider _sFilter;
   SmoothSlider _sCrowd;
+
+  ButtonElement get skipButton => _root.querySelector('#audioSkip');
 
   num _volumeSfx = 0;
   num get volumeSfx => _volumeSfx;
@@ -94,7 +97,7 @@ class AudioPlayer {
     });
 
     if (session.isDM) {
-      _root.querySelector('#audioSkip').onClick.listen((_) => _sendSkip());
+      skipButton.onClick.listen((_) => _sendSkip());
 
       for (var pl in _root.querySelector('#playlists').children) {
         var id = pl.attributes['value'];
@@ -147,7 +150,9 @@ class AudioPlayer {
   }
 
   void _sendAmbience() {
-    socket.sendAction(GAME_MUSIC_AMBIENCE, ambienceToJson());
+    if (user.session.isDM) {
+      socket.sendAction(GAME_MUSIC_AMBIENCE, ambienceToJson());
+    }
   }
 
   Map<String, dynamic> ambienceToJson() => {
@@ -163,20 +168,29 @@ class AudioPlayer {
   }
 
   void _sendSkip() {
-    _playlist.skip();
-    tracklist.setTrack(_playlist.index);
-    socket.sendAction(GAME_MUSIC_SKIP, tracklist.toSyncJson());
+    if (user.session.isDM) {
+      _playlist.skip();
+      tracklist.setTrack(_playlist.index);
+      socket.sendAction(GAME_MUSIC_SKIP, tracklist.toSyncJson());
+    }
   }
 
   void _sendPlaylist(String id) async {
-    var json = await socket.request(GAME_MUSIC_PLAYLIST, {'playlist': id});
-    onNewTracklist(json);
+    if (user.session.isDM) {
+      var json = await socket.request(GAME_MUSIC_PLAYLIST, {'playlist': id});
+      onNewTracklist(json);
+    }
   }
 
   void onNewTracklist(json) {
-    tracklist = json['tracks'] == null ? null : Tracklist.fromJson(json);
+    tracklist = (json == null || json['tracks'] == null)
+        ? null
+        : Tracklist.fromJson(json);
     _playlist.fromTracklist(
         tracklist, (t) => getFile('ambience/tracks/${t.id}.mp3'));
+
+    skipButton.disabled = tracklist == null;
+    if (tracklist == null) displayTrack(null);
   }
 
   void syncTracklist(json) {
@@ -189,19 +203,26 @@ class AudioPlayer {
 
     var children = player.children;
     var title = children[0];
-    title.attributes['href'] = 'https://www.youtube.com/watch?v=${t.id}';
-    title.title = t.title;
+    if (t != null) {
+      title.attributes['href'] = 'https://www.youtube.com/watch?v=${t.id}';
+    } else {
+      title.removeAttribute('href');
+    }
 
-    _changeText(title, t.title);
-    _changeText(children[1], t.artist);
+    title.title = t?.title ?? '';
+
+    _changeText(title, t?.title ?? '');
+    _changeText(children[1], t?.artist ?? '');
   }
 
   Future<void> _changeText(HtmlElement e, String content) async {
     if (e.innerHtml.trim() != content.trim()) {
       e.classes.add('transition');
       await Future.delayed(Duration(milliseconds: 200));
-      e.innerHtml = content;
-      e.classes.remove('transition');
+      if (content != '') {
+        e.innerHtml = content;
+        e.classes.remove('transition');
+      }
     }
   }
 }

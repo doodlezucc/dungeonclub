@@ -1027,6 +1027,7 @@ $ping-radius: 100px;
         transition: opacity 0.4s;
 
         &.transition {
+            cursor: default;
             opacity: 0;
             transition: 0.2s;
         }
