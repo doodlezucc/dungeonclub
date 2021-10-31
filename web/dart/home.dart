@@ -59,6 +59,8 @@ Future<bool> _initLogInTab() async {
     loginButton.disabled = true;
     loginError.text = null;
 
+    if (!rememberMe.checked) window.localStorage.remove('token');
+
     var loggedIn = await user.login(
       loginEmail.value,
       loginPassword.value,

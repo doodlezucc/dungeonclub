@@ -36,6 +36,13 @@ class FrontSocket extends Socket {
   Timer _retryTimer;
   ConstantDialog _errorDialog;
 
+  Future<void> _requireConnection() async {
+    if (_webSocket == null) {
+      connect();
+    }
+    return _waitForOpen.future;
+  }
+
   void connect({bool goHome = true}) {
     _retryTimer?.cancel();
     _webSocket =
@@ -43,8 +50,9 @@ class FrontSocket extends Socket {
           ..onOpen.listen((e) {
             if (_errorDialog != null) {
               window.location.href = goHome ? homeUrl : window.location.href;
+            } else {
+              _waitForOpen.complete();
             }
-            _waitForOpen.complete();
           })
           ..onClose.listen((e) => _handleConnectionClose())
           ..onError.listen((e) => _handleConnectionError());
@@ -84,19 +92,19 @@ class FrontSocket extends Socket {
 
   @override
   Future<void> send(data) async {
-    await _waitForOpen.future;
+    await _requireConnection();
     _webSocket.send(data);
   }
 
   @override
   Future<dynamic> request(String action, [Map<String, dynamic> params]) async {
-    await _waitForOpen.future;
+    await _requireConnection();
     return super.request(action, params);
   }
 
   @override
   Future<void> sendAction(String action, [Map<String, dynamic> params]) async {
-    await _waitForOpen.future;
+    await _requireConnection();
     return super.sendAction(action, params);
   }
 

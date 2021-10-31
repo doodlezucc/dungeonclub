@@ -17,7 +17,6 @@ String get homeUrl => _homeUrl;
 
 void main() async {
   _listenToCssReload();
-  socket.connect();
 
   print('Ready!');
 
