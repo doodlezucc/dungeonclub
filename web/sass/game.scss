@@ -1015,8 +1015,8 @@ $ping-radius: 100px;
             gap: 6px;
 
             > i {
-                width: 18px;
-                text-align: right;
+                min-width: 20px;
+                text-align: center;
             }
         }
     }
