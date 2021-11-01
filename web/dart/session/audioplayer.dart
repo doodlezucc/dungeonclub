@@ -76,7 +76,7 @@ class AudioPlayer {
   }
 
   void init(Session session, json) async {
-    await user.requireFirstInteraction;
+    await requireFirstInteraction;
     _setupAmbience();
 
     window.navigator.mediaSession

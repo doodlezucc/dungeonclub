@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 
 import 'package:path/path.dart';
@@ -9,6 +10,9 @@ import 'dart/panels/edit_game.dart' as edit_game;
 import 'dart/panels/join_session.dart' as join_session;
 import 'dart/panels/feedback.dart' as feedback;
 import 'dart/user.dart';
+
+final _interaction = Completer();
+Future get requireFirstInteraction => _interaction.future;
 
 final user = User();
 const appName = 'D&D Interactive';
@@ -34,6 +38,7 @@ void main() async {
   document.onDrop.listen((e) => e.preventDefault());
   document.onDragOver.listen((e) => e.preventDefault());
   window.onPopState.listen((_) => window.location.reload());
+  unawaited(document.onMouseDown.first.then((_) => _interaction.complete()));
 
   _homeUrl = dirname(window.location.href);
   await home.init();
