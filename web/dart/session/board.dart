@@ -40,7 +40,7 @@ final HtmlElement _selectionProperties = querySelector('#selectionProperties');
 final InputElement _selectedLabel = querySelector('#movableLabel');
 final InputElement _selectedSize = querySelector('#movableSize');
 final InputElement _selectedAura = querySelector('#movableAura');
-final InputElement _selectedInvisible = querySelector('#movableInvisible');
+final ButtonElement _selectedInvisible = querySelector('#movableInvisible');
 final ButtonElement _selectedRemove = querySelector('#movableRemove');
 final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
 
@@ -148,7 +148,9 @@ class Board {
       }
 
       _selectedAura.valueAsNumber = activeMovable.auraRadius;
-      _selectedInvisible.checked = activeMovable.invisible;
+      _selectedInvisible.classes.toggle('active', activeMovable.invisible);
+      _selectedInvisible.text =
+          activeMovable.invisible ? 'Invisible' : 'Visible';
       _selectedSize.valueAsNumber = activeMovable.size;
       _updateSelectionSizeInherit();
       _selectedConds.querySelectorAll('.active').classes.remove('active');
@@ -376,11 +378,11 @@ class Board {
     _listenSelectedLazyUpdate(_selectedAura, onChange: (m, value) {
       m.auraRadius = double.parse(value);
     });
-    _selectedInvisible.onChange.listen((_) {
+    _selectedInvisible.onClick.listen((_) {
+      var inv = _selectedInvisible.classes.toggle('active');
+      _selectedInvisible.text = inv ? 'Invisible' : 'Visible';
       socket.sendAction(
-        a.GAME_MOVABLE_UPDATE,
-        (activeMovable..invisible = _selectedInvisible.checked).toJson(),
-      );
+          a.GAME_MOVABLE_UPDATE, (activeMovable..invisible = inv).toJson());
     });
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
       m.size = int.parse(value);
@@ -821,7 +823,7 @@ class Board {
         id: ids[i],
         pos: src.position,
         conds: src.conds,
-      );
+      )..fromJson(jsons.elementAt(i));
 
       if (src is EmptyMovable) {
         (m as EmptyMovable).label = src.label;

@@ -250,6 +250,9 @@ button.big {
 button.compact {
     padding: 4px 8px;
 }
+button.compact.big {
+    box-shadow: none;
+}
 button.toggle.active {
     background-color: var(--color-primary) !important;
     color: var(--color-text-inverse) !important;
