@@ -15,7 +15,7 @@ import 'session.dart';
 final _root = querySelector('#ambience');
 
 class AudioPlayer {
-  final ambience = Ambience()..volume = 1;
+  Ambience _ambience;
   FilterableAudioClipTrack _weather;
   FilterableAudioClipTrack _crowd;
   ClipPlaylist<AudioClipTrack> _playlist;
@@ -59,22 +59,26 @@ class AudioPlayer {
         'Crowd: ${_getTooltip(2, v)}';
   }
 
-  AudioPlayer() {
-    _weather = FilterableAudioClipTrack(ambience)
+  String _toUrl(String s) => getFile('ambience/sounds/$s.mp3');
+
+  void _setupAmbience() {
+    _ambience = Ambience()..volume = 1;
+    _weather = FilterableAudioClipTrack(_ambience)
       ..addAll(['rain', 'heavy-rain'].map((s) => _toUrl('weather-$s')));
 
-    _crowd = FilterableAudioClipTrack(ambience)
+    _crowd = FilterableAudioClipTrack(_ambience)
       ..addAll(['pub', 'market'].map((s) => _toUrl('crowd-$s')));
 
-    _playlist = ClipPlaylist(AudioClipTrack(ambience));
+    _playlist = ClipPlaylist(AudioClipTrack(_ambience));
     _playlist.onClipChange.listen((clip) {
       displayTrack(tracklist.tracks[clip.id]);
     });
   }
 
-  String _toUrl(String s) => getFile('ambience/sounds/$s.mp3');
+  void init(Session session, json) async {
+    await user.requireFirstInteraction;
+    _setupAmbience();
 
-  void init(Session session, json) {
     window.navigator.mediaSession
       ..setActionHandler('play', () {})
       ..setActionHandler('pause', () {})

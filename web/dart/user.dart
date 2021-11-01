@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
@@ -18,6 +19,13 @@ class User {
 
   Session _session;
   Session get session => _session;
+
+  final _interactionCompleter = Completer();
+  Future get requireFirstInteraction => _interactionCompleter.future;
+
+  User() {
+    document.onMouseDown.first.then((_) => _interactionCompleter.complete());
+  }
 
   Future<StateError> joinSession(String id, [String name]) async {
     var s = await socket.request(GAME_JOIN, {
