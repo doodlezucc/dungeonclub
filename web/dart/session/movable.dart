@@ -33,6 +33,9 @@ class Movable extends EntityBase {
     return false;
   }
 
+  bool get invisible => e.classes.contains('invisible');
+  set invisible(bool invisible) => e.classes.toggle('invisible', invisible);
+
   double _auraRadius;
   double get auraRadius => _auraRadius;
   set auraRadius(double auraRadius) {
@@ -165,17 +168,20 @@ class Movable extends EntityBase {
 
   Map<String, dynamic> toCloneJson() => {
         'prefab': prefab.id,
-        'conds': _conds.toList(),
-        'aura': auraRadius,
         ...writePoint(position),
-        ...super.toJson(),
+        ..._sharedJson(),
       };
 
   @override
   Map<String, dynamic> toJson() => {
         'movable': id,
+        ..._sharedJson(),
+      };
+
+  Map<String, dynamic> _sharedJson() => {
         'conds': _conds.toList(),
         'aura': auraRadius,
+        'invisible': invisible,
         ...super.toJson(),
       };
 
@@ -183,6 +189,7 @@ class Movable extends EntityBase {
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
     auraRadius = json['aura'] ?? 0;
+    invisible = json['invisible'] ?? false;
     applyConditions(List<int>.from(json['conds'] ?? []));
   }
 }

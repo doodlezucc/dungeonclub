@@ -279,7 +279,7 @@
             gap: 8px;
             justify-content: flex-start;
 
-            > input {
+            > input:not([type=checkbox]) {
                 width: 100%;
             }
         }
@@ -730,11 +730,19 @@
     box-sizing: border-box;
     transform-origin: top left;
     transform: scale(calc(var(--cell-size) / 70));
-    transition: border-color 0.1s, width 0.1s, height 0.1s;
+    transition: border-color 0.1s, width 0.1s, height 0.1s, opacity 0.1s;
 
     --size: 1;
     --x: 0;
     --y: 0;
+
+    &.invisible {
+        &:not(.accessible) { display: none; }
+        &.accessible {
+            opacity: 0.75;
+            pointer-events: all;
+        }
+    }
 
     &:not(#movableGhost) {
         animation: movable-spawn 0.5s cubic-bezier(0.23, 1, 0.320, 1);

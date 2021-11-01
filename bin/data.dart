@@ -675,13 +675,13 @@ class Movable extends EntityBase {
   num x;
   num y;
   num auraRadius;
+  bool invisible;
 
   Movable._(int id, Map<String, dynamic> json)
       : id = id,
         prefab = json['prefab'],
         x = json['x'],
-        y = json['y'],
-        auraRadius = json['aura'] ?? 0.0 {
+        y = json['y'] {
     fromJson(json);
   }
 
@@ -695,7 +695,8 @@ class Movable extends EntityBase {
   @override
   void fromJson(Map<String, dynamic> json) {
     size = json['size'] ?? 0;
-    auraRadius = json['aura'];
+    auraRadius = json['aura'] ?? 0.0;
+    invisible = json['invisible'] ?? false;
     conds.clear();
     conds.addAll(List.from(json['conds'] ?? []));
   }
@@ -708,6 +709,7 @@ class Movable extends EntityBase {
         'y': y,
         'conds': conds,
         'aura': auraRadius,
+        'invisible': invisible,
         ...super.toJson(),
       };
 }

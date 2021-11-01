@@ -40,6 +40,7 @@ final HtmlElement _selectionProperties = querySelector('#selectionProperties');
 final InputElement _selectedLabel = querySelector('#movableLabel');
 final InputElement _selectedSize = querySelector('#movableSize');
 final InputElement _selectedAura = querySelector('#movableAura');
+final InputElement _selectedInvisible = querySelector('#movableInvisible');
 final ButtonElement _selectedRemove = querySelector('#movableRemove');
 final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
 
@@ -147,6 +148,7 @@ class Board {
       }
 
       _selectedAura.valueAsNumber = activeMovable.auraRadius;
+      _selectedInvisible.checked = activeMovable.invisible;
       _selectedSize.valueAsNumber = activeMovable.size;
       _updateSelectionSizeInherit();
       _selectedConds.querySelectorAll('.active').classes.remove('active');
@@ -373,6 +375,12 @@ class Board {
     });
     _listenSelectedLazyUpdate(_selectedAura, onChange: (m, value) {
       m.auraRadius = double.parse(value);
+    });
+    _selectedInvisible.onChange.listen((_) {
+      socket.sendAction(
+        a.GAME_MOVABLE_UPDATE,
+        (activeMovable..invisible = _selectedInvisible.checked).toJson(),
+      );
     });
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
       m.size = int.parse(value);
