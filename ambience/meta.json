@@ -1,5 +1,5 @@
 {
-  "modified": 1635173084000,
+  "modified": 1635946589000,
   "tracks": [
     {
       "id": "F-CU7SomBvo",
@@ -24,12 +24,6 @@
       "title": "Maiden's Lullaby",
       "artist": "Adrian von Ziegler",
       "duration": 129
-    },
-    {
-      "id": "gNzjCBCeTE0",
-      "title": "Laid Back Guitars",
-      "artist": "Kevin MacLeod",
-      "duration": 245
     },
     {
       "id": "ZUoZ89Dbga4",
@@ -186,12 +180,6 @@
       "title": "Into Silence, part two",
       "artist": "Vindsvept",
       "duration": 202
-    },
-    {
-      "id": "Z5gAgrhiWwU",
-      "title": "Light of the Sea",
-      "artist": "Vindsvept",
-      "duration": 199
     },
     {
       "id": "s-DnLBAWggw",
@@ -458,12 +446,6 @@
       "duration": 106
     },
     {
-      "id": "GFDcn-eW0kc",
-      "title": "Time to Die",
-      "artist": "Marcus Neely",
-      "duration": 280
-    },
-    {
       "id": "y9erkQvHlqs",
       "title": "A World Unbound",
       "artist": "Vindsvept",
@@ -632,12 +614,6 @@
       "duration": 149
     },
     {
-      "id": "JjARVNm7VOk",
-      "title": "Disciples of Steel",
-      "artist": "Kai Engel",
-      "duration": 295
-    },
-    {
       "id": "yBv3vLw3Uew",
       "title": "The Fall",
       "artist": "Vindsvept",
@@ -665,7 +641,6 @@
         "IEiEWJCpUAw",
         "9YfrZaql4EE",
         "GrfwoMw3EFU",
-        "gNzjCBCeTE0",
         "ZUoZ89Dbga4",
         "UWbzDiDgVA8",
         "iGKBw4WbZR8",
@@ -691,7 +666,6 @@
       "title": "Overworld",
       "tracks": [
         "orvLhmoRLUQ",
-        "orvLhmoRLUQ",
         "YfOYtE5QET8",
         "ZFyw4FZFZng",
         "y4bq1a3egD4",
@@ -699,7 +673,6 @@
         "v0G-1hKWKes",
         "zXaVhQU24qI",
         "AOxtryjHesI",
-        "Z5gAgrhiWwU",
         "s-DnLBAWggw",
         "xlK2c9vLSlc",
         "s2QyWFyXUOg",
@@ -721,7 +694,6 @@
       "title": "Dungeon",
       "tracks": [
         "KqPibIc4Ans",
-        "KqPibIc4Ans",
         "VzBSbVRf27Y",
         "hhKKRIXP2c8",
         "C4hAPBXn01w",
@@ -736,7 +708,6 @@
       "id": "PL4K_2Hl-nCuVPx4ori1uLoqTvQgyJZkqu",
       "title": "Sorrow",
       "tracks": [
-        "h7losFn9oS8",
         "h7losFn9oS8",
         "P1GCSIg3tn8",
         "0VG-cbOHgg0",
@@ -765,7 +736,6 @@
         "kh9Cwip3pfw",
         "VD8_RV3vOfw",
         "7r79rXTjlgI",
-        "GFDcn-eW0kc",
         "y9erkQvHlqs",
         "ThNwUbJu2Js",
         "X8WuurZCrU8",
@@ -800,7 +770,6 @@
         "iHQtwPTOcvw",
         "ylD9nAXFe2Q",
         "F9M5VdDHKoo",
-        "JjARVNm7VOk",
         "yBv3vLw3Uew",
         "H5x-VwLYrQ0",
         "-YJYHlbd2FQ"

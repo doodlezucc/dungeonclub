@@ -78,8 +78,15 @@ void main(List<String> args) async {
   accountMaintainer.autoCheckForFile();
   listenToExit();
 
-  await loadAmbience();
-  print('Ambience audio is up to date!');
+  try {
+    await loadAmbience();
+    print('Ambience audio is up to date!');
+  } on Exception catch (e) {
+    print(e.toString());
+    print('Failed to extract ambience track sources.'
+        ' If you require the integrated audio player,'
+        ' make sure you have youtube-dl and ffmpeg installed.');
+  }
 }
 
 void onExit() async {
