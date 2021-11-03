@@ -8,9 +8,10 @@ build/
 # Directory created by dartdoc
 doc/api/
 
+ambience/tracks/
 database/
 database_backup/
-web/style
-web/main.dart.*
 mail/gmail_credentials
-ambience/tracks/
+web/images/icons/
+web/main.dart.*
+web/style
