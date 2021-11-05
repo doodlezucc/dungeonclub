@@ -227,7 +227,7 @@ bool _upscale(String type) {
   }
 }
 
-Future displayOffline({
+Future _displayOffline({
   @required String type,
   Blob initialImg,
   Future Function(String base64, int maxRes, bool upscale) processUpload,
@@ -288,19 +288,6 @@ Future displayOffline({
   overlayVisible = false;
   return finalResult;
 }
-
-Future<dynamic> displayUploader({
-  @required String action,
-  @required String type,
-  Map<String, dynamic> extras,
-  Blob initialImg,
-}) =>
-    displayOffline(
-      type: type,
-      initialImg: initialImg,
-      processUpload: (base64, maxRes, upscale) =>
-          _upload(base64, action, type, extras, maxRes, upscale),
-    );
 
 void _loadFileAsImage(Blob blob) async {
   _img.src = Url.createObjectUrlFromBlob(blob);
@@ -378,10 +365,11 @@ Future<dynamic> _upload(String base64, String action, String type,
 
 Future<dynamic> display({
   @required MouseEvent event,
-  @required String action,
   @required String type,
+  String action,
   Map<String, dynamic> extras,
   Blob initialImg,
+  Future Function(String base64, int maxRes, bool upscale) processUpload,
   void Function(bool v) onPanelVisible,
 }) async {
   if (initialImg == null &&
@@ -409,11 +397,12 @@ Future<dynamic> display({
 
   onPanelVisible(true);
 
-  var result = await displayOffline(
+  var result = await _displayOffline(
     type: type,
     initialImg: initialImg,
-    processUpload: (base64, maxRes, upscale) =>
-        _upload(base64, action, type, extras, maxRes, upscale),
+    processUpload: processUpload ??
+        (base64, maxRes, upscale) =>
+            _upload(base64, action, type, extras, maxRes, upscale),
   );
 
   onPanelVisible(false);
