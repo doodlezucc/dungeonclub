@@ -22,6 +22,8 @@ final ButtonElement _uploadButton = _panel.querySelector('button[type=submit]');
 final DivElement _crop = _panel.querySelector('#crop');
 final SpanElement _dragText = _panel.querySelector('#dragText');
 
+final DivElement _picker = querySelector('#imagePrePick');
+
 Point<double> get _imgSize =>
     Point(_img.width.toDouble(), _img.height.toDouble());
 
@@ -208,6 +210,7 @@ int _getMaxRes(String type) {
 bool _isSquare(String type) {
   switch (type) {
     case IMAGE_TYPE_PC:
+    case IMAGE_TYPE_ENTITY:
       return true;
     default:
       return false;
@@ -286,7 +289,7 @@ Future displayOffline({
   return finalResult;
 }
 
-Future<dynamic> display({
+Future<dynamic> displayUploader({
   @required String action,
   @required String type,
   Map<String, dynamic> extras,
@@ -370,5 +373,49 @@ Future<dynamic> _upload(String base64, String action, String type,
   if (extras != null) json.addAll(Map.from(extras));
 
   var result = await socket.request(action, json);
+  return result;
+}
+
+Future<dynamic> display({
+  @required MouseEvent event,
+  @required String action,
+  @required String type,
+  Map<String, dynamic> extras,
+  Blob initialImg,
+  void Function(bool v) onPanelVisible,
+}) async {
+  if (initialImg == null &&
+      (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_ENTITY)) {
+    var p = event.page;
+    _picker
+      ..style.left = '${p.x - 8}px'
+      ..style.top = '${p.y - 12}px'
+      ..classes.add('show');
+
+    var ev = await Future.any([
+      _picker.onMouseLeave.first,
+      _picker.onClick.first,
+    ]);
+
+    _picker.classes.remove('show');
+
+    if (ev.type == 'mouseleave' || ev.target == _picker) return null;
+
+    if (ev.path.contains(_picker.children.first)) {
+      print('Asset');
+      return null;
+    }
+  }
+
+  onPanelVisible(true);
+
+  var result = await displayOffline(
+    type: type,
+    initialImg: initialImg,
+    processUpload: (base64, maxRes, upscale) =>
+        _upload(base64, action, type, extras, maxRes, upscale),
+  );
+
+  onPanelVisible(false);
   return result;
 }

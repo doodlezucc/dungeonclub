@@ -237,7 +237,7 @@ class Board {
       }
     });
 
-    _changeImage.onClick.listen((_) => _changeImageDialog());
+    _changeImage.onClick.listen(_changeImageDialog);
     _editScene.onClick.listen((_) => editingGrid = true);
     _exitEdit.onClick.listen((_) => editingGrid = false);
 
@@ -754,8 +754,9 @@ class Board {
     ping.remove();
   }
 
-  void _changeImageDialog() async {
+  void _changeImageDialog(MouseEvent ev) async {
     var img = await upload.display(
+      event: ev,
       action: a.GAME_SCENE_UPDATE,
       type: a.IMAGE_TYPE_SCENE,
       extras: {'id': _sceneId},
@@ -990,8 +991,7 @@ void listenLazyUpdate(
 
   input.onFocus.listen((_) => onFoc());
   input.onInput.listen((_) {
-    typedValue = input.value;
-    onChange(typedValue);
+    onChange(typedValue = input.value);
   });
   input.onBlur.listen((_) => update());
   input.onChange.listen((_) => update());

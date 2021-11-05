@@ -298,7 +298,7 @@
 							</div>
 							<i id="emptyIcon"></i>
 							<span>Name:
-								<input id="prefabName" type="text">
+								<input id="prefabName" type="text" placeholder="Name...">
 							</span>
 							<span>Default size:
 								<input id="prefabSize" type="number" min="1" max="25" placeholder="Size...">
@@ -664,7 +664,7 @@
 					grid.
 				</p>
 				<div id="startingScene" class="edit-img">
-					<div>Upload Image</div>
+					<div>Pick Image</div>
 					<img>
 				</div>
 			</div>
@@ -704,6 +704,32 @@
 				</label>
 				<button class="big" type="submit">Upload</button>
 			</span>
+		</div>
+
+		<div id="imagePrePick">
+			<button class="icon">Pick from Assets
+				<i class="fas fa-user"></i>
+			</button>
+			<button class="icon">Upload Image
+				<i class="fas fa-upload"></i>
+			</button>
+		</div>
+
+		<div class="panel" id="assetPanel">
+			<h2>Pick Asset</h2>
+			<button class="close">
+				<i class="fas fa-times"></i>
+			</button>
+
+			<div id="assetGrid">
+				<img src="images/icons/delapouite/archer.svg">
+				<img src="images/icons/delapouite/archer.svg">
+				<img src="images/icons/delapouite/archer.svg">
+				<img src="images/icons/delapouite/archer.svg">
+				<img src="images/icons/delapouite/archer.svg">
+				<img src="images/icons/delapouite/archer.svg">
+				<img src="images/icons/delapouite/archer.svg">
+			</div>
 		</div>
 
 		<div id="charPick" class="panel">

@@ -131,7 +131,7 @@ void _initPrefabPalette() {
 
   _otherPrefs.nodes.insert(0, emptyPrefab.e);
 
-  _addPref.onClick.listen((_) => createPrefab());
+  _addPref.onClick.listen(createPrefab);
   _palette.querySelector('#paletteCollapse').onClick.listen((_) {
     collapsed = !collapsed;
   });
@@ -140,8 +140,9 @@ void _initPrefabPalette() {
 void _initPrefabProperties() {
   registerEditImage(
     _prefabImage,
-    upload: ([Blob initialFile]) async {
+    upload: (MouseEvent ev, [Blob initialFile]) async {
       return await upload.display(
+          event: ev,
           action: GAME_PREFAB_UPDATE,
           type: IMAGE_TYPE_ENTITY,
           initialImg: initialFile,
@@ -239,10 +240,11 @@ void _displayLimitMsg() {
   HtmlNotification('Limit of 20 custom tokens reached.').display();
 }
 
-Future<void> createPrefab() async {
+Future<void> createPrefab(MouseEvent ev) async {
   if (prefabs.length >= 20) return _displayLimitMsg();
 
   var result = await upload.display(
+    event: ev,
     action: GAME_PREFAB_CREATE,
     type: IMAGE_TYPE_ENTITY,
   );

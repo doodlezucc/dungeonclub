@@ -20,7 +20,8 @@ final ButtonElement _deleteButton = _panel.querySelector('button#delete');
 final ButtonElement _saveButton = _panel.querySelector('button#save');
 final DivElement _startingScene = registerEditImage(
   _panel.querySelector('#startingScene'),
-  upload: ([Blob initialFile]) async => await uploader.displayOffline(
+  upload: (MouseEvent ev, [Blob initialFile]) async =>
+      await uploader.displayOffline(
     type: IMAGE_TYPE_SCENE,
     initialImg: initialFile,
     processUpload: (base64, maxRes, upscale) async {
@@ -168,11 +169,10 @@ class _EditChar {
     _roster.append(e);
   }
 
-  Future<String> _changeIcon([Blob initialFile]) async {
-    _panel.classes.add('upload');
-
+  Future<String> _changeIcon(MouseEvent ev, [Blob initialFile]) async {
     String result;
     if (_prepareMode) {
+      _panel.classes.add('upload');
       result = await uploader.displayOffline(
         type: IMAGE_TYPE_PC,
         initialImg: initialFile,
@@ -183,6 +183,7 @@ class _EditChar {
       );
     } else {
       result = await uploader.display(
+        event: ev,
         action: GAME_CHARACTER_UPLOAD,
         type: IMAGE_TYPE_PC,
         initialImg: initialFile,
@@ -190,6 +191,7 @@ class _EditChar {
           'id': id,
           'gameId': _gameId,
         },
+        onPanelVisible: (v) => _panel.classes.toggle('upload', v),
       );
     }
 

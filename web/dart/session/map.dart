@@ -116,10 +116,11 @@ class MapTab {
     }
   }
 
-  Future<bool> _uploadNewMap() async {
+  Future<bool> _uploadNewMap(MouseEvent ev) async {
     if (maps.length >= 10) return false;
 
     var id = await uploader.display(
+      event: ev,
       action: GAME_MAP_CREATE,
       type: IMAGE_TYPE_MAP,
     );
@@ -153,17 +154,17 @@ class MapTab {
     });
 
     _navLeft.onClick.listen((_) => mapIndex--);
-    _navRight.onClick.listen((_) async {
+    _navRight.onClick.listen((ev) async {
       if (user.session.isDM &&
           mapIndex == maps.length - 1 &&
-          !await _uploadNewMap()) return;
+          !await _uploadNewMap(ev)) return;
 
       mapIndex++;
     });
 
-    _imgButton.onClick.listen((_) {
+    _imgButton.onClick.listen((ev) {
       if (maps.isEmpty) {
-        _uploadNewMap();
+        _uploadNewMap(ev);
       }
     });
 
@@ -174,9 +175,9 @@ class MapTab {
   }
 
   void _initTools() {
-    void registerAction(String name, void Function() action) {
+    void registerAction(String name, void Function(MouseEvent ev) action) {
       ButtonElement button = _tools.querySelector('[action=$name]')
-        ..onClick.listen((_) => action());
+        ..onClick.listen(action);
 
       button.onMouseEnter.listen((_) => _setToolInfo(name));
       button.onMouseLeave.listen((_) => _setToolInfo(mode));
@@ -201,11 +202,12 @@ class MapTab {
       }
     });
 
-    registerAction('undo', () => map?.whiteboard?.history?.undo());
-    registerAction('redo', () => map?.whiteboard?.history?.redo());
-    registerAction('clear', () => clearMap());
-    registerAction('change', () async {
+    registerAction('undo', (_) => map?.whiteboard?.history?.undo());
+    registerAction('redo', (_) => map?.whiteboard?.history?.redo());
+    registerAction('clear', (_) => clearMap());
+    registerAction('change', (ev) async {
       var img = await uploader.display(
+        event: ev,
         action: GAME_MAP_UPDATE,
         type: IMAGE_TYPE_MAP,
         extras: {'map': map.id},

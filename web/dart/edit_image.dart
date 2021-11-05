@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 
 HtmlElement registerEditImage(
   HtmlElement editImg, {
-  @required Future<String> Function([Blob initialFile]) upload,
+  @required Future<String> Function(MouseEvent ev, [Blob initialFile]) upload,
   void Function(String src) onSuccess,
 }) {
   ImageElement img = editImg.querySelector('img');
@@ -15,9 +15,9 @@ HtmlElement registerEditImage(
   });
   editImg.onDragLeave.listen((_) => editImg.classes.remove('drag'));
 
-  void uploadAndUpdate([Blob initialFile]) async {
+  void uploadAndUpdate(MouseEvent ev, [Blob initialFile]) async {
     editImg.classes.remove('drag');
-    var src = await upload(initialFile);
+    var src = await upload(ev, initialFile);
     if (src != null) {
       img.src = src.startsWith('data')
           ? src
@@ -27,11 +27,11 @@ HtmlElement registerEditImage(
   }
 
   return editImg
-    ..onClick.listen((_) => uploadAndUpdate())
-    ..onDrop.listen((e) {
-      e.preventDefault();
-      if (e.dataTransfer.files != null && e.dataTransfer.files.isNotEmpty) {
-        uploadAndUpdate(e.dataTransfer.files[0]);
+    ..onClick.listen((ev) => uploadAndUpdate(ev))
+    ..onDrop.listen((ev) {
+      ev.preventDefault();
+      if (ev.dataTransfer.files != null && ev.dataTransfer.files.isNotEmpty) {
+        uploadAndUpdate(ev, ev.dataTransfer.files[0]);
       }
     });
 }
