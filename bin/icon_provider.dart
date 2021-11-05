@@ -36,18 +36,22 @@ class TokenIconProvider {
     query = query.toLowerCase();
     var files = await directory
         .list(recursive: true, followLinks: false)
-        .where((file) => file.path.contains(query))
+        .where((f) => f.path.endsWith('.svg') && f.path.contains(query))
         .take(20)
         .toList();
 
     return files.map((e) => Icon(e.path)).toList()
       ..sort((a, b) {
+        var bias = 0;
         if (_isSuperior(a.name, query)) {
-          return -1;
-        } else if (_isSuperior(b.name, query)) {
-          return 1;
+          bias--;
         }
-        return a.name.compareTo(b.name);
+        if (_isSuperior(b.name, query)) {
+          bias++;
+        }
+        if (bias == 0) return a.name.compareTo(b.name);
+
+        return bias;
       });
   }
 
