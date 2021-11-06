@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
@@ -558,9 +559,25 @@ class Connection extends Socket {
         : _game.meta;
 
     if (meta.isLoaded && meta != null) {
-      var file = await (await meta.loadedGame.getFile('$type$id')).create();
+      var file = await meta.loadedGame.getFile('$type$id');
 
-      await file.writeAsBytes(base64Decode(base64));
+      if (base64.startsWith('images/')) {
+        // [base64] is a path to an asset
+        if (Platform.isWindows) {
+          // Windows symlinks require Dart to run in administrator mode,
+          // so I guess the asset just gets copied.
+          await File('web/$base64').copy(file.path);
+        } else {
+          await file.delete();
+
+          var link = Link(file.path);
+          await link.create(base64);
+        }
+      } else {
+        await file.create();
+        await file.writeAsBytes(base64Decode(base64));
+      }
+
       return '$address/${file.path.replaceAll('\\', '/')}';
     }
     return 'Missing game info';

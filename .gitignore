@@ -12,6 +12,6 @@ ambience/tracks/
 database/
 database_backup/
 mail/gmail_credentials
-web/images/icons/
+web/images/assets/
 web/main.dart.*
 web/style

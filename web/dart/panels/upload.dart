@@ -23,6 +23,8 @@ final DivElement _crop = _panel.querySelector('#crop');
 final SpanElement _dragText = _panel.querySelector('#dragText');
 
 final DivElement _picker = querySelector('#imagePrePick');
+final DivElement _assetPanel = querySelector('#assetPanel');
+final DivElement _assetGrid = querySelector('#assetGrid');
 
 Point<double> get _imgSize =>
     Point(_img.width.toDouble(), _img.height.toDouble());
@@ -344,7 +346,7 @@ CanvasElement _imgToCanvas(int maxRes, bool upscale) {
         _img, x * nw, y * nh, w * nw, h * nh, 0, 0, dw, dh);
 }
 
-Future<dynamic> _imgToBase64(int maxRes, bool upscale) async {
+Future _imgToBase64(int maxRes, bool upscale) async {
   var canvas = _imgToCanvas(maxRes, upscale);
   var blob = await canvas.toBlob('image/jpeg', 0.85);
 
@@ -354,7 +356,7 @@ Future<dynamic> _imgToBase64(int maxRes, bool upscale) async {
   return (reader.result as String).substring(23);
 }
 
-Future<dynamic> _upload(String base64, String action, String type,
+Future _upload(String base64, String action, String type,
     Map<String, dynamic> extras, int maxRes, bool upscale) async {
   var json = <String, dynamic>{'type': type, 'data': base64};
   if (extras != null) json.addAll(Map.from(extras));
@@ -363,7 +365,31 @@ Future<dynamic> _upload(String base64, String action, String type,
   return result;
 }
 
-Future<dynamic> display({
+Future<String> _displayAssetPicker(String type) async {
+  _assetGrid.children.clear();
+  _assetPanel.classes.add('show');
+  overlayVisible = true;
+
+  var completer = Completer<String>();
+
+  for (var i = 1; i <= 40; i++) {
+    var src = 'images/assets/HeroTokens/$i.png';
+    var img = ImageElement(src: src)
+      ..onClick.listen((_) => completer.complete(src));
+    _assetGrid.append(img);
+  }
+
+  var result = await Future.any([
+    completer.future,
+    _assetPanel.querySelector('.close').onClick.map((_) => null).first,
+  ]);
+
+  _assetPanel.classes.remove('show');
+  overlayVisible = false;
+  return result;
+}
+
+Future display({
   @required MouseEvent event,
   @required String type,
   String action,
@@ -372,6 +398,8 @@ Future<dynamic> display({
   Future Function(String base64, int maxRes, bool upscale) processUpload,
   void Function(bool v) onPanelVisible,
 }) async {
+  var visible = (bool v) => onPanelVisible != null ? onPanelVisible(v) : null;
+
   if (initialImg == null &&
       (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_ENTITY)) {
     var p = event.page;
@@ -390,12 +418,23 @@ Future<dynamic> display({
     if (ev.type == 'mouseleave' || ev.target == _picker) return null;
 
     if (ev.path.contains(_picker.children.first)) {
-      print('Asset');
-      return null;
+      visible(true);
+      var asset = await _displayAssetPicker(type);
+      visible(false);
+      if (asset == null) return null;
+
+      var maxRes = _getMaxRes(type);
+      var upscale = _upscale(type);
+
+      if (processUpload != null) {
+        return await processUpload(asset, maxRes, upscale);
+      }
+
+      return await _upload(asset, action, type, extras, maxRes, upscale);
     }
   }
 
-  onPanelVisible(true);
+  visible(true);
 
   var result = await _displayOffline(
     type: type,
@@ -405,6 +444,6 @@ Future<dynamic> display({
             _upload(base64, action, type, extras, maxRes, upscale),
   );
 
-  onPanelVisible(false);
+  visible(false);
   return result;
 }

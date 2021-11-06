@@ -746,6 +746,8 @@
 
     &:not(#movableGhost) {
         animation: movable-spawn 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+
+        > .img { background-color: #1118; }
     }
     &.animate-move {
         transition: left 0.3s, top 0.3s;
@@ -812,7 +814,7 @@
         align-items: center;
         justify-content: center;
 
-        .img { background: #222; }
+        .img { background: #222 !important; }
 
         > span {
             pointer-events: none;
