@@ -70,7 +70,7 @@ class User {
     window.location.href = homeUrl;
   }
 
-  void onActivate([Map<String, dynamic> accJson]) {
+  void onActivate(Map<String, dynamic> accJson) {
     _account = Account(accJson);
     home.onLogin();
   }
@@ -85,7 +85,7 @@ class User {
         'remember': rememberMe,
       },
     );
-    if (response != false) {
+    if (response != null) {
       onActivate(response);
       return true;
     }
@@ -94,7 +94,7 @@ class User {
 
   Future<bool> loginToken(String token) async {
     var response = await socket.request(ACCOUNT_LOGIN, {'token': token});
-    if (response != false) {
+    if (response != null) {
       onActivate(response);
       return true;
     }

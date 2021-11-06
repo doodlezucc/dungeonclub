@@ -111,7 +111,7 @@ class CodePanel {
         var account = await socket.request(actionVerify, {
           'code': _codeInput.value,
         });
-        if (account == false) {
+        if (account == null) {
           return _errorText2.text = 'Invalid code!';
         }
 

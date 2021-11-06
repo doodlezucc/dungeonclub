@@ -111,7 +111,7 @@ class Connection extends Socket {
       case a.ACCOUNT_ACTIVATE:
         var actualCode = activationCodes[this];
         String code = params['code'];
-        if (actualCode == null || code != actualCode) return false;
+        if (actualCode == null || code != actualCode) return null;
 
         activationCodes.remove(this);
         print('New account activated!');
@@ -124,7 +124,7 @@ class Connection extends Socket {
         String token = params['token'];
         bool remember = params['remember'] ?? false;
         if (email == null || password == null) {
-          if (token == null || tokenAccounts[token] == null) return false;
+          if (token == null || tokenAccounts[token] == null) return null;
 
           return loginAccount(tokenAccounts[token]);
         }
@@ -146,14 +146,15 @@ class Connection extends Socket {
       case a.ACCOUNT_RESET_PASSWORD_ACTIVATE:
         var reset = resets[this];
         String code = params['code'];
-        if (reset == null || code != reset.code) return false;
+        if (reset == null || code != reset.code) return null;
 
         var acc = data.getAccount(reset.email);
-        if (acc == null) return false;
+        if (acc == null) return null;
 
         acc.encryptedPassword = Crypt.sha256(reset.password);
 
         resets.remove(this);
+        tokenAccounts.removeWhere((s, a) => a == acc);
         print('Password changed!');
         return loginAccount(acc);
 
@@ -603,12 +604,20 @@ class Connection extends Socket {
   dynamic login(String email, String password, {bool provideToken = true}) {
     var acc = data.getAccount(email);
     if (acc == null || !acc.encryptedPassword.match(password)) {
-      return false;
+      return null;
     }
     return loginAccount(acc, provideToken: provideToken);
   }
 
   Map<String, dynamic> loginAccount(Account acc, {bool provideToken = false}) {
+    // Close the connection to any other user logged into this account
+    for (var c in connections) {
+      if (c._account == acc) {
+        c.ws.sink.close();
+        break;
+      }
+    }
+
     _account = acc;
     print('Connection logged in with account ' + acc.encryptedEmail.hash);
     var result = acc.toSnippet();
