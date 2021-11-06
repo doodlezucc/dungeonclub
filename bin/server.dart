@@ -13,7 +13,6 @@ import 'connections.dart';
 import 'data.dart';
 import 'mail.dart';
 import 'maintenance.dart';
-import 'icon_provider.dart';
 
 // For Google Cloud Run, set _hostname to '0.0.0.0'.
 const _hostname = 'localhost';
@@ -27,7 +26,6 @@ final data = ServerData();
 final autoSaver = AutoSaver(data);
 final maintainer = Maintainer('maintenance');
 final accountMaintainer = AccountMaintainer('account');
-final iconProvider = TokenIconProvider('web/images/icons');
 const wsPing = Duration(seconds: 15);
 
 void main(List<String> args) async {
@@ -89,8 +87,6 @@ void main(List<String> args) async {
         ' If you require the integrated audio player,'
         ' make sure you have youtube-dl and ffmpeg installed.');
   }
-
-  await iconProvider.initialize('web/images/game-icons.zip');
 }
 
 void onExit() async {
@@ -145,13 +141,6 @@ Future<Response> _echoRequest(Request request) async {
     var count = connections.length;
     var loggedIn = connections.where((e) => e.account != null).length;
     return Response.ok('Connections: $count\nLogged in: $loggedIn');
-  } else if (path.startsWith('icon')) {
-    var query = request.url.queryParameters['q'];
-    if (query != null) {
-      return Response.ok((await iconProvider.searchIcons(query))
-          .map((e) => e.path)
-          .join('\n'));
-    }
   }
 
   var isDataFile =
