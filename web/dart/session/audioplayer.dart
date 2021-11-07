@@ -62,7 +62,7 @@ class AudioPlayer {
   String _toUrl(String s) => getFile('ambience/sounds/$s.mp3');
 
   void _setupAmbience() {
-    _ambience = Ambience()..volume = 1;
+    _ambience = Ambience()..volume = 0.5;
     _weather = FilterableAudioClipTrack(_ambience)
       ..addAll(['rain', 'heavy-rain'].map((s) => _toUrl('weather-$s')));
 
@@ -87,8 +87,8 @@ class AudioPlayer {
       ..setActionHandler('seekforward', () {})
       ..setActionHandler('seekto', () {});
 
-    _input('vMusic', 0.6, (v) => volumeMusic = v);
-    _input('vAmbience', 0.6, (v) => volumeSfx = v);
+    _input('vMusic', 0.5, (v) => volumeMusic = v);
+    _input('vAmbience', 0.5, (v) => volumeSfx = v);
 
     _sWeather = SmoothSlider(
         _input('weather', json['weather'], (v) => weatherIntensity = v, true));
@@ -99,9 +99,8 @@ class AudioPlayer {
       onSmoothChange: (v) => _weather.filter = 20000 - 19800 * pow(v, 0.5),
     );
 
-    if (window.localStorage['audioPin'] == 'true') {
-      _root.classes.add('keep-open');
-    }
+    _root.classes
+        .toggle('keep-open', window.localStorage['audioPin'] != 'false');
 
     _root.querySelector('button').onClick.listen((_) {
       window.localStorage['audioPin'] = '${_root.classes.toggle('keep-open')}';
