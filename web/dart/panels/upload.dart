@@ -76,6 +76,21 @@ void _initialize() {
     e.preventDefault();
     if (e.dataTransfer.files != null && e.dataTransfer.files.isNotEmpty) {
       _loadFileAsImage(e.dataTransfer.files[0]);
+    } else {
+      var regex = RegExp(r'https?:\S+(?="|$)');
+
+      var matches = e.dataTransfer.types.expand((t) {
+        var data = e.dataTransfer.getData(t);
+        return regex.allMatches(data).map((s) => s[0]);
+      });
+
+      if (matches.isNotEmpty) {
+        var resolved = matches.firstWhere(
+          (s) => !s.contains('http', 5),
+          orElse: () => matches.first,
+        );
+        _loadSrcAsImage(resolved);
+      }
     }
   });
 
@@ -291,9 +306,20 @@ Future _displayOffline({
   return finalResult;
 }
 
-void _loadFileAsImage(Blob blob) async {
-  _img.src = Url.createObjectUrlFromBlob(blob);
-  await _img.onLoad.first;
+void _loadFileAsImage(Blob blob) {
+  _loadSrcAsImage(Url.createObjectUrlFromBlob(blob));
+}
+
+void _loadSrcAsImage(String src) async {
+  _uploadButton.disabled = true;
+  _img.src = src;
+  var event = await Future.any([_img.onLoad.first, _img.onError.first]);
+  if (event.type == 'error') {
+    // Use server to download an untainted version of the image
+    _img.src = getFile('untaint', cacheBreak: false) + '?url=$src';
+
+    await _img.onLoad.first;
+  }
 
   var width = _img.naturalWidth;
   var height = _img.naturalHeight;

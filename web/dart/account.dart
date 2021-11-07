@@ -8,14 +8,12 @@ import 'panels/edit_game.dart' as edit_game;
 import 'panels/panel_overlay.dart';
 
 class Account {
-  final String email;
   final List<Game> games;
   final _joinStream = StreamController<bool>.broadcast();
   int _lockJoin = 0;
 
   Account(Map<String, dynamic> json)
-      : email = json['email'],
-        games = List.from(json['games'])
+      : games = List.from(json['games'])
             .map((e) => Game(e['id'], e['name'], e['mine']))
             .toList() {
     var token = json['token'];

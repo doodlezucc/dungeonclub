@@ -13,6 +13,7 @@ import 'connections.dart';
 import 'data.dart';
 import 'mail.dart';
 import 'maintenance.dart';
+import 'untaint.dart';
 
 // For Google Cloud Run, set _hostname to '0.0.0.0'.
 const _hostname = 'localhost';
@@ -141,6 +142,8 @@ Future<Response> _echoRequest(Request request) async {
     var count = connections.length;
     var loggedIn = connections.where((e) => e.account != null).length;
     return Response.ok('Connections: $count\nLogged in: $loggedIn');
+  } else if (path.startsWith('untaint')) {
+    return untaint(request, _notFound);
   }
 
   var isDataFile =
@@ -156,7 +159,7 @@ Future<Response> _echoRequest(Request request) async {
     if (isDataFile && path.contains('/pc')) {
       return Response.seeOther('$address/images/default_pc.jpg');
     } else if (!path.startsWith('game/') && path.isNotEmpty) {
-      return Response.notFound('Request for "${request.url}"');
+      return _notFound(request);
     } else {
       file = File('web/index.html');
     }
@@ -174,4 +177,8 @@ Future<Response> _echoRequest(Request request) async {
       'Accept-Ranges': 'bytes',
     },
   );
+}
+
+Response _notFound(Request request) {
+  return Response.notFound('Request for "${request.url}"');
 }
