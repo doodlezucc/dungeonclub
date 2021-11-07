@@ -721,16 +721,12 @@ class EmptyMovable extends Movable {
 
   @override
   void fromJson(Map<String, dynamic> json) {
-    size = json['size'] ?? 0;
     label = json['label'] ?? '';
+    super.fromJson(json);
   }
 
   @override
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'prefab': prefab,
-        'x': x,
-        'y': y,
         'label': label,
         ...super.toJson(),
       };
