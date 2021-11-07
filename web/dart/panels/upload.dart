@@ -248,6 +248,7 @@ Future _displayOffline({
   @required String type,
   Blob initialImg,
   Future Function(String base64, int maxRes, bool upscale) processUpload,
+  bool openDialog = true,
 }) async {
   if (!_init) {
     _initialize();
@@ -294,7 +295,7 @@ Future _displayOffline({
     })
   ];
 
-  if (initialImg == null) {
+  if (openDialog && initialImg == null) {
     _uploadInput.click();
   }
 
@@ -425,6 +426,7 @@ Future display({
   void Function(bool v) onPanelVisible,
 }) async {
   var visible = (bool v) => onPanelVisible != null ? onPanelVisible(v) : null;
+  var openDialog = true;
 
   if (initialImg == null &&
       (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_ENTITY)) {
@@ -457,6 +459,8 @@ Future display({
       }
 
       return await _upload(asset, action, type, extras, maxRes, upscale);
+    } else if (ev.path.contains(_picker.children.last)) {
+      openDialog = false;
     }
   }
 
@@ -465,6 +469,7 @@ Future display({
   var result = await _displayOffline(
     type: type,
     initialImg: initialImg,
+    openDialog: openDialog,
     processUpload: processUpload ??
         (base64, maxRes, upscale) =>
             _upload(base64, action, type, extras, maxRes, upscale),
