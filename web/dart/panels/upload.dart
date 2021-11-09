@@ -77,18 +77,24 @@ void _initialize() {
     if (e.dataTransfer.files != null && e.dataTransfer.files.isNotEmpty) {
       _loadFileAsImage(e.dataTransfer.files[0]);
     } else {
-      var regex = RegExp(r'https?:\S+(?="|$)');
+      var regex = RegExp(r'https?:\S+(?=")');
+      String preferred;
 
       var matches = e.dataTransfer.types.expand((t) {
         var data = e.dataTransfer.getData(t);
-        return regex.allMatches(data).map((s) => s[0]);
-      });
+        var parts = regex.allMatches(data).map((s) => s[0]);
+
+        if (parts.isNotEmpty && t == 'text/html') preferred = parts.first;
+
+        return parts.isNotEmpty ? parts : [data];
+      }).toList();
 
       if (matches.isNotEmpty) {
-        var resolved = matches.firstWhere(
-          (s) => !s.contains('http', 5),
-          orElse: () => matches.first,
-        );
+        var resolved = preferred ??
+            matches.firstWhere(
+              (s) => !s.contains('http', 5),
+              orElse: () => matches.first,
+            );
         _loadSrcAsImage(resolved);
       }
     }
