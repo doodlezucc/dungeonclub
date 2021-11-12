@@ -725,7 +725,6 @@ class Board {
       _selectedConds.append(ico
         ..onClick.listen((_) {
           ico.classes.toggle('active', _activeMovable.toggleCondition(i));
-
           socket.sendAction(a.GAME_MOVABLE_UPDATE, _activeMovable.toJson());
         }));
     }
@@ -755,15 +754,21 @@ class Board {
   }
 
   void _changeImageDialog(MouseEvent ev) async {
-    var img = await upload.display(
+    var result = await upload.display(
       event: ev,
       action: a.GAME_SCENE_UPDATE,
       type: a.IMAGE_TYPE_SCENE,
       extras: {'id': _sceneId},
     );
 
-    if (img != null) {
-      await onImgChange(src: img);
+    if (result != null) {
+      if (result is String) {
+        await onImgChange(src: result);
+      } else {
+        await onImgChange(src: result['path']);
+        grid.tiles = result['tiles'];
+        gridTiles.valueAsNumber = grid.tiles;
+      }
     }
   }
 

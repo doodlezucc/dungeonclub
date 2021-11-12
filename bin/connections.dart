@@ -547,7 +547,7 @@ class Connection extends Socket {
     }
   }
 
-  Future<String> _uploadGameImage({
+  Future<dynamic> _uploadGameImage({
     @required String data,
     @required String type,
     @required dynamic id,
@@ -562,12 +562,13 @@ class Connection extends Socket {
 
     if (meta.isLoaded && meta != null) {
       var file = await meta.loadedGame.getFile('$type$id');
+      var result = '$address/${file.path.replaceAll('\\', '/')}';
 
       if (data.startsWith('images/')) {
         // [base64] is a path to an asset
         var dir = 'web/images/assets/$type/';
         var assetIndex = int.parse(p.basename(data));
-        var dataImg = await Directory(dir).list().elementAt(assetIndex);
+        File dataImg = await Directory(dir).list().elementAt(assetIndex);
         var path = dataImg.path;
 
         if (Platform.isWindows) {
@@ -580,17 +581,26 @@ class Connection extends Socket {
           var link = Link(path);
           await link.create(data);
         }
+        var match = RegExp(r'\d+x\d').firstMatch(dataImg.path);
+        if (match != null) {
+          var s = match[0];
+          return {
+            'path': result,
+            'tiles': int.parse(s.substring(0, s.indexOf('x'))),
+          };
+        }
       } else {
         await file.create();
         await file.writeAsBytes(base64Decode(data));
       }
 
-      return '$address/${file.path.replaceAll('\\', '/')}';
+      return result;
     }
     return 'Missing game info';
   }
 
-  Future<String> _uploadGameImageJson(Map<String, dynamic> json, {dynamic id}) {
+  Future<dynamic> _uploadGameImageJson(Map<String, dynamic> json,
+      {dynamic id}) {
     return _uploadGameImage(
       data: json['data'],
       type: json['type'],

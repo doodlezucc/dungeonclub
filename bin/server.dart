@@ -81,7 +81,7 @@ void main(List<String> args) async {
   listenToExit();
 
   await createAssetPreview('web/images/assets/pc', tileSize: 240, usePng: true);
-  await resizeAll('web/images/assets/scene');
+  // await resizeAll('web/images/assets/scene');
   await createAssetPreview('web/images/assets/scene', zoomIn: true);
 
   try {

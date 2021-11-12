@@ -8,7 +8,7 @@ import 'package:web_whiteboard/util.dart';
 import '../../main.dart';
 
 final HtmlElement _controls = querySelector('#sceneEditor');
-final InputElement _gridTiles = _controls.querySelector('#gridTiles');
+final InputElement gridTiles = _controls.querySelector('#gridTiles');
 final InputElement _gridTileUnit = _controls.querySelector('#gridTileUnit');
 final InputElement _gridColor = _controls.querySelector('#gridColor');
 final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
@@ -98,9 +98,9 @@ class Grid {
   }
 
   void _initGridEditor() {
-    _gridTiles
+    gridTiles
       ..onInput.listen((event) {
-        tiles = _gridTiles.valueAsNumber;
+        tiles = gridTiles.valueAsNumber;
       })
       ..onMouseEnter.listen((_) {
         blink = true;
@@ -263,7 +263,7 @@ class Grid {
 
   void fromJson(Map<String, dynamic> json) {
     tiles = json['tiles'];
-    _gridTiles.valueAsNumber = tiles;
+    gridTiles.valueAsNumber = tiles;
     _gridTileUnit.value = json['tileUnit'];
     _validateTileUnit();
     _gridColor.value = json['color'];
