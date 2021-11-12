@@ -394,7 +394,10 @@ class Connection extends Socket {
         var s = _game?.addScene();
         if (s == null) return null;
 
-        await _uploadGameImageJson(params, id: id);
+        var result = await _uploadGameImageJson(params, id: id);
+        if (result is Map) {
+          s.tiles = result['tiles'];
+        }
         scene = s;
         return s.toJson();
 
