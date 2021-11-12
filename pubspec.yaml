@@ -24,6 +24,7 @@ dependencies:
     git: https://github.com/doodlezucc/web_polymask.git
   ambience:
     git: https://github.com/doodlezucc/ambience.git
+  image: ^3.0.8
 
 dev_dependencies:
   build_runner: ^2.1.4

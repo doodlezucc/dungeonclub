@@ -403,12 +403,19 @@ Future<String> _displayAssetPicker(String type) async {
   _assetPanel.classes.add('show');
   overlayVisible = true;
 
+  var tmp = ImageElement(src: 'images/assets/$type-preview');
+  await tmp.onLoad.first;
+
+  var tileSize = tmp.width;
+  var tiles = tmp.height ~/ tileSize;
+
   var completer = Completer<String>();
 
-  for (var i = 1; i <= 40; i++) {
-    var src = 'images/assets/HeroTokens/$i.png';
-    var img = ImageElement(src: src)
-      ..onClick.listen((_) => completer.complete(src));
+  for (var i = 0; i < tiles; i++) {
+    var img = DivElement()
+      ..style.backgroundImage = 'url(${tmp.src})'
+      ..style.backgroundPositionY = '${-i * 100}%'
+      ..onClick.listen((_) => completer.complete('images/assets/$type/$i'));
     _assetGrid.append(img);
   }
 
@@ -435,7 +442,7 @@ Future display({
   var openDialog = true;
 
   if (initialImg == null &&
-      (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_ENTITY)) {
+      (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_SCENE)) {
     var p = event.page;
     _picker
       ..style.left = '${p.x - 8}px'

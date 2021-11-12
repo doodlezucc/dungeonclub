@@ -7,6 +7,7 @@ import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/comms.dart';
 import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as p;
 import 'package:pedantic/pedantic.dart';
 import 'package:random_string/random_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -178,14 +179,14 @@ class Connection extends Socket {
         var countdown = _game.characters.length;
         for (var i = 0; i < _game.characters.length; i++) {
           unawaited(_uploadGameImage(
-            base64: params['pics'][i],
+            data: params['pics'][i],
             type: a.IMAGE_TYPE_PC,
             id: i,
           ).then((_) => countdown--));
         }
 
         await _uploadGameImage(
-          base64: params['scene'],
+          data: params['scene'],
           type: a.IMAGE_TYPE_SCENE,
           id: 0,
         );
@@ -547,12 +548,12 @@ class Connection extends Socket {
   }
 
   Future<String> _uploadGameImage({
-    @required String base64,
+    @required String data,
     @required String type,
     @required dynamic id,
     String gameId,
   }) async {
-    if (base64 == null || type == null || id == null) return 'Missing info';
+    if (data == null || type == null || id == null) return 'Missing info';
 
     var meta = gameId != null
         ? account.ownedGames
@@ -562,21 +563,26 @@ class Connection extends Socket {
     if (meta.isLoaded && meta != null) {
       var file = await meta.loadedGame.getFile('$type$id');
 
-      if (base64.startsWith('images/')) {
+      if (data.startsWith('images/')) {
         // [base64] is a path to an asset
+        var dir = 'web/images/assets/$type/';
+        var assetIndex = int.parse(p.basename(data));
+        var dataImg = await Directory(dir).list().elementAt(assetIndex);
+        var path = dataImg.path;
+
         if (Platform.isWindows) {
           // Windows symlinks require Dart to run in administrator mode,
-          // so I guess the asset just gets copied.
-          await File('web/$base64').copy(file.path);
+          // so I guess we'll just make a copy.
+          await File(path).copy(file.path);
         } else {
           await file.delete();
 
-          var link = Link(file.path);
-          await link.create(base64);
+          var link = Link(path);
+          await link.create(data);
         }
       } else {
         await file.create();
-        await file.writeAsBytes(base64Decode(base64));
+        await file.writeAsBytes(base64Decode(data));
       }
 
       return '$address/${file.path.replaceAll('\\', '/')}';
@@ -586,7 +592,7 @@ class Connection extends Socket {
 
   Future<String> _uploadGameImageJson(Map<String, dynamic> json, {dynamic id}) {
     return _uploadGameImage(
-      base64: json['data'],
+      data: json['data'],
       type: json['type'],
       id: id ?? json['id'],
       gameId: json['gameId'],

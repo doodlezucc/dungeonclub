@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as p;
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_web_socket/shelf_web_socket.dart' as ws;
 
+import 'asset_provider.dart';
 import 'audio.dart';
 import 'autosave.dart';
 import 'connections.dart';
@@ -61,7 +62,7 @@ void main(List<String> args) async {
   var _fixCORS = createMiddleware(responseHandler: _cors);
 
   var handler =
-      const Pipeline().addMiddleware(_fixCORS).addHandler(_echoRequest);
+      const Pipeline().addMiddleware(_fixCORS).addHandler(_handleRequest);
 
   var server = await io.serve(handler, _hostname, port);
 
@@ -78,6 +79,10 @@ void main(List<String> args) async {
   maintainer.autoCheckForFile();
   accountMaintainer.autoCheckForFile();
   listenToExit();
+
+  await createAssetPreview('web/images/assets/pc', tileSize: 240, usePng: true);
+  await resizeAll('web/images/assets/scene');
+  await createAssetPreview('web/images/assets/scene', zoomIn: true);
 
   try {
     await loadAmbience();
@@ -109,7 +114,7 @@ void listenToExit() {
 }
 
 String getMimeType(File f) {
-  switch (path.extension(f.path)) {
+  switch (p.extension(f.path)) {
     case '.html':
       return 'text/html';
     case '.css':
@@ -126,7 +131,7 @@ String getMimeType(File f) {
   return 'text/plain';
 }
 
-Future<Response> _echoRequest(Request request) async {
+Future<Response> _handleRequest(Request request) async {
   var path = request.url.path;
 
   if (path == 'ws') {
@@ -148,6 +153,8 @@ Future<Response> _echoRequest(Request request) async {
 
   var isDataFile =
       path.startsWith('database/games') || path.startsWith('ambience/');
+
+  if (path.contains('/assets/')) path = Uri.decodeComponent(path);
 
   var file = isDataFile
       ? File(path)
