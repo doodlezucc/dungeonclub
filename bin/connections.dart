@@ -223,11 +223,12 @@ class Connection extends Socket {
             },
             allScenes: true,
           );
+          var result = game.applyChanges(data);
           await meta.close();
-          return game.applyChanges(data);
+          return result;
         }
 
-        return game.toSessionSnippet(this);
+        return game.toEditSnippet();
 
       case a.GAME_DELETE:
         if (account == null) return false;

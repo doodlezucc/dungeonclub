@@ -474,6 +474,11 @@ class Game {
         if (meta.owner == c.account) 'dm': {'scenes': _scenes.length},
       };
 
+  Map<String, dynamic> toEditSnippet() => {
+        'name': meta.name,
+        'pcs': _characters.map((e) => e.toJson(includeStatus: true)).toList(),
+      };
+
   bool applyChanges(Map<String, dynamic> data) {
     var charCount = _characters.length;
     _characters.clear();
