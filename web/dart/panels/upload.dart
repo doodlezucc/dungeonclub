@@ -441,8 +441,7 @@ Future display({
   var visible = (bool v) => onPanelVisible != null ? onPanelVisible(v) : null;
   var openDialog = true;
 
-  if (initialImg == null &&
-      (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_SCENE)) {
+  if (initialImg == null) {
     var p = event.page;
 
     var bottom = window.innerHeight - p.y;
@@ -452,12 +451,14 @@ Future display({
         ..bottom = 'auto';
     } else {
       _picker.style
-        ..bottom = '${bottom - 12}px'
+        ..bottom = '12px'
         ..top = 'auto';
     }
 
     _picker
-      ..style.left = '${p.x - 8}px'
+      ..style.left = '${p.x}px'
+      ..classes.toggle(
+          'no-assets', type != IMAGE_TYPE_PC && type != IMAGE_TYPE_SCENE)
       ..classes.add('show');
 
     var ev = await Future.any([
