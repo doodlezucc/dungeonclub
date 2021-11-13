@@ -574,15 +574,18 @@ class Connection extends Socket {
         File dataImg = await Directory(dir).list().elementAt(assetIndex);
         var path = dataImg.path;
 
+        var link = Link(file.path);
+
+        if (await link.exists()) await link.delete();
+
         if (Platform.isWindows) {
           // Windows symlinks require Dart to run in administrator mode,
           // so I guess we'll just make a copy.
           await File(path).copy(file.path);
         } else {
-          await file.delete();
+          if (await file.exists()) await file.delete();
 
-          var link = Link(path);
-          await link.create(data);
+          await link.create(path);
         }
         var match = RegExp(r'\d+x\d').firstMatch(dataImg.path);
         if (match != null) {
