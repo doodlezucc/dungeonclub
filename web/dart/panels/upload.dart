@@ -444,9 +444,20 @@ Future display({
   if (initialImg == null &&
       (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_SCENE)) {
     var p = event.page;
+
+    var bottom = window.innerHeight - p.y;
+    if (bottom > 120) {
+      _picker.style
+        ..top = '${p.y - 12}px'
+        ..bottom = 'auto';
+    } else {
+      _picker.style
+        ..bottom = '${bottom - 12}px'
+        ..top = 'auto';
+    }
+
     _picker
       ..style.left = '${p.x - 8}px'
-      ..style.top = '${p.y - 12}px'
       ..classes.add('show');
 
     var ev = await Future.any([
