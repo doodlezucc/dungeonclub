@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
@@ -185,11 +186,19 @@ class Connection extends Socket {
           ).then((_) => countdown--));
         }
 
-        await _uploadGameImage(
-          data: params['scene'],
-          type: a.IMAGE_TYPE_SCENE,
-          id: 0,
-        );
+        var sceneDir = Directory('web/images/assets/scene');
+        if (await sceneDir.exists()) {
+          var count = await sceneDir.list().length;
+          var index = Random().nextInt(count);
+          var result = await _uploadGameImage(
+            data: 'images/$index',
+            type: a.IMAGE_TYPE_SCENE,
+            id: 0,
+          );
+          if (result is Map) {
+            scene.tiles = result['tiles'];
+          }
+        }
 
         return _game.toSessionSnippet(this);
 
@@ -573,7 +582,6 @@ class Connection extends Socket {
         var assetIndex = int.parse(p.basename(data));
         File dataImg = await Directory(dir).list().elementAt(assetIndex);
         var path = dataImg.path;
-
         var link = Link(file.path);
 
         if (await link.exists()) await link.delete();

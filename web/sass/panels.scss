@@ -88,9 +88,6 @@
         filter: brightness(0.5);
     }
 
-    &:not(.prepare) {
-        .on-prepare { display: none; }
-    }
     &.prepare {
         #delete { display: none; }
     }

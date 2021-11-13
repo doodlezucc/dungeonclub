@@ -18,23 +18,9 @@ final HtmlElement _roster = _panel.querySelector('#editChars');
 final ButtonElement _cancelButton = _panel.querySelector('button.close');
 final ButtonElement _deleteButton = _panel.querySelector('button#delete');
 final ButtonElement _saveButton = _panel.querySelector('button#save');
-final DivElement _startingScene = registerEditImage(
-  _panel.querySelector('#startingScene'),
-  upload: (MouseEvent ev, [Blob initialFile]) async => await uploader.display(
-    event: ev,
-    type: IMAGE_TYPE_SCENE,
-    initialImg: initialFile,
-    processUpload: (base64, maxRes, upscale) async {
-      _sceneImgData = base64;
-      _saveButton.disabled = false;
-      return 'data:image/jpeg;base64,$base64';
-    },
-  ),
-);
 
 final _chars = <_EditChar>[];
 
-String _sceneImgData;
 String _gameId;
 int _idCounter = 0;
 final AnchorElement _addCharButton = _panel.querySelector('#addChar')
@@ -57,6 +43,7 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   if (result is String) return print('Error: $result');
 
   overlayVisible = true;
+  _saveButton.text = 'Save Changes';
   _saveButton.disabled = false;
 
   _gameNameInput
@@ -103,12 +90,10 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
 }
 
 Future<Game> displayPrepare() async {
-  // Initialize edit-img
-  _startingScene.className += '';
-
   prepareMode = true;
   overlayVisible = true;
-  _saveButton.disabled = true;
+  _saveButton.text = 'Create Campaign';
+  _saveButton.disabled = false;
 
   _gameNameInput
     ..value = ''
@@ -222,8 +207,7 @@ Future<Game> _createGameAndJoin() async {
 
   var session = await socket.request(GAME_CREATE_NEW, {
     'pics': _chars.map((pc) => pc.bufferedImg).toList(),
-    'scene': _sceneImgData,
-    'data': _currentDataJson()
+    'data': _currentDataJson(),
   });
   if (session == null) return null;
 
