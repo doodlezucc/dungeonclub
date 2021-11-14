@@ -250,16 +250,18 @@ bool _upscale(String type) {
   }
 }
 
+final _displayCtrl = StreamController<int>.broadcast(sync: true);
+
 Future _displayOffline({
   @required String type,
   Blob initialImg,
   Future Function(String base64, int maxRes, bool upscale) processUpload,
   bool openDialog = true,
 }) async {
+  _displayCtrl.sink.add(0);
   if (!_init) {
     _initialize();
   }
-  overlayVisible = true;
 
   var maxRes = _getMaxRes(type);
   var upscale = _upscale(type);
@@ -273,10 +275,20 @@ Future _displayOffline({
     _crop.classes.add('hide');
     _dragText.classes.remove('hide');
     _uploadButton.disabled = true;
+
+    if (openDialog) {
+      _uploadInput.click();
+      var event = await Future.any([
+        _displayCtrl.stream.first,
+        _uploadInput.onInput.first,
+      ]);
+      if (event == 0) return null;
+    }
   } else {
     _loadFileAsImage(initialImg);
   }
 
+  overlayVisible = true;
   _panel.classes.add('show');
 
   var completer = Completer();
@@ -301,10 +313,6 @@ Future _displayOffline({
     })
   ];
 
-  if (openDialog && initialImg == null) {
-    _uploadInput.click();
-  }
-
   var finalResult = await completer.future;
   subs.forEach((s) => s.cancel());
   _panel.classes.remove('show');
@@ -322,6 +330,8 @@ void _loadSrcAsImage(String src) async {
   _img.src = src;
   var event = await Future.any([_img.onLoad.first, _img.onError.first]);
   if (event.type == 'error') {
+    if (src.startsWith('blob:')) return;
+
     // Use server to download an untainted version of the image
     _img.src = getFile('untaint', cacheBreak: false) + '?url=$src';
 
