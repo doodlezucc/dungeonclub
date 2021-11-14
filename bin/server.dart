@@ -162,11 +162,6 @@ Future<Response> _handleRequest(Request request) async {
           ? File('web/' + path.substring(5))
           : File('web/' + path));
 
-  if (await FileSystemEntity.isLink(file.path)) {
-    var target = await Link(file.path).target();
-    file = File(target);
-  }
-
   if (!await file.exists()) {
     if (isDataFile && path.contains('/pc')) {
       return Response.seeOther('$address/images/default_pc.jpg');
