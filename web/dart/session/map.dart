@@ -234,10 +234,15 @@ class MapTab {
       }
     });
 
-    _toolInfo.onClick.listen((_) => _tools.classes.add('collapsed'));
-    _e.querySelector('#infoShow').onClick.listen((_) {
-      _tools.classes.remove('collapsed');
-    });
+    _toolInfo.onClick.listen((_) => _setInfoVisible(false));
+    _e.querySelector('#infoShow').onClick.listen((_) => _setInfoVisible(true));
+    _tools.classes
+        .toggle('collapsed', window.localStorage['mapToolInfo'] == 'false');
+  }
+
+  void _setInfoVisible(bool v) {
+    _tools.classes.toggle('collapsed', !v);
+    window.localStorage['mapToolInfo'] = '$v';
   }
 
   void _listenToEraseAcross() {
