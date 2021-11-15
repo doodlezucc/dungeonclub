@@ -42,7 +42,11 @@
 
     #changeMap {
         @extend %responsive;
-        bottom: 16px;
+        padding: 100px;
+    }
+
+    #mapShared {
+        bottom: calc(100% + 16px);
     }
 
     #mapDelete {
@@ -151,14 +155,19 @@
         }
     }
 
-    #toolInfo, #infoShow {
+    .single-item {
         position: absolute !important;
+        border-radius: base.$radius !important;
+        border: 1px solid white;
+        min-width: 38px;
+        min-height: 38px;
+    }
+
+    #toolInfo, #infoShow {
         top: calc(100% + 16px);
         background-color: #111e;
         color: white;
         font-size: 16px;
-        border-radius: base.$radius !important;
-        border: 1px solid white;
         cursor: pointer;
         transition: opacity 0.2s, transform 0.4s;
         box-sizing: border-box;

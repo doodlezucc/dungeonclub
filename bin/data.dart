@@ -419,8 +419,11 @@ class Game {
     return map.id;
   }
 
-  void updateMap(int id, String name) =>
-      _maps.firstWhere((m) => m.id == id).name = name;
+  void updateMap(int id, String name, bool shared) {
+    var map = _maps.firstWhere((m) => m.id == id);
+    if (name != null) map.name = name;
+    if (shared != null) map.shared = shared;
+  }
 
   void removeMap(int id) async {
     _maps.removeWhere((m) => m.id == id);
@@ -501,16 +504,18 @@ class GameMap {
   final int id;
   final dataSocket = WhiteboardDataSocket(WhiteboardData());
   String name;
+  bool shared;
 
   WhiteboardData get data => dataSocket.whiteboard;
 
-  GameMap(this.id, this.name, [String encodedData]) {
+  GameMap(this.id, this.name, [this.shared = false, String encodedData]) {
     if (encodedData != null) {
       data.fromBytes(base64.decode(encodedData));
     }
   }
 
-  GameMap.fromJson(json) : this(json['map'], json['name'], json['data']);
+  GameMap.fromJson(json)
+      : this(json['map'], json['name'], json['shared'] ?? false, json['data']);
 
   void setLayers(int layerCount) {
     while (data.layers.length > layerCount) {
@@ -524,6 +529,7 @@ class GameMap {
   Map<String, dynamic> toJson() => {
         'map': id,
         'name': name,
+        'shared': shared,
         'data': base64.encode(data.toBytes()),
       };
 }

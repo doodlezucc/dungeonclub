@@ -461,9 +461,10 @@ class Connection extends Socket {
       case a.GAME_MAP_UPDATE:
         int id = params['map'];
         String name = params['name'];
+        bool shared = params['shared'];
 
-        if (name != null) {
-          _game.updateMap(id, name);
+        if (name != null || shared != null) {
+          _game.updateMap(id, name, shared);
           _game.notify(action, params, exclude: this, allScenes: true);
           return true;
         }

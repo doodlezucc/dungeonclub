@@ -17,6 +17,7 @@ final HtmlElement _mapContainer = _e.querySelector('#maps');
 final ButtonElement _backButton = _e.querySelector('button[type=reset]');
 final ButtonElement _imgButton = _e.querySelector('#changeMap');
 final InputElement _name = _e.querySelector('#mapName');
+final ButtonElement _shared = _e.querySelector('#mapShared');
 final HtmlElement _tools = _e.querySelector('#mapTools');
 final HtmlElement _toolInfo = _e.querySelector('#toolInfo');
 final InputElement _color = _e.querySelector('#activeColor');
@@ -36,6 +37,7 @@ class MapTab {
     _mapIndex = currentMap;
     _mapContainer.style.left = '${currentMap * -100}%';
     _name.value = map.name;
+    shared = map.shared;
     mode = mode;
     map._fixScaling();
     _updateHistoryButtons();
@@ -49,7 +51,7 @@ class MapTab {
   String get mode => _mode;
   set mode(String mode) {
     _mode = mode;
-    _tools.querySelectorAll('.active').classes.remove('active');
+    _tools.querySelectorAll('.active:not(#mapShared)').classes.remove('active');
     _tools.querySelector('[mode=$mode]').classes.add('active');
     _setToolInfo(mode);
 
@@ -76,6 +78,14 @@ class MapTab {
     _e.classes.toggle('show', visible);
     if (visible) {
       _updateNavigateButtons();
+    }
+  }
+
+  set shared(bool shared) {
+    _shared.classes.toggle('active', shared);
+    if (!user.session.isDM) {
+      _tools.classes.toggle('hidden', !shared);
+      map.whiteboard.captureInput = shared;
     }
   }
 
@@ -126,7 +136,7 @@ class MapTab {
     );
 
     if (id != null) {
-      addMap(id, '');
+      addMap(id, '', false);
       return true;
     }
     return false;
@@ -172,6 +182,11 @@ class MapTab {
 
     _initTools();
     _initMapName();
+    _shared.onClick.listen((_) {
+      map.shared = !map.shared;
+      shared = map.shared;
+      socket.sendAction(GAME_MAP_UPDATE, {'map': map.id, 'shared': map.shared});
+    });
   }
 
   void _initTools() {
@@ -308,12 +323,17 @@ class MapTab {
       return true;
     });
 
-    json.forEach((jMap) => addMap(jMap['map'], jMap['name'], jMap['data']));
+    json.forEach((jMap) =>
+        addMap(jMap['map'], jMap['name'], jMap['shared'], jMap['data']));
     if (maps.isNotEmpty) {
       _onFirstUpload();
     }
 
-    _color.value = user.session.getPlayerColor(user.session.charId);
+    if (user.session.isDM) {
+      _color.value = '#000000';
+    } else {
+      _color.value = user.session.getPlayerColor(user.session.charId);
+    }
     mode = Whiteboard.modeDraw;
 
     if (user.session.isDM) {
@@ -323,8 +343,8 @@ class MapTab {
 
   void _updateIndexText() => _indexText.text = '${mapIndex + 1}/${maps.length}';
 
-  void addMap(int id, String name, [String encodedData]) {
-    var map = GameMap(id, name: name, encodedData: encodedData);
+  void addMap(int id, String name, bool shared, [String encodedData]) {
+    var map = GameMap(id, name: name, shared: shared, encodedData: encodedData);
     map.whiteboard.history.onChange.listen((_) => _updateHistoryButtons());
     maps.add(map);
 
@@ -337,9 +357,13 @@ class MapTab {
   void onMapUpdate(Map<String, dynamic> json) {
     var map = maps.firstWhere((m) => m.id == json['map']);
     var name = json['name'];
+    var shared = json['shared'];
     if (name != null) {
       map.name = name;
       if (maps[mapIndex] == map) _name.value = map.name;
+    } else if (shared != null) {
+      map.shared = shared;
+      if (maps[mapIndex] == map) this.shared = shared;
     } else {
       map.reloadImage();
     }
@@ -359,8 +383,9 @@ class GameMap {
   Whiteboard whiteboard;
 
   String name;
+  bool shared;
 
-  GameMap(this.id, {this.name = '', String encodedData}) {
+  GameMap(this.id, {this.name = '', this.shared = false, String encodedData}) {
     _em = DivElement()
       ..className = 'map'
       ..append(_container = DivElement());
