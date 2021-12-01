@@ -459,7 +459,7 @@ class Game {
   Map<String, dynamic> toJson() => {
         'scene': playingSceneId,
         'pcs': _characters.map((e) => e.toJson()).toList(),
-        'scenes': _scenes.map((e) => e.toJson()).toList(),
+        'scenes': _scenes.map((e) => e.toJson(true)).toList(),
         'prefabs': _prefabs.map((e) => e.toJson()).toList(),
         'maps': _maps.map((e) => e.toJson()).toList(),
       };
@@ -468,7 +468,7 @@ class Game {
         'id': meta.id,
         'name': meta.name,
         'sceneId': playingSceneId,
-        'scene': playingScene.toJson(),
+        'scene': playingScene.toJson(meta.owner == c.account),
         'pcs': _characters.map((e) => e.toJson(includeStatus: true)).toList(),
         'maps': _maps.map((e) => e.toJson()).toList(),
         if (mine != null) 'mine': mine,
@@ -566,6 +566,7 @@ class Scene {
   String gridColor;
   num gridAlpha;
   String fogOfWar;
+  InitiativeState initiativeState;
 
   Scene(Map<String, dynamic> json)
       : movables = List.from(json['movables'] ?? [])
@@ -573,6 +574,9 @@ class Scene {
             .toList() {
     applyGrid(json['grid'] ?? {});
     fogOfWar = json['fow'];
+    if (json['initiative'] != null) {
+      initiativeState = InitiativeState.fromJson(json['initiative']);
+    }
   }
 
   Movable addMovable(Map<String, dynamic> json) {
@@ -614,7 +618,7 @@ class Scene {
     }
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson(bool includeDM) => {
         'grid': {
           'offset': writePoint(gridOffset),
           'size': writePoint(gridSize),
@@ -625,6 +629,7 @@ class Scene {
         },
         'movables': movables.map((e) => e.toJson()).toList(),
         'fow': fogOfWar,
+        'initiative': initiativeState?.toJson(includeDM),
       };
 }
 
@@ -740,5 +745,36 @@ class EmptyMovable extends Movable {
   Map<String, dynamic> toJson() => {
         'label': label,
         ...super.toJson(),
+      };
+}
+
+class InitiativeState {
+  final List<Initiative> initiatives;
+
+  InitiativeState(this.initiatives);
+  InitiativeState.fromJson(json)
+      : this((json as Iterable).map((j) => Initiative.fromJson(j)).toList());
+
+  List toJson(bool isDM) => initiatives
+      .where((ini) => (!ini.dmOnly || isDM))
+      .map((e) => e.toJson())
+      .toList();
+}
+
+class Initiative {
+  final int movableId;
+  final int roll;
+  final bool dmOnly;
+  int mod;
+
+  Initiative(this.movableId, this.roll, this.mod, this.dmOnly);
+  Initiative.fromJson(json)
+      : this(json['id'], json['roll'], json['mod'], json['dm']);
+
+  Map<String, dynamic> toJson() => {
+        'id': movableId,
+        'roll': roll,
+        'mod': mod,
+        'dm': dmOnly,
       };
 }

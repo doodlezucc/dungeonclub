@@ -384,7 +384,7 @@ class Connection extends Socket {
         if (s == null) return null;
 
         scene = s;
-        return s.toJson();
+        return s.toJson(_game.meta.owner == account);
 
       case a.GAME_SCENE_PLAY:
         var sceneId = params['id'];
@@ -392,7 +392,7 @@ class Connection extends Socket {
         if (scene == null) return null;
 
         _game.playScene(sceneId);
-        var result = scene.toJson();
+        var result = scene.toJson(_game.meta.owner == account);
         _game.notify(action, {'id': sceneId, ...result},
             exclude: this, allScenes: true);
         return result;
@@ -409,7 +409,7 @@ class Connection extends Socket {
           s.tiles = result['tiles'];
         }
         scene = s;
-        return s.toJson();
+        return s.toJson(true);
 
       case a.GAME_SCENE_REMOVE:
         int id = params['id'];
@@ -421,7 +421,7 @@ class Connection extends Socket {
         var removed = await _game.removeScene(id);
         if (!removed) return;
 
-        return _game.playingScene.toJson();
+        return _game.playingScene.toJson(true);
 
       case a.GAME_SCENE_FOG_OF_WAR:
         var data = params['data'];
@@ -512,16 +512,47 @@ class Connection extends Socket {
         return true;
 
       case a.GAME_UPDATE_INITIATIVE:
+        int id = params['id'];
         int pc = params['pc'];
+        int mod = params['mod'];
+
+        var initiative = scene.initiativeState.initiatives
+            .firstWhere((ini) => ini.movableId == id);
+        initiative.mod = mod;
+
         if (pc != null) {
-          _game.characters.elementAt(pc).initiativeMod = params['mod'];
+          _game.characters.elementAt(pc).initiativeMod = mod;
         }
+        if (initiative.dmOnly) return;
+        continue notify;
+
+      case a.GAME_ROLL_INITIATIVE:
+        scene.initiativeState = InitiativeState([]);
+        continue notify;
+
+      case a.GAME_ADD_INITIATIVE:
+        int id = params['id'];
+        int roll = params['roll'];
+        bool dm = params['dm'];
+
+        var mod = 0;
+        var movable = scene.getMovable(id);
+        if (movable.prefab.startsWith('c')) {
+          var charId = int.parse(movable.prefab.substring(1));
+          var character = _game.characters.elementAt(charId);
+          mod = character.initiativeMod;
+        }
+
+        scene.initiativeState.initiatives.add(Initiative(id, roll, mod, dm));
+        if (dm) return;
+        continue notify;
+
+      case a.GAME_CLEAR_INITIATIVE:
+        scene.initiativeState = null;
         continue notify;
 
       notify:
-      case a.GAME_ROLL_INITIATIVE:
-      case a.GAME_ADD_INITIATIVE:
-      case a.GAME_CLEAR_INITIATIVE:
+      case '':
         return _game.notify(action, params, exclude: this, allScenes: true);
 
       case a.GAME_MUSIC_PLAYLIST:

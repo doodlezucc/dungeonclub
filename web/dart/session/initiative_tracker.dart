@@ -79,12 +79,11 @@ class InitiativeTracker {
     var prefab = movable.prefab;
     var dmOnly = user.session.isDM &&
         (prefab is EmptyPrefab ||
-            (prefab is CustomPrefab && prefab.accessIds.isNotEmpty));
+            (prefab is CustomPrefab && prefab.accessIds.isEmpty));
 
     _summary.registerRoll(movable, r, dmOnly);
-    if (!dmOnly) {
-      socket.sendAction(GAME_ADD_INITIATIVE, {'id': movable.id, 'roll': r});
-    }
+    socket.sendAction(
+        GAME_ADD_INITIATIVE, {'id': movable.id, 'roll': r, 'dm': dmOnly});
 
     skipButton.disabled = userRollButton.disabled = true;
 
@@ -96,9 +95,11 @@ class InitiativeTracker {
   void addToInBar(Map<String, dynamic> json) {
     int id = json['id'];
     int total = json['roll'];
+    int mod = json['mod'];
+    bool dm = json['dm'] ?? false;
     for (var movable in user.session.board.movables) {
       if (id == movable.id) {
-        return _summary.registerRoll(movable, total, false);
+        return _summary.registerRoll(movable, total, dm, mod);
       }
     }
   }
@@ -150,8 +151,23 @@ class InitiativeTracker {
     int mod = json['mod'];
     for (var entry in _summary.entries) {
       if (entry.movable.id == id) {
+        var prefab = entry.movable.prefab;
+        if (prefab is CharacterPrefab) prefab.character.defaultModifier = mod;
+
         entry.modifier = mod;
-        _summary.sort();
+        return _summary.sort();
+      }
+    }
+  }
+
+  void fromJson(Iterable jList) {
+    callRollsButton.classes.toggle('active', jList != null);
+    if (jList == null) {
+      outOfCombat();
+    } else {
+      resetBar();
+      for (var j in jList) {
+        addToInBar(j);
       }
     }
   }
@@ -174,8 +190,10 @@ class InitiativeSummary {
     }).toList();
   }
 
-  void registerRoll(Movable movable, int base, bool dmOnly) {
+  void registerRoll(Movable movable, int base, bool dmOnly, [int mod]) {
     var entry = InitiativeEntry(movable, base, dmOnly);
+    if (mod != null) entry.modifier = mod;
+
     entries.add(entry);
     charContainer.append(entry.e);
     sort();
@@ -252,12 +270,10 @@ class InitiativeEntry {
   }
 
   void sendUpdate() {
-    if (!dmOnly) {
-      socket.sendAction(GAME_UPDATE_INITIATIVE, {
-        'id': movable.id,
-        'mod': modifier,
-        if (isChar) 'pc': char.id,
-      });
-    }
+    socket.sendAction(GAME_UPDATE_INITIATIVE, {
+      'id': movable.id,
+      'mod': modifier,
+      if (isChar) 'pc': char.id,
+    });
   }
 }

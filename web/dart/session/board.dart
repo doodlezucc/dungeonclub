@@ -947,6 +947,7 @@ class Board {
       onMovableCreate(m);
     }
 
+    initiativeTracker.fromJson(json['initiative']);
     zoom = -0.5;
     position = Point(0, 0);
   }
