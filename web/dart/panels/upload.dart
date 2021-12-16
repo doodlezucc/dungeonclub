@@ -280,6 +280,7 @@ Future _displayOffline({
       _uploadInput.click();
       var event = await Future.any([
         _displayCtrl.stream.first,
+        document.onMouseMove.map((event) => 0).first,
         _uploadInput.onInput.first,
       ]);
       if (event == 0) return null;
