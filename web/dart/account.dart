@@ -53,6 +53,8 @@ class Account {
           .display();
     }
     if (available.length == 1) {
+      _lockJoin--;
+      _joinStream.add(true);
       return available.first.id;
     }
 
