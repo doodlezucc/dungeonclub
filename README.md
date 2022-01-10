@@ -1,10 +1,8 @@
-# D&D Interactive <img align="right" src="web/images/icon.png" alt="Icon" height=96 />
+# Dungeon Club - Virtual Tabletop <img align="right" src="web/images/icon.png" alt="Icon" height=96 />
 
-**Dungeons & Dragons** is an immersive pen-and-paper RPG. Like every tabletop game, you'll surely need a table for everyone to gather around.
-Now, if your group of adventurous travelers and travelling adventurers is scattered all across the country and you don't have the chance to meet up a lot,
-virtual tabletops can be of great help to carry out a game of D&D.
+An online platform to gather and play Dungeons & Dragons, Call of Cthulu, Pathfinder and more.
 
-[**D&D Interactive**](https://theoretically.online/dnd) strives to be the most user-friendly online session tool, with a high standard of functionality range and design. Feel free to contribute!
+[**Dungeon Club**](https://theoretically.online/dnd) strives to be the most user-friendly virtual tabletop, with a high standard of functionality and design. Feel free to contribute!
 
 
 ## Running the Code Yourself
@@ -15,7 +13,7 @@ After downloading Dart, start out by running `dart pub get` in the root director
 
 
 ### 1. Backend
-The server/backend of D&D Interactive can be started by running `dart bin/server.dart` (or simply pressing `F5` in Visual Studio Code).
+The server/backend of Dungeon Club can be started by running `dart bin/server.dart` (or simply pressing `F5` in Visual Studio Code).
 
 Make sure to fill out the `mail/gmail_credentials` file with your Gmail address in the first line and your Gmail password in the second.
 (This method might be replaced with an OAuth approach in the future.)
@@ -43,4 +41,4 @@ Pressing `Shift`+`R` in your browser reloads the stylesheet without having to re
 
 <br>
 
-#### You should now be able to see your own version of D&D Interactive up and running at [http://localhost:8080](http://localhost:8080). Yay!
+#### You should now be able to see your own version of Dungeon Club up and running at [http://localhost:8080](http://localhost:8080). Yay!

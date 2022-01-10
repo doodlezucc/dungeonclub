@@ -36,7 +36,7 @@ void _submitChat() {
 }
 
 void _performChat(int pcId, String msg) {
-  var name = pcId == null ? 'DM' : user.session.characters[pcId].name;
+  var name = pcId == null ? 'GM' : user.session.characters[pcId].name;
 
   gameLog('<span class="dice">$name</span> $msg');
 }
@@ -75,7 +75,7 @@ SpanElement gameLog(String s, {bool mine = false}) {
 void logInviteLink(Session session) {
   var tooltip = SpanElement()..text = 'Copied to Clipboard!';
 
-  var line = gameLog('''Hello, DM!<br>Players can join at
+  var line = gameLog('''Hello, GM!<br>Players can join at
     <b>${session.inviteLink}</b>.''')..classes.add('clickable');
 
   line

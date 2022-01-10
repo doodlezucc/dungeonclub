@@ -56,7 +56,7 @@ Future<bool> sendPendingFeedback() async {
 
 Future<bool> sendVerifyCreationMail(String email, String code) {
   return sendMailWithCode(
-    subject: 'Activate your D&D Interactive Account',
+    subject: 'Activate your Dungeon Club Account',
     email: email,
     layoutFile: 'activate.html',
     code: code,
@@ -82,7 +82,7 @@ Future<bool> sendMailWithCode({
   content = content.replaceAll('\$CODE', code);
 
   final message = Message()
-    ..from = Address(_mailAddress, 'D&D Interactive')
+    ..from = Address(_mailAddress, 'Dungeon Club')
     ..recipients.add(email)
     ..subject = subject
     ..html = content
@@ -97,7 +97,7 @@ Future<bool> _sendFeedbackMail() async {
   pendingFeedback.sort((a, b) => a.type.compareTo(b.type));
 
   final message = Message()
-    ..from = Address(_mailAddress, 'D&D Interactive')
+    ..from = Address(_mailAddress, 'Dungeon Club')
     ..recipients.add(_mailAddress)
     ..subject = 'Feedback'
     ..text = '${pendingFeedback.length} new feedback letters:\n\n' +

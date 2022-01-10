@@ -52,7 +52,7 @@ class Session extends Game {
   }
 
   String getPlayerColor(int player, [int charCount]) {
-    if (player == null) return '#ffffff'; // DM color
+    if (player == null) return '#ffffff'; // GM color
 
     var h = 330 * player / (charCount ?? characters.length);
     var l = 0.7 - 0.05 * cos(player * pi);
@@ -101,7 +101,7 @@ class Session extends Game {
       }
     } else {
       if (!join) {
-        _dmDisconnectedDialog = ConstantDialog('Your DM Disconnected')
+        _dmDisconnectedDialog = ConstantDialog('Your GM Disconnected')
           ..addParagraph('''
               If they happen to reconnect anytime soon,
               you'll return to the game.''')

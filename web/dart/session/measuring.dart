@@ -100,7 +100,7 @@ void handleMeasuringEvent(Uint8List bytes) {
 
 abstract class Measuring {
   static Measuring create(int type, Point origin, int player) {
-    if (player == 255) player = null; // Reset DM color
+    if (player == 255) player = null; // Reset GM color
 
     switch (type) {
       case MEASURING_PATH:
@@ -188,7 +188,9 @@ class MeasuringPath extends Measuring {
   MeasuringPath(Point origin, int pc) : super(origin, svg.GElement(), pc) {
     _e.setAttribute(
         'transform', 'translate(${origin.x % 1.0}, ${origin.y % 1.0})');
-    _e..append(path)..append(lastE);
+    _e
+      ..append(path)
+      ..append(lastE);
     addPoint(origin);
   }
 

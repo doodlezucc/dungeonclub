@@ -15,7 +15,7 @@ final _interaction = Completer();
 Future get requireFirstInteraction => _interaction.future;
 
 final user = User();
-const appName = 'D&D Interactive';
+const appName = 'Dungeon Club';
 String _homeUrl;
 String get homeUrl => _homeUrl;
 

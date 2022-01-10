@@ -82,7 +82,7 @@ void onDiceRoll(Map<String, dynamic> json) {
 
   var name = mine
       ? 'You'
-      : (initiator == null ? 'DM' : user.session.characters[initiator].name);
+      : (initiator == null ? 'GM' : user.session.characters[initiator].name);
 
   var results = rolls.map((r) => _resultString(sides, r)).join(' + ');
 

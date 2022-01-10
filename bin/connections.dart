@@ -218,7 +218,7 @@ class Connection extends Socket {
           game.notify(
             a.GAME_KICK,
             {
-              'reason': '''Your DM updated the campaign settings.
+              'reason': '''Your GM updated the campaign settings.
                 To correctly reflect all changes, please join again.''',
             },
             allScenes: true,
@@ -254,7 +254,7 @@ class Connection extends Socket {
           int id;
           if (meta.owner != account) {
             if (!meta.isLoaded || !game.dmOnline) {
-              return 'Your DM is not online!';
+              return 'Your GM is not online!';
             }
 
             id = await game.dm.request(a.GAME_JOIN_REQUEST, {'name': name});
