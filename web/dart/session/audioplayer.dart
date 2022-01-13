@@ -226,8 +226,10 @@ class AudioPlayer {
     var children = player.children;
     var title = children[0];
     if (t != null) {
+      player.classes.remove('hide');
       title.attributes['href'] = 'https://www.youtube.com/watch?v=${t.id}';
     } else {
+      player.classes.add('hide');
       title.removeAttribute('href');
     }
 
@@ -245,6 +247,8 @@ class AudioPlayer {
         e.innerHtml = content;
         e.classes.remove('transition');
       }
+    } else {
+      e.classes.remove('transition');
     }
   }
 

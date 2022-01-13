@@ -1038,7 +1038,16 @@ $ping-radius: 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    overflow: hidden;
     background: var(--color-button-hover) !important;
+    transition-duration: 0.25s;
+    height: 38px;
+
+    &.hide {
+        padding: 0 !important;
+        margin: 0 !important;
+        height: 0;
+    }
 
     > :not(button) {
         width: max-content;
