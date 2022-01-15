@@ -315,6 +315,8 @@
         padding-bottom: 0;
         gap: 0;
 
+        &:hover { z-index: 7; }
+
         #scenes {
             flex-direction: row;
             overflow-x: auto;
@@ -899,12 +901,15 @@ $ping-radius: 100px;
 
 #online {
     position: absolute;
-    bottom: 16px;
-    left: 16px;
+    bottom: 0;
+    left: 0;
+    padding: 16px;
     display: flex;
     flex-wrap: wrap-reverse;
     gap: 4px;
     width: 20vw;
+    min-height: 30px;
+    z-index: 6;
 
     > span {
         display: flex;
@@ -914,6 +919,12 @@ $ping-radius: 100px;
         gap: 6px;
         border-radius: 100px;
         box-sizing: border-box;
+        
+        &.with-tooltip {
+            cursor: pointer;
+
+            &:hover { background-color: #040404cc; }
+        }
     }
 }
 

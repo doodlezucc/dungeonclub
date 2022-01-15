@@ -121,7 +121,7 @@ class Session extends Game {
     characters.clear();
     var pcs = List.from(json['pcs']);
     for (var i = 0; i < pcs.length; i++) {
-      characters.add(Character(i, getPlayerColor(i, pcs.length), pcs[i]));
+      characters.add(Character(i, getPlayerColor(i, pcs.length), this, pcs[i]));
     }
 
     _charId = json['mine'];

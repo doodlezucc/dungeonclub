@@ -5,6 +5,7 @@ import 'package:dnd_interactive/actions.dart';
 import '../communication.dart';
 import '../font_awesome.dart';
 import 'prefab.dart';
+import 'session.dart';
 
 class Character {
   final String name;
@@ -27,7 +28,7 @@ class Character {
 
   String get img => getGameFile('$IMAGE_TYPE_PC$id', cacheBreak: false);
 
-  Character(this.id, String color, Map<String, dynamic> json)
+  Character(this.id, String color, Session session, Map<String, dynamic> json)
       : name = json['name'],
         defaultModifier = json['mod'],
         prefab = CharacterPrefab(),
@@ -35,6 +36,15 @@ class Character {
     _onlineIndicator
       ..append(icon('circle')..style.color = color)
       ..appendText(name);
+
+    if (session.isDM) {
+      _onlineIndicator
+        ..className = 'with-tooltip'
+        ..append(SpanElement()..text = 'Kick $name')
+        ..onClick.listen((_) {
+          socket.sendAction(GAME_KICK, {'pc': id});
+        });
+    }
 
     hasJoined = json['connected'] ?? false;
     prefab

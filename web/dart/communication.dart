@@ -35,6 +35,7 @@ class FrontSocket extends Socket {
   final _waitForOpen = Completer();
   Timer _retryTimer;
   ConstantDialog _errorDialog;
+  bool _manualClose = false;
 
   Future<void> _requireConnection() async {
     if (_webSocket == null) {
@@ -60,9 +61,14 @@ class FrontSocket extends Socket {
     listen();
   }
 
-  void close() => _webSocket.close();
+  void close() {
+    _manualClose = true;
+    _webSocket.close();
+  }
 
   void _handleConnectionClose() async {
+    if (_manualClose) return;
+
     _errorDialog ??= ConstantDialog('Connection Error')
       ..addParagraph('Your connection to the server was closed unexpectedly.')
       ..addParagraph('Reconnecting...')
@@ -73,6 +79,8 @@ class FrontSocket extends Socket {
   }
 
   void _handleConnectionError() async {
+    if (_manualClose) return;
+
     document.title = 'Reconnecting...';
     _errorDialog ??= ConstantDialog('Connection Error')
       ..addParagraph('''The $appName server seems to be offline.

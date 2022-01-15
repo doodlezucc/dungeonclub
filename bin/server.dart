@@ -19,7 +19,7 @@ import 'untaint.dart';
 // For Google Cloud Run, set _hostname to '0.0.0.0'.
 const _hostname = 'localhost';
 const githubUrl =
-    'https://raw.githubusercontent.com/doodlezucc/dnd_interactive/master';
+    'https://raw.githubusercontent.com/doodlezucc/dungeonclub/master';
 
 String _address;
 String get address => _address;

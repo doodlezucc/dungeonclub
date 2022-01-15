@@ -219,7 +219,7 @@ class Connection extends Socket {
             a.GAME_KICK,
             {
               'reason': '''Your GM updated the campaign settings.
-                To correctly reflect all changes, please join again.''',
+                To reflect all changes, please join again.''',
             },
             allScenes: true,
           );
@@ -268,6 +268,20 @@ class Connection extends Socket {
           return game.toSessionSnippet(this, id);
         }
         return 'Game "$id" not found!';
+
+      case a.GAME_KICK:
+        int pc = params['pc'];
+        if (_game == null || pc == null || _game.meta.owner != account) {
+          return null;
+        }
+
+        var connection = _game.characters.elementAt(pc).connection;
+        _game.connect(connection, false); // Ensure disconnect
+        connection._game = null;
+
+        return connection.sendAction(action, {
+          'reason': '''Your GM decided it's time for you to leave.''',
+        });
 
       case a.GAME_PREFAB_CREATE:
         if (_game != null || _game.prefabCount < prefabsPerCampaign) {
