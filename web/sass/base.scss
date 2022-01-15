@@ -472,9 +472,19 @@ li {
     align-items: center;
     gap: 2px;
     width: fit-content;
-    animation: notif-in 0.5s cubic-bezier(0.23, 1, 0.320, 1) forwards;
+    border: 2px solid var(--color-background);
+    outline: 2px solid transparent;
+    user-select: none;
+    animation: notif-in 0.5s cubic-bezier(0.23, 1, 0.320, 1) forwards,
+               notif-glow 1s ease-out infinite;
 
     span { margin: 4px; }
+}
+
+@keyframes notif-glow {
+    0%   { outline-color: #fb80; outline-offset: 0; outline-width: 4px; }
+    20%  { outline-color: #fb84; border-color: #fb8a; }
+    100% { outline-color: #fb80; outline-offset: 10px; }
 }
 
 @keyframes notif-in {
