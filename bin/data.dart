@@ -483,12 +483,18 @@ class Game {
       };
 
   bool applyChanges(Map<String, dynamic> data) {
-    var charCount = _characters.length;
-    _characters.clear();
     meta.name = data['name'];
+    var charCount = _characters.length;
+    var initiativeMods = _characters.map((e) => e.initiativeMod).toList();
+    _characters.clear();
+
     var pcs = List.from(data['pcs']);
     if (pcs.length >= 20) return false;
     _characters.addAll(pcs.map((e) => PlayerCharacter.fromJson(e)));
+
+    for (var i = 0; i < min(pcs.length, charCount); i++) {
+      _characters[i].initiativeMod = initiativeMods[i];
+    }
 
     if (charCount != pcs.length) {
       for (var map in _maps) {

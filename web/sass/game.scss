@@ -499,8 +499,9 @@
 
         .movable.accessible {
             border-color: white;
-            box-shadow: 0 0 8px #0008 inset;
             z-index: 2;
+
+            > img { box-shadow: 0 0 8px #0008 inset; }
         }
 
         .step-input {
