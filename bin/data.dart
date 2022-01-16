@@ -482,27 +482,80 @@ class Game {
         'pcs': _characters.map((e) => e.toJson(includeStatus: true)).toList(),
       };
 
-  bool applyChanges(Map<String, dynamic> data) {
+  Future<bool> applyChanges(Map<String, dynamic> data) async {
     meta.name = data['name'];
-    var charCount = _characters.length;
-    var initiativeMods = _characters.map((e) => e.initiativeMod).toList();
-    _characters.clear();
 
     var pcs = List.from(data['pcs']);
     if (pcs.length >= 20) return false;
-    _characters.addAll(pcs.map((e) => PlayerCharacter.fromJson(e)));
 
-    for (var i = 0; i < min(pcs.length, charCount); i++) {
-      _characters[i].initiativeMod = initiativeMods[i];
+    var removes = List<int>.from(data['removes']);
+    var previousCharCount = _characters.length;
+    var keptCharCount = previousCharCount - removes.length;
+    await _removeCharacters(removes);
+
+    for (var i = 0; i < pcs.length; i++) {
+      if (i < keptCharCount) {
+        _characters[i].name = pcs[i]['name'];
+      } else {
+        _characters.add(PlayerCharacter.fromJson(pcs[i]));
+        print('added new character');
+      }
     }
 
-    if (charCount != pcs.length) {
+    if (previousCharCount != pcs.length) {
       for (var map in _maps) {
         map.setLayers(pcs.length + 1);
       }
     }
 
     return true;
+  }
+
+  Future<void> _removeCharacters(Iterable<int> indices) async {
+    var charIdMap = <int, int>{};
+    var change = 0;
+    var charCount = _characters.length;
+
+    for (var charId = 0; charId < charCount; charId++) {
+      if (indices.contains(charId)) {
+        _characters.removeAt(charId + change);
+        change--;
+        // Remove obsolete movables
+        _removeCharacterMovables(charId);
+      } else if (change != 0) {
+        charIdMap[charId] = charId + change;
+      }
+    }
+
+    // Change file names for characters that were kept,
+    // removing obsolete character files in the process.
+    for (var idPrevious in charIdMap.keys) {
+      var idNext = charIdMap[idPrevious];
+
+      var prefabIdPrevious = 'c$idPrevious';
+      var prefabIdNext = 'c$idNext';
+
+      for (var scene in _scenes) {
+        for (var mov in scene.movables) {
+          if (mov.prefab == prefabIdPrevious) {
+            mov.prefab = prefabIdNext;
+          }
+        }
+      }
+
+      var file = await getFile('${a.IMAGE_TYPE_PC}$idPrevious');
+      if (await file.exists()) {
+        var nextFile = await getFile('${a.IMAGE_TYPE_PC}$idNext');
+        print('Renaming ${file.path} to ${nextFile.path}');
+        await file.rename(nextFile.path);
+      }
+    }
+  }
+
+  void _removeCharacterMovables(int charId) {
+    for (var scene in _scenes) {
+      scene.removeMovablesOfPrefab('c$charId');
+    }
   }
 }
 
@@ -597,10 +650,18 @@ class Scene {
 
   void removeMovablesOfPrefab(String prefabId) {
     movables.removeWhere((m) => m.prefab == prefabId);
+    cleanInitiativeState();
   }
 
   void removeMovable(int id) {
     movables.removeWhere((m) => m.id == id);
+    cleanInitiativeState();
+  }
+
+  /// Removes initiatives of movables that don't exist anymore.
+  void cleanInitiativeState() {
+    initiativeState.initiatives
+        .retainWhere((ini) => movables.any((m) => m.id == ini.movableId));
   }
 
   void applyGrid(Map<String, dynamic> json) {

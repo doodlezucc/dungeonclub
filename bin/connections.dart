@@ -169,7 +169,8 @@ class Connection extends Socket {
         var createdMeta = GameMeta.create(account);
         var createdGame = Game(createdMeta);
 
-        if (!createdGame.applyChanges(params['data'])) return false;
+        var couldApplyChanges = await createdGame.applyChanges(params['data']);
+        if (!couldApplyChanges) return false;
 
         _game = createdGame..connect(this, true);
         scene = _game.playingScene;
@@ -178,12 +179,16 @@ class Connection extends Socket {
 
         // Wait for all images to be uploaded
         var countdown = _game.characters.length;
+        var completer = Completer();
         for (var i = 0; i < _game.characters.length; i++) {
           unawaited(_uploadGameImage(
             data: params['pics'][i],
             type: a.IMAGE_TYPE_PC,
             id: i,
-          ).then((_) => countdown--));
+          ).then((_) {
+            countdown--;
+            if (countdown == 0) completer.complete();
+          }));
         }
 
         var sceneDir = Directory('web/images/assets/scene');
@@ -199,6 +204,8 @@ class Connection extends Socket {
             scene.tiles = result['tiles'];
           }
         }
+
+        await completer.future;
 
         return _game.toSessionSnippet(this);
 
@@ -223,7 +230,7 @@ class Connection extends Socket {
             },
             allScenes: true,
           );
-          var result = game.applyChanges(data);
+          var result = await game.applyChanges(data);
           await meta.close();
           return result;
         }

@@ -20,6 +20,7 @@ final ButtonElement _deleteButton = _panel.querySelector('button#delete');
 final ButtonElement _saveButton = _panel.querySelector('button#save');
 
 final _chars = <_EditChar>[];
+final _removes = <int>[];
 
 String _gameId;
 int _idCounter = 0;
@@ -53,11 +54,10 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   _chars.clear();
   var charJsons = List<Map>.from(result['pcs']);
   for (var i = 0; i < charJsons.length; i++) {
-    _chars.add(_EditChar(i,
-        name: charJsons[i]['name'],
-        imgUrl: getGameFile('pc$i', gameId: _gameId)));
+    _chars.add(_EditChar(i, name: charJsons[i]['name'], isOG: true));
   }
   _idCounter = charJsons.length;
+  _removes.clear();
 
   _updateAddButton();
 
@@ -101,6 +101,7 @@ Future<Game> displayPrepare() async {
   _chars.forEach((c) => c.e.remove());
   _chars.clear();
   _idCounter = 0;
+  _removes.clear();
 
   _updateAddButton();
 
@@ -130,19 +131,18 @@ void _updateAddButton() {
 class _EditChar {
   final HtmlElement e;
   final int id;
+  final bool isOG;
   String bufferedImg;
   InputElement _nameInput;
   String get name => _nameInput.value;
 
-  _EditChar(this.id,
-      {String name = '', String imgUrl = 'images/default_pc.jpg'})
-      : e = LIElement() {
+  _EditChar(this.id, {String name = '', this.isOG = false}) : e = LIElement() {
     e
       ..append(registerEditImage(
         DivElement()
           ..className = 'edit-img responsive'
           ..append(DivElement()..text = 'Change')
-          ..append(ImageElement(src: imgUrl)),
+          ..append(ImageElement(src: getGameFile('pc$id', gameId: _gameId))),
         upload: _changeIcon,
       ))
       ..append(_nameInput = InputElement()
@@ -184,8 +184,21 @@ class _EditChar {
     return result;
   }
 
-  void remove() {
+  Future<void> remove() async {
+    if (isOG) {
+      var confirm = await Dialog<bool>(
+        'Remove Character?',
+        onClose: () => false,
+        okText: 'Remove $name',
+      ).addParagraph(
+          '''This will remove <b>$name</b> from the campaign.''').display();
+
+      if (!confirm) return;
+      _removes.add(id);
+    }
+
     _chars.remove(this);
+    _idCounter--;
     e.remove();
     _updateAddButton();
   }
@@ -200,6 +213,7 @@ class _EditChar {
 Map<String, dynamic> _currentDataJson() => {
       'name': _gameNameInput.value,
       'pcs': _chars.map((e) => e.toJson()).toList(),
+      'removes': _removes,
     };
 
 Future<Game> _createGameAndJoin() async {
@@ -225,7 +239,7 @@ Future<bool> _delete(Game game) async {
   var confirmed = await Dialog<bool>(
     'Delete Campaign?',
     onClose: () => false,
-    okText: 'Delete forever',
+    okText: 'Delete Forever',
     okClass: 'bad',
   ).addParagraph('''
     All of <b>${game.name}</b>'s characters, maps and scenes,
