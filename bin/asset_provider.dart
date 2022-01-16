@@ -80,3 +80,10 @@ Future<void> createAssetPreview(
   await file.writeAsBytes(bytes);
   print('Wrote ${bytes.length ~/ 1000} KB!');
 }
+
+Future<File> getAssetFile(String assetPath) async {
+  var type = assetPath.substring(14, assetPath.indexOf('/', 14));
+  var dir = 'web/images/assets/$type/';
+  var assetIndex = int.parse(p.basename(assetPath));
+  return await Directory(dir).list().elementAt(assetIndex);
+}

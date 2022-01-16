@@ -154,9 +154,15 @@ Future<Response> _handleRequest(Request request) async {
   var isDataFile =
       path.startsWith('database/games') || path.startsWith('ambience/');
 
-  if (path.contains('/assets/')) path = Uri.decodeComponent(path);
+  File file;
+  if (path.contains('/assets/')) {
+    path = Uri.decodeComponent(path);
+    if (!path.contains('-preview')) {
+      file = await getAssetFile(path);
+    }
+  }
 
-  var file = isDataFile
+  file ??= isDataFile
       ? File(path)
       : (path.startsWith('game')
           ? File('web/' + path.substring(5))

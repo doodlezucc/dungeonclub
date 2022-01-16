@@ -6,7 +6,6 @@ const ACCOUNT_RESET_PASSWORD_ACTIVATE = 'accountResetPasswordActivate';
 
 const GAME_CREATE_NEW = 'gameCreateNew';
 const GAME_EDIT = 'gameEdit';
-const GAME_CHARACTER_UPLOAD = 'gameCharacterUpload';
 const GAME_DELETE = 'gameDelete';
 
 const GAME_JOIN_REQUEST = 'gameJoinRequest';

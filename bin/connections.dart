@@ -8,11 +8,10 @@ import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/comms.dart';
 import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
-import 'package:path/path.dart' as p;
-import 'package:pedantic/pedantic.dart';
 import 'package:random_string/random_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+import 'asset_provider.dart';
 import 'audio.dart';
 import 'data.dart';
 import 'mail.dart';
@@ -177,20 +176,6 @@ class Connection extends Socket {
         data.gameMeta.add(createdMeta..loadedGame = createdGame);
         account.enteredGames.add(createdMeta);
 
-        // Wait for all images to be uploaded
-        var countdown = _game.characters.length;
-        var completer = Completer();
-        for (var i = 0; i < _game.characters.length; i++) {
-          unawaited(_uploadGameImage(
-            data: params['pics'][i],
-            type: a.IMAGE_TYPE_PC,
-            id: i,
-          ).then((_) {
-            countdown--;
-            if (countdown == 0) completer.complete();
-          }));
-        }
-
         var sceneDir = Directory('web/images/assets/scene');
         if (await sceneDir.exists()) {
           var count = await sceneDir.list().length;
@@ -205,8 +190,7 @@ class Connection extends Socket {
           }
         }
 
-        await completer.future;
-
+        await _uploadGameAvatars(params['data']['pcs']);
         return _game.toSessionSnippet(this);
 
       case a.GAME_EDIT:
@@ -231,6 +215,7 @@ class Connection extends Socket {
             allScenes: true,
           );
           var result = await game.applyChanges(data);
+          await _uploadGameAvatars(params['data']['pcs'], gameId);
           await meta.close();
           return result;
         }
@@ -375,9 +360,6 @@ class Connection extends Socket {
           scene?.removeMovable(id);
         }
         return notifyOthers(action, params);
-
-      case a.GAME_CHARACTER_UPLOAD:
-        return await _uploadGameImageJson(params);
 
       case a.GAME_SCENE_UPDATE:
         if (_game?.dm != this || scene == null) return;
@@ -613,6 +595,27 @@ class Connection extends Socket {
     }
   }
 
+  Future _uploadGameAvatars(Iterable jChars, [String gameId]) {
+    var countdown = 0;
+    var completer = Completer();
+    for (var i = 0; i < jChars.length; i++) {
+      String base64 = jChars.elementAt(i)['pic'];
+      if (base64 != null) {
+        countdown++;
+        _uploadGameImage(
+          data: base64,
+          type: a.IMAGE_TYPE_PC,
+          id: i,
+          gameId: gameId,
+        ).then((_) {
+          countdown--;
+          if (countdown == 0) completer.complete();
+        });
+      }
+    }
+    return completer.future;
+  }
+
   Future<dynamic> _uploadGameImage({
     @required String data,
     @required String type,
@@ -631,10 +634,8 @@ class Connection extends Socket {
       var result = '$address/${file.path.replaceAll('\\', '/')}';
 
       if (data.startsWith('images/')) {
-        // [base64] is a path to an asset
-        var dir = 'web/images/assets/$type/';
-        var assetIndex = int.parse(p.basename(data));
-        File dataImg = await Directory(dir).list().elementAt(assetIndex);
+        // [data] is a path to an asset
+        var dataImg = await getAssetFile(data);
 
         await File(dataImg.path).copy(file.path);
 

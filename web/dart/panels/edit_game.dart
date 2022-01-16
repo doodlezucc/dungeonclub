@@ -54,7 +54,10 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   _chars.clear();
   var charJsons = List<Map>.from(result['pcs']);
   for (var i = 0; i < charJsons.length; i++) {
-    _chars.add(_EditChar(i, name: charJsons[i]['name'], isOG: true));
+    _chars.add(_EditChar(i,
+        name: charJsons[i]['name'],
+        imgUrl: getGameFile('pc$i', gameId: _gameId),
+        isOG: true));
   }
   _idCounter = charJsons.length;
   _removes.clear();
@@ -136,13 +139,18 @@ class _EditChar {
   InputElement _nameInput;
   String get name => _nameInput.value;
 
-  _EditChar(this.id, {String name = '', this.isOG = false}) : e = LIElement() {
+  _EditChar(
+    this.id, {
+    String name = '',
+    String imgUrl = 'images/default_pc.jpg',
+    this.isOG = false,
+  }) : e = LIElement() {
     e
       ..append(registerEditImage(
         DivElement()
           ..className = 'edit-img responsive'
           ..append(DivElement()..text = 'Change')
-          ..append(ImageElement(src: getGameFile('pc$id', gameId: _gameId))),
+          ..append(ImageElement(src: imgUrl)),
         upload: _changeIcon,
       ))
       ..append(_nameInput = InputElement()
@@ -155,33 +163,17 @@ class _EditChar {
   }
 
   Future<String> _changeIcon(MouseEvent ev, [Blob initialFile]) async {
-    String result;
-    if (_prepareMode) {
-      result = await uploader.display(
-        event: ev,
-        type: IMAGE_TYPE_PC,
-        initialImg: initialFile,
-        processUpload: (base64, maxRes, upscale) async {
-          bufferedImg = base64;
-          return 'data:image/jpeg;base64,$base64';
-        },
-        onPanelVisible: (v) => _panel.classes.toggle('upload', v),
-      );
-    } else {
-      result = await uploader.display(
-        event: ev,
-        type: IMAGE_TYPE_PC,
-        initialImg: initialFile,
-        action: GAME_CHARACTER_UPLOAD,
-        extras: {
-          'id': id,
-          'gameId': _gameId,
-        },
-        onPanelVisible: (v) => _panel.classes.toggle('upload', v),
-      );
-    }
-
-    return result;
+    return await uploader.display(
+      event: ev,
+      type: IMAGE_TYPE_PC,
+      initialImg: initialFile,
+      processUpload: (data, maxRes, upscale) async {
+        bufferedImg = data;
+        if (data.startsWith('images/')) return getFile(data);
+        return 'data:image/jpeg;base64,$data';
+      },
+      onPanelVisible: (v) => _panel.classes.toggle('upload', v),
+    );
   }
 
   Future<void> remove() async {
@@ -207,7 +199,10 @@ class _EditChar {
     _nameInput.focus();
   }
 
-  Map<String, dynamic> toJson() => {'name': name};
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        if (bufferedImg != null) 'pic': bufferedImg,
+      };
 }
 
 Map<String, dynamic> _currentDataJson() => {
@@ -220,7 +215,6 @@ Future<Game> _createGameAndJoin() async {
   var name = _gameNameInput.value;
 
   var session = await socket.request(GAME_CREATE_NEW, {
-    'pics': _chars.map((pc) => pc.bufferedImg).toList(),
     'data': _currentDataJson(),
   });
   if (session == null) return null;

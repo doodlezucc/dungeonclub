@@ -498,8 +498,13 @@ class Game {
         _characters[i].name = pcs[i]['name'];
       } else {
         _characters.add(PlayerCharacter.fromJson(pcs[i]));
-        print('added new character');
       }
+    }
+
+    // Remove obsolete character files
+    for (var i = keptCharCount; i < previousCharCount; i++) {
+      var charFile = await getFile('${a.IMAGE_TYPE_PC}$i');
+      if (await charFile.exists()) await charFile.delete();
     }
 
     if (previousCharCount != pcs.length) {
@@ -527,8 +532,7 @@ class Game {
       }
     }
 
-    // Change file names for characters that were kept,
-    // removing obsolete character files in the process.
+    // Change file names for characters that were kept
     for (var idPrevious in charIdMap.keys) {
       var idNext = charIdMap[idPrevious];
 
@@ -660,8 +664,8 @@ class Scene {
 
   /// Removes initiatives of movables that don't exist anymore.
   void cleanInitiativeState() {
-    initiativeState.initiatives
-        .retainWhere((ini) => movables.any((m) => m.id == ini.movableId));
+    initiativeState?.initiatives
+        ?.retainWhere((ini) => movables.any((m) => m.id == ini.movableId));
   }
 
   void applyGrid(Map<String, dynamic> json) {
