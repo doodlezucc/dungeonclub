@@ -181,7 +181,7 @@ class Connection extends Socket {
           var count = await sceneDir.list().length;
           var index = Random().nextInt(count);
           var result = await _uploadGameImage(
-            data: 'images/$index',
+            data: 'images/assets/scene/$index',
             type: a.IMAGE_TYPE_SCENE,
             id: 0,
           );
@@ -613,6 +613,7 @@ class Connection extends Socket {
         });
       }
     }
+    if (countdown == 0) return Future.value();
     return completer.future;
   }
 
