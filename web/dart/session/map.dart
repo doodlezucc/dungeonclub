@@ -85,7 +85,6 @@ class MapTab {
   set shared(bool shared) {
     _shared.classes.toggle('active', shared);
     if (!user.session.isDM) {
-      print('UPDATE $shared');
       _tools.classes.toggle('hidden', !shared);
       map.whiteboard.captureInput = shared;
     }

@@ -676,7 +676,7 @@ class Board {
         offset;
 
     var m = Measuring.create(type, origin, session.charId);
-    sendCreationEvent(type, origin);
+    sendCreationEvent(type, origin, p);
     m.alignDistanceText(p);
     zoom += 0; // Rescale distance text
 

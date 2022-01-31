@@ -64,13 +64,14 @@ Point _readPrecision(BinaryReader reader) {
   return forceDoublePoint(reader.readPoint()) * (1 / _precision);
 }
 
-void sendCreationEvent(int type, Point origin) {
+void sendCreationEvent(int type, Point origin, Point p) {
   var writer = BinaryWriter();
   writer.writeUInt8(measuringPort);
   writer.writeUInt8(user.session.charId ?? 255);
   writer.writeUInt8(0); // Creation event
   writer.writeUInt8(type);
   _writePrecision(writer, origin);
+  _writePrecision(writer, p);
 
   socket.send(writer.takeBytes());
 }
@@ -87,8 +88,9 @@ void handleMeasuringEvent(Uint8List bytes) {
 
   switch (event) {
     case 0:
-      _pcMeasurings[pc] =
-          Measuring.create(reader.readUInt8(), _readPrecision(reader), pc);
+      var m = Measuring.create(reader.readUInt8(), _readPrecision(reader), pc);
+      m.alignDistanceText(_readPrecision(reader));
+      _pcMeasurings[pc] = m;
       user.session.board.zoom += 0; // Rescale distance text
       return;
     case 1:
