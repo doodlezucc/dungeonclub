@@ -453,7 +453,7 @@ class Board {
         initialButton = start.button;
         var isBoardDrag = ev.path.contains(_e);
 
-        if (mode == PAN && isBoardDrag) {
+        if (mode == PAN && isBoardDrag && initialButton == 0) {
           timer = Timer(Duration(milliseconds: 300), () {
             var pos = start.p * (1 / scaledZoom);
 
