@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 import 'dart:math';
 
@@ -9,6 +10,7 @@ import 'log.dart';
 
 final TableElement _table = querySelector('table#dice');
 bool _visible = true;
+Timer _rollTimer;
 
 const maxRolls = 5;
 
@@ -63,6 +65,10 @@ void _initScrollControls() {
 }
 
 Future<void> _rollDice(int sides, int repeat) async {
+  if (_rollTimer != null) return;
+
+  _rollTimer = Timer(Duration(milliseconds: 200), () => _rollTimer = null);
+
   var results = await socket.request(GAME_ROLL_DICE, {
     'sides': sides,
     'repeat': repeat,
