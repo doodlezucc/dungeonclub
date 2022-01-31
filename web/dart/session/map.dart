@@ -85,6 +85,7 @@ class MapTab {
   set shared(bool shared) {
     _shared.classes.toggle('active', shared);
     if (!user.session.isDM) {
+      print('UPDATE $shared');
       _tools.classes.toggle('hidden', !shared);
       map.whiteboard.captureInput = shared;
     }
@@ -306,9 +307,9 @@ class MapTab {
   }
 
   void _onFirstUpload() {
-    mapIndex = 0;
     _imgButton.remove();
     _e.querySelectorAll('.needs-map').classes.remove('hidden');
+    mapIndex = 0;
     if (user.session.isDM) {
       _name.disabled = false;
     }
