@@ -6,6 +6,7 @@ import 'dart:math';
 
 import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
+import 'package:dnd_interactive/limits.dart';
 import 'package:dnd_interactive/point_json.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
@@ -486,7 +487,7 @@ class Game {
     meta.name = data['name'];
 
     var pcs = List.from(data['pcs']);
-    if (pcs.length >= 20) return false;
+    if (pcs.length >= playersPerCampaign) return false;
 
     var removes = List<int>.from(data['removes']);
     var previousCharCount = _characters.length;

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:html';
 
+import 'package:dnd_interactive/limits.dart';
+
 import '../main.dart';
 import 'font_awesome.dart';
 import 'game.dart';
@@ -30,8 +32,10 @@ Future<void> init() {
       return HtmlNotification('No permissions to create a new game!').display();
     }
 
-    if (_gamesContainer.children.length > 10) {
-      return HtmlNotification('Limit of 10 campaigns reached.').display();
+    if (_gamesContainer.children.length > campaignsPerAccount) {
+      return HtmlNotification(
+              'Limit of $campaignsPerAccount campaigns reached.')
+          .display();
     }
 
     var game = await user.account.createNewGame();

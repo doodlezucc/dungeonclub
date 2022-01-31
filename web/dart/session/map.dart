@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:async/async.dart';
 import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/limits.dart';
 import 'package:web_whiteboard/whiteboard.dart';
 
 import '../../main.dart';
@@ -98,9 +99,10 @@ class MapTab {
       _navRight.classes.toggle('add-map', showAdd);
       _navRight.children.first.className = 'fas fa-$icon';
 
-      if (showAdd && maps.length >= 10) {
+      if (showAdd && maps.length >= mapsPerCampaign) {
         _navRight.disabled = true;
-        _navRight.querySelector('span').text = 'Limit of 10 Maps Reached!';
+        _navRight.querySelector('span').text =
+            'Limit of $mapsPerCampaign Maps Reached!';
       } else {
         _navRight.disabled = maps.isEmpty;
         _navRight.querySelector('span').text = 'Create New Map';
@@ -127,7 +129,7 @@ class MapTab {
   }
 
   Future<bool> _uploadNewMap(MouseEvent ev) async {
-    if (maps.length >= 10) return false;
+    if (maps.length >= mapsPerCampaign) return false;
 
     var id = await uploader.display(
       event: ev,

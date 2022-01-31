@@ -2,6 +2,7 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/limits.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -28,10 +29,11 @@ final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
 List<Scene> _allScenes = [];
 
 void _updateAddSceneButton() {
-  var reachedLimit = _allScenes.length >= 10;
+  var reachedLimit = _allScenes.length >= scenesPerCampaign;
   _addScene.disabled = reachedLimit;
-  _addScene.title =
-      reachedLimit ? "You can't have more than 10 scenes at a time." : '';
+  _addScene.title = reachedLimit
+      ? "You can't have more than $scenesPerCampaign scenes at a time."
+      : '';
 }
 
 class Scene {

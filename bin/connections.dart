@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/comms.dart';
+import 'package:dnd_interactive/limits.dart';
 import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
 import 'package:random_string/random_string.dart';
@@ -18,12 +19,6 @@ import 'mail.dart';
 import 'server.dart';
 
 const sendPings = false;
-
-const campaignsPerAccount = 10;
-const scenesPerCampaign = 10;
-const prefabsPerCampaign = 20;
-const mapsPerCampaign = 10;
-const movablesPerScene = 50;
 
 final connections = <Connection>[];
 final activationCodes = <Connection, String>{};

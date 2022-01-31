@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/limits.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -128,7 +129,8 @@ Future<Game> displayPrepare() async {
 }
 
 void _updateAddButton() {
-  _addCharButton.classes.toggle('disabled', _chars.length >= 20);
+  _addCharButton.classes
+      .toggle('disabled', _chars.length >= playersPerCampaign);
 }
 
 class _EditChar {

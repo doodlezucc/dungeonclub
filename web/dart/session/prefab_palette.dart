@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/limits.dart';
 import 'package:meta/meta.dart';
 
 import '../../main.dart';
@@ -230,18 +231,19 @@ void _sendUpdate() {
 }
 
 void _updateAddButton() {
-  var limitReached = prefabs.length >= 20;
+  var limitReached = prefabs.length >= prefabsPerCampaign;
   _addPref.disabled = limitReached;
   _addPref.querySelector('span').text =
       limitReached ? 'Limit Reached' : 'Add Token';
 }
 
 void _displayLimitMsg() {
-  HtmlNotification('Limit of 20 custom tokens reached.').display();
+  HtmlNotification('Limit of $prefabsPerCampaign custom tokens reached.')
+      .display();
 }
 
 Future<void> createPrefab(MouseEvent ev) async {
-  if (prefabs.length >= 20) return _displayLimitMsg();
+  if (prefabs.length >= prefabsPerCampaign) return _displayLimitMsg();
 
   var result = await upload.display(
     event: ev,
