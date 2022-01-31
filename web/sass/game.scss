@@ -658,7 +658,7 @@
 #distanceCanvas {
     animation: blink 2s infinite linear;
     stroke-width: 0.1;
-    z-index: 1;
+    z-index: 3;
 
     > * { pointer-events: none; }
     
