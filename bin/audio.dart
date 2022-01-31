@@ -23,6 +23,8 @@ void _customTrackMeta() {
       } else if (track.artist == 'Vindsvept, fantasy music') {
         track.artist = 'Vindsvept';
         track.title = title.substring(hyphen + 3);
+      } else if (track.artist == 'Adrian von Ziegler') {
+        track.title = title.substring(hyphen + 3);
       } else if (title.contains('Scott Buckley')) {
         var regex = RegExp(r"(?<=').+(?=')");
         var match = regex.firstMatch(title);
