@@ -21,12 +21,14 @@ class InitiativeTracker {
 
   bool _trackerActive = false;
   Timer diceAnim;
+  Iterable<Movable> _similar;
 
   ButtonElement get callRollsButton => querySelector('#initiativeTracker');
   SpanElement get initiativeDice => querySelector('#initiativeDice');
   SpanElement get targetText => querySelector('#initiativeTarget');
   ButtonElement get userRollButton => querySelector('#initiativeRoll');
   ButtonElement get skipButton => querySelector('#initiativeSkip');
+  ButtonElement get skipTypeButton => querySelector('#initiativeSkipType');
   HtmlElement get panel => querySelector('#initiativePanel');
 
   set showBar(bool v) => initiativeBar.classes.toggle('hidden', !v);
@@ -46,6 +48,7 @@ class InitiativeTracker {
 
     userRollButton.onClick.listen((_) => rollDice());
     skipButton.classes.toggle('hidden', !isDM);
+    skipTypeButton.onClick.listen((_) => _rollForSimilar());
     if (isDM) {
       skipButton.onClick.listen((_) {
         _summary.mine.removeAt(0);
@@ -85,11 +88,15 @@ class InitiativeTracker {
     socket.sendAction(
         GAME_ADD_INITIATIVE, {'id': movable.id, 'roll': r, 'dm': dmOnly});
 
-    skipButton.disabled = userRollButton.disabled = true;
+    _disableButtons(true);
 
     Future.delayed(Duration(milliseconds: 500), () {
       nextRoll();
     });
+  }
+
+  void _disableButtons(bool v) {
+    skipButton.disabled = userRollButton.disabled = skipTypeButton.disabled = v;
   }
 
   void addToInBar(Map<String, dynamic> json) {
@@ -128,11 +135,31 @@ class InitiativeTracker {
       initiativeDice.text = '$r';
     });
 
-    var name = _summary.mine.first.name;
+    var mv = _summary.mine.first;
+    var name = mv.name;
     targetText.innerHtml = "<b>$name</b>'s Initiative";
 
+    var prefab = mv.prefab;
+    _similar = _summary.mine.where((other) {
+      if (mv is EmptyMovable) {
+        return other is EmptyMovable && mv.label == other.label;
+      }
+      return other.prefab == prefab;
+    });
+
+    skipTypeButton.childNodes[0].text =
+        'Roll for ${_similar.length} Similar Creatures';
+    skipTypeButton.classes.toggle('hidden', _similar.length < 3);
+
     if (panel.classes.add('show')) overlayVisible = true;
-    skipButton.disabled = userRollButton.disabled = false;
+    _disableButtons(false);
+  }
+
+  void _rollForSimilar() {
+    if (_similar != null) {
+      rollDice();
+      _summary.mine.removeWhere((m) => _similar.contains(m));
+    }
   }
 
   void resetBar() {
