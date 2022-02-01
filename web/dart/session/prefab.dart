@@ -108,7 +108,7 @@ class CharacterPrefab extends Prefab {
 }
 
 class CustomPrefab extends Prefab {
-  int _id;
+  final int _id;
   String _name;
   String _bufferedImg;
   final Set<int> accessIds = {};
@@ -120,12 +120,11 @@ class CustomPrefab extends Prefab {
   String get name => _name;
   set name(String name) {
     _name = name;
+    user.session.board.initiativeTracker.onPrefabNameUpdate(this);
     updateName();
   }
 
-  CustomPrefab({@required int id}) {
-    _id = id;
-  }
+  CustomPrefab({@required int id}) : _id = id;
 
   @override
   Map<String, dynamic> toJson() => {

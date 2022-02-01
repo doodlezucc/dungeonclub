@@ -209,6 +209,7 @@ class EmptyMovable extends Movable {
 
     var length = lines.fold(0, (len, line) => math.max<int>(len, line.length));
     _labelSpan.style.setProperty('--length', '${length + 1}');
+    board.initiativeTracker.onNameUpdate(this);
   }
 
   @override

@@ -173,6 +173,22 @@ class InitiativeTracker {
     if (panel.classes.remove('show')) overlayVisible = false;
   }
 
+  void onPrefabNameUpdate(CustomPrefab p) {
+    for (var m in p.movables) {
+      onNameUpdate(m);
+    }
+  }
+
+  void onNameUpdate(Movable m) {
+    if (_summary != null) {
+      for (var entry in _summary.entries) {
+        if (entry.movable == m) {
+          entry.nameText.text = m.name;
+        }
+      }
+    }
+  }
+
   void onUpdate(Map<String, dynamic> json) {
     int id = json['id'];
     int mod = json['mod'];
@@ -247,6 +263,7 @@ class InitiativeEntry {
   final e = DivElement();
   final modText = SpanElement();
   final totalText = SpanElement();
+  final nameText = SpanElement();
   final Movable movable;
   final int base;
   final bool dmOnly;
@@ -280,7 +297,7 @@ class InitiativeEntry {
       ..append(DivElement()
         ..style.backgroundImage = 'url($img)'
         ..append(totalText))
-      ..append(SpanElement()..text = movable.name)
+      ..append(nameText..text = movable.name)
       ..onMouseEnter.listen((_) {
         movable.e.classes.add('hovered');
         _bufferedModifier = modifier;
