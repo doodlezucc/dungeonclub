@@ -163,6 +163,7 @@ class Movable extends EntityBase {
   void onRemove() async {
     prefab.movables.remove(this);
     board.movables.remove(this);
+    board.initiativeTracker.onRemove(this);
 
     e.classes.add('animate-remove');
     await Future.delayed(Duration(milliseconds: 500));

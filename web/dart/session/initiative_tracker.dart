@@ -184,6 +184,17 @@ class InitiativeTracker {
       for (var entry in _summary.entries) {
         if (entry.movable == m) {
           entry.nameText.text = m.name;
+          return;
+        }
+      }
+    }
+  }
+
+  void onRemove(Movable m) {
+    if (_summary != null) {
+      for (var entry in _summary.entries.toList()) {
+        if (entry.movable == m) {
+          return _summary.removeEntry(entry);
         }
       }
     }
@@ -231,6 +242,11 @@ class InitiativeSummary {
 
       return true;
     }).toList();
+  }
+
+  void removeEntry(InitiativeEntry entry) {
+    entry.e.remove();
+    entries.remove(entry);
   }
 
   void registerRoll(Movable movable, int base, bool dmOnly, [int mod]) {
