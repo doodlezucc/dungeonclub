@@ -322,7 +322,8 @@ class Board {
       _deselectAll();
     }
 
-    state ??= !movables.any((m) => selected.contains(m));
+    state ??=
+        activeMovable == null || !movables.any((m) => selected.contains(m));
 
     movables.forEach((m) {
       if (m.e.classes.toggle('selected', state)) {
