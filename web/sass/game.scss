@@ -499,7 +499,7 @@
 
         .movable.accessible {
             border-color: white;
-            z-index: 2;
+            z-index: calc(200 - var(--size));
 
             > img { box-shadow: 0 0 8px #0008 inset; }
         }
@@ -624,7 +624,7 @@
     #movableGhost {
         @include base.center-background;
         opacity: 0.75;
-        z-index: 2;
+        z-index: 1000;
         border-radius: 50%;
         box-shadow: 0 0 10px #000a;
         pointer-events: none;
@@ -659,7 +659,7 @@
 #distanceCanvas {
     animation: blink 2s infinite linear;
     stroke-width: 0.1;
-    z-index: 3;
+    z-index: 1001;
 
     > * { pointer-events: none; }
     
@@ -678,7 +678,7 @@
 }
 .distance-text {
     position: absolute;
-    z-index: 101;
+    z-index: 1002;
     padding: 8px 12px;
     border-radius: base.$radius;
     background-color: var(--color-not-intense);
@@ -707,6 +707,7 @@
 
 #grid {
     position: absolute;
+    z-index: 0;
     --cell-size: 4;
 }
 
@@ -735,6 +736,7 @@
     transform-origin: top left;
     transform: scale(calc(var(--cell-size) / 70));
     transition: border-color 0.1s, width 0.1s, height 0.1s, opacity 0.1s;
+    z-index: calc(100 - var(--size));
 
     --size: 1;
     --x: 0;
@@ -836,7 +838,7 @@
     }
     &.selected {
         border-color: var(--color-primary);
-        z-index: 3;
+        z-index: calc(300 - var(--size));
 
         > img {
             box-shadow: 0 0 16px 4px #000a,
