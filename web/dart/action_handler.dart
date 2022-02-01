@@ -20,7 +20,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session.board.onMovableMove(params);
 
     case GAME_MOVABLE_UPDATE:
-      return user.session.board.onMovableUpdate(params);
+      return user.session.board.onMovablesUpdate(params);
 
     case GAME_MOVABLE_REMOVE:
       return user.session.board.onMovableRemove(params);

@@ -344,8 +344,10 @@ class Connection extends Socket {
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_UPDATE:
-        var m = scene?.getMovable(params['movable']);
-        m?.fromJson(params);
+        var changes = params['changes'];
+        for (var change in changes) {
+          scene?.getMovable(change['movable'])?.fromJson(change);
+        }
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_REMOVE:

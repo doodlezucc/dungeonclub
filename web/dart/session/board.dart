@@ -368,13 +368,21 @@ class Board {
         activeMovable.size == 0 ? '' : 'none';
   }
 
+  void _sendSelectedMovablesUpdate() {
+    socket.sendAction(a.GAME_MOVABLE_UPDATE, {
+      'changes': selected.map((e) => e.toJson()).toList(),
+    });
+  }
+
   void _initSelectionHandler() {
     _selectedRemove.onClick.listen((_) async {
       _removeSelectedMovables();
     });
 
     _listenSelectedLazyUpdate(_selectedLabel, onChange: (m, value) {
-      (m as EmptyMovable).label = value;
+      if (m is EmptyMovable) {
+        m.label = value;
+      }
     });
     _listenSelectedLazyUpdate(_selectedAura, onChange: (m, value) {
       m.auraRadius = double.parse(value);
@@ -382,8 +390,8 @@ class Board {
     _selectedInvisible.onClick.listen((_) {
       var inv = _selectedInvisible.classes.toggle('active');
       _selectedInvisible.text = inv ? 'Invisible' : 'Visible';
-      socket.sendAction(
-          a.GAME_MOVABLE_UPDATE, (activeMovable..invisible = inv).toJson());
+      selected.forEach((m) => m.invisible = inv);
+      _sendSelectedMovablesUpdate();
     });
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
       m.size = int.parse(value);
@@ -395,15 +403,10 @@ class Board {
     InputElement input, {
     @required void Function(Movable m, String value) onChange,
   }) {
-    Movable bufferedMovable;
     listenLazyUpdate(
       input,
-      onFocus: () => bufferedMovable = activeMovable,
-      onChange: (value) => onChange(bufferedMovable, value),
-      onSubmit: (value) => socket.sendAction(
-        a.GAME_MOVABLE_UPDATE,
-        bufferedMovable.toJson(),
-      ),
+      onChange: (value) => selected.forEach((m) => onChange(m, value)),
+      onSubmit: (value) => _sendSelectedMovablesUpdate(),
     );
   }
 
@@ -725,16 +728,18 @@ class Board {
 
       _selectedConds.append(ico
         ..onClick.listen((_) {
-          ico.classes.toggle('active', _activeMovable.toggleCondition(i));
-          socket.sendAction(a.GAME_MOVABLE_UPDATE, _activeMovable.toJson());
+          var activate = !_activeMovable.conds.contains(i);
+          selected.forEach((m) => m.toggleCondition(i, activate));
+          ico.classes.toggle('active', activate);
+          _sendSelectedMovablesUpdate();
         }));
     }
 
     _selectionProperties.querySelector('a').onClick.listen((_) {
       if (_activeMovable.conds.isNotEmpty) {
-        _activeMovable.applyConditions([]);
+        selected.forEach((m) => m.applyConditions([]));
         _selectedConds.querySelectorAll('.active').classes.remove('active');
-        socket.sendAction(a.GAME_MOVABLE_UPDATE, _activeMovable.toJson());
+        _sendSelectedMovablesUpdate();
       }
     });
   }
@@ -924,7 +929,14 @@ class Board {
         m.onRemove();
       });
 
-  void onMovableUpdate(json) => _movableEvent(json, (m) => m.fromJson(json));
+  void onMovablesUpdate(json) {
+    Iterable changes = json['changes'];
+    for (var change in changes) {
+      var id = change['movable'];
+      var m = movables.firstWhere((m) => m.id == id);
+      m.fromJson(change);
+    }
+  }
 
   void rescaleMeasurings() {
     var x = grid.tiles;
@@ -968,7 +980,7 @@ void listenLazyUpdate(
   InputElement input, {
   @required void Function(String s) onChange,
   @required void Function(String s) onSubmit,
-  @required void Function() onFocus,
+  void Function() onFocus,
 }) {
   String startValue;
   String typedValue;
@@ -983,7 +995,7 @@ void listenLazyUpdate(
 
   void onFoc() {
     startValue = input.value;
-    onFocus();
+    if (onFocus != null) onFocus();
     typedValue = input.value;
   }
 

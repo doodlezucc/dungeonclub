@@ -129,9 +129,11 @@ class Movable extends EntityBase {
     position = Point(modify(p.x), modify(p.y));
   }
 
-  bool toggleCondition(int id) {
+  bool toggleCondition(int id, [bool add]) {
     var didAdd = false;
-    if (!_conds.remove(id)) {
+    if (add != null) {
+      didAdd = add ? _conds.add(id) : _conds.remove(id);
+    } else if (!_conds.remove(id)) {
       _conds.add(id);
       didAdd = true;
     }
