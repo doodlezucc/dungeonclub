@@ -347,7 +347,6 @@ class Board {
 
     for (var m in selected) {
       m.onRemove();
-      movables.remove(m);
       if (m == activeMovable) {
         activeMovable = null;
       }
