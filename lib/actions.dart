@@ -40,6 +40,7 @@ const GAME_MAP_REMOVE = 'gameMapRemove';
 
 const GAME_ROLL_INITIATIVE = 'gameRollInitiative';
 const GAME_ADD_INITIATIVE = 'gameAddInitiative';
+const GAME_REMOVE_INITIATIVE = 'gameRemoveInitiative';
 const GAME_CLEAR_INITIATIVE = 'gameClearInitiative';
 const GAME_UPDATE_INITIATIVE = 'gameUpdateInitiative';
 

@@ -169,6 +169,17 @@ p {
     max-width: fit-content;
 }
 
+span.compact {
+    display: -webkit-box;
+    width: 100%;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
 %heading {
     font-family: inherit;
     margin: 0;

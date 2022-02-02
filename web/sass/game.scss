@@ -41,10 +41,28 @@
             }
         }
 
+        &.hide {
+            width: 16px;
+
+            > div {
+                top: 16px;
+                height: 16px;
+                border-radius: 50%;
+            }
+
+            span { visibility: hidden; }
+        }
+
         > .step-input { margin-bottom: 4px; }
 
         > div {
+            position: relative;
+            cursor: pointer;
             overflow: hidden;
+            top: 0;
+            transition: top 0.1s, height 0.1s;
+
+            &:hover { border: 1px solid white; }
     
             > span {
                 width: 100%;

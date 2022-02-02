@@ -547,6 +547,11 @@ class Connection extends Socket {
         if (dm) return;
         continue notify;
 
+      case a.GAME_REMOVE_INITIATIVE:
+        int id = params['id'];
+        scene.initiativeState.initiatives.removeWhere((i) => i.movableId == id);
+        continue notify;
+
       case a.GAME_CLEAR_INITIATIVE:
         scene.initiativeState = null;
         continue notify;

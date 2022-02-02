@@ -7,6 +7,7 @@ import 'package:dnd_interactive/actions.dart';
 import '../../main.dart';
 import '../communication.dart';
 import '../font_awesome.dart';
+import '../panels/context_menu.dart';
 import '../panels/panel_overlay.dart';
 import 'character.dart';
 import 'movable.dart';
@@ -190,6 +191,16 @@ class InitiativeTracker {
     }
   }
 
+  void onRemoveID(int mid) {
+    if (_summary != null) {
+      for (var entry in _summary.entries.toList()) {
+        if (entry.movable.id == mid) {
+          return _summary.removeEntry(entry);
+        }
+      }
+    }
+  }
+
   void onRemove(Movable m) {
     if (_summary != null) {
       for (var entry in _summary.entries.toList()) {
@@ -279,7 +290,7 @@ class InitiativeEntry {
   final e = DivElement();
   final modText = SpanElement();
   final totalText = SpanElement();
-  final nameText = SpanElement();
+  final nameText = SpanElement()..className = 'compact';
   final Movable movable;
   final int base;
   final bool dmOnly;
@@ -312,7 +323,8 @@ class InitiativeEntry {
         ..append(icon('plus')..onClick.listen((_) => modifier++)))
       ..append(DivElement()
         ..style.backgroundImage = 'url($img)'
-        ..append(totalText))
+        ..append(totalText)
+        ..onClick.listen(_onClick))
       ..append(nameText..text = movable.name)
       ..onMouseEnter.listen((_) {
         movable.e.classes.add('hovered');
@@ -327,6 +339,31 @@ class InitiativeEntry {
       });
 
     modifier = char?.defaultModifier ?? 0;
+  }
+
+  void _onClick(MouseEvent ev) async {
+    if (!user.session.isDM) return;
+
+    if (e.classes.contains('hide')) {
+      e.classes.remove('hide');
+      return;
+    }
+
+    var menu = ContextMenu()
+      ..addButton('Hide', 'eye-slash')
+      ..addButton('Remove', 'trash');
+
+    var result = await menu.display(ev);
+    if (result == null) return;
+
+    switch (result) {
+      case 0:
+        e.classes.add('hide');
+        return;
+      case 1:
+        await socket.sendAction(GAME_REMOVE_INITIATIVE, {'id': movable.id});
+        return _summary.removeEntry(this);
+    }
   }
 
   void sendUpdate() {

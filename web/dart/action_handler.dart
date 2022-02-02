@@ -84,6 +84,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_ADD_INITIATIVE:
       return user.session?.board?.initiativeTracker?.addToInBar(params);
 
+    case GAME_REMOVE_INITIATIVE:
+      return user.session?.board?.initiativeTracker?.onRemoveID(params['id']);
+
     case GAME_CLEAR_INITIATIVE:
       return user.session?.board?.initiativeTracker?.outOfCombat();
 
