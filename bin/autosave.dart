@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:archive/archive_io.dart';
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as p;
 
 import 'data.dart';
 
@@ -38,24 +38,47 @@ class AutoSaver {
         var mm = date.month.toString().padLeft(2, '0');
         var dd = date.day.toString().padLeft(2, '0');
 
-        return zipTo(path.join(_backupWeeks.path, '$yyyy-$mm-$dd.zip'));
+        return zipTo(p.join(_backupWeeks.path, '$yyyy-$mm-$dd.zip'));
       } else {
-        return zipTo(path.join(_backupDaily.path, 'weekday$weekday.zip'),
-            force: true);
+        return zipTo(p.join(_backupDaily.path, 'weekday$weekday.zip'),
+            force: true, includeImages: true);
       }
     }
   }
 
-  Future<void> zipTo(String path, {bool force = false}) async {
-    var file = File(path);
-    if (!force && await file.exists()) return;
+  Future<void> zipTo(String path,
+      {bool force = false, bool includeImages = false}) async {
+    var zipFile = File(path);
+    if (!force && await zipFile.exists()) return;
 
     print('Saving backup... ($path)');
     await data.save();
     var encoder = ZipFileEncoder();
-    encoder.zipDirectory(ServerData.directory, filename: path);
+    encoder.create(path);
 
-    var stat = await file.stat();
+    var dir = ServerData.directory;
+    var files = await dir.list(recursive: true).toList();
+    for (var file in files) {
+      if (file is! File) {
+        continue;
+      }
+
+      var fp = file.path;
+
+      if (!includeImages) {
+        var ext = p.extension(fp);
+        if (!(ext == '.json' || fp.endsWith('histogram'))) {
+          continue;
+        }
+      }
+
+      var relPath = p.relative(fp, from: dir.path);
+      encoder.addFile(file, relPath);
+    }
+
+    encoder.close();
+
+    var stat = await zipFile.stat();
     var sizeInMBs = stat.size / 1024 / 1024;
     print('Zipped backup size: ${sizeInMBs.toStringAsFixed(2)} MB');
   }
