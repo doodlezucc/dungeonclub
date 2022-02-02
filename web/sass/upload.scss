@@ -87,13 +87,11 @@
     }
 }
 
-#imagePrePick {
+#contextMenu {
     display: flex;
     flex-direction: column;
     padding: 4px;
     transition: transform 0.05s, opacity 0.05s;
-
-    &.no-assets > :first-child { display: none; }
 
     > button {
         background-color: var(--color-background);

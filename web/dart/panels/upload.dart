@@ -7,6 +7,7 @@ import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';
+import 'context_menu.dart';
 import 'panel_overlay.dart';
 
 final HtmlElement _panel = querySelector('#uploadPanel');
@@ -22,7 +23,6 @@ final ButtonElement _uploadButton = _panel.querySelector('button[type=submit]');
 final DivElement _crop = _panel.querySelector('#crop');
 final SpanElement _dragText = _panel.querySelector('#dragText');
 
-final DivElement _picker = querySelector('#imagePrePick');
 final DivElement _assetPanel = querySelector('#assetPanel');
 final DivElement _assetGrid = querySelector('#assetGrid');
 
@@ -453,35 +453,20 @@ Future display({
   var openDialog = true;
 
   if (initialImg == null) {
-    var p = event.page;
+    var menu = ContextMenu();
 
-    var bottom = window.innerHeight - p.y;
-    if (bottom > 120) {
-      _picker.style
-        ..top = '${p.y - 12}px'
-        ..bottom = 'auto';
-    } else {
-      _picker.style
-        ..bottom = '12px'
-        ..top = 'auto';
+    var assets = -1;
+    if (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_SCENE) {
+      assets = menu.addButton('Pick from Assets', 'image');
     }
 
-    _picker
-      ..style.left = '${p.x}px'
-      ..classes.toggle(
-          'no-assets', type != IMAGE_TYPE_PC && type != IMAGE_TYPE_SCENE)
-      ..classes.add('show');
+    menu.addButton('Upload Image', 'upload');
+    var dragDrop = menu.addButton('Drag & Drop', 'hand-pointer');
 
-    var ev = await Future.any([
-      _picker.onMouseLeave.first,
-      _picker.onClick.first,
-    ]);
+    var result = await menu.display(event);
+    if (result == null) return;
 
-    _picker.classes.remove('show');
-
-    if (ev.type == 'mouseleave' || ev.target == _picker) return null;
-
-    if (ev.path.contains(_picker.children.first)) {
+    if (result == assets) {
       visible(true);
       var asset = await _displayAssetPicker(type);
       visible(false);
@@ -495,7 +480,7 @@ Future display({
       }
 
       return await _upload(asset, action, type, extras, maxRes, upscale);
-    } else if (ev.path.contains(_picker.children.last)) {
+    } else if (result == dragDrop) {
       openDialog = false;
     }
   }
