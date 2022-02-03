@@ -15,7 +15,13 @@ class ContextMenu {
     return _e.children.length - 1;
   }
 
-  Future<int> display(MouseEvent event) async {
+  bool _prefer(EventTarget e) {
+    return e is ButtonElement ||
+        (e is Element && e.classes.contains('with-tooltip'));
+  }
+
+  Future<int> display(MouseEvent event, [Element hovered]) async {
+    hovered ??= event.path.firstWhere(_prefer, orElse: () => event.target);
     var p = event.page;
 
     var bottom = window.innerHeight - p.y;
@@ -31,6 +37,7 @@ class ContextMenu {
 
     _e.style.left = '${p.x}px';
     _e.classes.add('show');
+    hovered.classes.add('hovered');
 
     var ev = await Future.any([
       _e.onMouseLeave.first,
@@ -38,6 +45,7 @@ class ContextMenu {
     ]);
 
     _e.classes.remove('show');
+    hovered.classes.remove('hovered');
 
     if (ev.type == 'mouseleave' || ev.target == _e) return null;
 

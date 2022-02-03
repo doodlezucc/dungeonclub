@@ -219,7 +219,7 @@ h3 {
 %clickable:not(:disabled) {
     cursor: pointer;
 }
-%clickable:not(:disabled):hover, .tab %clickable:not(:disabled):focus {
+%clickable:not(:disabled):hover, %clickable:not(:disabled).hovered, .tab %clickable:not(:disabled):focus {
     background-color: var(--color-button-hover);
     color: var(--color-text-primary);
 }
@@ -570,7 +570,7 @@ li {
         user-select: none;
         transition-duration: 0.1s;
     }
-    > div:hover {
+    > div:hover, div.hovered {
         opacity: 1;
     }
 
@@ -700,7 +700,7 @@ footer {
         font-weight: normal;
     }
 
-    &:hover {
+    &:hover, &.hovered {
         > span {
             opacity: 1;
         }
