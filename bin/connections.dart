@@ -557,7 +557,7 @@ class Connection extends Socket {
         continue notify;
 
       notify:
-      case '':
+      case a.GAME_REROLL_INITIATIVE:
         return _game.notify(action, params, exclude: this, allScenes: true);
 
       case a.GAME_MUSIC_PLAYLIST:

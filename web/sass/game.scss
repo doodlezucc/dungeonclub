@@ -36,9 +36,8 @@
         }
 
         &:hover {
-            > .step-input {
-                background-color: var(--color-background);
-            }
+            z-index: 1;
+            > .step-input { background-color: var(--color-background); }
         }
 
         &.hide {
@@ -77,6 +76,28 @@
     }
 
     .roster:empty::after {
+        content: "Waiting for players to roll...";
+        color: var(--color-note);
+    }
+
+    #initiativeReroll:only-child {
+        display: block !important;
+        visibility: hidden;
+        margin-right: 16px;
+        top: auto;
+    }
+}
+
+#initiativeReroll {
+    /* hardcoded (but calculated) mess:
+       (step-input height) + (step-input margin) + (half of char image height) - (half of button height)
+
+       Sass will simplify this to 34px at compile time.
+    */
+    top: 24px + 4px + (48px / 2) - (36px / 2);
+
+    &:only-child::after {
+        visibility: visible;
         content: "Waiting for players to roll...";
         color: var(--color-note);
     }
@@ -514,6 +535,14 @@
     &:not(.is-dm) {
         .dm {
             display: none !important;
+        }
+
+        #initiativeBar .char > div {
+            pointer-events: none;
+        }
+
+        #initiativeReroll {
+            pointer-events: none;
         }
 
         .movable.accessible {

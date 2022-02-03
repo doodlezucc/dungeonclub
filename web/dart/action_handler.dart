@@ -93,6 +93,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_UPDATE_INITIATIVE:
       return user.session?.board?.initiativeTracker?.onUpdate(params);
 
+    case GAME_REROLL_INITIATIVE:
+      return user.session?.board?.initiativeTracker?.reroll();
+
     case GAME_MUSIC_PLAYLIST:
       return user.session?.audioplayer?.onNewTracklist(params);
 

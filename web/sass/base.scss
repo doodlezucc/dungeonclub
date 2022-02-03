@@ -683,7 +683,7 @@ footer {
     display: flex;
     justify-content: center;
     
-    > span {
+    > span:last-of-type {
         transition-duration: 0.1s;
         position: absolute;
         bottom: 100%;

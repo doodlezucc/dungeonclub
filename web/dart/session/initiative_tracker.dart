@@ -15,12 +15,12 @@ import 'prefab.dart';
 
 HtmlElement get initiativeBar => querySelector('#initiativeBar');
 HtmlElement get charContainer => initiativeBar.querySelector('.roster');
+ButtonElement get rerollButton => querySelector('#initiativeReroll');
 InitiativeSummary _summary;
 
 class InitiativeTracker {
   final rng = Random();
 
-  bool _trackerActive = false;
   Timer diceAnim;
   Iterable<Movable> _similar;
 
@@ -32,14 +32,15 @@ class InitiativeTracker {
   ButtonElement get skipTypeButton => querySelector('#initiativeSkipType');
   HtmlElement get panel => querySelector('#initiativePanel');
 
+  bool get rollerPanelVisible => panel.classes.contains('show');
   set showBar(bool v) => initiativeBar.classes.toggle('hidden', !v);
   set disabled(bool disabled) => callRollsButton.disabled = disabled;
 
   void init(bool isDM) {
     callRollsButton.onClick.listen((_) {
-      _trackerActive = callRollsButton.classes.toggle('active');
+      var trackerActive = callRollsButton.classes.toggle('active');
 
-      if (_trackerActive) {
+      if (trackerActive) {
         sendRollForInitiative();
       } else {
         outOfCombat();
@@ -55,22 +56,20 @@ class InitiativeTracker {
         _summary.mine.removeAt(0);
         nextRoll();
       });
+      rerollButton.onClick.listen((_) => sendReroll());
     }
+  }
+
+  void sendReroll() {
+    _summary.rollRemaining();
+    socket.sendAction(GAME_REROLL_INITIATIVE);
+    nextRoll();
   }
 
   void sendRollForInitiative() {
     resetBar();
+    _summary.rollRemaining();
     socket.sendAction(GAME_ROLL_INITIATIVE);
-    _summary.mine = user.session.board.movables.where((m) {
-      var prefab = m.prefab;
-      if (prefab is CharacterPrefab) {
-        return !prefab.character.hasJoined;
-      }
-      if (prefab is CustomPrefab) {
-        return prefab.accessIds.length != 1;
-      }
-      return true;
-    }).toList();
     nextRoll();
   }
 
@@ -112,8 +111,16 @@ class InitiativeTracker {
     }
   }
 
+  void reroll() {
+    _summary.rollRemaining();
+    if (!rollerPanelVisible) {
+      nextRoll();
+    }
+  }
+
   void showRollerPanel() {
     resetBar();
+    _summary.rollRemaining();
     nextRoll();
   }
 
@@ -165,12 +172,13 @@ class InitiativeTracker {
 
   void resetBar() {
     _summary = InitiativeSummary();
-    charContainer.children.clear();
     showBar = true;
   }
 
   void outOfCombat() {
     showBar = false;
+    _summary?.entries?.forEach((entry) => entry.e.remove());
+    _summary = null;
     if (panel.classes.remove('show')) overlayVisible = false;
   }
 
@@ -239,20 +247,30 @@ class InitiativeTracker {
 }
 
 class InitiativeSummary {
-  List<Movable> mine;
+  final List<Movable> mine = [];
   List<InitiativeEntry> entries = [];
 
-  InitiativeSummary() {
-    mine = user.session.board.movables.where((m) {
-      if (!m.accessible) return false;
+  void rollRemaining() {
+    var isDm = user.session.isDM;
+    mine.addAll(user.session.board.movables.where((m) {
+      if (entries.any((e) => e.movable == m) || mine.contains(m)) return false;
 
       var prefab = m.prefab;
+
+      if (isDm) {
+        if (prefab is CharacterPrefab) {
+          return !prefab.character.hasJoined;
+        }
+      } else if (!m.accessible) {
+        return false;
+      }
+
       if (prefab is CustomPrefab) {
-        return prefab.accessIds.length == 1;
+        return isDm == (prefab.accessIds.length != 1);
       }
 
       return true;
-    }).toList();
+    }));
   }
 
   void removeEntry(InitiativeEntry entry) {
@@ -283,6 +301,7 @@ class InitiativeSummary {
         }
       }
     }
+    charContainer.append(rerollButton);
   }
 }
 

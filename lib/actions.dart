@@ -43,6 +43,7 @@ const GAME_ADD_INITIATIVE = 'gameAddInitiative';
 const GAME_REMOVE_INITIATIVE = 'gameRemoveInitiative';
 const GAME_CLEAR_INITIATIVE = 'gameClearInitiative';
 const GAME_UPDATE_INITIATIVE = 'gameUpdateInitiative';
+const GAME_REROLL_INITIATIVE = 'gameRerollInitiative';
 
 const GAME_MUSIC_PLAYLIST = 'gameMusicPlaylist';
 const GAME_MUSIC_SKIP = 'gameMusicSkip';
