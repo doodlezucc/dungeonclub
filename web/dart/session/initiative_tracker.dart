@@ -179,6 +179,7 @@ class InitiativeTracker {
     showBar = false;
     _summary?.entries?.forEach((entry) => entry.e.remove());
     _summary = null;
+    updateRerollableInitiatives();
     if (panel.classes.remove('show')) overlayVisible = false;
   }
 
@@ -246,6 +247,23 @@ class InitiativeTracker {
   }
 }
 
+bool canReroll() {
+  if (_summary == null) return true;
+  var board = user.session.board;
+  for (var m in board.movables) {
+    if (!_summary.entries.any((e) => e.movable == m)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void updateRerollableInitiatives() {
+  if (user.session.isDM) {
+    rerollButton.disabled = !canReroll();
+  }
+}
+
 class InitiativeSummary {
   final List<Movable> mine = [];
   List<InitiativeEntry> entries = [];
@@ -276,6 +294,7 @@ class InitiativeSummary {
   void removeEntry(InitiativeEntry entry) {
     entry.e.remove();
     entries.remove(entry);
+    updateRerollableInitiatives();
   }
 
   void registerRoll(Movable movable, int base, bool dmOnly, [int mod]) {
@@ -285,6 +304,7 @@ class InitiativeSummary {
     entries.add(entry);
     charContainer.append(entry.e);
     sort();
+    updateRerollableInitiatives();
   }
 
   void sort() {

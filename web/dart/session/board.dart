@@ -848,6 +848,7 @@ class Board {
     _deselectAll();
     _syncMovableAnim();
     toggleSelect(dest, state: true);
+    updateRerollableInitiatives();
   }
 
   Future<Movable> addMovable(Prefab prefab, Point pos) async {
@@ -866,6 +867,7 @@ class Board {
     movables.add(m);
     grid.e.append(m.e);
     _syncMovableAnim();
+    updateRerollableInitiatives();
     return m;
   }
 

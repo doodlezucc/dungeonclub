@@ -80,7 +80,7 @@
         color: var(--color-note);
     }
 
-    #initiativeReroll:only-child {
+    #initiativeReroll:enabled:only-child {
         display: block !important;
         visibility: hidden;
         margin-right: 16px;
@@ -96,6 +96,7 @@
     */
     top: 24px + 4px + (48px / 2) - (36px / 2);
 
+    &:disabled { display: none; }
     &:only-child::after {
         visibility: visible;
         content: "Waiting for players to roll...";
