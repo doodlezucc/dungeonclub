@@ -1,5 +1,6 @@
 @use 'base.scss';
 @use 'panels.scss';
+@use 'sass:math';
 
 %active {
     box-shadow: 0 0 6px var(--color-text-inverse) inset;
@@ -40,16 +41,10 @@
             > .step-input { background-color: var(--color-background); }
         }
 
-        &.hide {
-            width: 16px;
-
+        &.public {
             > div {
-                top: 16px;
-                height: 16px;
-                border-radius: 50%;
+                border: 2px solid var(--color-primary) !important;
             }
-
-            span { visibility: hidden; }
         }
 
         > .step-input { margin-bottom: 4px; }
@@ -61,7 +56,7 @@
             top: 0;
             transition: top 0.1s, height 0.1s;
 
-            &:hover { border: 1px solid white; }
+            &:hover, &.hovered { border: 1px solid white; }
     
             > span {
                 width: 100%;
@@ -94,7 +89,7 @@
 
        Sass will simplify this to 34px at compile time.
     */
-    top: 24px + 4px + (48px / 2) - (36px / 2);
+    top: 24px + 4px + math.div(48px, 2) - math.div(36px, 2);
 
     &:disabled { display: none; }
     &:only-child::after {

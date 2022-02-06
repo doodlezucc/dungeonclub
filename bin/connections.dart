@@ -515,6 +515,7 @@ class Connection extends Socket {
         int id = params['id'];
         int pc = params['pc'];
         int mod = params['mod'];
+        bool dmOnly = params['dm'];
 
         var initiative = scene.initiativeState.initiatives
             .firstWhere((ini) => ini.movableId == id);
@@ -523,6 +524,19 @@ class Connection extends Socket {
         if (pc != null) {
           _game.characters.elementAt(pc).initiativeMod = mod;
         }
+
+        if (dmOnly != null) {
+          if (initiative.dmOnly != dmOnly) {
+            initiative.dmOnly = dmOnly;
+            return _game.notify(
+              dmOnly ? a.GAME_REMOVE_INITIATIVE : a.GAME_ADD_INITIATIVE,
+              dmOnly ? {'id': id} : initiative.toJson(includeDm: false),
+              exclude: this,
+              allScenes: true,
+            );
+          }
+        }
+
         if (initiative.dmOnly) return;
         continue notify;
 

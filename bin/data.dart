@@ -836,17 +836,17 @@ class InitiativeState {
 class Initiative {
   final int movableId;
   final int roll;
-  final bool dmOnly;
+  bool dmOnly;
   int mod;
 
   Initiative(this.movableId, this.roll, this.mod, this.dmOnly);
   Initiative.fromJson(json)
       : this(json['id'], json['roll'], json['mod'], json['dm']);
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson({bool includeDm = true}) => {
         'id': movableId,
         'roll': roll,
         'mod': mod,
-        'dm': dmOnly,
+        if (includeDm) 'dm': dmOnly,
       };
 }

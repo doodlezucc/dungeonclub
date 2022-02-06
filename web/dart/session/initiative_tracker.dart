@@ -332,7 +332,13 @@ class InitiativeEntry {
   final nameText = SpanElement()..className = 'compact';
   final Movable movable;
   final int base;
-  final bool dmOnly;
+
+  bool get dmOnly => !e.classes.contains('public');
+  set dmOnly(bool dmOnly) {
+    if (user.session.isDM) {
+      e.classes.toggle('public', !dmOnly);
+    }
+  }
 
   bool get isChar => movable.prefab is CharacterPrefab;
   Character get char =>
@@ -349,7 +355,7 @@ class InitiativeEntry {
     char?.defaultModifier = modifier;
   }
 
-  InitiativeEntry(this.movable, this.base, this.dmOnly) {
+  InitiativeEntry(this.movable, this.base, bool dmOnly) {
     int _bufferedModifier;
 
     var img = movable.prefab.img(cacheBreak: false);
@@ -363,7 +369,7 @@ class InitiativeEntry {
       ..append(DivElement()
         ..style.backgroundImage = 'url($img)'
         ..append(totalText)
-        ..onClick.listen(_onClick))
+        ..onMouseDown.listen(_onClick))
       ..append(nameText..text = movable.name)
       ..onMouseEnter.listen((_) {
         movable.e.classes.add('hovered');
@@ -377,11 +383,13 @@ class InitiativeEntry {
         }
       });
 
+    this.dmOnly = dmOnly;
+
     modifier = char?.defaultModifier ?? 0;
   }
 
   void _onClick(MouseEvent ev) async {
-    if (!user.session.isDM) return;
+    if (!user.session.isDM || ev.button != 0) return;
 
     if (e.classes.contains('hide')) {
       e.classes.remove('hide');
@@ -389,15 +397,16 @@ class InitiativeEntry {
     }
 
     var menu = ContextMenu()
-      ..addButton('Hide', 'eye-slash')
+      ..addButton(dmOnly ? 'Show' : 'Hide', dmOnly ? 'eye' : 'eye-slash')
       ..addButton('Remove', 'trash');
 
-    var result = await menu.display(ev);
+    var result = await menu.display(ev, e.querySelector('div'));
     if (result == null) return;
 
     switch (result) {
       case 0:
-        e.classes.add('hide');
+        dmOnly = !dmOnly;
+        sendUpdate();
         return;
       case 1:
         await socket.sendAction(GAME_REMOVE_INITIATIVE, {'id': movable.id});
@@ -406,10 +415,13 @@ class InitiativeEntry {
   }
 
   void sendUpdate() {
-    socket.sendAction(GAME_UPDATE_INITIATIVE, {
-      'id': movable.id,
-      'mod': modifier,
-      if (isChar) 'pc': char.id,
-    });
+    if (user.session.isDM) {
+      socket.sendAction(GAME_UPDATE_INITIATIVE, {
+        'id': movable.id,
+        'mod': modifier,
+        'dm': dmOnly,
+        if (isChar) 'pc': char.id,
+      });
+    }
   }
 }
