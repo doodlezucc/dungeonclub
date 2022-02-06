@@ -403,13 +403,12 @@ input {
     display: flex;
     justify-content: space-between;
     width: 80px;
-    height: 24px;
 
     i {
         align-self: center;
-        border-radius: 4px;
         font-size: 14px;
         padding: 4px;
+        color: white;
         cursor: pointer;
 
         &:hover { background-color: var(--color-button-hover); }

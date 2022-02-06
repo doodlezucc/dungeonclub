@@ -51,13 +51,17 @@ class InitiativeTracker {
 
     userRollButton.onClick.listen((_) => rollDice());
     skipButton.classes.toggle('hidden', !isDM);
-    skipTypeButton.onClick.listen((_) => _rollForSimilar());
+    skipTypeButton.onClick.listen((_) => _skipAllOfType());
     if (isDM) {
       skipButton.onClick.listen((_) {
         _summary.mine.removeAt(0);
         nextRoll();
       });
       rerollButton.onClick.listen((_) => sendReroll());
+      panel.querySelector('.close').onClick.listen((_) {
+        _summary.mine.clear();
+        nextRoll();
+      });
     }
   }
 
@@ -145,9 +149,6 @@ class InitiativeTracker {
     });
 
     var mv = _summary.mine.first;
-    var name = mv.name;
-    targetText.innerHtml = "<b>$name</b>'s Initiative";
-
     var prefab = mv.prefab;
     _similar = _summary.mine.where((other) {
       if (mv is EmptyMovable) {
@@ -156,18 +157,25 @@ class InitiativeTracker {
       return other.prefab == prefab;
     });
 
-    skipTypeButton.childNodes[0].text =
-        'Roll for ${_similar.length} Similar Creatures';
-    skipTypeButton.classes.toggle('hidden', _similar.length < 3);
+    var name = mv.name;
+    var dupes = _summary.nameDuplicates[name];
+    if (dupes > 1) {
+      var i = dupes - _similar.length + 1;
+      name += ' ($i/$dupes)';
+    }
+    targetText.innerHtml = "<b>$name</b>'s Initiative";
+
+    skipTypeButton.text = 'Skip ${_similar.length} Similar Tokens';
+    skipTypeButton.classes.toggle('hidden', _similar.length < 2);
 
     if (panel.classes.add('show')) overlayVisible = true;
     _disableButtons(false);
   }
 
-  void _rollForSimilar() {
+  void _skipAllOfType() {
     if (_similar != null) {
-      rollDice();
       _summary.mine.removeWhere((m) => _similar.contains(m));
+      nextRoll();
     }
   }
 
@@ -267,7 +275,16 @@ void updateRerollableInitiatives() {
 
 class InitiativeSummary {
   final List<Movable> mine = [];
+  Map<String, int> nameDuplicates;
   List<InitiativeEntry> entries = [];
+
+  static int _importance(Movable m) {
+    var p = m.prefab;
+    if (p is CharacterPrefab) return 0;
+    if (p is CustomPrefab) return 1;
+    if (p is EmptyPrefab) return 2;
+    return 3;
+  }
 
   void rollRemaining() {
     var isDm = user.session.isDM;
@@ -290,6 +307,16 @@ class InitiativeSummary {
 
       return true;
     }));
+    mine.sort((a, b) {
+      var cmp = _importance(a).compareTo(_importance(b));
+
+      if (cmp == 0) return a.name.compareTo(b.name);
+
+      return cmp;
+    });
+    nameDuplicates = mine.fold(<String, int>{}, (map, mv) {
+      return map..update(mv.name, (count) => count + 1, ifAbsent: () => 1);
+    });
   }
 
   void removeEntry(InitiativeEntry entry) {
@@ -334,10 +361,10 @@ class InitiativeEntry {
   final Movable movable;
   final int base;
 
-  bool get dmOnly => !e.classes.contains('public');
+  bool get dmOnly => e.classes.contains('private');
   set dmOnly(bool dmOnly) {
     if (user.session.isDM) {
-      e.classes.toggle('public', !dmOnly);
+      e.classes.toggle('private', dmOnly);
     }
   }
 
@@ -370,7 +397,8 @@ class InitiativeEntry {
       ..append(DivElement()
         ..style.backgroundImage = 'url($img)'
         ..append(totalText)
-        ..onLMB.listen(_onClick))
+        ..onLMB.listen(_onClick)
+        ..onContextMenu.listen(_onClick))
       ..append(nameText..text = movable.name)
       ..onMouseEnter.listen((_) {
         movable.e.classes.add('hovered');
@@ -385,12 +413,12 @@ class InitiativeEntry {
       });
 
     this.dmOnly = dmOnly;
-
     modifier = char?.defaultModifier ?? 0;
   }
 
   void _onClick(MouseEvent ev) async {
-    if (!user.session.isDM || ev.button != 0) return;
+    ev.preventDefault();
+    if (!user.session.isDM) return;
 
     if (e.classes.contains('hide')) {
       e.classes.remove('hide');

@@ -30,6 +30,8 @@
 
     &.hidden { display: none; }
 
+    button { color: white; }
+
     .char {
         &:not(:hover) {
             .step-input { pointer-events: none; }
@@ -41,9 +43,12 @@
             > .step-input { background-color: var(--color-background); }
         }
 
-        &.public {
+        &.private {
+            color: var(--color-primary);
             > div {
-                border: 2px solid var(--color-primary) !important;
+                width: 36px;
+                height: 36px;
+                margin: 6px 0;
             }
         }
 
@@ -53,8 +58,8 @@
             position: relative;
             cursor: pointer;
             overflow: hidden;
-            top: 0;
-            transition: top 0.1s, height 0.1s;
+            transition-duration: 0.1s;
+            color: white;
 
             &:hover, &.hovered { border: 1px solid white; }
     
@@ -65,7 +70,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background-color: #0005;
+                background-color: #0006;
             }
         }
     }
