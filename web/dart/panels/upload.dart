@@ -10,6 +10,10 @@ import '../communication.dart';
 import 'context_menu.dart';
 import 'panel_overlay.dart';
 
+extension ElementLeftClickDown on Element {
+  Stream<MouseEvent> get onLMB => onMouseDown.where((ev) => ev.button == 0);
+}
+
 final HtmlElement _panel = querySelector('#uploadPanel');
 final ButtonElement _cancelButton = _panel.querySelector('button.close');
 

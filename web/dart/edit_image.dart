@@ -2,6 +2,8 @@ import 'dart:html';
 
 import 'package:meta/meta.dart';
 
+import 'panels/upload.dart';
+
 HtmlElement registerEditImage(
   HtmlElement editImg, {
   @required Future<String> Function(MouseEvent ev, [Blob initialFile]) upload,
@@ -27,7 +29,7 @@ HtmlElement registerEditImage(
   }
 
   return editImg
-    ..onClick.listen((ev) => uploadAndUpdate(ev))
+    ..onLMB.listen((ev) => uploadAndUpdate(ev))
     ..onDrop.listen((ev) {
       ev.preventDefault();
       if (ev.dataTransfer.files != null && ev.dataTransfer.files.isNotEmpty) {

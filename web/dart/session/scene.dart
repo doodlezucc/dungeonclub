@@ -11,7 +11,7 @@ import '../panels/upload.dart' as upload;
 
 final HtmlElement _scenesContainer = querySelector('#scenes');
 final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
-  ..onClick.listen((ev) async {
+  ..onLMB.listen((ev) async {
     var json = await upload.display(
       event: ev,
       action: GAME_SCENE_ADD,

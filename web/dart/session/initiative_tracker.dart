@@ -9,6 +9,7 @@ import '../communication.dart';
 import '../font_awesome.dart';
 import '../panels/context_menu.dart';
 import '../panels/panel_overlay.dart';
+import '../panels/upload.dart';
 import 'character.dart';
 import 'movable.dart';
 import 'prefab.dart';
@@ -369,7 +370,7 @@ class InitiativeEntry {
       ..append(DivElement()
         ..style.backgroundImage = 'url($img)'
         ..append(totalText)
-        ..onMouseDown.listen(_onClick))
+        ..onLMB.listen(_onClick))
       ..append(nameText..text = movable.name)
       ..onMouseEnter.listen((_) {
         movable.e.classes.add('hovered');

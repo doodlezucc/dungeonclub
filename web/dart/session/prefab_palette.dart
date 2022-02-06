@@ -132,7 +132,7 @@ void _initPrefabPalette() {
 
   _otherPrefs.nodes.insert(0, emptyPrefab.e);
 
-  _addPref.onClick.listen(createPrefab);
+  _addPref.onLMB.listen(createPrefab);
   _palette.querySelector('#paletteCollapse').onClick.listen((_) {
     collapsed = !collapsed;
   });

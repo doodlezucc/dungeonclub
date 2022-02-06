@@ -238,7 +238,7 @@ class Board {
       }
     });
 
-    _changeImage.onClick.listen(_changeImageDialog);
+    _changeImage.onLMB.listen(_changeImageDialog);
     _editScene.onClick.listen((_) => editingGrid = true);
     _exitEdit.onClick.listen((_) => editingGrid = false);
 

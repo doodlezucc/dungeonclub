@@ -165,8 +165,8 @@ class MapTab {
       }
     });
 
-    _navLeft.onClick.listen((_) => mapIndex--);
-    _navRight.onClick.listen((ev) async {
+    _navLeft.onLMB.listen((_) => mapIndex--);
+    _navRight.onLMB.listen((ev) async {
       if (user.session.isDM &&
           mapIndex == maps.length - 1 &&
           !await _uploadNewMap(ev)) return;
@@ -174,7 +174,7 @@ class MapTab {
       mapIndex++;
     });
 
-    _imgButton.onClick.listen((ev) {
+    _imgButton.onLMB.listen((ev) {
       if (maps.isEmpty) {
         _uploadNewMap(ev);
       }

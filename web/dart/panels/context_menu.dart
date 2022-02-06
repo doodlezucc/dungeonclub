@@ -41,13 +41,13 @@ class ContextMenu {
 
     var ev = await Future.any([
       _e.onMouseLeave.first,
-      _e.onClick.first,
+      _e.onMouseUp.where((event) => event.target != _e).first,
     ]);
 
     _e.classes.remove('show');
     hovered.classes.remove('hovered');
 
-    if (ev.type == 'mouseleave' || ev.target == _e) return null;
+    if (ev.type == 'mouseleave') return null;
 
     for (var i = 0; i < _e.children.length; i++) {
       if (ev.path.contains(_e.children[i])) {
