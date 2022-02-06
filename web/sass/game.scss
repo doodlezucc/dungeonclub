@@ -313,16 +313,19 @@
     }
 
     #selectionProperties {
+        position: relative;
         gap: 8px;
         white-space: nowrap;
+
+        > .left-col > button {
+            @extend .elevate;
+        }
 
         > span {
             gap: 8px;
             justify-content: flex-start;
 
-            > input:not([type=checkbox]) {
-                width: 100%;
-            }
+            > input { width: 100%; }
         }
 
         > #conds {
@@ -445,13 +448,8 @@
         padding: 0;
 
         button {
+            @extend .elevate;
             height: 40px;
-            padding-bottom: 12px;
-            box-shadow: 0 -4px 0 #0007 inset;
-        }
-
-        button:not(:hover) {
-            background-color: var(--color-not-intense);
         }
 
         .tab {

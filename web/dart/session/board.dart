@@ -149,9 +149,7 @@ class Board {
       }
 
       _selectedAura.valueAsNumber = activeMovable.auraRadius;
-      _selectedInvisible.classes.toggle('active', activeMovable.invisible);
-      _selectedInvisible.text =
-          activeMovable.invisible ? 'Invisible' : 'Visible';
+      _updateSelectedInvisible(activeMovable.invisible);
       _selectedSize.valueAsNumber = activeMovable.size;
       _updateSelectionSizeInherit();
       _selectedConds.querySelectorAll('.active').classes.remove('active');
@@ -374,6 +372,13 @@ class Board {
     });
   }
 
+  void _updateSelectedInvisible(bool v) {
+    _selectedInvisible.classes.toggle('active', v);
+    _selectedInvisible.querySelector('span').text = v ? 'Invisible' : 'Visible';
+    _selectedInvisible.querySelector('i').className =
+        'fas fa-' + (v ? 'eye-slash' : 'eye');
+  }
+
   void _initSelectionHandler() {
     _selectedRemove.onClick.listen((_) async {
       _removeSelectedMovables();
@@ -388,8 +393,8 @@ class Board {
       m.auraRadius = double.parse(value);
     });
     _selectedInvisible.onClick.listen((_) {
-      var inv = _selectedInvisible.classes.toggle('active');
-      _selectedInvisible.text = inv ? 'Invisible' : 'Visible';
+      var inv = !_selectedInvisible.classes.contains('active');
+      _updateSelectedInvisible(inv);
       selected.forEach((m) => m.invisible = inv);
       _sendSelectedMovablesUpdate();
     });
