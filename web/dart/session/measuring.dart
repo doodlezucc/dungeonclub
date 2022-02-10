@@ -71,7 +71,7 @@ void sendCreationEvent(int type, Point origin, Point p) {
   writer.writeUInt8(0); // Creation event
   writer.writeUInt8(type);
   _writePrecision(writer, origin);
-  _writePrecision(writer, p);
+  writer.writePoint(forceIntPoint(p));
 
   socket.send(writer.takeBytes());
 }
@@ -95,7 +95,7 @@ void handleMeasuringEvent(Uint8List bytes) {
   switch (event) {
     case 0:
       var m = Measuring.create(reader.readUInt8(), _readPrecision(reader), pc);
-      m.alignDistanceText(_readPrecision(reader));
+      m.alignDistanceText(reader.readPoint());
       user.session.board.zoom += 0; // Rescale distance text
       return;
     case 1:
