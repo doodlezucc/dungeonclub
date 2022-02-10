@@ -1028,7 +1028,18 @@ $ping-radius: 100px;
         color: var(--color-text-primary);
     }
 
-    &:not(.active) .active { color: unset; background-color: var(--color-background); }
+    &:not(.active) {
+        #measureTools .active { color: unset; background-color: var(--color-background); }
+
+        #measureSettings { @extend .invisible; }
+    }
+}
+
+#measureSettings {
+    position: absolute;
+    top: 4px;
+    left: 100%;
+    transition-duration: 0.1s;
 }
 
 #ambience {

@@ -16,7 +16,7 @@ const MEASURING_CUBE = 3;
 const MEASURING_LINE = 4;
 
 const measuringPort = 80;
-const _precision = 8;
+const _precision = 63;
 final Map<int, Measuring> _pcMeasurings = {};
 
 final HtmlElement _toolbox = querySelector('#measureTools');
@@ -76,21 +76,26 @@ void sendCreationEvent(int type, Point origin, Point p) {
   socket.send(writer.takeBytes());
 }
 
-void removeMeasuring(int pc) {
-  _pcMeasurings.remove(pc)?.dispose();
+void removeMeasuring(int pc, {bool sendEvent = false}) {
+  var m = _pcMeasurings.remove(pc);
+  if (m != null) {
+    m.dispose();
+    if (sendEvent) m.sendRemovalEvent();
+  }
 }
 
 void handleMeasuringEvent(Uint8List bytes) {
   var reader = BinaryReader.fromList(bytes)..readUInt8(); // Skip port byte
 
   var pc = reader.readUInt8();
+  if (pc == 255) pc = null;
+
   var event = reader.readUInt8();
 
   switch (event) {
     case 0:
       var m = Measuring.create(reader.readUInt8(), _readPrecision(reader), pc);
       m.alignDistanceText(_readPrecision(reader));
-      _pcMeasurings[pc] = m;
       user.session.board.zoom += 0; // Rescale distance text
       return;
     case 1:
@@ -127,6 +132,8 @@ abstract class Measuring {
   Measuring(this.origin, this._e, int pc)
       : _distanceText = SpanElement(),
         color = user.session.getPlayerColor(pc) {
+    _pcMeasurings[pc]?.dispose();
+    _pcMeasurings[pc] = this;
     measuringRoot.append(_e);
     querySelector('#board').append(_distanceText..className = 'distance-text');
     redraw(origin);

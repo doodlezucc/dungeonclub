@@ -47,6 +47,7 @@ final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
 
 final ButtonElement _fowToggle = querySelector('#fogOfWar');
 final ButtonElement _measureToggle = querySelector('#measureDistance');
+HtmlElement get _measureSticky => querySelector('#measureSticky');
 
 class Board {
   final Session session;
@@ -95,6 +96,11 @@ class Board {
   String get mode => _mode;
   set mode(String mode) {
     if (mode == _mode) mode = PAN;
+
+    if (_mode == MEASURE) {
+      // Exiting measure mode
+      removeMeasuring(session.charId, sendEvent: true);
+    }
 
     _mode = mode;
 
@@ -216,6 +222,11 @@ class Board {
 
           // Prevent mode toggle
           if (mode == MEASURE && measureMode != oldMode) return null;
+        } else if (target == _measureSticky) {
+          if (!target.classes.toggle('active')) {
+            removeMeasuring(session.charId, sendEvent: true);
+          }
+          return;
         }
       }
 
@@ -683,6 +694,7 @@ class Board {
         Point(0.5, 0.5) +
         offset;
 
+    removeMeasuring(session.charId, sendEvent: true);
     var m = Measuring.create(type, origin, session.charId);
     sendCreationEvent(type, origin, p);
     m.alignDistanceText(p);
@@ -711,17 +723,18 @@ class Board {
         round: false,
         offset: Point(0.5, 0.5) - offset,
       );
-      if (ev.button == 2) {
-        m.addPoint(measureEnd);
-      }
+
+      if (ev.button == 2) m.addPoint(measureEnd);
+
       m.redraw(measureEnd);
       m.alignDistanceText(p);
       hasChanged = true;
     }, onDone: () {
       keySub.cancel();
       syncTimer.cancel();
-      m.dispose();
-      m.sendRemovalEvent();
+      if (!_measureSticky.classes.contains('active')) {
+        removeMeasuring(session.charId, sendEvent: true);
+      }
     });
   }
 
