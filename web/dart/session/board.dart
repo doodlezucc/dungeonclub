@@ -48,6 +48,7 @@ final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
 final ButtonElement _fowToggle = querySelector('#fogOfWar');
 final ButtonElement _measureToggle = querySelector('#measureDistance');
 HtmlElement get _measureSticky => querySelector('#measureSticky');
+HtmlElement get _measureVisible => querySelector('#measureVisible');
 
 class Board {
   final Session session;
@@ -90,6 +91,15 @@ class Board {
       });
       rescaleMeasurings();
     }
+  }
+
+  bool get measureVisible => _measureVisible.classes.contains('active');
+  set measureVisible(bool v) {
+    _measureVisible
+      ..className = 'fas fa-' + (v ? 'eye active' : 'eye-slash')
+      ..querySelector('span').text = v ? 'Public' : 'Private';
+
+    removeMeasuring(session.charId, sendEvent: true);
   }
 
   String _mode;
@@ -215,6 +225,7 @@ class Board {
     initDiceTable();
     initGameLog();
     initiativeTracker.init(session.isDM);
+    measureVisible = true;
     measureMode = 0;
     _measureToggle.onClick.listen((ev) {
       var target = ev.target;
@@ -230,6 +241,9 @@ class Board {
           if (mode == MEASURE && measureMode != oldMode) return null;
         } else if (target == _measureSticky) {
           return _toggleMeasureSticky();
+        } else if (target == _measureVisible) {
+          measureVisible = !measureVisible;
+          return;
         }
       }
 
@@ -456,10 +470,6 @@ class Board {
       startEvent.listen((ev) async {
         previous = evToPoint(ev);
         var start = toSimple(ev);
-
-        if (start.button == 1 && mode == MEASURE) {
-          _toggleMeasureSticky();
-        }
 
         if (mapTab.visible ||
             (editingGrid &&
@@ -690,6 +700,7 @@ class Board {
 
   void _handleMeasuring(
       SimpleEvent first, Stream<SimpleEvent> moveStream, int type) {
+    var isPublic = measureVisible;
     var p = first.p * (1 / scaledZoom);
 
     var doOffset = type != MEASURING_CUBE && first.shift;
@@ -703,15 +714,16 @@ class Board {
 
     removeMeasuring(session.charId, sendEvent: true);
     var m = Measuring.create(type, origin, session.charId);
-    sendCreationEvent(type, origin, p);
     m.alignDistanceText(p);
     zoom += 0; // Rescale distance text
+
+    if (isPublic) sendCreationEvent(type, origin, p);
 
     Point measureEnd;
     var hasChanged = false;
 
     var syncTimer = Timer.periodic(Duration(milliseconds: 100), (_) {
-      if (hasChanged) {
+      if (hasChanged && isPublic) {
         hasChanged = false;
         m.sendUpdateEvent(measureEnd);
       }
@@ -731,7 +743,11 @@ class Board {
         offset: Point(0.5, 0.5) - offset,
       );
 
-      if (ev.button == 2) m.addPoint(measureEnd);
+      if (ev.button == 2) {
+        m.addPoint(measureEnd);
+      } else if (ev.button == 1) {
+        _measureSticky.classes.toggle('active');
+      }
 
       m.redraw(measureEnd);
       m.alignDistanceText(p);
@@ -740,7 +756,7 @@ class Board {
       keySub.cancel();
       syncTimer.cancel();
       if (!_measureSticky.classes.contains('active')) {
-        removeMeasuring(session.charId, sendEvent: true);
+        removeMeasuring(session.charId, sendEvent: isPublic);
       }
     });
   }

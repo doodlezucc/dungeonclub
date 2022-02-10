@@ -107,7 +107,7 @@ class Session extends Game {
               you'll return to the game.''')
           ..append(icon('spinner')..classes.add('spinner'))
           ..display();
-        removeMeasuring(255);
+        removeMeasuring(null);
       } else {
         if (_dmDisconnectedDialog != null) {
           _dmDisconnectedDialog.close();
