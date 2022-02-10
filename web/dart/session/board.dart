@@ -204,6 +204,12 @@ class Board {
     }
   }
 
+  void _toggleMeasureSticky() {
+    if (!_measureSticky.classes.toggle('active')) {
+      removeMeasuring(session.charId, sendEvent: true);
+    }
+  }
+
   void _initBoard() {
     _initMouseControls();
     initDiceTable();
@@ -223,10 +229,7 @@ class Board {
           // Prevent mode toggle
           if (mode == MEASURE && measureMode != oldMode) return null;
         } else if (target == _measureSticky) {
-          if (!target.classes.toggle('active')) {
-            removeMeasuring(session.charId, sendEvent: true);
-          }
-          return;
+          return _toggleMeasureSticky();
         }
       }
 
@@ -453,6 +456,10 @@ class Board {
       startEvent.listen((ev) async {
         previous = evToPoint(ev);
         var start = toSimple(ev);
+
+        if (start.button == 1 && mode == MEASURE) {
+          _toggleMeasureSticky();
+        }
 
         if (mapTab.visible ||
             (editingGrid &&
