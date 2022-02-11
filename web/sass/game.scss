@@ -465,6 +465,8 @@
                 padding: 4px;
             }
 
+            &:active { background-color: var(--color-button-hover); }
+
             &:hover, &.active {
                 .content {
                     pointer-events: all;
