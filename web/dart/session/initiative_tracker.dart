@@ -302,7 +302,13 @@ class InitiativeSummary {
       }
 
       if (prefab is CustomPrefab) {
-        return isDm == (prefab.accessIds.length != 1);
+        var controllers = user.session.characters.where((pc) {
+          return pc.hasJoined && prefab.accessIds.contains(pc.id);
+        });
+
+        // DM has control unless exactly one player who has access to
+        // this token is currently in the session.
+        return isDm == (controllers.length != 1);
       }
 
       return true;
