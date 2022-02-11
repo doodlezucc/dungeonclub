@@ -219,11 +219,11 @@ h3 {
 %clickable:not(:disabled) {
     cursor: pointer;
 }
-%clickable:not(:disabled):hover, %clickable:not(:disabled).hovered, .tab %clickable:not(:disabled):focus {
+%clickable:not(:disabled):hover, .tab %clickable:not(:disabled):focus {
     background-color: var(--color-button-hover);
     color: var(--color-text-primary);
 }
-%clickable:not(:disabled):active {
+%clickable:not(:disabled):active, %clickable:not(:disabled).hovered {
     background-color: var(--color-button-active);
     transition-duration: 0s;
 }
@@ -452,9 +452,9 @@ li {
 }
 %responsive:not(:disabled):hover {
     transform: scale(0.98);
-    transition-duration: 0.1s;
+    transition-duration: 0.2s;
 }
-%responsive:not(:disabled):active {
+%responsive:not(:disabled):active, %responsive:not(:disabled).hovered {
     transform: scale(0.95);
 }
 

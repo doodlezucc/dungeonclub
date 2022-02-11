@@ -6,26 +6,15 @@
     position: absolute;
     z-index: 10;
     background-color: #000d;
-    transition-duration: 0.5s;
+    transition-duration: 0.2s;
     font-size: 23px;
     padding-top: 20px;
     gap: 12px;
 
-    .needs-map.hidden { display: none !important; }
+    &:not(.edit) .on-edit { @extend .invisible; }
+    &.edit #mapSelect { @extend .invisible; }
 
-    button {
-        background-color: transparent;
-
-        > i {
-            transition-duration: 0.05s;
-        }
-
-        &:enabled:hover {
-            > .fa-chevron-left  { transform: translateX(-4px); }
-            > .fa-chevron-right { transform: translateX(4px); }
-            > .fa-plus          { transform: scale(1.1); }
-        }
-    }
+    .hidden { display: none !important; }
 
     > button[type=reset] {
         @extend %responsive;
@@ -38,6 +27,22 @@
         font-size: inherit;
         align-items: center;
         gap: 8px;
+    }
+
+    #mapTools button {
+        @extend %toolbox-item;
+        border-radius: 0;
+        font-size: 17px;
+
+        &:nth-child(odd) > span {
+            left: -8px;
+        }
+
+        &[mode=text] {
+            font-weight: bold;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-size: 20px;
+        }
     }
 
     #changeMap {
@@ -100,131 +105,12 @@
         }
     }
 
-    > #maps {
-        display: flex;
-        position: relative;
-        width: 100%;
-        height: 100%;
-        left: 0;
-        transition-duration: 0.4s;
-        transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
-    }
-
-    #mapTools {
-        position: absolute;
-        left: 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        > #activeColor {
-            width: 36px;
-            height: 36px;
-            position: absolute;
-            left: calc(100% + 16px);
-            transition-duration: 0.3s;
-            transition-property: opacity, transform;
-
-            &:disabled { opacity: 0; pointer-events: none; transform: translateX(-16px); }
-        }
-
-        > div {
-            @extend .toolbox;
-            grid-template-columns: auto auto;
-        }
-
-        button {
-            @extend %toolbox-item;
-            border-radius: 0;
-            font-size: 17px;
-
-            &:nth-child(odd) > span {
-                left: -8px;
-            }
-
-            &[mode=text] {
-                font-weight: bold;
-                font-family: Georgia, 'Times New Roman', Times, serif;
-                font-size: 20px;
-            }
-        }
-
-        &.collapsed > #toolInfo, &:not(.collapsed) > #infoShow {
-            @extend .invisible;
-            transform: translateX(-8px);
-        }
-    }
-
     .single-item {
         position: absolute !important;
         border-radius: base.$radius !important;
         border: 1px solid white;
         min-width: 38px;
         min-height: 38px;
-    }
-
-    #toolInfo, #infoShow {
-        top: calc(100% + 16px);
-        background-color: #111e;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        transition: opacity 0.2s, transform 0.4s;
-        box-sizing: border-box;
-
-        &:hover {
-            background-color: #1a1a1a;
-        }
-    }
-
-    #toolInfo {
-        padding: 8px;
-        width: 200px;
-        max-width: 260px;
-        width: max-content;
-
-        > i {
-            font-style: normal;
-            color: var(--color-primary);
-        }
-    }
-
-    .map {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-width: 100%;
-        height: 100%;
-        max-height: calc(100% - 24px);
-        box-sizing: border-box;
-        padding: 0 20px;
-
-        > div {
-            height: 100%;
-
-            text {
-                cursor: default;
-                user-select: none;
-                paint-order: stroke;
-                stroke-linejoin: round;
-                fill: #fff;
-                stroke: #222;
-                stroke-width: 5px;
-            }
-
-            &[mode=text] text {
-                outline: 1px dashed #fffd;
-                cursor: move;
-
-                &:hover {
-                    outline: 1px solid #fffa;
-                }
-            }
-        }
-
-        image {
-            background-repeat: no-repeat;
-        }
     }
 
     &:not(.show) {
@@ -236,6 +122,174 @@
             transform: translateY(150%);
             transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
         }
+    }
+}
+
+#mapSelect, .on-edit {
+    transition: opacity 0.2s;
+}
+
+.no-bg {
+    background-color: transparent !important;
+
+    > i {
+        transition: transform 0.05s;
+    }
+
+    &:enabled:hover {
+        > .fa-chevron-left  { transform: translateX(-4px); }
+        > .fa-chevron-right { transform: translateX(4px); }
+        > .fa-plus          { transform: scale(1.1); }
+    }
+}
+
+#mapSelect {
+    position: absolute;
+    top: 80px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    place-content: center;
+    gap: 32px 8px;
+    padding: 0 48px;
+}
+
+.minimap {
+    @extend %responsive;
+    @include base.center-background;
+    position: relative;
+    width: 240px;
+    height: 180px;
+    background-color: var(--color-not-intense);
+    border: 2px solid var(--color-note);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+
+    > span {
+        position: absolute;
+        top: 100%;
+        padding-top: 4px;
+        font-size: initial;
+    }
+}
+
+#addMap {
+    padding: 12px 20px 16px 20px;
+    width: 200px;
+    margin: 0 20px;
+    height: auto;
+    gap: 8px;
+}
+
+#maps {
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+
+    &.animate {
+        transition-property: opacity, left;
+        transition-duration: 0.4s;
+    }
+}
+
+#session:not(.is-dm) #mapName {
+    user-select: none;
+}
+
+#mapTools {
+    position: absolute;
+    left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    > #activeColor {
+        width: 36px;
+        height: 36px;
+        position: absolute;
+        left: calc(100% + 16px);
+        transition-duration: 0.3s;
+        transition-property: opacity, transform;
+
+        &:disabled { opacity: 0; pointer-events: none; transform: translateX(-16px); }
+    }
+
+    > div {
+        @extend .toolbox;
+        grid-template-columns: auto auto;
+    }
+
+    &.collapsed > #toolInfo, &:not(.collapsed) > #infoShow {
+        @extend .invisible;
+        transform: translateX(-8px);
+    }
+}
+
+.map {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 100%;
+    height: 100%;
+    max-height: calc(100% - 24px);
+    box-sizing: border-box;
+    padding: 0 20px;
+
+    > div {
+        height: 100%;
+
+        text {
+            cursor: default;
+            user-select: none;
+            paint-order: stroke;
+            stroke-linejoin: round;
+            fill: #fff;
+            stroke: #222;
+            stroke-width: 5px;
+        }
+
+        &[mode=text] text {
+            outline: 1px dashed #fffd;
+            cursor: move;
+
+            &:hover {
+                outline: 1px solid #fffa;
+            }
+        }
+    }
+
+    image {
+        background-repeat: no-repeat;
+    }
+}
+
+#toolInfo, #infoShow {
+    top: calc(100% + 16px);
+    background-color: #111e;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.4s;
+    box-sizing: border-box;
+
+    &:hover {
+        background-color: #1a1a1a;
+    }
+}
+
+#toolInfo {
+    padding: 8px;
+    width: 200px;
+    max-width: 260px;
+    width: max-content;
+
+    > i {
+        font-style: normal;
+        color: var(--color-primary);
     }
 }
 

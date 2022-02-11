@@ -457,22 +457,28 @@
 				</span>
 				<span id="tooltip"></span>
 				<div id="map">
-					<span>
-						<button class="icon navigate">
+					<div id="mapSelect">
+						<button id="addMap" class="icon big dm">
+							Upload New Map
+							<i class="fas fa-image"></i>
+						</button>
+					</div>
+					<span class="on-edit">
+						<button class="icon navigate no-bg">
 							<i class="fas fa-chevron-left"></i>
 						</button>
 						<input id="mapName" placeholder="Map name..." disabled>
-						<span id="mapIndex" class="needs-map hidden"></span>
-						<button class="icon dm hidden">
+						<span id="mapIndex"></span>
+						<button class="icon dm no-bg">
 							<i class="fas fa-check"></i>
 						</button>
-						<button class="icon navigate with-tooltip">
+						<button class="icon navigate with-tooltip no-bg">
 							<i class="fas fa-chevron-right"></i>
 							<span>Create New Map</span>
 						</button>
 					</span>
-					<div id="maps"></div>
-					<div id="mapTools" class="needs-map hidden">
+					<div id="maps" class="on-edit"></div>
+					<div id="mapTools" class="on-edit">
 						<div>
 							<button class="icon" mode="draw">
 								<i class="fas fa-pen"></i>
@@ -528,17 +534,13 @@
 							<span>Allow Players to Draw</span>
 						</button>
 					</div>
-					<button class="icon" type="reset">
+					<button class="icon no-bg" type="reset">
 						Exit Map View
 						<i class="fas fa-arrow-left"></i>
 					</button>
-					<button class="icon dm needs-map hidden with-tooltip" id="mapDelete">
+					<button class="icon dm with-tooltip on-edit no-bg" id="mapDelete">
 						<i class="fas fa-trash"></i>
 						<span>Remove This Map</span>
-					</button>
-					<button class="icon dm" id="changeMap">
-						Create Map
-						<i class="fas fa-image"></i>
 					</button>
 				</div>
 				<div id="online"></div>

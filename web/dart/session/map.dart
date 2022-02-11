@@ -15,8 +15,9 @@ import 'map_tool_info.dart';
 
 final HtmlElement _e = querySelector('#map');
 final HtmlElement _mapContainer = _e.querySelector('#maps');
+final HtmlElement _minimapContainer = _e.querySelector('#mapSelect');
 final ButtonElement _backButton = _e.querySelector('button[type=reset]');
-final ButtonElement _imgButton = _e.querySelector('#changeMap');
+final ButtonElement _imgButton = _e.querySelector('#addMap');
 final InputElement _name = _e.querySelector('#mapName');
 final ButtonElement _shared = _e.querySelector('#mapShared');
 final HtmlElement _tools = _e.querySelector('#mapTools');
@@ -32,6 +33,17 @@ ButtonElement get _deleteButton => _e.querySelector('#mapDelete');
 class MapTab {
   final maps = <GameMap>[];
 
+  bool get editMode => _e.classes.contains('edit');
+  set editMode(bool editMode) {
+    _e.classes.toggle('edit', editMode);
+    _backButton.childNodes[0].text = editMode ? 'Overview' : 'Exit Map View';
+
+    Future.delayed(
+      Duration(milliseconds: editMode ? 400 : 0),
+      () => _mapContainer.classes.toggle('animate', editMode),
+    );
+  }
+
   int _mapIndex = 0;
   int get mapIndex => _mapIndex;
   set mapIndex(int currentMap) {
@@ -40,10 +52,10 @@ class MapTab {
     _name.value = map.name;
     shared = map.shared;
     mode = mode;
-    map._fixScaling();
     _updateHistoryButtons();
     _updateNavigateButtons();
     _updateIndexText();
+    Future.microtask(() => map._fixScaling());
   }
 
   GameMap get map => maps.isNotEmpty ? maps[mapIndex] : null;
@@ -139,14 +151,25 @@ class MapTab {
 
     if (id != null) {
       addMap(id, '', false);
+      _enterEdit(id);
+      _name.focus();
       return true;
     }
     return false;
   }
 
-  void initMapControls() {
-    _backButton.onClick.listen((_) => visible = false);
+  void _back() {
+    if (editMode) {
+      editMode = false;
+    } else {
+      visible = false;
+    }
+  }
 
+  void initMapControls() {
+    _backButton.onClick.listen((_) => _back());
+
+    window.onResize.listen((_) => maps.forEach((m) => m._fixScaling()));
     window.onKeyDown.listen((ev) {
       if (!visible ||
           ev.target is InputElement ||
@@ -156,30 +179,27 @@ class MapTab {
 
       if (ev.keyCode == 27) {
         ev.preventDefault();
-        visible = false;
+        _back();
         // Arrow key controls
-      } else if (ev.keyCode == 37 && mapIndex > 0) {
-        mapIndex--;
-      } else if (ev.keyCode == 39 && mapIndex < maps.length - 1) {
-        mapIndex++;
+      } else if (editMode) {
+        if (ev.keyCode == 37 && mapIndex > 0) {
+          mapIndex--;
+        } else if (ev.keyCode == 39 && mapIndex < maps.length - 1) {
+          mapIndex++;
+        }
       }
     });
 
     _navLeft.onLMB.listen((_) => mapIndex--);
     _navRight.onLMB.listen((ev) async {
-      if (user.session.isDM &&
-          mapIndex == maps.length - 1 &&
-          !await _uploadNewMap(ev)) return;
-
-      mapIndex++;
-    });
-
-    _imgButton.onLMB.listen((ev) {
-      if (maps.isEmpty) {
-        _uploadNewMap(ev);
+      if (user.session.isDM && mapIndex == maps.length - 1) {
+        await _uploadNewMap(ev);
+      } else {
+        mapIndex++;
       }
     });
 
+    _imgButton.onLMB.listen(_uploadNewMap);
     _deleteButton.onClick.listen((_) => _deleteCurrentMap());
 
     _initTools();
@@ -306,8 +326,6 @@ class MapTab {
   }
 
   void _onFirstUpload() {
-    _imgButton.remove();
-    _e.querySelectorAll('.needs-map').classes.remove('hidden');
     mapIndex = 0;
     if (user.session.isDM) {
       _name.disabled = false;
@@ -315,9 +333,8 @@ class MapTab {
   }
 
   void _onAllRemoved() {
+    editMode = false;
     _updateNavigateButtons();
-    _e.append(_imgButton);
-    _e.querySelectorAll('.needs-map').classes.add('hidden');
     _name.value = '';
     if (user.session.isDM) {
       _name.disabled = true;
@@ -351,7 +368,11 @@ class MapTab {
   void _updateIndexText() => _indexText.text = '${mapIndex + 1}/${maps.length}';
 
   void addMap(int id, String name, bool shared, [String encodedData]) {
-    var map = GameMap(id, name: name, shared: shared, encodedData: encodedData);
+    var map = GameMap(id,
+        name: name,
+        shared: shared,
+        encodedData: encodedData,
+        onEnterEdit: () => _enterEdit(id));
     map.whiteboard.history.onChange.listen((_) => _updateHistoryButtons());
     maps.add(map);
 
@@ -359,6 +380,11 @@ class MapTab {
 
     _updateNavigateButtons();
     _updateIndexText();
+  }
+
+  void _enterEdit(int id) {
+    mapIndex = maps.indexWhere((m) => m.id == id);
+    editMode = true;
   }
 
   void onMapUpdate(Map<String, dynamic> json) {
@@ -387,17 +413,34 @@ class GameMap {
   final int id;
   HtmlElement _em;
   HtmlElement _container;
+  HtmlElement _minimap;
+  SpanElement _miniTitle;
   Whiteboard whiteboard;
-
-  String name;
   bool shared;
 
-  GameMap(this.id, {this.name = '', this.shared = false, String encodedData}) {
+  String get name => _miniTitle.text;
+  set name(String name) {
+    _miniTitle.text = name;
+  }
+
+  GameMap(
+    this.id, {
+    String name = '',
+    this.shared = false,
+    String encodedData,
+    void Function() onEnterEdit,
+  }) {
     _em = DivElement()
       ..className = 'map'
       ..append(_container = DivElement());
-
     _mapContainer.append(_em);
+
+    _minimap = DivElement()
+      ..className = 'minimap'
+      ..append(_miniTitle = SpanElement())
+      ..onClick.listen((_) => onEnterEdit());
+    _minimapContainer.insertBefore(_minimap, _imgButton);
+    this.name = name;
 
     whiteboard = Whiteboard(_container)
       ..socket.sendStream.listen(
@@ -414,11 +457,12 @@ class GameMap {
     // Assign user their own exclusive drawing layer
     whiteboard.layerIndex = 1 + (user.session.charId ?? -1);
     reloadImage();
-
-    window.onResize.listen((_) => _fixScaling());
   }
 
-  void _dispose() => _em.remove();
+  void _dispose() {
+    _em.remove();
+    _minimap.remove();
+  }
 
   void _fixScaling() {
     _container.style.width = '100%';
@@ -437,5 +481,6 @@ class GameMap {
 
     await whiteboard.changeBackground(src);
     _fixScaling();
+    _minimap.style.backgroundImage = 'url($src)';
   }
 }

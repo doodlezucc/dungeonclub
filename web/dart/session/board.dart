@@ -367,6 +367,8 @@ class Board {
   }
 
   void _removeSelectedMovables() async {
+    if (mapTab.visible) return;
+
     await socket.sendAction(a.GAME_MOVABLE_REMOVE, {
       'movables': selected.map((m) => m.id).toList(),
     });
