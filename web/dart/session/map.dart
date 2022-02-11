@@ -442,7 +442,7 @@ class GameMap {
     _minimapContainer.insertBefore(_minimap, _imgButton);
     this.name = name;
 
-    whiteboard = Whiteboard(_container)
+    whiteboard = Whiteboard(_container, textControlsWrapMin: 80)
       ..socket.sendStream.listen(
           (data) => socket.send(Uint8List.fromList([id, ...data]).buffer));
 
