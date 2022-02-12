@@ -12,7 +12,10 @@
     gap: 12px;
 
     &:not(.edit) .on-edit { @extend .invisible; }
-    &.edit #mapSelect { @extend .invisible; }
+    &.edit #mapSelect {
+        @extend .invisible;
+        transform: scale(1.1);
+    }
 
     .hidden { display: none !important; }
 
@@ -126,7 +129,8 @@
 }
 
 #mapSelect, .on-edit {
-    transition: opacity 0.2s;
+    transition-property: opacity;
+    transition-duration: 0.2s;
 }
 
 .no-bg {
@@ -152,6 +156,8 @@
     place-content: center;
     gap: 32px 8px;
     padding: 0 48px;
+    transition-property: opacity, transform;
+    z-index: 1;
 }
 
 .minimap {
