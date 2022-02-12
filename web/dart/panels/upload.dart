@@ -394,8 +394,20 @@ CanvasElement _imgToCanvas(int maxRes, bool upscale) {
         _img, x * nw, y * nh, w * nw, h * nh, 0, 0, dw, dh);
 }
 
-Future _imgToBase64(int maxRes, bool upscale) async {
+Future<String> _emptyImageBase64(int width, int height) {
+  var canvas = CanvasElement(width: width, height: height);
+  canvas.context2D
+    ..fillStyle = '#ffffff'
+    ..fillRect(0, 0, width, height);
+  return _canvasToBase64(canvas);
+}
+
+Future<String> _imgToBase64(int maxRes, bool upscale) {
   var canvas = _imgToCanvas(maxRes, upscale);
+  return _canvasToBase64(canvas);
+}
+
+Future<String> _canvasToBase64(CanvasElement canvas) async {
   var blob = await canvas.toBlob('image/jpeg', 0.85);
 
   var reader = FileReader()..readAsDataUrl(blob);
@@ -460,8 +472,11 @@ Future display({
     var menu = ContextMenu();
 
     var assets = -1;
+    var empty = -1;
     if (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_SCENE) {
       assets = menu.addButton('Pick from Assets', 'image');
+    } else if (type == IMAGE_TYPE_MAP) {
+      empty = menu.addButton('Empty Canvas', 'sticky-note');
     }
 
     menu.addButton('Upload Image', 'upload');
@@ -470,20 +485,25 @@ Future display({
     var result = await menu.display(event);
     if (result == null) return;
 
+    var maxRes = _getMaxRes(type);
+    var upscale = _upscale(type);
+
     if (result == assets) {
       visible(true);
       var asset = await _displayAssetPicker(type);
       visible(false);
       if (asset == null) return null;
 
-      var maxRes = _getMaxRes(type);
-      var upscale = _upscale(type);
-
       if (processUpload != null) {
         return await processUpload(asset, maxRes, upscale);
       }
 
       return await _upload(asset, action, type, extras, maxRes, upscale);
+    } else if (result == empty) {
+      var width = maxRes;
+      var height = (width * 0.6).round();
+      var base64 = await _emptyImageBase64(width, height);
+      return await _upload(base64, action, type, extras, maxRes, upscale);
     } else if (result == dragDrop) {
       openDialog = false;
     }
