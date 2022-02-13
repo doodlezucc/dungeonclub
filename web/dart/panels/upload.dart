@@ -399,19 +399,24 @@ Future<String> _emptyImageBase64(int width, int height) {
   canvas.context2D
     ..fillStyle = '#ffffff'
     ..fillRect(0, 0, width, height);
-  return _canvasToBase64(canvas);
+  return canvasToBase64(canvas);
 }
 
 Future<String> _imgToBase64(int maxRes, bool upscale) {
   var canvas = _imgToCanvas(maxRes, upscale);
-  return _canvasToBase64(canvas);
+  return canvasToBase64(canvas);
 }
 
-Future<String> _canvasToBase64(CanvasElement canvas) async {
+Future<String> canvasToBase64(
+  CanvasElement canvas, {
+  bool includeHeader = false,
+}) async {
   var blob = await canvas.toBlob('image/jpeg', 0.85);
 
   var reader = FileReader()..readAsDataUrl(blob);
   await reader.onLoadEnd.first;
+
+  if (includeHeader) return reader.result;
 
   return (reader.result as String).substring(23);
 }

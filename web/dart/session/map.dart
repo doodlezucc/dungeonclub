@@ -402,10 +402,11 @@ class MapTab {
     }
   }
 
-  void handleEvent(Uint8List bytes) async {
+  void handleEvent(Uint8List bytes) {
     var map = maps.firstWhere((m) => m.id == bytes.first);
 
     map.whiteboard.socket.handleEventBytes(bytes.sublist(1));
+    map.updateMiniImage();
   }
 }
 
@@ -443,8 +444,11 @@ class GameMap {
     this.name = name;
 
     whiteboard = Whiteboard(_container, textControlsWrapMin: 80)
-      ..socket.sendStream.listen(
-          (data) => socket.send(Uint8List.fromList([id, ...data]).buffer));
+      ..backgroundImageElement.crossOrigin = 'anonymous'
+      ..socket.sendStream.listen((data) {
+        updateMiniImage();
+        socket.send(Uint8List.fromList([id, ...data]).buffer);
+      });
 
     if (encodedData != null) {
       whiteboard.fromBytes(base64.decode(encodedData));
@@ -476,11 +480,23 @@ class GameMap {
     }
   }
 
+  Future<void> updateMiniImage() async {
+    var divide = 4;
+    var canvas = CanvasElement(
+      width: whiteboard.naturalWidth ~/ divide,
+      height: whiteboard.naturalHeight ~/ divide,
+    );
+    canvas.context2D.scale(1 / divide, 1 / divide);
+    whiteboard.drawToCanvas(canvas);
+    var base64 = await uploader.canvasToBase64(canvas, includeHeader: true);
+    _minimap.style.backgroundImage = "url('$base64')";
+  }
+
   void reloadImage({bool cacheBreak = true}) async {
     var src = getGameFile('$IMAGE_TYPE_MAP$id', cacheBreak: cacheBreak);
 
     await whiteboard.changeBackground(src);
     _fixScaling();
-    _minimap.style.backgroundImage = 'url($src)';
+    await updateMiniImage();
   }
 }
