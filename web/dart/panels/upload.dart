@@ -480,12 +480,14 @@ Future display({
     var empty = -1;
     if (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_SCENE) {
       assets = menu.addButton('Pick from Assets', 'image');
-    } else if (type == IMAGE_TYPE_MAP) {
-      empty = menu.addButton('Empty Canvas', 'sticky-note');
     }
 
     menu.addButton('Upload Image', 'upload');
     var dragDrop = menu.addButton('Drag & Drop', 'hand-pointer');
+
+    if (type == IMAGE_TYPE_MAP) {
+      empty = menu.addButton('Empty Canvas', 'sticky-note');
+    }
 
     var result = await menu.display(event);
     if (result == null) return;

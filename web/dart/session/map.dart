@@ -474,6 +474,7 @@ class GameMap {
     var img = _container.querySelector('image');
 
     var bestWidth = img.getBoundingClientRect().width;
+    print(bestWidth);
     if (bestWidth > 0) {
       _container.style.width = '${bestWidth}px';
       whiteboard.updateScaling();
@@ -497,6 +498,10 @@ class GameMap {
 
     await whiteboard.changeBackground(src);
     await updateMiniImage();
-    await Future.microtask(() => _fixScaling());
+
+    // Different browsers need different times to be able to call _fixScaling
+    for (var i = 0; i < 5; i++) {
+      await Future.delayed(Duration(milliseconds: 20), _fixScaling);
+    }
   }
 }
