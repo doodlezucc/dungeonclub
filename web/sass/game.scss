@@ -777,10 +777,10 @@
 .movable {
     position: absolute;
     border: 0 solid var(--color-background);
-    width: calc(var(--size) * 70px);
-    height: calc(var(--size) * 70px);
-    left: calc(var(--x) * var(--cell-size) * 1px);
-    top: calc(var(--y) * var(--cell-size) * 1px);
+    width: calc(var(--size) * 70px - 1.5px);
+    height: calc(var(--size) * 70px - 1.5px);
+    left: calc(var(--x) * var(--cell-size) * 1px + 1px);
+    top: calc(var(--y) * var(--cell-size) * 1px + 1px);
     box-sizing: border-box;
     transform-origin: top left;
     transform: scale(calc(var(--cell-size) / 70));
