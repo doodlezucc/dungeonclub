@@ -496,7 +496,7 @@ class GameMap {
     var src = getGameFile('$IMAGE_TYPE_MAP$id', cacheBreak: cacheBreak);
 
     await whiteboard.changeBackground(src);
-    _fixScaling();
     await updateMiniImage();
+    await Future.microtask(() => _fixScaling());
   }
 }
