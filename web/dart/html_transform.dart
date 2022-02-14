@@ -8,6 +8,8 @@ class HtmlTransform {
   Element element;
   Point Function() getMaxPosition;
 
+  HtmlTransform(this.element, {@required this.getMaxPosition});
+
   Point _position;
   Point get position => _position;
   set position(Point pos) {
@@ -25,18 +27,17 @@ class HtmlTransform {
   set zoom(double zoom) {
     _zoom = min(max(zoom, -1), 1.5);
     _scaledZoom = exp(_zoom);
-
-    var invZoomScale = 'scale(${1 / scaledZoom})';
-    querySelectorAll('.distance-text').style.transform = invZoomScale;
-
     _transform();
   }
-
-  HtmlTransform(this.element, {@required this.getMaxPosition});
 
   void _transform() {
     element?.style?.transform =
         'scale($scaledZoom) translate(${position.x}px, ${position.y}px)';
+  }
+
+  void reset() {
+    position = Point(0.0, 0.0);
+    zoom = 0;
   }
 
   void handlePanning(SimpleEvent first, Stream<SimpleEvent> moveStream) {

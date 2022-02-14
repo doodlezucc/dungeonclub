@@ -11,6 +11,7 @@ import 'package:meta/meta.dart';
 import '../communication.dart';
 import '../font_awesome.dart';
 import '../html_transform.dart';
+import '../lazy_input.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
 import 'condition.dart';
@@ -65,7 +66,7 @@ class Board {
   static const MEASURE = 'measure';
   static const FOG_OF_WAR = 'fow';
 
-  HtmlTransform transform = HtmlTransform(
+  final transform = HtmlTransform(
     _e,
     getMaxPosition: () => Point(
       _ground.naturalWidth,
@@ -987,42 +988,14 @@ class Board {
   }
 }
 
-void listenLazyUpdate(
-  InputElement input, {
-  @required void Function(String s) onChange,
-  @required void Function(String s) onSubmit,
-  void Function() onFocus,
-}) {
-  String startValue;
-  String typedValue;
+class BoardTransform extends HtmlTransform {
+  BoardTransform(Element element, Point Function() getMaxPosition)
+      : super(element, getMaxPosition: getMaxPosition);
 
-  void update() {
-    if (startValue != typedValue) {
-      startValue = typedValue;
-      onChange(typedValue);
-      onSubmit(typedValue);
-    }
+  @override
+  set zoom(double zoom) {
+    super.zoom = zoom;
+    var invZoomScale = 'scale(${1 / scaledZoom})';
+    querySelectorAll('.distance-text').style.transform = invZoomScale;
   }
-
-  void onFoc() {
-    startValue = input.value;
-    if (onFocus != null) onFocus();
-    typedValue = input.value;
-  }
-
-  input.onMouseDown.listen((_) {
-    // Firefox number inputs can trigger onInput without being focused
-    var isFocused = document.activeElement == input;
-    if (!isFocused) {
-      input.focus();
-      onFoc();
-    }
-  });
-
-  input.onFocus.listen((_) => onFoc());
-  input.onInput.listen((_) {
-    onChange(typedValue = input.value);
-  });
-  input.onBlur.listen((_) => update());
-  input.onChange.listen((_) => update());
 }
