@@ -77,6 +77,7 @@
 
     > span {
         position: relative;
+        z-index: 1;
 
         > input {
             text-align: center;
@@ -100,8 +101,6 @@
                 pointer-events: none;
             }
         }
-
-        > .navigate { z-index: 1; }
 
         > button.dm {
             position: absolute;
@@ -244,6 +243,7 @@
     max-height: calc(100% - 24px);
     box-sizing: border-box;
     padding: 0 20px;
+    transition-duration: 0.05s;
 
     > div {
         height: 100%;

@@ -2,22 +2,17 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:dnd_interactive/point_json.dart';
-import 'package:meta/meta.dart';
 
 class HtmlTransform {
   Element element;
   Point Function() getMaxPosition;
 
-  HtmlTransform(this.element, {@required this.getMaxPosition});
+  HtmlTransform(this.element, {this.getMaxPosition});
 
   Point _position;
   Point get position => _position;
   set position(Point pos) {
-    var max = getMaxPosition() * 0.5;
-    var min = Point(-max.x, -max.y);
-
-    _position = clamp(pos, min, max);
-    _transform();
+    clampPosition(pos);
   }
 
   double _zoom = 0;
@@ -35,6 +30,16 @@ class HtmlTransform {
         'scale($scaledZoom) translate(${position.x}px, ${position.y}px)';
   }
 
+  void clampPosition([Point pos]) {
+    pos ??= position;
+
+    var max = getMaxPosition() * 0.5;
+    var min = Point(-max.x, -max.y);
+
+    _position = clamp(pos, min, max);
+    _transform();
+  }
+
   void reset() {
     position = Point(0.0, 0.0);
     zoom = 0;
@@ -50,6 +55,11 @@ class HtmlTransform {
     moveStream.listen((ev) {
       zoom -= 0.01 * ev.movement.y;
     });
+  }
+
+  void handleMousewheel(WheelEvent event) {
+    var v = min(50, event.deltaY.abs()) / 50;
+    zoom -= event.deltaY.sign * v / 3;
   }
 }
 

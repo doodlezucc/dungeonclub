@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
@@ -10,6 +11,7 @@ import 'package:web_whiteboard/whiteboard.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../html_transform.dart';
 import '../panels/upload.dart' as uploader;
 import 'map_tool_info.dart';
 
@@ -32,11 +34,16 @@ ButtonElement get _deleteButton => _e.querySelector('#mapDelete');
 
 class MapTab {
   final maps = <GameMap>[];
+  final transform = MapTransform();
 
   bool get editMode => _e.classes.contains('edit');
   set editMode(bool editMode) {
     _e.classes.toggle('edit', editMode);
     _backButton.childNodes[0].text = editMode ? 'Overview' : 'Exit Map View';
+
+    if (!editMode) {
+      transform.reset();
+    }
 
     Future.delayed(
       Duration(milliseconds: editMode ? 400 : 0),
@@ -47,18 +54,26 @@ class MapTab {
   int _mapIndex = 0;
   int get mapIndex => _mapIndex;
   set mapIndex(int currentMap) {
+    transform.reset();
     _mapIndex = currentMap;
     _mapContainer.style.left = '${currentMap * -100}%';
     _name.value = map.name;
     shared = map.shared;
     mode = mode;
+    transform.element = map._em;
     _updateHistoryButtons();
     _updateNavigateButtons();
     _updateIndexText();
     Future.microtask(() => map._fixScaling());
   }
 
-  GameMap get map => maps.isNotEmpty ? maps[mapIndex] : null;
+  Point get _mapSize {
+    var img = map.whiteboard.backgroundImageElement;
+    return Point(img.naturalWidth, img.naturalHeight);
+  }
+
+  GameMap get map =>
+      (maps.isNotEmpty && mapIndex < maps.length) ? maps[mapIndex] : null;
 
   String _mode = 'draw';
   String get mode => _mode;
@@ -96,10 +111,13 @@ class MapTab {
 
   set shared(bool shared) {
     _shared.classes.toggle('active', shared);
-    if (!user.session.isDM) {
-      _tools.classes.toggle('hidden', !shared);
-      map.whiteboard.captureInput = shared;
-    }
+    _updateToolsVisibility();
+  }
+
+  void _updateToolsVisibility() {
+    var useTools = (user.session.isDM || map.shared) && !transform.isOffCenter;
+    map.whiteboard.captureInput = useTools;
+    _tools.classes.toggle('hidden', !useTools);
   }
 
   void _updateNavigateButtons() {
@@ -202,6 +220,7 @@ class MapTab {
     _imgButton.onLMB.listen(_uploadNewMap);
     _deleteButton.onClick.listen((_) => _deleteCurrentMap());
 
+    _initZoom();
     _initTools();
     _initMapName();
     _shared.onClick.listen((_) {
@@ -209,6 +228,78 @@ class MapTab {
       shared = map.shared;
       socket.sendAction(GAME_MAP_UPDATE, {'map': map.id, 'shared': map.shared});
     });
+  }
+
+  void _initZoom() {
+    StreamController<SimpleEvent> moveStreamCtrl;
+    Point previous;
+    int initialButton;
+
+    transform.getMapSize = () => _mapSize;
+    transform.onChange = (offCenter) {
+      print(offCenter);
+      _updateToolsVisibility();
+    };
+
+    _e.onMouseWheel.listen((ev) {
+      if (visible && editMode) {
+        transform.handleMousewheel(ev);
+      }
+    });
+
+    void listenToCursorEvents<T extends Event>(
+      Point Function(T ev) evToPoint,
+      Stream<T> startEvent,
+      Stream<T> moveEvent,
+      Stream<T> endEvent,
+    ) {
+      SimpleEvent toSimple(T ev) {
+        var delta = evToPoint(ev) - previous;
+        previous = evToPoint(ev);
+        return SimpleEvent(null, delta, (ev as dynamic).shiftKey,
+            (ev as dynamic).ctrlKey, ev is MouseEvent ? ev.button : 0);
+      }
+
+      startEvent.listen((ev) async {
+        previous = evToPoint(ev);
+        var start = toSimple(ev);
+
+        if (start.button == 0 && !transform.isOffCenter) return;
+
+        ev.preventDefault();
+        document.activeElement.blur();
+
+        if (start.button != initialButton && moveStreamCtrl != null) return;
+
+        initialButton = start.button;
+        moveStreamCtrl = StreamController();
+        var stream = moveStreamCtrl.stream;
+
+        if (start.ctrl && initialButton == 1) {
+          transform.handleFineZooming(start, stream);
+        } else {
+          transform.handlePanning(start, stream);
+        }
+
+        await endEvent.firstWhere((ev) => toSimple(ev).button == initialButton);
+
+        var streamCopy = moveStreamCtrl;
+        moveStreamCtrl = null;
+        await streamCopy.close();
+      });
+
+      moveEvent.listen((ev) {
+        if (moveStreamCtrl != null) {
+          moveStreamCtrl.add(toSimple(ev));
+        }
+      });
+    }
+
+    listenToCursorEvents<MouseEvent>(
+        (ev) => ev.page, _e.onMouseDown, window.onMouseMove, window.onMouseUp);
+
+    listenToCursorEvents<TouchEvent>((ev) => ev.targetTouches[0].page,
+        _e.onTouchStart, window.onTouchMove, window.onTouchEnd);
   }
 
   void _initTools() {
@@ -448,7 +539,10 @@ class GameMap {
       ..socket.sendStream.listen((data) {
         updateMiniImage();
         socket.send(Uint8List.fromList([id, ...data]).buffer);
-      });
+      })
+      ..useStartEvent = (ev) {
+        return ev is! MouseEvent || (ev as MouseEvent).button == 0;
+      };
 
     if (encodedData != null) {
       whiteboard.fromBytes(base64.decode(encodedData));
@@ -474,7 +568,6 @@ class GameMap {
     var img = _container.querySelector('image');
 
     var bestWidth = img.getBoundingClientRect().width;
-    print(bestWidth);
     if (bestWidth > 0) {
       _container.style.width = '${bestWidth}px';
       whiteboard.updateScaling();
@@ -503,5 +596,28 @@ class GameMap {
     for (var i = 0; i < 5; i++) {
       await Future.delayed(Duration(milliseconds: 20), _fixScaling);
     }
+  }
+}
+
+class MapTransform extends HtmlTransform {
+  bool isOffCenter = false;
+  void Function(bool) onChange;
+  Point Function() getMapSize;
+
+  MapTransform() : super(null) {
+    getMaxPosition = () => getMapSize() * zoom;
+  }
+
+  void _setOffCenter(bool v) {
+    if (isOffCenter != v) {
+      onChange(isOffCenter = v);
+    }
+  }
+
+  @override
+  set zoom(double zoom) {
+    super.zoom = min(max(zoom, 0), 0.85);
+    clampPosition();
+    _setOffCenter(super.zoom != 0);
   }
 }

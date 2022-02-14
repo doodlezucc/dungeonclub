@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:html';
-import 'dart:math';
 import 'dart:svg' as svg;
 
 import 'package:dnd_interactive/actions.dart' as a;
@@ -66,7 +65,7 @@ class Board {
   static const MEASURE = 'measure';
   static const FOG_OF_WAR = 'fow';
 
-  final transform = HtmlTransform(
+  final transform = BoardTransform(
     _e,
     getMaxPosition: () => Point(
       _ground.naturalWidth,
@@ -253,8 +252,7 @@ class Board {
       } else if (!mapTab.visible &&
           !event.path
               .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
-        var v = min(50, event.deltaY.abs()) / 50;
-        zoom -= event.deltaY.sign * v / 3;
+        transform.handleMousewheel(event);
       }
     });
 
@@ -989,7 +987,7 @@ class Board {
 }
 
 class BoardTransform extends HtmlTransform {
-  BoardTransform(Element element, Point Function() getMaxPosition)
+  BoardTransform(Element element, {Point Function() getMaxPosition})
       : super(element, getMaxPosition: getMaxPosition);
 
   @override
