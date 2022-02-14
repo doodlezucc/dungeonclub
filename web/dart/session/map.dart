@@ -68,6 +68,8 @@ class MapTab {
   }
 
   Point get _mapSize {
+    if (map == null) return Point(0, 0);
+
     var img = map.whiteboard.backgroundImageElement;
     return Point(img.naturalWidth, img.naturalHeight);
   }
