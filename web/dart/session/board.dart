@@ -10,6 +10,7 @@ import 'package:meta/meta.dart';
 
 import '../communication.dart';
 import '../font_awesome.dart';
+import '../html_transform.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
 import 'condition.dart';
@@ -63,6 +64,22 @@ class Board {
   static const PAN = 'pan';
   static const MEASURE = 'measure';
   static const FOG_OF_WAR = 'fow';
+
+  HtmlTransform transform = HtmlTransform(
+    _e,
+    getMaxPosition: () => Point(
+      _ground.naturalWidth,
+      _ground.naturalHeight,
+    ),
+  );
+
+  Point get position => transform.position;
+  set position(Point p) => transform.position = p;
+
+  double get zoom => transform.zoom;
+  set zoom(double zoom) => transform.zoom = zoom;
+
+  double get scaledZoom => transform.scaledZoom;
 
   set showInactiveSceneWarning(bool v) {
     initiativeTracker.disabled = v;
@@ -175,30 +192,6 @@ class Board {
     }
 
     _selectionProperties.classes.toggle('hidden', activeMovable == null);
-  }
-
-  Point _position;
-  Point get position => _position;
-  set position(Point pos) {
-    var max = Point(_ground.naturalWidth / 2, _ground.naturalHeight / 2);
-    var min = Point(-max.x, -max.y);
-
-    _position = clamp(pos, min, max);
-    _transform();
-  }
-
-  double _zoom = 0;
-  double _scaledZoom = 1;
-  double get zoom => _zoom;
-  double get scaledZoom => _scaledZoom;
-  set zoom(double zoom) {
-    _zoom = min(max(zoom, -1), 1.5);
-    _scaledZoom = exp(_zoom);
-
-    var invZoomScale = 'scale(${1 / scaledZoom})';
-    querySelectorAll('.distance-text').style.transform = invZoomScale;
-
-    _transform();
   }
 
   int _sceneId;
@@ -559,9 +552,9 @@ class Board {
         }
 
         if (start.ctrl && initialButton == 1) {
-          _handleFineZooming(start, stream);
+          transform.handleFineZooming(start, stream);
         } else if (pan) {
-          _handlePanning(start, stream);
+          transform.handlePanning(start, stream);
         }
 
         await endEvent.firstWhere((ev) => toSimple(ev).button == initialButton);
@@ -647,18 +640,6 @@ class Board {
     }).toList();
 
     toggleSelect(validMovables, additive: true);
-  }
-
-  void _handlePanning(SimpleEvent first, Stream<SimpleEvent> moveStream) {
-    moveStream.listen((ev) {
-      position += ev.movement * (1 / scaledZoom);
-    });
-  }
-
-  void _handleFineZooming(SimpleEvent first, Stream<SimpleEvent> moveStream) {
-    moveStream.listen((ev) {
-      zoom -= 0.01 * ev.movement.y;
-    });
   }
 
   void _handleMovableMove(
@@ -819,11 +800,6 @@ class Board {
         gridTiles.valueAsNumber = grid.tiles;
       }
     }
-  }
-
-  void _transform() {
-    _e.style.transform =
-        'scale($scaledZoom) translate(${position.x}px, ${position.y}px)';
   }
 
   Future<void> onImgChange({String src, bool updateRef = true}) async {
@@ -1009,16 +985,6 @@ class Board {
     zoom = -0.5;
     position = Point(0, 0);
   }
-}
-
-class SimpleEvent {
-  final Point p;
-  final Point movement;
-  final bool shift;
-  final bool ctrl;
-  final int button;
-
-  SimpleEvent(this.p, this.movement, this.shift, this.ctrl, this.button);
 }
 
 void listenLazyUpdate(
