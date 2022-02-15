@@ -252,6 +252,23 @@ class Grid {
     path.setAttribute('opacity', _gridAlpha.value);
   }
 
+  void configure({
+    int tiles,
+    String tileUnit,
+    String color,
+    double alpha,
+    Point position,
+    Point size,
+  }) {
+    this.tiles = tiles;
+    gridTiles.valueAsNumber = this.tiles;
+    _gridTileUnit.value = tileUnit;
+    _validateTileUnit();
+    _gridColor.value = color;
+    _gridAlpha.valueAsNumber = alpha;
+    _setPosAndSize(position, forceDoublePoint(size ?? _imgSize));
+  }
+
   Map<String, dynamic> toJson() => {
         'offset': writePoint(offset),
         'size': writePoint(size),
@@ -262,13 +279,13 @@ class Grid {
       };
 
   void fromJson(Map<String, dynamic> json) {
-    tiles = json['tiles'];
-    gridTiles.valueAsNumber = tiles;
-    _gridTileUnit.value = json['tileUnit'];
-    _validateTileUnit();
-    _gridColor.value = json['color'];
-    _gridAlpha.valueAsNumber = json['alpha'];
-    _setPosAndSize(parsePoint(json['offset']),
-        forceDoublePoint(parsePoint(json['size']) ?? _imgSize));
+    configure(
+      tiles: json['tiles'],
+      tileUnit: json['tileUnit'],
+      color: json['color'],
+      alpha: json['alpha'],
+      position: parsePoint(json['offset']),
+      size: parsePoint(json['size']),
+    );
   }
 }

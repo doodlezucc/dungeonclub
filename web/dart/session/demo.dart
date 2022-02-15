@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:dnd_interactive/actions.dart';
 
 import '../communication.dart';
@@ -7,7 +9,7 @@ import 'session.dart';
 class DemoSession extends Session {
   DemoSession() : super('sandbox', 'Sandbox', true);
 
-  void initializeDemo() {
+  void initializeDemo() async {
     var demoPlayers = ['Nathaniel', 'Luke', 'Teo'];
     var characters = <Character>[];
 
@@ -17,8 +19,16 @@ class DemoSession extends Session {
       characters.add(Character(i, this, color: color, name: demoPlayers[i]));
     }
 
-    registerRedirect(IMAGE_TYPE_SCENE + '0', 'images/assets/scene/0');
+    registerRedirect(IMAGE_TYPE_SCENE + '0', 'images/assets/scene/15');
 
-    initialize(characters: characters, playingId: 0, sceneCount: 1);
+    await initialize(characters: characters, playingId: 0, sceneCount: 1);
+    board.grid.configure(
+      tiles: 23,
+      tileUnit: 'ft',
+      alpha: 0.5,
+      color: '#111111',
+      position: Point(0, 0),
+    );
+    board.rescaleMeasurings();
   }
 }

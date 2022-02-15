@@ -119,7 +119,7 @@ class Session extends Game {
     }
   }
 
-  void initialize({
+  Future<void> initialize({
     @required Iterable<Character> characters,
     @required int playingId,
     @required int sceneCount,
@@ -143,12 +143,12 @@ class Session extends Game {
     audioplayer.init(this, ambienceJson);
 
     // Depends on global session object
-    Future.microtask(() {
+    return Future.microtask(() async {
       initMovableManager(prefabJsonList);
       if (sceneJson != null) {
         _board.fromJson(playingId, sceneJson);
       } else {
-        _board.onSceneChange(playingId);
+        await _board.onSceneChange(playingId);
         _board.resetTransform();
       }
 
