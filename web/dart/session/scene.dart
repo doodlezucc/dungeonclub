@@ -16,6 +16,7 @@ final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
       event: ev,
       action: GAME_SCENE_ADD,
       type: IMAGE_TYPE_SCENE,
+      simulateHoverClass: querySelector('#sceneSelector'),
     );
 
     if (json != null) {

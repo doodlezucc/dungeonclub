@@ -481,6 +481,7 @@ Future display({
   Future Function(String base64, int maxRes, bool upscale) processUpload,
   void Function(bool v) onPanelVisible,
   int Function() demoFallbackID,
+  Element simulateHoverClass,
 }) async {
   var visible = (bool v) => onPanelVisible != null ? onPanelVisible(v) : null;
   var openDialog = true;
@@ -506,7 +507,7 @@ Future display({
       empty = menu.addButton('Empty Canvas', 'sticky-note');
     }
 
-    var result = await menu.display(event);
+    var result = await menu.display(event, simulateHoverClass);
     if (result == null) return;
 
     var maxRes = _getMaxRes(type);

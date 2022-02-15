@@ -27,13 +27,13 @@
             padding: 8px 0;
         }
     }
-    &:hover {
+    &:hover, &.hovered {
         bottom: 0;
         > .top-hook {
             opacity: 0;
         }
     }
-    &:not(:hover) {
+    &:not(:hover, .hovered) {
         box-shadow: none !important;
     }
 }

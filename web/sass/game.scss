@@ -359,7 +359,7 @@
         padding-bottom: 0;
         gap: 0;
 
-        &:hover { z-index: 7; }
+        &:hover, &.hovered { z-index: 7; }
 
         #scenes {
             flex-direction: row;
