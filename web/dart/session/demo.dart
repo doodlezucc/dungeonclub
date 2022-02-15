@@ -10,6 +10,8 @@ class DemoSession extends Session {
   DemoSession() : super('sandbox', 'Sandbox', true);
 
   void initializeDemo() async {
+    querySelector('#session').classes.add('demo');
+
     var demoPlayers = ['Nathaniel', 'Luke', 'Teo'];
     var characters = <Character>[];
 

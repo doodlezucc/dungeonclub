@@ -562,6 +562,10 @@
         #player > :not(button) { max-width: 100%; }
     }
 
+    &.demo .no-demo {
+        @extend .invisible;
+    }
+
     > *:not(:last-child) {
         border-right: 2px solid var(--color-separator);
     }
