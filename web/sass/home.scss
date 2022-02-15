@@ -58,7 +58,7 @@
         white-space: nowrap;
     }
 
-    > div {
+    > .spacing {
         display: flex;
         flex-direction: column;
         gap: 16px;
@@ -69,40 +69,81 @@
         display: none;
         border-bottom: 2px solid var(--color-separator);
     }
+}
 
-    #loginTab {
+.vertical-margin {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+#loginTab {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    border-bottom: 2px solid var(--color-separator);
+    text-align: center;
+    overflow: hidden;
+    flex: none;
+    padding: 48px;
+    gap: 15vw;
+    max-height: 500px;
+    transition-property: max-height, padding, border-bottom;
+    transition-delay: 0.1s;
+    transition-duration: 0.7s;
+    transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+
+    p {
+        max-width: none;
+    }
+
+    > div {
+        display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 28px;
-        border-bottom: 2px solid var(--color-separator);
-        text-align: center;
-        overflow: hidden;
-        flex: none;
-        max-height: 600px;
-        transition: max-height 0.5s 0.25s,
-                    padding 0.5s 0.25s,
-                    border-bottom 0.5s 0.25s;
-        transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1);
+        justify-content: center;
+        gap: 16px;
+    }
 
-        > .panel {
-            gap: 16px;
-            padding: 30px 36px;
-            box-shadow: none;
-            min-width: 200px;
-            width: 16vw;
-    
-            > div {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-            }
-        }
+    .panel {
+        gap: 16px;
+        padding: 30px 36px;
+        box-shadow: none;
+        min-width: 200px;
+        width: 16vw;
 
-        &.hidden {
-            max-height: 0;
-            padding: 0;
-            border-bottom: 0 solid transparent;
-            pointer-events: none;
+        > div {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
+    }
+
+    &.hidden {
+        max-height: 0;
+        padding: 0 48px;
+        border-bottom: 0 solid transparent;
+        pointer-events: none;
+    }
+}
+
+.glow {
+    @extend %vertical;
+    cursor: pointer;
+    color: var(--color-primary);
+    font-size: 64px;
+
+    > i {
+        transition: color 0.15s, transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+        margin-bottom: 16px;
+    }
+
+    &:hover > i {
+        color: white;
+        transform: scale(1.15);
+    }
+
+    i:active {
+        transform: scale(1.05);
     }
 }
 

@@ -51,10 +51,12 @@ body {
 }
 
 @media only screen and (max-width: 800px) {
+    .no-mobile {
+        display: none !important;
+    }
+
     header {
         justify-content: center !important;
-
-        > span { display: none; }
     }
 
     footer {
@@ -84,7 +86,6 @@ body {
         }
 
         p { font-size: inherit !important; }
-        img { display: none; }
 
         .media > * {
             width: 100%;

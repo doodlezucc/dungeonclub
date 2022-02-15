@@ -34,7 +34,7 @@
 			<h1>Dungeon Club</h1>
 		</a>
 
-		<span>
+		<span class="no-mobile">
 			<button id="logOut" class="hidden">Log Out</button>
 			<button id="feedback">Feedback</button>
 			<button id="save" style="display: none;">Save Server Data</button>
@@ -46,49 +46,63 @@
 			<span id="loginText">You're now logged in!</span>
 
 			<div id="loginTab" class="hidden">
-				<h1>Sign in to Dungeon Club</h1>
+				<div>
+					<h1>Sign in to Dungeon Club</h1>
 
-				<p>
-					An account gives you the possibility to create and lead your own campaigns.
-					<br>It's <u>not required</u> for joining games!
-				</p>
+					<p>
+						An account gives you the possibility to create and lead your own campaigns.
+						<br>It's <u>not required</u> for joining games!
+					</p>
 
-				<form action="javascript:void(0);" class="panel">
-					<div>
-						<p>Email address</p>
-						<input type="email" autocomplete="email" id="loginEmail">
-					</div>
-					<div>
-						<span>
-							<p>Password</p>
-							<a id="resetPassword">Forgot password?</a>
+					<form action="javascript:void(0);" class="panel vertical-margin">
+						<div>
+							<p>Email address</p>
+							<input type="email" autocomplete="email" id="loginEmail">
+						</div>
+						<div>
+							<span>
+								<p>Password</p>
+								<a id="resetPassword">Forgot password?</a>
+							</span>
+							<input type="password" autocomplete="current-password" id="loginPassword">
+						</div>
+						<span id="rememberMe">
+							<label class="with-tooltip">
+								<input type="checkbox">
+								Remember me
+								<span>Save a cookie on your machine to stay logged in.</span>
+							</label>
+							<p id="loginError" class="bad"></p>
 						</span>
-						<input type="password" autocomplete="current-password" id="loginPassword">
-					</div>
-					<span id="rememberMe">
-						<label class="with-tooltip">
-							<input type="checkbox">
-							Remember me
-							<span>Save a cookie on your machine to stay logged in.</span>
-						</label>
-						<p id="loginError" class="bad"></p>
+						<button id="login" class="big">Log in</button>
+					</form>
+					<span>
+						or
+						<button id="signup" class="big">Create a New Account</button>
 					</span>
-					<button id="login" class="big">Log In</button>
-				</form>
-				<span>
-					or
-					<button id="signup" class="big">Create a New Account</button>
-				</span>
+				</div>
+				<div class="no-mobile">
+					<h1>Try the Demo</h1>
+
+					<p>
+						Launch a private session and check out all the features right now!
+					</p>
+
+					<div id="enterDemo" class="glow">
+						<i class="fas fa-wand-magic-sparkles"></i>
+						<button class="big">Enter Sandbox</button>
+					</div>
+				</div>
 			</div>
 
-			<div id="savedGames">
+			<div id="savedGames" class="spacing">
 				<h2>Saved Campaigns</h2>
 				<div id="gamesContainer">
 					<button id="create" class="big acc-enable smooth" disabled>Create New Campaign</button>
 				</div>
 			</div>
 
-			<div id="features">
+			<div id="features" class="spacing">
 				<h1>Fully-Fledged Features</h1>
 
 				<div>
@@ -98,7 +112,7 @@
 							size and list of owners.</p>
 						<p>Drag tokens into the scene to move and <b>finetune them individually</b>. A set of condition
 							icons can be applied to keep track of a creature's state.</p>
-						<img src="images/conditions.png">
+						<img src="images/conditions.png" class="no-mobile">
 					</div>
 					<div class="media">
 						<video src="videos/tokens.mp4" muted autoplay loop disablePictureInPicture
@@ -769,7 +783,7 @@
 		</div>
 
 		<div id="charPick" class="panel">
-			<span>Pick dude's character</span>
+			<span></span>
 			<div class="roster"></div>
 		</div>
 
