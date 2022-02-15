@@ -115,6 +115,7 @@ class CustomPrefab extends Prefab {
 
   @override
   String get id => '$_id';
+  int get idNum => _id;
 
   @override
   String get name => _name;

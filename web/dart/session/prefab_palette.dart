@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/limits.dart';
@@ -245,24 +246,39 @@ void _displayLimitMsg() {
 Future<void> createPrefab(MouseEvent ev) async {
   if (prefabs.length >= prefabsPerCampaign) return _displayLimitMsg();
 
+  var fallbackID = prefabs.fold(-1, (i, p) => max<int>(i, p.idNum)) + 1;
+
   var result = await upload.display(
     event: ev,
     action: GAME_PREFAB_CREATE,
     type: IMAGE_TYPE_ENTITY,
+    demoFallbackID: () => fallbackID,
   );
 
   if (result == null) return null;
 
-  selectedPrefab = onPrefabCreate(result)..updateImage();
+  CustomPrefab prefab;
+  if (user.isInDemo) {
+    prefab = CustomPrefab(id: fallbackID);
+    _postPrefabCreate(prefab);
+  } else {
+    prefab = onPrefabCreate(result);
+  }
+
+  selectedPrefab = prefab..updateImage();
   _prefabName.focus();
 }
 
 CustomPrefab onPrefabCreate(Map<String, dynamic> json) {
   var p = CustomPrefab(id: json['id'])..fromJson(json);
+  _postPrefabCreate(p);
+  return p;
+}
+
+void _postPrefabCreate(CustomPrefab p) {
   prefabs.add(p);
   _otherPrefs.insertBefore(p.e, _addPref);
   _updateAddButton();
-  return p;
 }
 
 Prefab getPrefab(String id) {
