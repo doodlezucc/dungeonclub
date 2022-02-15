@@ -85,7 +85,7 @@ Future<void> _rollDice(int sides, int repeat) async {
 
 List<int> _rollOffline(int sides, int repeat) {
   var rng = Random();
-  return List.generate(repeat, (i) => rng.nextInt(sides));
+  return List.generate(repeat, (i) => rng.nextInt(sides) + 1);
 }
 
 void onDiceRollJson(Map<String, dynamic> json) {
