@@ -576,7 +576,7 @@ class Connection extends Socket {
 
       case a.GAME_MUSIC_PLAYLIST:
         var id = params['playlist'];
-        if (_game == null) return;
+        if (_game == null && id == null) return null;
 
         if (id == null) {
           _game.ambience.playlistName = null;
@@ -591,11 +591,11 @@ class Connection extends Socket {
         );
 
         var tracklist = pl.toTracklist(shuffle: true);
-        _game.ambience.playlistName = pl.title;
-        _game.ambience.list = tracklist;
+        _game?.ambience?.playlistName = pl.title;
+        _game?.ambience?.list = tracklist;
 
         var response = tracklist.toJson();
-        _game.notify(action, response, exclude: this, allScenes: true);
+        _game?.notify(action, response, exclude: this, allScenes: true);
 
         return response;
 

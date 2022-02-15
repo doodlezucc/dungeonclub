@@ -52,6 +52,7 @@ String registerRedirectBlob(String path, Blob blob) {
 
 const demoActions = [
   FEEDBACK,
+  GAME_MUSIC_PLAYLIST,
 ];
 
 class FrontSocket extends Socket {
@@ -131,7 +132,7 @@ class FrontSocket extends Socket {
 
   @override
   Future<void> send(data) async {
-    if (user.isInDemo) return;
+    if (user.isInDemo && data is! String) return;
 
     await _requireConnection();
     _webSocket.send(data);
