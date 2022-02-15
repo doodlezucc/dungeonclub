@@ -964,13 +964,22 @@ class Board {
     measuringRoot.setAttribute('viewBox', '-0.5 -0.5 $x $y');
   }
 
-  void fromJson(int id, Map<String, dynamic> json) async {
+  void resetTransform() {
+    zoom = -0.5;
+    position = Point(0, 0);
+  }
+
+  Future<void> onSceneChange(int id) async {
     clear();
 
     _sceneId = id;
     await onImgChange(updateRef: false);
 
     mode = PAN;
+  }
+
+  void fromJson(int id, Map<String, dynamic> json) async {
+    await onSceneChange(id);
 
     fogOfWar.load(json['fow']);
     grid.fromJson(json['grid']);
@@ -981,8 +990,7 @@ class Board {
     }
 
     initiativeTracker.fromJson(json['initiative']);
-    zoom = -0.5;
-    position = Point(0, 0);
+    resetTransform();
   }
 }
 

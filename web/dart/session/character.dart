@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:meta/meta.dart';
 
 import '../communication.dart';
 import '../font_awesome.dart';
@@ -28,10 +29,15 @@ class Character {
 
   String get img => getGameFile('$IMAGE_TYPE_PC$id', cacheBreak: false);
 
-  Character(this.id, String color, Session session, Map<String, dynamic> json)
-      : name = json['name'],
-        defaultModifier = json['mod'],
-        prefab = CharacterPrefab(),
+  Character(
+    this.id,
+    Session session, {
+    @required String color,
+    @required this.name,
+    this.defaultModifier = 0,
+    Map prefabJson,
+    bool joined = false,
+  })  : prefab = CharacterPrefab(),
         _onlineIndicator = SpanElement() {
     _onlineIndicator
       ..append(icon('circle')..style.color = color)
@@ -46,9 +52,21 @@ class Character {
         });
     }
 
-    hasJoined = json['connected'] ?? false;
+    hasJoined = joined;
     prefab
-      ..fromJson(json['prefab'] ?? {})
+      ..fromJson(prefabJson ?? {})
       ..character = this;
   }
+
+  Character.fromJson(
+      int id, String color, Session session, Map<String, dynamic> json)
+      : this(
+          id,
+          session,
+          color: color,
+          name: json['name'],
+          defaultModifier: json['mod'],
+          joined: json['connected'] ?? false,
+          prefabJson: json['prefab'],
+        );
 }

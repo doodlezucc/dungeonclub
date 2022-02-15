@@ -9,6 +9,7 @@ import 'communication.dart';
 import 'home.dart' as home;
 import 'notif.dart';
 import 'section_page.dart';
+import 'session/demo.dart';
 import 'session/session.dart';
 
 class User {
@@ -16,6 +17,7 @@ class User {
   Account get account => _account;
 
   bool get registered => account != null;
+  bool get isInDemo => _session is DemoSession;
 
   Session _session;
   Session get session => _session;
@@ -28,17 +30,24 @@ class User {
     if (s is String) return StateError(s);
 
     _session = Session(id, s['name'], s['dm'] != null);
-    _onSessionJoin(s, false);
+    _onSessionJoin(false, s);
     return null;
   }
 
   void joinFromJson(Map<String, dynamic> s, bool instantEdit) {
     _session = Session(s['id'], s['name'], s['dm'] != null);
-    _onSessionJoin(s, instantEdit);
+    _onSessionJoin(instantEdit, s);
   }
 
-  void _onSessionJoin(Map<String, dynamic> s, bool instantEdit) {
-    _session.fromJson(s, instantEdit: instantEdit);
+  void joinDemo() {
+    var demo = _session = DemoSession();
+    demo.initializeDemo();
+    _onSessionJoin(false);
+  }
+
+  void _onSessionJoin(bool instantEdit, [Map<String, dynamic> s]) {
+    if (s != null) _session.fromJson(s, instantEdit: instantEdit);
+
     showPage('session');
     home.iconWall.stop();
 

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
 
+import 'package:meta/meta.dart';
+
 import '../communication.dart';
 import '../font_awesome.dart';
 import '../game.dart';
@@ -117,14 +119,20 @@ class Session extends Game {
     }
   }
 
-  void fromJson(Map<String, dynamic> json, {bool instantEdit = false}) {
-    characters.clear();
-    var pcs = List.from(json['pcs']);
-    for (var i = 0; i < pcs.length; i++) {
-      characters.add(Character(i, getPlayerColor(i, pcs.length), this, pcs[i]));
-    }
-
-    _charId = json['mine'];
+  void initialize({
+    @required Iterable<Character> characters,
+    @required int playingId,
+    @required int sceneCount,
+    bool instantEdit = false,
+    int charId,
+    Map ambienceJson = const {},
+    Iterable prefabJsonList = const [],
+    Map sceneJson,
+    Iterable mapJsonList = const [],
+  }) {
+    this.characters.clear();
+    this.characters.addAll(characters);
+    _charId = charId;
 
     if (isDM) {
       logInviteLink(this);
@@ -132,20 +140,23 @@ class Session extends Game {
       gameLog('Hello, ${myCharacter.name}!', mine: true);
     }
 
-    audioplayer.init(this, json['ambience']);
+    audioplayer.init(this, ambienceJson);
 
     // Depends on global session object
     Future.microtask(() {
-      int playingId = json['sceneId'];
-      initMovableManager(json['prefabs']);
-      _board.fromJson(playingId, json['scene']);
+      initMovableManager(prefabJsonList);
+      if (sceneJson != null) {
+        _board.fromJson(playingId, sceneJson);
+      } else {
+        _board.onSceneChange(playingId);
+        _board.resetTransform();
+      }
 
       querySelector('#session').classes.toggle('is-dm', isDM);
 
-      _board.mapTab.fromJson(json['maps'] ?? []);
+      _board.mapTab.fromJson(mapJsonList ?? []);
 
       if (isDM) {
-        int sceneCount = json['dm']['scenes'];
         for (var i = 0; i < sceneCount; i++) {
           var scene = Scene(i);
           if (i == playingId) {
@@ -164,5 +175,26 @@ class Session extends Game {
         }
       }
     });
+  }
+
+  void fromJson(Map<String, dynamic> json, {bool instantEdit = false}) {
+    var chars = <Character>[];
+    var pcs = List.from(json['pcs']);
+    for (var i = 0; i < pcs.length; i++) {
+      chars.add(
+          Character.fromJson(i, getPlayerColor(i, pcs.length), this, pcs[i]));
+    }
+
+    initialize(
+      characters: chars,
+      charId: json['mine'],
+      ambienceJson: json['ambience'],
+      instantEdit: instantEdit,
+      playingId: json['sceneId'],
+      sceneCount: isDM ? json['dm']['scenes'] : null,
+      mapJsonList: json['maps'] ?? [],
+      prefabJsonList: json['prefabs'],
+      sceneJson: json['scene'],
+    );
   }
 }

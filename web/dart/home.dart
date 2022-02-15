@@ -21,11 +21,14 @@ final ButtonElement _logout = querySelector('#logOut')
     window.localStorage.remove('token');
     window.location.reload();
   });
+HtmlElement get _enterDemoButton => querySelector('#enterDemo');
 
 final iconWall = IconWall(querySelector('#iconWall'));
 
 Future<void> init() {
   iconWall.spawnParticles();
+
+  _enterDemoButton.onClick.listen((_) => user.joinDemo());
 
   _createGameButton.onClick.listen((event) async {
     if (!user.registered) {
