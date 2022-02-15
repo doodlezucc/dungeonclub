@@ -65,6 +65,10 @@ void _initScrollControls() {
 }
 
 Future<void> _rollDice(int sides, int repeat) async {
+  if (user.isInDemo) {
+    return onDiceRoll(sides: sides, rolls: _rollOffline(sides, repeat));
+  }
+
   if (_rollTimer != null) return;
 
   _rollTimer = Timer(Duration(milliseconds: 200), () => _rollTimer = null);
@@ -76,14 +80,24 @@ Future<void> _rollDice(int sides, int repeat) async {
     if (user.session.isDM) 'public': _visible,
   });
 
-  onDiceRoll(results);
+  onDiceRollJson(results);
 }
 
-void onDiceRoll(Map<String, dynamic> json) {
-  int initiator = json['id'];
-  int sides = json['sides'];
-  var rolls = List.from(json['results'] ?? []);
+List<int> _rollOffline(int sides, int repeat) {
+  var rng = Random();
+  return List.generate(repeat, (i) => rng.nextInt(sides));
+}
 
+void onDiceRollJson(Map<String, dynamic> json) {
+  onDiceRoll(
+      initiator: json['id'],
+      sides: json['sides'],
+      rolls: List.from(
+        json['results'] ?? [],
+      ));
+}
+
+void onDiceRoll({int initiator, int sides, Iterable<int> rolls}) {
   var mine = initiator == user.session.charId;
 
   var name = mine

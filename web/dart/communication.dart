@@ -136,7 +136,7 @@ class FrontSocket extends Socket {
 
   @override
   Future<dynamic> request(String action, [Map<String, dynamic> params]) async {
-    if (canSend(action)) return null;
+    if (!canSend(action)) return null;
 
     await _requireConnection();
     return super.request(action, params);
@@ -144,7 +144,7 @@ class FrontSocket extends Socket {
 
   @override
   Future<void> sendAction(String action, [Map<String, dynamic> params]) async {
-    if (canSend(action)) return;
+    if (!canSend(action)) return;
 
     await _requireConnection();
     return super.sendAction(action, params);

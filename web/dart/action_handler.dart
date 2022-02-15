@@ -48,7 +48,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session?.onConnectionChange(params);
 
     case GAME_ROLL_DICE:
-      return onDiceRoll(params);
+      return onDiceRollJson(params);
 
     case GAME_PREFAB_CREATE:
       return onPrefabCreate(params);
