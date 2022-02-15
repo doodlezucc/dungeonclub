@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/comms.dart';
 import 'package:path/path.dart';
 import 'package:web_whiteboard/communication/web_socket.dart';
@@ -18,6 +19,8 @@ final String _serverAddress = isOnLocalHost
     ? 'http://localhost:7070'
     : join(window.location.origin, 'dnd');
 
+final Map<String, String> localRedirect = {};
+
 String getFile(String path, {bool cacheBreak = true}) {
   var out = join(_serverAddress, path);
   if (!cacheBreak) return out;
@@ -26,9 +29,27 @@ String getFile(String path, {bool cacheBreak = true}) {
 }
 
 String getGameFile(String path, {String gameId, bool cacheBreak = true}) {
+  if (user.isInDemo) {
+    print('getting $path');
+    print(localRedirect);
+    return localRedirect[path];
+  }
+
   gameId = gameId ?? user?.session?.id;
   return getFile('database/games/$gameId/$path', cacheBreak: cacheBreak);
 }
+
+String registerRedirect(String path, String redirect) {
+  return localRedirect[path] = redirect;
+}
+
+String registerRedirectBlob(String path, Blob blob) {
+  return localRedirect[path] = Url.createObjectUrl(blob);
+}
+
+const demoActions = [
+  FEEDBACK,
+];
 
 class FrontSocket extends Socket {
   WebSocket _webSocket;
@@ -95,23 +116,36 @@ class FrontSocket extends Socket {
     _retryTimer = Timer(Duration(seconds: 10), () => connect());
   }
 
+  bool canSend(String action) {
+    if (user.isInDemo && !demoActions.contains(action)) {
+      return false;
+    }
+    return true;
+  }
+
   @override
   Stream get messageStream => _webSocket.onMessage.map((event) => event.data);
 
   @override
   Future<void> send(data) async {
+    if (user.isInDemo) return;
+
     await _requireConnection();
     _webSocket.send(data);
   }
 
   @override
   Future<dynamic> request(String action, [Map<String, dynamic> params]) async {
+    if (canSend(action)) return null;
+
     await _requireConnection();
     return super.request(action, params);
   }
 
   @override
   Future<void> sendAction(String action, [Map<String, dynamic> params]) async {
+    if (canSend(action)) return;
+
     await _requireConnection();
     return super.sendAction(action, params);
   }

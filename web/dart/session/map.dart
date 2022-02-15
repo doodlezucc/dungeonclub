@@ -163,13 +163,18 @@ class MapTab {
   Future<bool> _uploadNewMap(MouseEvent ev) async {
     if (maps.length >= mapsPerCampaign) return false;
 
+    var fallbackID = maps.fold<int>(-1, (id, m) => max(id, m.id)) + 1;
+
     var id = await uploader.display(
       event: ev,
       action: GAME_MAP_CREATE,
       type: IMAGE_TYPE_MAP,
+      demoFallbackID: () => fallbackID,
     );
 
     if (id != null) {
+      if (user.isInDemo) id = fallbackID;
+
       addMap(id, '', false);
       _enterEdit(id);
       _name.focus();

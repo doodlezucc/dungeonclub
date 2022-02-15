@@ -6,6 +6,7 @@ import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
 
+import '../../main.dart';
 import '../communication.dart';
 import 'context_menu.dart';
 import 'panel_overlay.dart';
@@ -416,13 +417,22 @@ Future<String> canvasToBase64(
   var reader = FileReader()..readAsDataUrl(blob);
   await reader.onLoadEnd.first;
 
-  if (includeHeader) return reader.result;
+  if (includeHeader || user.isInDemo) return reader.result;
 
   return (reader.result as String).substring(23);
 }
 
 Future _upload(String base64, String action, String type,
     Map<String, dynamic> extras, int maxRes, bool upscale) async {
+  if (user.isInDemo) {
+    var id = 0;
+    if (extras != null && extras['id'] != null) {
+      id = extras['id'];
+    }
+    print('ID: $id');
+    return registerRedirect('$type$id', base64);
+  }
+
   var json = <String, dynamic>{'type': type, 'data': base64};
   if (extras != null) json.addAll(Map.from(extras));
 
@@ -469,9 +479,15 @@ Future display({
   Blob initialImg,
   Future Function(String base64, int maxRes, bool upscale) processUpload,
   void Function(bool v) onPanelVisible,
+  int Function() demoFallbackID,
 }) async {
   var visible = (bool v) => onPanelVisible != null ? onPanelVisible(v) : null;
   var openDialog = true;
+
+  if (user.isInDemo && demoFallbackID != null) {
+    extras ??= {};
+    extras['id'] = demoFallbackID();
+  }
 
   if (initialImg == null) {
     var menu = ContextMenu();
