@@ -31,8 +31,11 @@ String getFile(String path, {bool cacheBreak = true}) {
 String getGameFile(String path, {String gameId, bool cacheBreak = true}) {
   if (user.isInDemo) {
     print('getting $path');
-    print(localRedirect);
-    return localRedirect[path];
+    var redirect = localRedirect[path];
+    if (redirect.startsWith('images/assets')) {
+      return getFile(redirect, cacheBreak: false);
+    }
+    return redirect;
   }
 
   gameId = gameId ?? user?.session?.id;

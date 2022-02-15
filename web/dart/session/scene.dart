@@ -122,10 +122,6 @@ class Scene {
   }
 
   static String getSceneImage(int id, {bool cacheBreak = false}) {
-    if (user.isInDemo) {
-      return getFile('images/assets/scene/0', cacheBreak: false);
-    }
-
     return getGameFile('scene$id', cacheBreak: cacheBreak);
   }
 }
