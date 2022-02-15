@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:image/image.dart' as image;
 import 'package:path/path.dart' as p;
 
+final _dirAssets = <String, List<FileSystemEntity>>{};
+
 Future<void> resizeAll(String dirPath, {int size = 2000}) async {
   var directory = Directory(dirPath);
 
@@ -84,6 +86,12 @@ Future<void> createAssetPreview(
 Future<File> getAssetFile(String assetPath) async {
   var type = assetPath.substring(14, assetPath.indexOf('/', 14));
   var dir = 'web/images/assets/$type/';
+
+  if (_dirAssets[dir] == null) {
+    _dirAssets[dir] = await Directory(dir).list().toList()
+      ..sort((a, b) => p.basename(a.path).compareTo(p.basename(b.path)));
+  }
+
   var assetIndex = int.parse(p.basename(assetPath));
-  return await Directory(dir).list().elementAt(assetIndex);
+  return _dirAssets[dir][assetIndex];
 }
