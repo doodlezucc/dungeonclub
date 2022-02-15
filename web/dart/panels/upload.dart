@@ -430,6 +430,7 @@ Future _upload(String base64, String action, String type,
       id = extras['id'];
     }
     print('ID: $id');
+    print(base64);
     return registerRedirect('$type$id', base64);
   }
 

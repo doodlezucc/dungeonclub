@@ -805,8 +805,13 @@ class Board {
   }
 
   Future<void> onImgChange({String src, bool updateRef = true}) async {
-    src = src ?? Scene.getSceneImage(_sceneId);
-    src += '?${DateTime.now().millisecondsSinceEpoch ~/ 1000}';
+    if (session.isDemo) {
+      src = Scene.getSceneImage(_sceneId);
+    } else {
+      src = src ?? Scene.getSceneImage(_sceneId);
+      src += '?${DateTime.now().millisecondsSinceEpoch ~/ 1000}';
+    }
+
     _ground.src = src;
     if (updateRef) {
       refScene?.image = src;
