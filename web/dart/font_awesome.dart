@@ -8,6 +8,10 @@ HtmlElement icon(String id, {bool isBrand = false}) {
     ];
 }
 
+String iconHtml(String id) {
+  return '<i class="fas fa-$id"></i>';
+}
+
 ButtonElement iconButton(String ico, {String className, String label}) =>
     ButtonElement()
       ..classes = {'icon', if (className != null) className}

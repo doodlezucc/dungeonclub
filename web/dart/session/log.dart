@@ -52,27 +52,43 @@ void initGameLog() {
   _sendButton.classes.add('ready');
 }
 
-SpanElement gameLog(String s, {bool mine = false}) {
+SpanElement gameLog(String s, {bool mine = false, bool mild = false}) {
   var line = SpanElement()..innerHtml = s;
   if (mine) {
     line.className = 'mine';
+  }
+  if (mild) {
+    line.classes.add('hidden');
   }
 
   _messages.append(line);
   _messages.scrollTop = _messages.scrollHeight;
 
-  Future.delayed(Duration(seconds: 8), () {
-    line.animate([
-      {'opacity': 1},
-      {'opacity': 0.6},
-    ], 2000);
-    line.classes.add('hidden');
-  });
+  if (!mild) {
+    Future.delayed(Duration(seconds: 8), () {
+      line.animate([
+        {'opacity': 1},
+        {'opacity': 0.6},
+      ], 2000);
+      line.classes.add('hidden');
+    });
+  }
 
   return line;
 }
 
-void logInviteLink(Session session) {
+void demoLog(String s) {
+  gameLog(s, mild: true);
+}
+
+void logInviteLink(Session session) async {
+  if (session.isDemo) {
+    demoLog('Welcome to your very own session!');
+    demoLog(
+        'Explore the editor, press all the buttons and make yourself at home.');
+    return;
+  }
+
   var tooltip = SpanElement()..text = 'Copied to Clipboard!';
 
   var line = gameLog('''Hello, GM!<br>Players can join at
