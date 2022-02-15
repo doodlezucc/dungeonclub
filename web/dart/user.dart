@@ -17,7 +17,7 @@ class User {
   Account get account => _account;
 
   bool get registered => account != null;
-  bool get isInDemo => _session is DemoSession;
+  bool get isInDemo => _session?.isDemo ?? false;
 
   Session _session;
   Session get session => _session;

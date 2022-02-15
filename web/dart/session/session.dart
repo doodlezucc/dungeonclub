@@ -11,6 +11,7 @@ import '../panels/dialog.dart';
 import 'audioplayer.dart';
 import 'board.dart';
 import 'character.dart';
+import 'demo.dart';
 import 'log.dart';
 import 'measuring.dart';
 import 'prefab_palette.dart';
@@ -29,6 +30,8 @@ class Session extends Game {
       ? 'http://localhost:8080/index.html?game=$id'
       : window.location.href;
   ConstantDialog _dmDisconnectedDialog;
+
+  bool get isDemo => this is DemoSession;
 
   Session(String id, String name, this.isDM) : super(id, name, null) {
     _board = Board(this);

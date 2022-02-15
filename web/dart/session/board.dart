@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:html';
+import 'dart:math';
 import 'dart:svg' as svg;
 
 import 'package:dnd_interactive/actions.dart' as a;
@@ -80,6 +81,8 @@ class Board {
   set zoom(double zoom) => transform.zoom = zoom;
 
   double get scaledZoom => transform.scaledZoom;
+
+  int get nextMovableId => movables.fold(-1, (i, m) => max<int>(i, m.id)) + 1;
 
   set showInactiveSceneWarning(bool v) {
     initiativeTracker.disabled = v;
@@ -837,7 +840,9 @@ class Board {
       'movables': jsons.toList(),
     });
 
-    if (result == null) {
+    if (session.isDemo) {
+      result = List<int>.generate(source.length, (i) => nextMovableId + i);
+    } else if (result == null) {
       return _onMovableCountLimitReached();
     }
 
@@ -875,7 +880,9 @@ class Board {
       'prefab': prefab.id,
     });
 
-    if (id == null) {
+    if (session.isDemo) {
+      id = nextMovableId;
+    } else if (id == null) {
       _onMovableCountLimitReached();
       return null;
     }
