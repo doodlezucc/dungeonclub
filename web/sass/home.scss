@@ -12,6 +12,17 @@
     100% { transform: rotate(-10deg); }
 }
 
+@keyframes shake-short {
+    0%   { transform: rotate(0deg); }
+    2%   { transform: rotate(-5deg); }
+    6%   { transform: rotate(10deg); }
+    10%  { transform: rotate(-10deg); }
+    14%  { transform: rotate(10deg); }
+    18%  { transform: rotate(-7deg); }
+    22%  { transform: rotate(2deg); }
+    25%  { transform: rotate(0deg); }
+}
+
 #iconWall {
     position: fixed;
     z-index: -100;
@@ -133,17 +144,18 @@
     font-size: 64px;
 
     > i {
-        transition: color 0.15s, transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+        transition: color 0.15s, font-size 0.85s cubic-bezier(0.19, 1, 0.22, 1);
+        animation: shake-short 7s 3s ease-in-out infinite;
         margin-bottom: 16px;
     }
 
     &:hover > i {
         color: white;
-        transform: scale(1.15);
+        font-size: 75px;
     }
 
     i:active {
-        transform: scale(1.05);
+        font-size: 68px;
     }
 }
 
