@@ -257,9 +257,16 @@
 							<table id="dice"></table>
 						</div>
 					</button>
-					<button class="icon toggle dm" id="fogOfWar">
+					<button class="icon tab toggle dm no-hover" id="fogOfWar">
 						Fog of War
 						<i class="fas fa-cloud"></i>
+						<div class="content">
+							<div class="toolbox">
+								<i class="fas fa-glasses" id="fowPreview">
+									<span>X-Ray</span>
+								</i>
+							</div>
+						</div>
 					</button>
 					<button class="icon tab toggle" id="measureDistance">
 						Measuring
@@ -464,7 +471,7 @@
 					</div>
 				</div>
 				<span id="inactiveSceneWarning" class="hidden">
-					Your players are <b>not looking at this scene</b> at the moment.
+					Your players are <b>not seeing this scene</b> at the moment.
 					<br>Click here to move them!
 				</span>
 				<span id="tooltip"></span>

@@ -16,7 +16,18 @@ class FogOfWar {
     cropMargin: _marginPx,
   );
 
+  Element get wrapper => querySelector('#polymaskWrapper');
+  Element get previewButton => querySelector('#fowPreview');
+
+  bool get opaque => wrapper.classes.contains('opaque');
+  set opaque(bool opaque) {
+    wrapper.classes.toggle('opaque', opaque);
+    previewButton.className =
+        'fas fa-' + (opaque ? 'eye-low-vision' : 'eye active');
+  }
+
   void initFogOfWar(Board board) {
+    opaque = !board.session.isDM;
     canvas
       ..onChange = _onPolymaskChange
       ..acceptStartEvent = (ev) {

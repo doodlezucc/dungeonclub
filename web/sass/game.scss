@@ -454,7 +454,7 @@
 
         .tab {
             position: relative;
-            
+
             .content {
                 position: absolute;
                 top: -4px;
@@ -465,9 +465,16 @@
                 padding: 4px;
             }
 
+            .toolbox {
+                grid-auto-flow: column;
+                border-color: var(--color-not-intense);
+                background-color: var(--color-not-intense) !important;
+                color: var(--color-text-primary);
+            }
+
             &:active { background-color: var(--color-button-hover); }
 
-            &:hover, &.active {
+            &:not(.no-hover):hover, &.active {
                 .content {
                     pointer-events: all;
                     opacity: 1;
@@ -517,6 +524,10 @@
     &:not([mode="fow"]) {
         #polymaskWrapper { pointer-events: none; opacity: 0.7; }
     }
+}
+
+#fogOfWar:not(.active) {
+    .content { @extend .invisible; }
 }
 
 #selectionArea {
@@ -1027,13 +1038,6 @@ $ping-radius: 100px;
 }
 
 #measureDistance {
-    .toolbox {
-        grid-auto-flow: column;
-        border-color: var(--color-not-intense);
-        background-color: var(--color-not-intense) !important;
-        color: var(--color-text-primary);
-    }
-
     &:not(.active) {
         #measureTools .active { color: unset; background-color: var(--color-background); }
 

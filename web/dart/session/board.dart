@@ -245,7 +245,14 @@ class Board {
 
       mode = MEASURE;
     });
-    _fowToggle.onClick.listen((_) => mode = FOG_OF_WAR);
+    _fowToggle.onClick.listen((ev) {
+      if (ev.target == fogOfWar.previewButton) {
+        print(fogOfWar.opaque);
+        fogOfWar.opaque = !fogOfWar.opaque;
+      } else {
+        mode = FOG_OF_WAR;
+      }
+    });
 
     _container.onMouseWheel.listen((event) {
       if (event.target is InputElement) {
