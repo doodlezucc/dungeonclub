@@ -220,7 +220,7 @@ class Account {
             .toList();
 
   Future<void> delete() async {
-    for (var game in ownedGames) {
+    for (var game in ownedGames.toList()) {
       await game.delete();
     }
     data.accounts.remove(this);
