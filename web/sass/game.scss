@@ -954,6 +954,7 @@ $ping-radius: 100px;
 #inactiveSceneWarning {
     @extend %responsive;
     position: absolute;
+    z-index: 6;
     top: 16px;
     background-color: var(--color-background);
     box-shadow: 0 0 8px 2px #0006;

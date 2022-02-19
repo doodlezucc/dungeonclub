@@ -45,6 +45,9 @@ class InitiativeTracker {
         sendRollForInitiative();
       } else {
         outOfCombat();
+        if (!user.session.board.refScene.playing) {
+          disabled = true;
+        }
         socket.sendAction(GAME_CLEAR_INITIATIVE);
       }
     });
@@ -245,13 +248,13 @@ class InitiativeTracker {
 
   void fromJson(Iterable jList) {
     callRollsButton.classes.toggle('active', jList != null);
-    if (jList == null) {
-      outOfCombat();
-    } else {
+    outOfCombat();
+    if (jList != null) {
       resetBar();
       for (var j in jList) {
         addToInBar(j);
       }
+      disabled = false;
     }
   }
 }
