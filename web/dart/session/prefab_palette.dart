@@ -299,6 +299,7 @@ void onPrefabUpdate(Map<String, dynamic> json) {
 
 void onPrefabRemove(Prefab prefab) {
   prefab?.e?.remove();
+  user.session.board.clipboard.removeWhere((m) => m.prefab == prefab);
   user.session.board.movables.toList().forEach((m) {
     if (m.prefab == prefab) {
       m.onRemove();
