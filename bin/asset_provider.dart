@@ -45,7 +45,8 @@ Future<void> createAssetPreview(
   var sources = await directory.list().where((f) {
     var ext = p.extension(f.path).toLowerCase();
     return ext == '.png' || ext == '.jpg';
-  }).toList();
+  }).toList()
+    ..sort((a, b) => p.basename(a.path).compareTo(p.basename(b.path)));
 
   if (sources.isEmpty) return null;
 
