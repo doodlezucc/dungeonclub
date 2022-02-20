@@ -34,23 +34,23 @@ set measureMode(int measureMode) {
 String getMeasureTooltip() {
   switch (measureMode) {
     case MEASURING_PATH:
-      return '''Hold left click to draw a path. Rightclick to make points.<br>
-                Hold shift to start at an intersection of squares.''';
+      return '''Hold *left click* to draw a path. *Rightclick* to add corners.
+                <br>Hold *shift* to start at an intersection of squares.''';
     case MEASURING_CIRCLE:
-      return '''Leftclick an intersection and drag outwards
-                to visualize a circular<br>
-                shape. Hold shift to start at a square's center.''';
+      return '''*Leftclick* an intersection and drag outwards
+                to draw a <br>circular
+                shape. Hold *shift* to start at a square's center.''';
     case MEASURING_CONE:
-      return '''Leftclick an intersection and drag outwards to visualize
-                a cone.<br>Rightclick to lock its radius. Hold shift to start
-                at a square's center.''';
+      return '''*Leftclick* an intersection and drag outwards to visualize
+                a cone.<br>*Rightclick* to lock its radius.
+                Hold *shift* to start at a square's center.''';
     case MEASURING_CUBE:
-      return '''Leftclick an intersection and drag outwards
-                to visualize a cube.''';
+      return '''*Leftclick* an intersection and drag outwards
+                to draw a cube.''';
     case MEASURING_LINE:
-      return '''Hold left click to draw a line of specified width.
-                Rightclick to switch to<br>width modification. Hold shift to
-                start at a square's center.''';
+      return '''Hold *left click* to draw a line of specified width.
+                *Rightclick* to switch to<br>width modification.
+                Hold *shift* to start at a square's center.''';
   }
   return '';
 }

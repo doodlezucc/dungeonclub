@@ -485,15 +485,14 @@ class Board {
         ev.preventDefault();
         document.activeElement.blur();
 
+        if (start.button != initialButton && moveStreamCtrl != null) {
+          return moveStreamCtrl.add(start);
+        }
+
         if (mode == FOG_OF_WAR &&
-            start.button == initialButton &&
             start.button == 2 &&
             fogOfWar.canvas.activePolygon != null) {
           fogOfWar.canvas.instantiateActivePolygon();
-        }
-
-        if (start.button != initialButton && moveStreamCtrl != null) {
-          return moveStreamCtrl.add(start);
         }
 
         initialButton = start.button;
@@ -783,7 +782,13 @@ class Board {
   }
 
   void displayTooltip(String text) {
-    _container.querySelector('#tooltip').innerHtml = text;
+    // Match between asterisks
+    final regex = RegExp(r'\*.*?\*');
+    _container.querySelector('#tooltip').innerHtml =
+        text.replaceAllMapped(regex, (match) {
+      var boldPart = match[0].substring(1, match[0].length - 1);
+      return '<b>$boldPart</b>';
+    });
   }
 
   void displayPing(Point p, int player) async {

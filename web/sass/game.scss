@@ -761,11 +761,13 @@
     background-color: #111a;
     border-radius: 8px;
     padding: 8px 12px;
-    text-shadow: 0 0 3px #000,
-                 0 0 8px #000a;
 
     &:empty {
         display: none;
+    }
+
+    b {
+        color: #ffc69a;
     }
 }
 
