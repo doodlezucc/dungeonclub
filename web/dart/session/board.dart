@@ -146,9 +146,7 @@ class Board {
       if (mode == MEASURE) {
         displayTooltip(getMeasureTooltip());
       } else {
-        displayTooltip('''Hold left click to draw continuous shapes or click
-                          once<br> to add individual points. Hold shift to
-                          make holes.''');
+        displayTooltip(FogOfWar.tooltip);
       }
     } else {
       displayTooltip('');
@@ -486,6 +484,13 @@ class Board {
 
         ev.preventDefault();
         document.activeElement.blur();
+
+        if (mode == FOG_OF_WAR &&
+            start.button == initialButton &&
+            start.button == 2 &&
+            fogOfWar.canvas.activePolygon != null) {
+          fogOfWar.canvas.instantiateActivePolygon();
+        }
 
         if (start.button != initialButton && moveStreamCtrl != null) {
           return moveStreamCtrl.add(start);

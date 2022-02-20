@@ -10,6 +10,10 @@ import 'board.dart';
 const _marginPx = 80;
 
 class FogOfWar {
+  static const tooltip = '''Hold *left click* to draw continuous shapes or
+      *click once* to<br> add single points (right click to close).
+      Hold *shift* to make holes.''';
+
   final canvas = PolygonCanvas(
     querySelector('#polymask'),
     captureInput: false,
