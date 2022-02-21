@@ -7,7 +7,10 @@ import 'character.dart';
 import 'session.dart';
 
 class DemoSession extends Session {
-  DemoSession() : super('sandbox', 'Sandbox', true);
+  static const demoId = 'sandbox';
+  static const demoName = 'Sandbox';
+
+  DemoSession() : super(demoId, demoName, true);
 
   void initializeDemo() async {
     querySelector('#session').classes.add('demo');

@@ -9,6 +9,7 @@ import 'dart/panels/code_panel.dart';
 import 'dart/panels/edit_game.dart' as edit_game;
 import 'dart/panels/join_session.dart' as join_session;
 import 'dart/panels/feedback.dart' as feedback;
+import 'dart/session/demo.dart';
 import 'dart/user.dart';
 
 final _interaction = Completer();
@@ -79,6 +80,8 @@ void processUrlPath() {
     if (gameId.length >= 3) {
       if (user.registered && user.account.games.any((g) => g.id == gameId)) {
         user.joinSession(gameId);
+      } else if (gameId == DemoSession.demoId) {
+        user.joinDemo();
       } else {
         join_session.display(gameId);
       }
