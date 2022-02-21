@@ -496,7 +496,6 @@ class Connection extends Socket {
       case a.FEEDBACK:
         String type = params['type'];
         String content = params['content'];
-        bool acc = params['acc'] ?? false;
         if (content == null ||
             !(type == 'feature' ||
                 type == 'bug' ||
@@ -506,7 +505,7 @@ class Connection extends Socket {
         pendingFeedback.add(Feedback(
           type,
           content,
-          acc ? account?.encryptedEmail?.toString() : null,
+          account?.encryptedEmail?.toString(),
           _game?.meta?.id,
         ));
         return true;

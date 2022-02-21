@@ -11,15 +11,11 @@ final HtmlElement _panel = querySelector('#feedbackPanel');
 final SelectElement _select = _panel.querySelector('select');
 final TextAreaElement _content = _panel.querySelector('textarea')
   ..onInput.listen((_) => _updateSendButton());
-final CheckboxInputElement _allowAcc = _panel.querySelector('#allowAcc');
 final ButtonElement _cancelButton = _panel.querySelector('button.close');
 final ButtonElement _sendButton = _panel.querySelector('#sendFeedback');
 
 Future<void> display() async {
   overlayVisible = true;
-
-  _allowAcc.disabled = !user.registered;
-  _allowAcc.checked = false;
 
   for (var opt in _select.options) {
     if (opt.value == 'account') opt.disabled = !user.registered;
@@ -51,7 +47,6 @@ Future<bool> _trySend() async {
 
   var sent = await socket.request(FEEDBACK, {
     'type': _select.value,
-    'acc': _allowAcc.checked,
     'content': _content.value,
   });
 
