@@ -60,6 +60,8 @@ class Movable extends EntityBase {
   }
 
   int get displaySize => size != 0 ? size : prefab.size;
+  Point get displaySizePoint => Point(displaySize, displaySize);
+  Point get center => position + (displaySizePoint - Point(1, 1)) * 0.5;
 
   Movable._({
     @required this.board,

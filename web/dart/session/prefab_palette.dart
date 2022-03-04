@@ -10,6 +10,7 @@ import '../communication.dart';
 import '../edit_image.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
+import 'movable.dart';
 import 'prefab.dart';
 
 final HtmlElement _palette = querySelector('#prefabPalette');
@@ -90,10 +91,11 @@ set collapsed(bool collapsed) {
       'fas fa-chevron-' + (collapsed ? 'down' : 'up');
 }
 
-void toggleMovableGhostVisible(bool v) {
+void toggleMovableGhostVisible(bool v, {bool translucent = false}) {
   if (v == _movableGhost.isConnected) return;
   if (v) {
-    user.session.board.grid.e.append(_movableGhost);
+    user.session.board.grid.e
+        .append(_movableGhost..classes.toggle('translucent', translucent));
   } else {
     _movableGhost.remove();
   }
@@ -137,6 +139,15 @@ void _initPrefabPalette() {
   _palette.querySelector('#paletteCollapse').onClick.listen((_) {
     collapsed = !collapsed;
   });
+}
+
+void imitateMovableGhost(Movable m) {
+  _movableGhost.style.setProperty('--x', '${m.position.x}');
+  _movableGhost.style.setProperty('--y', '${m.position.y}');
+  _movableGhost.style.setProperty('--size', '${m.displaySize}');
+  _movableGhost.classes.toggle('empty', m is EmptyMovable);
+  var img = m.prefab.img(cacheBreak: false);
+  _movableGhost.style.backgroundImage = 'url($img)';
 }
 
 void _initPrefabProperties() {

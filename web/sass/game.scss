@@ -519,7 +519,7 @@
         }
     }
     &:not([mode="measure"]) {
-        #distanceCanvas { pointer-events: none; }
+        #measureCanvas { pointer-events: none; }
     }
     &:not([mode="fow"]) {
         #polymaskWrapper { pointer-events: none; opacity: 0.7; }
@@ -685,21 +685,27 @@
     box-shadow: 0 0 20px #0003;
     outline: 1px solid transparent;
 
-    #movableGhost {
-        @include base.center-background;
-        opacity: 0.75;
-        z-index: 1000;
-        border-radius: 50%;
-        box-shadow: 0 0 10px #000a;
-        pointer-events: none;
-    }
-
     canvas {
         position: absolute;
         transition-duration: 0.2s;
     }
 
     > .hidden { display: none; }
+}
+
+#movableGhost {
+    @include base.center-background;
+    opacity: 0.75;
+    z-index: 1000;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #000a;
+    pointer-events: none;
+
+    &.translucent {
+        opacity: 0.5;
+        z-index: 0;
+        box-shadow: none;
+    }
 }
 
 #gridPadding {
@@ -714,16 +720,27 @@
     }
 }
 
+$blink-on:  #eeec;
+$blink-off: #888c;
+
 @keyframes blink {
-    0%   { stroke: #000; fill: #000; }
-    50%  { stroke: #fff; fill: #fff; }
-    100% { stroke: #000; fill: #000; }
+    0%   { stroke: $blink-off; fill: $blink-off; }
+    50%  { stroke: $blink-on;  fill: $blink-on;  }
+    100% { stroke: $blink-off; fill: $blink-off; }
 }
 
-#distanceCanvas {
+#measureCanvas {
     animation: blink 2s infinite linear;
-    stroke-width: 0.1;
     z-index: 1001;
+}
+#distanceCanvas {
+    stroke: #eee7;
+    fill: #eee7;
+}
+.grid-canvas {
+    stroke-width: 0.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 
     > * { pointer-events: none; }
     

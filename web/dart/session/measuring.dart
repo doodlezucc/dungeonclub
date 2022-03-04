@@ -20,7 +20,8 @@ const _precision = 63;
 final Map<int, Measuring> _pcMeasurings = {};
 
 final HtmlElement _toolbox = querySelector('#measureTools');
-final svg.SvgSvgElement measuringRoot = querySelector('#distanceCanvas');
+final svg.SvgSvgElement measuringRoot = querySelector('#measureCanvas');
+final svg.SvgSvgElement distanceRoot = querySelector('#distanceCanvas');
 double _bufferedLineWidth = 1;
 
 int _measureMode;
@@ -129,12 +130,13 @@ abstract class Measuring {
   final Point origin;
   final String color;
 
-  Measuring(this.origin, this._e, int pc)
+  Measuring(this.origin, this._e, int pc, [svg.SvgElement root])
       : _distanceText = SpanElement(),
         color = user.session.getPlayerColor(pc) {
     _pcMeasurings[pc]?.dispose();
     _pcMeasurings[pc] = this;
-    measuringRoot.append(_e);
+    root ??= measuringRoot;
+    root.append(_e);
     querySelector('#board').append(_distanceText..className = 'distance-text');
     redraw(origin);
   }
@@ -194,7 +196,9 @@ class MeasuringPath extends Measuring {
   int pointsSinceSync = 0;
   double previousDistance = 0;
 
-  MeasuringPath(Point origin, int pc) : super(origin, svg.GElement(), pc) {
+  MeasuringPath(Point origin, int pc, {bool background = false})
+      : super(origin, svg.GElement(), pc,
+            background ? distanceRoot : measuringRoot) {
     _e.setAttribute(
         'transform', 'translate(${origin.x % 1.0}, ${origin.y % 1.0})');
     _e

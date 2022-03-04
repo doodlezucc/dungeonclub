@@ -541,6 +541,7 @@ class Board {
                   }
                 }
 
+                timer?.cancel();
                 _handleMovableMove(start, stream, clickedMovable);
                 pan = false;
               } else if (selectedPrefab != null) {
@@ -656,23 +657,34 @@ class Board {
   }
 
   void _handleMovableMove(
-      SimpleEvent first, Stream<SimpleEvent> moveStream, Movable extra) {
+      SimpleEvent first, Stream<SimpleEvent> moveStream, Movable clicked) {
     toggleMovableGhostVisible(false);
     var off = Point<num>(0, 0);
     var movedOnce = false;
-    var affected = {extra, ...selected};
+    var affected = {clicked, ...selected};
 
     Point rounded() => scalePoint(off, (v) => (v / grid.cellSize).round());
 
     var lastDelta = rounded();
+    MeasuringPath measuring;
+
+    void alignText() {
+      var p = (clicked.position + clicked.displaySizePoint) * grid.cellSize;
+      measuring.alignDistanceText(p);
+    }
 
     moveStream.listen((ev) {
       if (!movedOnce) {
+        measuring = MeasuringPath(clicked.center, -1, background: true);
+        zoom += 0; // Rescale distance text
+        alignText();
+
         movedOnce = true;
-        if (!extra.e.classes.contains('selected') && !first.shift) {
+        if (!clicked.e.classes.contains('selected') && !first.shift) {
           _deselectAll();
-          affected = {extra};
+          affected = {clicked};
         }
+        imitateMovableGhost(clicked);
       }
       off += ev.movement * (1 / scaledZoom);
 
@@ -683,8 +695,14 @@ class Board {
           mv.position += delta - lastDelta;
         }
         lastDelta = delta;
+        measuring.redraw(clicked.center);
+        alignText();
+
+        toggleMovableGhostVisible(delta != Point(0, 0), translucent: true);
       }
     }, onDone: () {
+      toggleMovableGhostVisible(false);
+      measuring?.dispose();
       if (rounded() != Point(0, 0)) {
         return socket.sendAction(a.GAME_MOVABLE_MOVE, {
           'movables': affected.map((e) => e.id).toList(),
@@ -990,7 +1008,9 @@ class Board {
   void rescaleMeasurings() {
     var x = grid.tiles;
     var y = x * (grid.size.y / grid.size.x);
-    measuringRoot.setAttribute('viewBox', '-0.5 -0.5 $x $y');
+    var viewBox = '-0.5 -0.5 $x $y';
+    measuringRoot.setAttribute('viewBox', viewBox);
+    distanceRoot.setAttribute('viewBox', viewBox);
   }
 
   void resetTransform() {
