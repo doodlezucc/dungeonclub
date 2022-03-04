@@ -205,6 +205,10 @@ class MeasuringPath extends Measuring {
       ..append(path)
       ..append(lastE);
     addPoint(origin);
+
+    if (background) {
+      _distanceText.classes.add('slow');
+    }
   }
 
   @override

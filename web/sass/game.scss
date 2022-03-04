@@ -720,8 +720,8 @@
     }
 }
 
-$blink-on:  #eeec;
-$blink-off: #888c;
+$blink-on:  #fffd;
+$blink-off: #888d;
 
 @keyframes blink {
     0%   { stroke: $blink-off; fill: $blink-off; }
@@ -770,6 +770,16 @@ $blink-off: #888c;
     transition-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
     pointer-events: none;
     white-space: nowrap;
+
+    &.slow {
+        opacity: 0;
+        animation: reveal-opacity 0.4s 0.3s forwards;
+    }
+}
+
+@keyframes reveal-opacity {
+      0% { opacity: 0; }
+    100% { opacity: 0.85; }
 }
 
 #tooltip {
