@@ -117,6 +117,7 @@ Future<bool> _sendFeedbackMail() async {
 
 Future<bool> _sendMessage(Message message) async {
   try {
+    await MailCredentials.refreshCredentials();
     final sendReport = await send(message, _smtpServer);
     print('Message sent: ' + sendReport.toString());
     return true;
@@ -144,7 +145,6 @@ class MailCredentials {
   static String user;
   static auth.ClientId clientId;
   static auth.AccessCredentials creds;
-  static Timer _refreshTimer;
 
   static Duration get untilExpiry =>
       creds.accessToken.expiry.difference(DateTime.now()) -
@@ -158,18 +158,13 @@ class MailCredentials {
     MailCredentials.user = user;
     MailCredentials.clientId = clientId;
     MailCredentials.creds = creds;
-    await refreshCredentials();
-    print('Logged into mail OAuth client (refreshing in $untilExpiry)');
   }
 
   static Future<void> refreshCredentials() async {
     if (untilExpiry.inMinutes <= 1) {
-      print('Refreshing credentials');
       creds = await auth.refreshCredentials(clientId, creds, httpClient);
     }
 
-    _refreshTimer?.cancel();
-    _refreshTimer = Timer(untilExpiry, refreshCredentials);
     _resetSmtpConfig();
   }
 
@@ -184,6 +179,8 @@ class MailCredentials {
       auth.ClientId.fromJson(json['client']),
       auth.AccessCredentials.fromJson(json['credentials']),
     );
+    await refreshCredentials();
+    print('Signed into mail OAuth client');
   }
 
   static Future<void> save() async {
@@ -229,5 +226,5 @@ Future<void> setupMailAuth() async {
   await MailCredentials.configure(user, client, creds);
   await closeMailServer();
   httpClient.close();
-  print('Authorization complete!');
+  print('\nAuthorization complete! Emails can now be sent from $user');
 }
