@@ -15,8 +15,9 @@ After downloading Dart, start out by running `dart pub get` in the root director
 ### 1. Backend
 The server/backend of Dungeon Club can be started by running `dart bin/server.dart` (or simply pressing `F5` in Visual Studio Code).
 
-Make sure to fill out the `mail/gmail_credentials` file with your Gmail address in the first line and your Gmail password in the second.
-(This method might be replaced with an OAuth approach in the future.)
+To enable email serving, a registered OAuth 2.0 client is required.
+Run `dart bin/server.dart mail` to open an interactive walkthrough on how to create a free OAuth 2.0 client
+with [Google Cloud Console](https://console.cloud.google.com/).
 
 
 ### 2. Frontend

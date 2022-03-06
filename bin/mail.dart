@@ -1,15 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:meta/meta.dart';
+import 'package:prompts/prompts.dart' as prompts;
 
-String _mailAddress;
+import 'server.dart';
+
 SmtpServer _smtpServer;
-SmtpServer get smtpServer => _smtpServer;
 
 final pendingFeedback = <Feedback>[];
+final credFile = File('mail/gmail_credentials');
 
 class Feedback {
   final String type;
@@ -33,16 +37,13 @@ class Feedback {
 }
 
 Future<void> initializeMailServer() async {
-  var file = File('mail/gmail_credentials');
-  if (!await file.exists()) {
-    await file.create(recursive: true);
-    stderr.writeln('Missing gmail SMTP credentials at ${file.path}');
-    return exit(1);
+  if (!await credFile.exists()) {
+    return stderr.writeln('Missing gmail SMTP credentials at ${credFile.path}!'
+        ' Run "dart bin/server.dart mail" to walk through'
+        ' the activation process.');
   }
-  var lines = await file.readAsLines();
-  // ignore: deprecated_member_use
-  _smtpServer = gmail(lines[0], lines[1]);
-  _mailAddress = lines[0] + '@gmail.com';
+
+  await MailCredentials.load();
 
   Timer.periodic(Duration(minutes: 10), (_) => sendPendingFeedback());
 }
@@ -78,11 +79,13 @@ Future<bool> sendMailWithCode({
   @required String subject,
   @required String layoutFile,
 }) async {
+  if (_smtpServer == null) return false;
+
   var content = await File('mail/$layoutFile').readAsString();
   content = content.replaceAll('\$CODE', code);
 
   final message = Message()
-    ..from = Address(_mailAddress, 'Dungeon Club')
+    ..from = Address(MailCredentials.user, 'Dungeon Club')
     ..recipients.add(email)
     ..subject = subject
     ..html = content
@@ -94,11 +97,13 @@ Future<bool> sendMailWithCode({
 }
 
 Future<bool> _sendFeedbackMail() async {
+  if (_smtpServer == null) return false;
+
   pendingFeedback.sort((a, b) => a.type.compareTo(b.type));
 
   final message = Message()
-    ..from = Address(_mailAddress, 'Dungeon Club')
-    ..recipients.add(_mailAddress)
+    ..from = Address(MailCredentials.user, 'Dungeon Club')
+    ..recipients.add(MailCredentials.user)
     ..subject = 'Feedback'
     ..text = '${pendingFeedback.length} new feedback letters:\n\n' +
         pendingFeedback.join('\n------------------------------------\n\n');
@@ -112,15 +117,117 @@ Future<bool> _sendFeedbackMail() async {
 
 Future<bool> _sendMessage(Message message) async {
   try {
-    final sendReport = await send(message, smtpServer);
+    final sendReport = await send(message, _smtpServer);
     print('Message sent: ' + sendReport.toString());
     return true;
   } on MailerException catch (e) {
     print('Message not sent.');
     print(e.message);
+
+    var lines = e.message.split('\n');
+    if (lines.length == 2 && lines[1].startsWith('<')) {
+      print(utf8.decode(base64Decode(lines[1].substring(2))));
+    }
+
     for (var p in e.problems) {
       print('Problem: ${p.code}: ${p.msg}');
     }
     return false;
   }
+}
+
+Future<void> closeMailServer() async {
+  await MailCredentials.save();
+}
+
+class MailCredentials {
+  static String user;
+  static auth.ClientId clientId;
+  static auth.AccessCredentials creds;
+  static Timer _refreshTimer;
+
+  static Duration get untilExpiry =>
+      creds.accessToken.expiry.difference(DateTime.now()) -
+      Duration(minutes: 1);
+
+  static Future<void> configure(
+    String user,
+    auth.ClientId clientId,
+    auth.AccessCredentials creds,
+  ) async {
+    MailCredentials.user = user;
+    MailCredentials.clientId = clientId;
+    MailCredentials.creds = creds;
+    await refreshCredentials();
+    print('Logged into mail OAuth client (refreshing in $untilExpiry)');
+  }
+
+  static Future<void> refreshCredentials() async {
+    if (untilExpiry.inMinutes <= 1) {
+      print('Refreshing credentials');
+      creds = await auth.refreshCredentials(clientId, creds, httpClient);
+    }
+
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer(untilExpiry, refreshCredentials);
+    _resetSmtpConfig();
+  }
+
+  static void _resetSmtpConfig() {
+    _smtpServer = gmailSaslXoauth2(user, creds.accessToken.data);
+  }
+
+  static Future<void> load() async {
+    var json = jsonDecode(await credFile.readAsString());
+    await configure(
+      json['user'],
+      auth.ClientId.fromJson(json['client']),
+      auth.AccessCredentials.fromJson(json['credentials']),
+    );
+  }
+
+  static Future<void> save() async {
+    var json = {
+      'user': user,
+      'client': clientId.toJson(),
+      'credentials': creds.toJson(),
+    };
+
+    await credFile.create(recursive: true);
+    await credFile.writeAsString(jsonEncode(json));
+  }
+}
+
+Future<void> setupMailAuth() async {
+  print('''
+-- Create an OAuth 2.0 client --
+
+1. Register a new project in the Google Cloud Console at
+   https://console.cloud.google.com/projectcreate
+
+2. Go to "Credentials" and create a new OAuth client ID (application type: "Desktop app")
+
+3. Copy and paste the newly created client ID and secret to proceed
+''');
+
+  var clientID = prompts.get('Client ID');
+  var clientSecret = prompts.get('Client secret');
+  var user = prompts.get('Email address');
+
+  var client = auth.ClientId(clientID, clientSecret);
+  var scopes = ['https://mail.google.com/'];
+  var creds = await auth.obtainAccessCredentialsViaUserConsent(
+    client,
+    scopes,
+    httpClient,
+    (url) {
+      print('\nPlease go to the following URL and grant access:');
+      print('$url');
+    },
+  );
+
+  await MailCredentials.configure(user, client, creds);
+  await closeMailServer();
+  httpClient.close();
+  print('Authorization complete!');
 }

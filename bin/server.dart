@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
@@ -28,17 +29,19 @@ final data = ServerData();
 final autoSaver = AutoSaver(data);
 final maintainer = Maintainer('maintenance');
 final accountMaintainer = AccountMaintainer('account');
+final httpClient = http.Client();
 const wsPing = Duration(seconds: 15);
 
 void main(List<String> args) async {
-  if (await maintainer.file.exists()) {
-    print('Server restart blocked by maintenance file!');
-    await Future.delayed(Duration(seconds: 5));
-    return;
-  }
-
-  var parser = ArgParser()..addOption('port', abbr: 'p');
+  var parser = ArgParser()
+    ..addCommand('mail')
+    ..addOption('port', abbr: 'p');
   var result = parser.parse(args);
+
+  var setupMail = result.command?.name == 'mail' ?? false;
+  if (setupMail) {
+    return await setupMailAuth();
+  }
 
   // For Google Cloud Run, we respect the PORT environment variable
   var portStr = result['port'] ?? Platform.environment['PORT'] ?? '7070';
@@ -48,6 +51,12 @@ void main(List<String> args) async {
     stdout.writeln('Could not parse port value "$portStr" into a number.');
     // 64: command line usage error
     exitCode = 64;
+    return;
+  }
+
+  if (await maintainer.file.exists()) {
+    print('Server restart blocked by maintenance file!');
+    await Future.delayed(Duration(seconds: 5));
     return;
   }
 
@@ -97,7 +106,8 @@ void main(List<String> args) async {
 
 void onExit() async {
   try {
-    await Future.wait([data.save(), sendPendingFeedback()]);
+    httpClient.close();
+    await Future.wait([data.save(), sendPendingFeedback(), closeMailServer()]);
   } finally {
     exit(0);
   }
