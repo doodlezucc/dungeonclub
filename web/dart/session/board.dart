@@ -66,6 +66,8 @@ class Board {
   static const MEASURE = 'measure';
   static const FOG_OF_WAR = 'fow';
 
+  final showMoveDistances = true;
+
   final transform = BoardTransform(
     _e,
     getMaxPosition: () => Point(
@@ -675,16 +677,19 @@ class Board {
 
     moveStream.listen((ev) {
       if (!movedOnce) {
-        measuring = MeasuringPath(clicked.center, -1, background: true);
-        zoom += 0; // Rescale distance text
-        alignText();
+        if (showMoveDistances) {
+          measuring = MeasuringPath(clicked.center, -1, background: true);
+          zoom += 0; // Rescale distance text
+          alignText();
+        }
 
         movedOnce = true;
         if (!clicked.e.classes.contains('selected') && !first.shift) {
           _deselectAll();
           affected = {clicked};
         }
-        imitateMovableGhost(clicked);
+
+        if (showMoveDistances) imitateMovableGhost(clicked);
       }
       off += ev.movement * (1 / scaledZoom);
 
@@ -695,10 +700,11 @@ class Board {
           mv.position += delta - lastDelta;
         }
         lastDelta = delta;
-        measuring.redraw(clicked.center);
-        alignText();
-
-        toggleMovableGhostVisible(delta != Point(0, 0), translucent: true);
+        if (measuring != null) {
+          measuring.redraw(clicked.center);
+          alignText();
+          toggleMovableGhostVisible(delta != Point(0, 0), translucent: true);
+        }
       }
     }, onDone: () {
       toggleMovableGhostVisible(false);
