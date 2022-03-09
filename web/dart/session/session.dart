@@ -57,7 +57,7 @@ class Session extends Game {
   }
 
   String getPlayerColor(int player, [int charCount]) {
-    if (player == null) return '#ffffff'; // GM color
+    if (player == null || player < 0) return '#ffffff'; // GM color
 
     var h = 330 * player / (charCount ?? characters.length);
     var l = 0.7 - 0.05 * cos(player * pi);
