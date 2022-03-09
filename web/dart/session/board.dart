@@ -543,7 +543,6 @@ class Board {
                   }
                 }
 
-                timer?.cancel();
                 _handleMovableMove(start, stream, clickedMovable);
                 pan = false;
               } else if (selectedPrefab != null) {
@@ -677,19 +676,19 @@ class Board {
 
     moveStream.listen((ev) {
       if (!movedOnce) {
-        if (showMoveDistances) {
-          measuring = MeasuringPath(clicked.center, -1, background: true);
-          zoom += 0; // Rescale distance text
-          alignText();
-        }
-
         movedOnce = true;
         if (!clicked.e.classes.contains('selected') && !first.shift) {
           _deselectAll();
           affected = {clicked};
         }
 
-        if (showMoveDistances) imitateMovableGhost(clicked);
+        var showDistance = affected.length == 1;
+        if (showDistance) {
+          measuring = MeasuringPath(clicked.center, -1, background: true);
+          zoom += 0; // Rescale distance text
+          alignText();
+          imitateMovableGhost(clicked);
+        }
       }
       off += ev.movement * (1 / scaledZoom);
 
