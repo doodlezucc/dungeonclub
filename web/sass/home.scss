@@ -196,7 +196,6 @@
         display: flex;
         flex-direction: column;
         background-color: var(--color-header);
-        box-shadow: 0 0 4px var(--color-panel-shadow);
         padding: 8px;
         gap: 16px;
         min-width: 200px;
@@ -277,31 +276,41 @@
 }
 
 #changelogButton {
-    position: relative;
-
     a {
         position: absolute;
-        top: 32px;
-        right: 52px;
+        top: 28px;
+        right: 16px;
+
+        > span {
+            right: calc(100% + 4px);
+            bottom: -50%;
+        }
     }
 
     .content {
         position: absolute;
-        top: calc(100% - 4px);
-        right: -32px;
+        top: calc(50% + 16px);
+        right: 0;
         pointer-events: none;
         opacity: 0;
         transition-duration: 0.1s;
-        padding: 16px;
+        padding: 14px 0 8px 8px;
         text-align: start;
         cursor: default;
+    }
+
+    ::-webkit-scrollbar {
+        display: none;
     }
  
     &.active {
         .content {
             pointer-events: all;
             opacity: 1;
-            top: 100%;
+        }
+
+        #changelog {
+            max-height: 200px;
         }
     }
 }
@@ -309,28 +318,35 @@
 #changelog {
     @extend %vertical;
     background-color: var(--color-header);
-    border: 2px solid var(--color-separator);
+    outline: 2px solid var(--color-separator);
     overflow-y: scroll;
-    height: 100px;
     padding: 12px 12px;
     margin: 0;
-    border-radius: 4px 0 0 4px;
+    border-radius: 0 0 0 4px;
     width: 25vw;
-    gap: 12px;
+    max-height: 0px;
+    gap: 18px;
+    transition-duration: 0.1s;
 
     li {
-        // color: white;
         display: revert;
         background-color: unset;
         list-style-type: disc;
         margin: 0 0 0 24px;
         padding: 0;
+
+        > li:not(:last-child) {
+            margin-bottom: 4px;
+        }
     }
 
     > li {
         color: var(--color-note);
         list-style-type: none;
         margin: 0;
+        padding-left: 6px;
+        border-left: 4px solid var(--color-separator);
+        gap: 4px;
     }
 
     i {
