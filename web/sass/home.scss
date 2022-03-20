@@ -335,6 +335,10 @@
         margin: 0 0 0 24px;
         padding: 0;
 
+        > li i {
+            color: white;
+        }
+
         > li:not(:last-child) {
             margin-bottom: 4px;
         }
@@ -347,9 +351,6 @@
         padding-left: 6px;
         border-left: 4px solid var(--color-separator);
         gap: 4px;
-    }
 
-    i {
-        color: white;
     }
 }

@@ -1,6 +1,7 @@
 import 'dart:html';
 
 import 'package:ambience/ambience.dart';
+import 'package:intl/intl.dart';
 
 import 'communication.dart';
 import 'formatting.dart';
@@ -30,7 +31,7 @@ class Changelog {
     for (var v in versions) {
       var change = _parseChange(v);
       root.append(LIElement()
-        ..text = change.title
+        ..innerHtml = change.title
         ..children
             .addAll(change.changes.map((e) => LIElement()..innerHtml = e)));
     }
@@ -49,8 +50,22 @@ class Changelog {
 }
 
 class LoggedChange {
-  final String title;
+  final DateTime date;
   final Iterable<String> changes;
+  String title;
 
-  LoggedChange(this.title, this.changes);
+  LoggedChange(String header, this.changes) : date = parseDate(header) {
+    var outputFormat = DateFormat('MMM d, yyyy');
+    title = outputFormat.format(date);
+
+    var name = header.substring(10).trim();
+    if (name.isNotEmpty) {
+      title += ' ' + wrapAround(name, 'i');
+    }
+  }
+
+  static DateTime parseDate(String s) {
+    var inputFormat = DateFormat('d-M-y');
+    return inputFormat.parse(s);
+  }
 }
