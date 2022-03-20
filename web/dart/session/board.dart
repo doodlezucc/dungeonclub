@@ -10,6 +10,7 @@ import 'package:meta/meta.dart';
 
 import '../communication.dart';
 import '../font_awesome.dart';
+import '../formatting.dart';
 import '../html_transform.dart';
 import '../lazy_input.dart';
 import '../notif.dart';
@@ -805,13 +806,7 @@ class Board {
   }
 
   void displayTooltip(String text) {
-    // Match between asterisks
-    final regex = RegExp(r'\*.*?\*');
-    _container.querySelector('#tooltip').innerHtml =
-        text.replaceAllMapped(regex, (match) {
-      var boldPart = match[0].substring(1, match[0].length - 1);
-      return '<b>$boldPart</b>';
-    });
+    _container.querySelector('#tooltip').innerHtml = formatToHtml(text);
   }
 
   void displayPing(Point p, int player) async {

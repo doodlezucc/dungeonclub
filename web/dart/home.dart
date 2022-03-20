@@ -4,6 +4,7 @@ import 'dart:html';
 import 'package:dnd_interactive/limits.dart';
 
 import '../main.dart';
+import 'changelog.dart';
 import 'font_awesome.dart';
 import 'game.dart';
 import 'icon_wall.dart';
@@ -27,6 +28,7 @@ final iconWall = IconWall(querySelector('#iconWall'));
 
 Future<void> init() {
   iconWall.spawnParticles();
+  changelog.fetch();
 
   _enterDemoButton.onClick.listen((_) => user.joinDemo());
 
