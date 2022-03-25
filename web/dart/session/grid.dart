@@ -66,8 +66,11 @@ class Grid {
     _initGridEditor();
   }
 
-  String tileUnitString([double distance = 1]) =>
-      '${distance * _tileMultiply}$_tileUnit';
+  String tileUnitString([double distance = 1]) {
+    var rounded = (distance * _tileMultiply);
+    rounded = (rounded * 100).round() / 100;
+    return '$rounded$_tileUnit';
+  }
 
   void _validateTileUnit() {
     var s = _gridTileUnit.value.replaceFirst(',', '.');
