@@ -293,7 +293,7 @@
         right: 0;
         pointer-events: none;
         opacity: 0;
-        transition-duration: 0.1s;
+        transition: 0.1s linear;
         padding: 14px 0 8px 8px;
         text-align: start;
         cursor: default;
@@ -313,6 +313,17 @@
             max-height: 200px;
         }
     }
+
+    &.new::before {
+        content: "•";
+        animation: changelog-blink 1.5s 4 forwards;
+    }
+}
+
+@keyframes changelog-blink {
+    0%   { color: var(--color-primary); }
+    50%  { color: white; }
+    100% { color: var(--color-primary); }
 }
 
 #changelog {
@@ -323,7 +334,7 @@
     padding: 12px 12px;
     margin: 0;
     border-radius: 0 0 0 4px;
-    width: 25vw;
+    width: calc(200px + 15vw);
     max-height: 0px;
     gap: 18px;
     transition-duration: 0.1s;
@@ -349,8 +360,11 @@
         list-style-type: none;
         margin: 0;
         padding-left: 6px;
-        border-left: 4px solid var(--color-separator);
         gap: 4px;
+        border-left: 4px solid var(--color-separator);
+    }
 
+    > .new {
+        border-left: 4px solid var(--color-primary);
     }
 }

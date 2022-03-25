@@ -11,30 +11,74 @@ final changelog = Changelog().._init();
 class Changelog {
   HtmlElement get button => querySelector('#changelogButton');
   HtmlElement get root => querySelector('#changelog');
+  int lastChangeCount;
+  int currentChangeCount;
 
   void _init() {
     button
-      ..onClick.listen((_) => button.classes.toggle('active'))
+      ..onClick.listen((ev) {
+        var btnClick = ev.target == button;
+        var show = button.classes.toggle('active', btnClick ? null : true);
+
+        if (show) {
+          button.classes.remove('new');
+          _updateLastKnown();
+        }
+      })
       ..onMouseLeave.listen((_) => button.classes.remove('active'));
+
+    var saved = window.localStorage['changelog'];
+    if (saved != null) {
+      lastChangeCount = int.tryParse(saved);
+    } else {
+      lastChangeCount = null;
+    }
+  }
+
+  void _updateLastKnown() {
+    lastChangeCount = currentChangeCount;
+    window.localStorage['changelog'] = '$lastChangeCount';
   }
 
   Future<void> fetch() async {
     var uri = Uri.parse(getFile('CHANGELOG.md', cacheBreak: false));
     var content = await httpClient.read(uri);
-    _parseContent(content);
+    _applyContent(content);
   }
 
-  void _parseContent(String s) {
+  void _applyContent(String s) {
+    _applyLog(_parseContent(s));
+  }
+
+  void _applyLog(List<LoggedChange> changes) {
     root.querySelectorAll('li').forEach((element) => element.remove());
 
-    var versions = s.split('##').where((e) => e.trim().isNotEmpty);
-    for (var v in versions) {
-      var change = _parseChange(v);
+    currentChangeCount = changes.length;
+    if (lastChangeCount == null) _updateLastKnown();
+
+    var diff = currentChangeCount - lastChangeCount;
+    if (diff > 0) button.classes.add('new');
+
+    for (var change in changes) {
+      var isNew = diff-- > 0;
+
       root.append(LIElement()
         ..innerHtml = change.title
+        ..classes.addAll([if (isNew) 'new'])
         ..children
             .addAll(change.changes.map((e) => LIElement()..innerHtml = e)));
     }
+  }
+
+  List<LoggedChange> _parseContent(String s) {
+    var changes = <LoggedChange>[];
+    var versions = s.split('##').where((e) => e.trim().isNotEmpty);
+    for (var v in versions) {
+      var change = _parseChange(v);
+      changes.add(change);
+    }
+
+    return changes;
   }
 
   LoggedChange _parseChange(String s) {
@@ -58,14 +102,15 @@ class LoggedChange {
     var outputFormat = DateFormat('MMM d, yyyy');
     title = outputFormat.format(date);
 
-    var name = header.substring(10).trim();
-    if (name.isNotEmpty) {
+    var nameStart = header.indexOf(' ');
+    if (nameStart >= 0) {
+      var name = header.substring(nameStart + 1).trim();
       title += ' ' + wrapAround(name, 'i');
     }
   }
 
   static DateTime parseDate(String s) {
     var inputFormat = DateFormat('d-M-y');
-    return inputFormat.parse(s);
+    return inputFormat.parse(s, true);
   }
 }
