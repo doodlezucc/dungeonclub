@@ -192,15 +192,15 @@ class MeasuringPath extends Measuring {
 
   final path = svg.PathElement();
   final lastE = svg.CircleElement()..setAttribute('r', '$_stopRadius');
-  final points = <Point<int>>[];
+  final points = <Point>[];
+  bool round;
   int pointsSinceSync = 0;
   double previousDistance = 0;
 
-  MeasuringPath(Point origin, int pc, {bool background = false})
+  MeasuringPath(Point origin, int pc,
+      {bool background = false, this.round = true})
       : super(origin, svg.GElement(), pc,
             background ? distanceRoot : measuringRoot) {
-    _e.setAttribute(
-        'transform', 'translate(${origin.x % 1.0}, ${origin.y % 1.0})');
     _e
       ..append(path)
       ..append(lastE);
@@ -230,9 +230,8 @@ class MeasuringPath extends Measuring {
   }
 
   @override
-  void addPoint(Point point) {
-    var p = forceIntPoint(point);
-
+  void addPoint(Point p) {
+    if (round) p = forceIntPoint(p);
     var stop = svg.CircleElement()..setAttribute('r', '$_stopRadius');
     _applyCircle(stop, p);
     _e.append(stop);
@@ -243,7 +242,7 @@ class MeasuringPath extends Measuring {
     redraw(p);
   }
 
-  double _lastSegmentLength(Point<int> end) {
+  double _lastSegmentLength(Point end) {
     if (points.isEmpty) return 0;
     // Chebychov distance
     var distance = max(
@@ -254,22 +253,22 @@ class MeasuringPath extends Measuring {
   }
 
   @override
-  void redraw(Point extra) {
-    var end = forceIntPoint(extra);
+  void redraw(Point end) {
+    if (round) end = forceIntPoint(end);
     path.setAttribute('d', _toPathData(end));
     _applyCircle(lastE, end);
     _updateDistanceText(end);
   }
 
-  void _updateDistanceText(Point<int> end) {
+  void _updateDistanceText(Point end) {
     var total = previousDistance + _lastSegmentLength(end);
     updateDistanceText(total);
   }
 
-  String _toPathData(Point<int> end) {
+  String _toPathData(Point end) {
     if (points.isEmpty) return '';
 
-    String writePoint(Point<int> p) {
+    String writePoint(Point p) {
       return ' ${p.x} ${p.y}';
     }
 

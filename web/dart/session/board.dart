@@ -284,6 +284,11 @@ class Board {
       _deselectAll();
     });
 
+    // Prevent menu bar dropdown on Alt key
+    window.onKeyUp.listen((event) {
+      if (event.keyCode == 18) event.preventDefault();
+    });
+
     window.onKeyDown.listen((ev) {
       if (ev.target is InputElement || ev.target is TextAreaElement) return;
 
@@ -662,10 +667,6 @@ class Board {
     var lastDelta = Point<num>(0, 0);
     MeasuringPath measuring;
 
-    if (!first.alt && affected.length == 1) {
-      off = scalePoint(clicked.position, (v) => ((v + 0.5) % 1.0) - 0.5);
-    }
-
     void alignText() {
       var p = (clicked.position + clicked.displaySizePoint) * grid.cellSize;
       measuring.alignDistanceText(p);
@@ -686,9 +687,14 @@ class Board {
           affected = {clicked};
         }
 
+        if (!first.alt && affected.length == 1) {
+          off = scalePoint(clicked.position, (v) => ((v + 0.5) % 1.0) - 0.5);
+        }
+
         var showDistance = affected.length == 1;
         if (showDistance) {
-          measuring = MeasuringPath(clicked.center, -1, background: true);
+          measuring =
+              MeasuringPath(clicked.center, -1, background: true, round: false);
           zoom += 0; // Rescale distance text
           alignText();
           imitateMovableGhost(clicked);
