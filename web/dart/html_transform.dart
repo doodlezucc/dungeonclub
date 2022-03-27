@@ -68,7 +68,15 @@ class SimpleEvent {
   final Point movement;
   final bool shift;
   final bool ctrl;
+  final bool alt;
   final int button;
 
-  SimpleEvent(this.p, this.movement, this.shift, this.ctrl, this.button);
+  SimpleEvent(
+      this.p, this.movement, this.shift, this.ctrl, this.alt, this.button);
+
+  SimpleEvent.fromJS(Event ev, this.p, this.movement)
+      : shift = (ev as dynamic).shiftKey,
+        ctrl = (ev as dynamic).ctrlKey,
+        alt = (ev as dynamic).altKey,
+        button = ev is MouseEvent ? ev.button : 0;
 }

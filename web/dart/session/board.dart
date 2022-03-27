@@ -463,13 +463,8 @@ class Board {
       SimpleEvent toSimple(T ev) {
         var delta = evToPoint(ev) - previous;
         previous = evToPoint(ev);
-        return SimpleEvent(
-          previous - _e.getBoundingClientRect().topLeft,
-          delta,
-          (ev as dynamic).shiftKey,
-          (ev as dynamic).ctrlKey,
-          ev is MouseEvent ? ev.button : 0,
-        );
+        var p = previous - _e.getBoundingClientRect().topLeft;
+        return SimpleEvent.fromJS(ev, p, delta);
       }
 
       startEvent.listen((ev) async {
@@ -664,16 +659,24 @@ class Board {
     var off = Point<num>(0, 0);
     var movedOnce = false;
     var affected = {clicked, ...selected};
-
-    Point rounded() => scalePoint(off, (v) => (v / grid.cellSize).round());
-
-    var lastDelta = rounded();
+    var lastDelta = Point<num>(0, 0);
     MeasuringPath measuring;
+
+    if (!first.alt && affected.length == 1) {
+      off = scalePoint(clicked.position, (v) => ((v + 0.5) % 1.0) - 0.5);
+    }
 
     void alignText() {
       var p = (clicked.position + clicked.displaySizePoint) * grid.cellSize;
       measuring.alignDistanceText(p);
     }
+
+    Point scale(Point p) {
+      var offset = scalePoint(p, (v) => v / scaledZoom);
+      return grid.offsetToGridSpaceUnscaled(offset, round: false);
+    }
+
+    var initial = scale(first.p);
 
     moveStream.listen((ev) {
       if (!movedOnce) {
@@ -691,9 +694,9 @@ class Board {
           imitateMovableGhost(clicked);
         }
       }
-      off += ev.movement * (1 / scaledZoom);
 
-      var delta = rounded();
+      var delta = scale(ev.p) - initial;
+      if (!ev.alt) delta = roundPoint(delta) - off;
 
       if (delta != lastDelta) {
         for (var mv in affected) {
@@ -709,10 +712,10 @@ class Board {
     }, onDone: () {
       toggleMovableGhostVisible(false);
       measuring?.dispose();
-      if (rounded() != Point(0, 0)) {
+      if (lastDelta != Point(0, 0)) {
         return socket.sendAction(a.GAME_MOVABLE_MOVE, {
           'movables': affected.map((e) => e.id).toList(),
-          ...writePoint(rounded())
+          ...writePoint(lastDelta)
         });
       }
     });

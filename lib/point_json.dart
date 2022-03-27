@@ -15,6 +15,8 @@ Point scalePoint(Point p, num Function(num v) convert) {
   return Point(convert(p.x), convert(p.y));
 }
 
+Point roundPoint(Point p) => scalePoint(p, (v) => v.round());
+
 Point<T> clamp<T extends num>(Point<T> point, Point<T> pMin, Point<T> pMax,
     [num inset = 0]) {
   return Point<T>(min(max(point.x, pMin.x), pMax.x + inset),

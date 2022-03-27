@@ -263,8 +263,7 @@ class MapTab {
       SimpleEvent toSimple(T ev) {
         var delta = evToPoint(ev) - previous;
         previous = evToPoint(ev);
-        return SimpleEvent(null, delta, (ev as dynamic).shiftKey,
-            (ev as dynamic).ctrlKey, ev is MouseEvent ? ev.button : 0);
+        return SimpleEvent.fromJS(ev, null, delta);
       }
 
       startEvent.listen((ev) async {
