@@ -336,10 +336,11 @@ class Board {
               clipboard = selected.toList();
               _removeSelectedMovables();
             }
-          }
-          // Duplicate with Shift+D
-          else if (ev.key == 'D') {
-            cloneMovables(selected);
+            // Duplicate with Ctrl+D
+            else if (ev.key == 'd') {
+              ev.preventDefault();
+              cloneMovables(selected);
+            }
           }
         }
       }
