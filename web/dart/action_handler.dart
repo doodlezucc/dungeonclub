@@ -19,6 +19,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_MOVABLE_MOVE:
       return user.session.board.onMovableMove(params);
 
+    case GAME_MOVABLE_SNAP:
+      return user.session.board.onMovableSnap(params);
+
     case GAME_MOVABLE_UPDATE:
       return user.session.board.onMovablesUpdate(params);
 

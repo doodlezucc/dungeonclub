@@ -343,6 +343,16 @@ class Connection extends Socket {
 
         return notifyOthers(action, params);
 
+      case a.GAME_MOVABLE_SNAP:
+        for (var jm in params['movables']) {
+          var m = scene.getMovable(jm['id']);
+          var p = parsePoint(jm);
+          m.x = p.x;
+          m.y = p.y;
+        }
+
+        return notifyOthers(action, params);
+
       case a.GAME_MOVABLE_UPDATE:
         var changes = params['changes'];
         for (var change in changes) {

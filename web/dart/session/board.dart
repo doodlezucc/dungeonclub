@@ -46,6 +46,7 @@ final InputElement _selectedSize = querySelector('#movableSize');
 final InputElement _selectedAura = querySelector('#movableAura');
 final ButtonElement _selectedInvisible = querySelector('#movableInvisible');
 final ButtonElement _selectedRemove = querySelector('#movableRemove');
+final ButtonElement _selectedSnap = querySelector('#movableSnap');
 final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
 
 final ButtonElement _fowToggle = querySelector('#fogOfWar');
@@ -390,6 +391,30 @@ class Board {
     selected.clear();
   }
 
+  void _snapSelection() async {
+    if (mapTab.visible) return;
+
+    for (var m in selected) {
+      m.roundToGrid();
+    }
+
+    await socket.sendAction(a.GAME_MOVABLE_SNAP, {
+      'movables': selected
+          .map((m) => {
+                'id': m.id,
+                ...writePoint(m.position),
+              })
+          .toList(),
+    });
+  }
+
+  void onMovableSnap(Map<String, dynamic> json) {
+    for (var jm in json['movables']) {
+      var m = movables.firstWhere((mv) => mv.id == jm['id']);
+      m.position = parsePoint(jm);
+    }
+  }
+
   void _deselectAll() {
     for (var m in selected) {
       m.e.classes.remove('selected');
@@ -418,9 +443,8 @@ class Board {
   }
 
   void _initSelectionHandler() {
-    _selectedRemove.onClick.listen((_) async {
-      _removeSelectedMovables();
-    });
+    _selectedRemove.onClick.listen((_) => _removeSelectedMovables());
+    _selectedSnap.onClick.listen((_) => _snapSelection());
 
     _listenSelectedLazyUpdate(_selectedLabel, onChange: (m, value) {
       if (m is EmptyMovable) {

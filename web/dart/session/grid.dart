@@ -29,7 +29,7 @@ class Grid {
   set tiles(int tiles) {
     _tiles = max(8, tiles);
     _updateCellSize();
-    user.session.board.movables.forEach((m) => m.roundToGrid());
+    user.session.board.movables.forEach((m) => m.position += Point(0, 0));
     redrawCanvas();
   }
 
@@ -37,7 +37,6 @@ class Grid {
   Point get size => _size;
   set size(Point size) {
     _size = size;
-    user.session.board.movables.forEach((m) => m.roundToGrid());
     _rect.setAttribute('width', '${size.x}');
     _rect.setAttribute('height', '${size.y}');
     e.style.width = '${size.x}px';
