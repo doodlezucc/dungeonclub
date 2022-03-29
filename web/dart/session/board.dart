@@ -373,6 +373,7 @@ class Board {
     if (state && movables.length == 1) {
       activeMovable = movables.first;
     }
+    updateSnapToGrid();
   }
 
   void _removeSelectedMovables() async {
@@ -440,6 +441,14 @@ class Board {
     _selectedInvisible.querySelector('span').text = v ? 'Invisible' : 'Visible';
     _selectedInvisible.querySelector('i').className =
         'fas fa-' + (v ? 'eye-slash' : 'eye');
+  }
+
+  void updateSnapToGrid() {
+    var allSnapped = selected.every((m) {
+      var p = m.position;
+      return p.x % 1 == 0 && p.y % 1 == 0;
+    });
+    _selectedSnap.disabled = allSnapped;
   }
 
   void _initSelectionHandler() {

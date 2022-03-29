@@ -51,6 +51,7 @@ class Movable extends EntityBase {
     e.style
       ..setProperty('--x', '${position.x}')
       ..setProperty('--y', '${position.y}');
+    board.updateSnapToGrid();
   }
 
   @override
