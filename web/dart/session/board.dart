@@ -487,6 +487,7 @@ class Board {
   }
 
   void _initMouseControls() {
+    SimpleEvent lastEv;
     StreamController<SimpleEvent> moveStreamCtrl;
     Timer timer;
     Point previous;
@@ -508,6 +509,7 @@ class Board {
       startEvent.listen((ev) async {
         previous = evToPoint(ev);
         var start = toSimple(ev);
+        lastEv = start;
 
         if (mapTab.visible ||
             (editingGrid &&
@@ -630,7 +632,9 @@ class Board {
       moveEvent.listen((ev) {
         if (moveStreamCtrl != null) {
           timer?.cancel();
-          moveStreamCtrl.add(toSimple(ev));
+          var sev = toSimple(ev);
+          moveStreamCtrl.add(sev);
+          lastEv = sev;
         } else {
           if (selectedPrefab != null) {
             var p = evToPoint(ev) - _e.getBoundingClientRect().topLeft;
@@ -646,6 +650,19 @@ class Board {
 
     listenToCursorEvents<TouchEvent>((ev) => ev.targetTouches[0].page,
         _container.onTouchStart, window.onTouchMove, window.onTouchEnd);
+
+    void triggerUpdate(bool alt) {
+      if (moveStreamCtrl != null && lastEv != null) {
+        moveStreamCtrl.add(lastEv..alt = alt);
+      }
+    }
+
+    window.onKeyDown
+        .where((ev) => ev.keyCode == 18)
+        .listen((_) => triggerUpdate(true));
+    window.onKeyUp
+        .where((ev) => ev.keyCode == 18)
+        .listen((_) => triggerUpdate(false));
   }
 
   void _handleSelectArea(SimpleEvent first, Stream<SimpleEvent> moveStream) {

@@ -64,12 +64,12 @@ class HtmlTransform {
 }
 
 class SimpleEvent {
-  final Point p;
-  final Point movement;
-  final bool shift;
-  final bool ctrl;
-  final bool alt;
-  final int button;
+  Point p;
+  Point movement;
+  bool shift;
+  bool ctrl;
+  bool alt;
+  int button;
 
   SimpleEvent(
       this.p, this.movement, this.shift, this.ctrl, this.alt, this.button);
