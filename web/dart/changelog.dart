@@ -86,10 +86,10 @@ class Changelog {
 
     return LoggedChange(
         lines[0],
-        lines
-            .skip(1)
-            .where((line) => line.isNotEmpty)
-            .map((e) => formatToHtml(e.substring(2), 'i')));
+        lines.skip(1).where((line) => line.isNotEmpty).map((e) {
+          return formatToHtml(formatToHtml(e.substring(2), tag: 'i'),
+              markdown: '`');
+        }));
   }
 }
 

@@ -339,6 +339,12 @@
     gap: 18px;
     transition-duration: 0.1s;
 
+    b {
+        color: #e6e6e6;
+        font-style: italic;
+        font-family: monospace;
+    }
+
     li {
         display: revert;
         background-color: unset;
@@ -347,7 +353,8 @@
         padding: 0;
 
         > li i {
-            color: white;
+            color: #e6e6e6;
+            margin-right: 1px;
         }
 
         > li:not(:last-child) {

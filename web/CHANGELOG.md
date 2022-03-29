@@ -1,4 +1,7 @@
-## 25-03-2022 - Public Changelog
+## 29-03-2022
+- Tokens are no longer *constrained to grid cells*. Hold the *Alt* key while grabbing a token to move it exactly where you want.
+
+## 25-03-2022
 - Introduced the *public changelog*. This was long overdue, but there are still enough features and additions to be made so that this changelog can grow into a decent chunk of timestamped information!
 
 ## 06-03-2022
