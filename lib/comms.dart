@@ -8,7 +8,7 @@ const msgPrintLength = 200;
 const maxMsgLength = 1024 * 1024 * 20;
 
 abstract class Socket {
-  int _jobId = 0;
+  final _jobs = <int>[];
 
   Stream get messageStream;
   Future<void> send(dynamic data);
@@ -17,7 +17,7 @@ abstract class Socket {
   StreamSubscription listen({void Function() onDone, Function onError}) =>
       messageStream.listen((data) async {
         if (data is String) {
-          String s = data;
+          var s = data;
           var short =
               s.length <= msgPrintLength ? s : s.substring(0, msgPrintLength);
 
@@ -25,21 +25,20 @@ abstract class Socket {
             print(short);
           }
 
-          if (data[0] == '{') {
-            if (data.length >= maxMsgLength) {
-              print('Warning: Long websocket message (${data.length} chars)');
+          if (s[0] == '{') {
+            if (s.length >= maxMsgLength) {
+              print('Warning: Long websocket message (${s.length} chars)');
 
               if (!short.startsWith('{"id"')) return;
 
               print('shortening');
               // Shorten json string to only contain message id
-              data =
-                  short.substring(0, max(1, short.indexOf('"params"') + 10)) +
-                      '}}';
-              print(data);
+              s = short.substring(0, max(1, short.indexOf('"params"') + 10)) +
+                  '}}';
+              print(s);
             }
 
-            var json = jsonDecode(data);
+            var json = jsonDecode(s);
 
             var result = await handleAction(json['action'], json['params']);
 
@@ -56,7 +55,9 @@ abstract class Socket {
   void handleBinary(data);
 
   Future request(String action, [Map<String, dynamic> params]) async {
-    var myId = _jobId++;
+    var myId = _jobs.isEmpty ? 0 : _jobs.last + 1;
+    _jobs.add(myId);
+
     var json = jsonEncode({
       'id': myId,
       'action': action,
@@ -68,7 +69,7 @@ abstract class Socket {
         (data) => data is String && data.startsWith('r{"id":$myId,'),
         orElse: () => null);
 
-    _jobId--;
+    _jobs.remove(myId);
     return msg != null ? jsonDecode(msg.substring(1))['result'] : null;
   }
 
