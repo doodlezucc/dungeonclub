@@ -3,9 +3,11 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/dice_parser.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../formatting.dart';
 import 'log.dart';
 
 final TableElement _table = querySelector('table#dice');
@@ -41,15 +43,19 @@ void initDiceTable() {
   _initVisibility();
   _initScrollControls();
 
+  void sendSingleRoll(int sides, int repeat) {
+    sendRollDice(RollCombo([SingleRoll(repeat, sides)]));
+  }
+
   [4, 6, 8, 10, 12, 20, 100].forEach((sides) {
     var row = TableRowElement();
     row.append(TableCellElement()
       ..text = 'd$sides'
-      ..onClick.listen((_) => _rollDice(sides, 1)));
+      ..onClick.listen((_) => sendSingleRoll(sides, 1)));
 
     for (var i = 2; i <= maxRolls; i++) {
       row.append(TableCellElement()
-        ..onClick.listen((_) => _rollDice(sides, i + offset)));
+        ..onClick.listen((_) => sendSingleRoll(sides, i + offset)));
     }
     _table.append(row);
   });
@@ -64,9 +70,10 @@ void _initScrollControls() {
   });
 }
 
-Future<void> _rollDice(int sides, int repeat) async {
+Future<void> sendRollDice(RollCombo combo) async {
   if (user.isInDemo) {
-    return onDiceRoll(sides: sides, rolls: _rollOffline(sides, repeat));
+    combo.rollAll();
+    return onDiceRoll(combo);
   }
 
   if (_rollTimer != null) return;
@@ -74,8 +81,7 @@ Future<void> _rollDice(int sides, int repeat) async {
   _rollTimer = Timer(Duration(milliseconds: 200), () => _rollTimer = null);
 
   var results = await socket.request(GAME_ROLL_DICE, {
-    'sides': sides,
-    'repeat': repeat,
+    ...combo.toJson(),
     'id': user.session.charId,
     if (user.session.isDM) 'public': _visible,
   });
@@ -83,38 +89,64 @@ Future<void> _rollDice(int sides, int repeat) async {
   onDiceRollJson(results);
 }
 
-List<int> _rollOffline(int sides, int repeat) {
-  var rng = Random();
-  return List.generate(repeat, (i) => rng.nextInt(sides) + 1);
-}
-
 void onDiceRollJson(Map<String, dynamic> json) {
-  onDiceRoll(
-      initiator: json['id'],
-      sides: json['sides'],
-      rolls: List.from(
-        json['results'] ?? [],
-      ));
+  onDiceRoll(RollCombo.fromJson(json), initiator: json['id']);
 }
 
-void onDiceRoll({int initiator, int sides, Iterable<int> rolls}) {
+void onDiceRoll(RollCombo combo, {int initiator}) {
   var mine = initiator == user.session.charId;
 
   var name = mine
       ? 'You'
       : (initiator == null ? 'GM' : user.session.characters[initiator].name);
 
-  var results = rolls.map((r) => _resultString(sides, r)).join(' + ');
+  var resultString = _comboResultString(combo);
 
-  var sum = rolls.fold(0, (x, roll) => x + roll);
-  var sumString = rolls.length == 1 ? '.</span>' : '</span><br>= $sum.';
+  var allResults = combo.rolls.expand((r) => r.results);
+
+  var sum = allResults.fold(0, (x, roll) => x + roll) + combo.modifier;
+  var sumString = allResults.length == 1 ? '.</span>' : '</span><br>= $sum.';
+
+  var comboString = _comboToHtml(combo);
 
   gameLog('''
-    $name rolled <span class="dice d$sides">${rolls.length}d$sides</span>
-    and got <span>$results$sumString''', mine: mine);
+    $name rolled $comboString
+    and got <span>$resultString$sumString''', mine: mine);
+}
+
+String _comboToHtml(RollCombo combo) {
+  return wrapAround(
+    [
+      ...combo.rolls.map((e) => e.name),
+      if (combo.hasMod) '${combo.modifier}',
+    ].join(' + '),
+    'span',
+    'dice',
+  );
+}
+
+String _comboResultString(RollCombo combo) {
+  dynamic results = _rollStrings(combo.rolls.first).join(' + ');
+
+  if (combo.rolls.length > 1) {
+    results = combo.rolls.map((r) => _rollStrings(r)).join(' + ');
+  }
+
+  return [
+    results,
+    if (combo.hasMod) _rollWrap(combo.modifier),
+  ].join(' + ');
+}
+
+Iterable<String> _rollStrings(SingleRoll roll) {
+  return roll.results.map((r) => _resultString(roll.sides, r));
 }
 
 String _resultString(int sides, int result) {
   var className = result == 1 ? ' bad' : (result == sides ? ' good' : '');
-  return '<span class="roll$className">$result</span>';
+  return _rollWrap(result, className);
+}
+
+String _rollWrap(int x, [String className = '']) {
+  return '<span class="roll$className">$x</span>';
 }

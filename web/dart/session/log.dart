@@ -1,9 +1,11 @@
 import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/dice_parser.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import 'roll_dice.dart';
 import 'session.dart';
 
 final HtmlElement _messages = querySelector('#messages');
@@ -30,8 +32,13 @@ void _submitChat() {
     _chat.value = '';
     _updateSendButton();
     var pc = user.session.charId;
-    _performChat(pc, msg);
-    socket.sendAction(GAME_CHAT, {'msg': msg, 'pc': pc});
+
+    if (DiceParser.isCommand(msg)) {
+      sendRollDice(DiceParser.parse(msg));
+    } else {
+      _performChat(pc, msg);
+      socket.sendAction(GAME_CHAT, {'msg': msg, 'pc': pc});
+    }
   }
 }
 

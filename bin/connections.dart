@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/comms.dart';
+import 'package:dnd_interactive/dice_parser.dart';
 import 'package:dnd_interactive/limits.dart';
 import 'package:dnd_interactive/point_json.dart';
 import 'package:meta/meta.dart';
@@ -443,15 +444,16 @@ class Connection extends Socket {
         return true;
 
       case a.GAME_ROLL_DICE:
+        if (_game == null) return;
+
+        var combo = RollCombo.fromJson(params);
         int charId = params['id'];
-        int sides = params['sides'];
-        int repeat = params['repeat'];
         bool public = params['public'] ?? true;
-        if (sides == null || repeat == null || _game == null) return;
+
+        combo.rollAll();
 
         var results = {
-          'sides': sides,
-          'results': List.generate(repeat, (_) => data.rng.nextInt(sides) + 1),
+          ...combo.toJson(),
           'id': charId,
         };
 
