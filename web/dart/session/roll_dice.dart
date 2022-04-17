@@ -102,7 +102,7 @@ void onDiceRoll(RollCombo combo, {int initiator}) {
 
   var resultString = _comboResultString(combo);
 
-  var allResults = combo.rolls.expand((r) => r.results);
+  var allResults = combo.rolls.expand((r) => r.resultsSigned);
 
   var sum = allResults.fold(0, (x, roll) => x + roll) + combo.modifier;
   var sumString = allResults.length == 1 ? '.</span>' : '</span><br>= $sum.';
@@ -115,27 +115,47 @@ void onDiceRoll(RollCombo combo, {int initiator}) {
 }
 
 String _comboToHtml(RollCombo combo) {
-  return wrapAround(
-    [
-      ...combo.rolls.map((e) => e.name),
-      if (combo.hasMod) '${combo.modifier}',
-    ].join(' + '),
-    'span',
-    'dice',
-  );
+  return wrapAround(combo.toCommandString(), 'span', 'dice');
+}
+
+String _singleRollString(SingleRoll roll,
+    {bool isFirst = false, bool isOnly = false}) {
+  var neg = roll.repeat.isNegative;
+  var results = _rollStrings(roll);
+
+  String loose() => results.join(' + ');
+  String brackets() => '(' + results.join(',') + ')';
+
+  var s = (isOnly && !neg) ? loose() : brackets();
+  if (neg) {
+    var sign = '-';
+    if (!isFirst) sign += ' ';
+
+    s = '$sign$s';
+  } else if (!isFirst) {
+    s = '+ $s';
+  }
+
+  return s;
 }
 
 String _comboResultString(RollCombo combo) {
-  dynamic results = _rollStrings(combo.rolls.first).join(' + ');
+  var joinedResults = _singleRollString(
+    combo.rolls.first,
+    isFirst: true,
+    isOnly: combo.rolls.length == 1 && !combo.hasMod,
+  );
 
-  if (combo.rolls.length > 1) {
-    results = combo.rolls.map((r) => _rollStrings(r)).join(' + ');
+  joinedResults +=
+      combo.rolls.skip(1).map((e) => ' ' + _singleRollString(e)).join('');
+
+  if (combo.hasMod) {
+    var mod = combo.modifier;
+    joinedResults += (mod.isNegative ? ' - ' : ' + ');
+    joinedResults += _rollWrap(mod.abs());
   }
 
-  return [
-    results,
-    if (combo.hasMod) _rollWrap(combo.modifier),
-  ].join(' + ');
+  return joinedResults;
 }
 
 Iterable<String> _rollStrings(SingleRoll roll) {
