@@ -663,16 +663,31 @@
         resize: none;
     }
 
-    > button {
+    > div {
+        @extend %vertical;
         position: absolute;
         top: 0;
         right: 0;
 
-        > span {
+        span {
+            color: white;
             top: 0;
             bottom: auto;
             right: 100%;
         }
+    }
+
+    button {
+        transition-duration: 0.2s;
+    }
+}
+
+#chatRoll {
+    color: var(--color-primary);
+
+    &:disabled {
+        margin-top: -100%;
+        opacity: 0;
     }
 }
 

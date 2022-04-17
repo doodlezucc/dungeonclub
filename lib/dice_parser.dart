@@ -1,13 +1,15 @@
 import 'dart:math';
 
 class DiceParser {
+  static final cmdRegex = RegExp(r'([+\-\s]|d?\d)+');
+
   static bool isCommand(String msg) {
-    return msg.trimLeft().startsWith('/r');
+    var matches = cmdRegex.allMatches(msg.toLowerCase());
+    return matches.where((s) => s[0].trim().isNotEmpty).length == 1;
   }
 
   static RollCombo parse(String s) {
     var rolls = <SingleRoll>[];
-
     var mod = 0;
 
     var matches = SingleRoll.regex.allMatches(s);
@@ -51,7 +53,7 @@ class SingleRoll {
     var suf = s.substring(dIndex + 1);
     var sides = int.tryParse(suf);
 
-    if (sides != null) {
+    if (sides != null && sides > 0) {
       return SingleRoll(repeat, sides);
     }
 

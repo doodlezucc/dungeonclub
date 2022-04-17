@@ -5,40 +5,59 @@ import 'package:dnd_interactive/dice_parser.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../formatting.dart';
 import 'roll_dice.dart';
 import 'session.dart';
 
+RollCombo _command;
 final HtmlElement _messages = querySelector('#messages');
-final ButtonElement _sendButton = querySelector('#chat button')
+final ButtonElement _sendButton = querySelector('#chatSend')
   ..onClick.listen((_) {
     _submitChat();
+  });
+final ButtonElement _rollButton = querySelector('#chatRoll')
+  ..onClick.listen((_) {
+    _submitChat(roll: true);
   });
 final TextAreaElement _chat = querySelector('#chat textarea')
   ..onKeyDown.listen((ev) {
     if (ev.keyCode == 13) {
-      _submitChat();
+      _submitChat(roll: _command != null);
       ev.preventDefault();
     }
   })
   ..onInput.listen((_) => _updateSendButton());
 
 void _updateSendButton() {
-  _sendButton.disabled = _chat.value.isEmpty;
+  var msg = _chat.value.trim();
+  _sendButton.disabled = msg.isEmpty;
+
+  if (DiceParser.isCommand(msg)) {
+    _command = DiceParser.parse(msg);
+    if (_command != null) {
+      var cmdHtml = wrapAround(_command.toCommandString(), 'b');
+      _rollButton.querySelector('span').innerHtml = 'Roll $cmdHtml';
+    }
+  } else {
+    _command = null;
+  }
+  _rollButton.disabled = _command == null;
 }
 
-void _submitChat() {
+void _submitChat({bool roll = false}) {
   var msg = _chat.value.trimRight();
   if (msg.isNotEmpty) {
-    _chat.value = '';
-    _updateSendButton();
     var pc = user.session.charId;
 
-    if (DiceParser.isCommand(msg)) {
-      sendRollDice(DiceParser.parse(msg));
+    if (roll) {
+      sendRollDice(_command);
     } else {
       _performChat(pc, msg);
       socket.sendAction(GAME_CHAT, {'msg': msg, 'pc': pc});
     }
+
+    _chat.value = '';
+    _updateSendButton();
   }
 }
 

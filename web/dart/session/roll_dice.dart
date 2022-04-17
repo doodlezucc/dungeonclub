@@ -71,6 +71,8 @@ void _initScrollControls() {
 }
 
 Future<void> sendRollDice(RollCombo combo) async {
+  if (combo?.rolls?.isEmpty ?? true) return;
+
   if (user.isInDemo) {
     combo.rollAll();
     return onDiceRoll(combo);
