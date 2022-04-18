@@ -88,7 +88,9 @@ class Changelog {
         lines[0],
         lines.skip(1).where((line) => line.isNotEmpty).map((e) {
           return formatToHtml(formatToHtml(e.substring(2), tag: 'i'),
-              markdown: '`');
+                  markdown: '`')
+              .replaceAll('[', '<span>')
+              .replaceAll(']', '</span>');
         }));
   }
 }

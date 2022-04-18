@@ -1,3 +1,7 @@
+## 18-04-2022
+- Introduced *dice parsing*. Enter any roll command [(e.g. "2d8 + d4")] directly into the chat to receive a compact summary.
+- You can now reuse previous chat messages by pressing the *Up/Down Arrow* keys.
+
 ## 29-03-2022
 - Tokens are no longer *constrained to grid cells*. Hold the *Alt* key while grabbing a token to move it exactly where you want.
 
