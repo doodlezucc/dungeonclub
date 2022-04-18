@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/dice_parser.dart';
@@ -10,6 +11,8 @@ import 'roll_dice.dart';
 import 'session.dart';
 
 RollCombo _command;
+final List<String> _history = [''];
+int _historyIndex = 0;
 final HtmlElement _messages = querySelector('#messages');
 final ButtonElement _sendButton = querySelector('#chatSend')
   ..onClick.listen((_) {
@@ -21,12 +24,44 @@ final ButtonElement _rollButton = querySelector('#chatRoll')
   });
 final TextAreaElement _chat = querySelector('#chat textarea')
   ..onKeyDown.listen((ev) {
-    if (ev.keyCode == 13) {
-      _submitChat(roll: _command != null);
-      ev.preventDefault();
+    switch (ev.keyCode) {
+      // Enter
+      case 13:
+        _submitChat(roll: _command != null);
+        return ev.preventDefault();
+      // Arrow Up
+      case 38:
+        _navigateHistory(-1);
+        return ev.preventDefault();
+      // Arrow Down
+      case 40:
+        _navigateHistory(1);
+        return ev.preventDefault();
+      default:
     }
   })
   ..onInput.listen((_) => _updateSendButton());
+
+void _navigateHistory(int step) {
+  var lastIndex = _history.length - 1;
+  if (_historyIndex == lastIndex) {
+    _history[lastIndex] = _chat.value;
+  }
+  _historyIndex = min(max(_historyIndex + step, 0), _history.length - 1);
+  _chat.value = _history[_historyIndex];
+  _updateSendButton();
+}
+
+void _cleanupHistory() {
+  var unique = <String>{};
+  for (var i = _history.length - 1; i >= 0; i--) {
+    var msg = _history[i];
+
+    if (!unique.add(msg)) {
+      _history.removeAt(i);
+    }
+  }
+}
 
 void _updateSendButton() {
   var msg = _chat.value.trim();
@@ -56,8 +91,16 @@ void _submitChat({bool roll = false}) {
       socket.sendAction(GAME_CHAT, {'msg': msg, 'pc': pc});
     }
 
+    if (_historyIndex < _history.length - 1) {
+      _history.removeLast();
+    }
+
+    _history.add(msg);
+    _history.add('');
+    _cleanupHistory();
     _chat.value = '';
-    _updateSendButton();
+    _historyIndex = _history.length - 1;
+    _navigateHistory(0);
   }
 }
 
