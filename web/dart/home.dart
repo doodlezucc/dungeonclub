@@ -61,6 +61,7 @@ Future<bool> _initLogInTab() async {
   HtmlElement loginError = querySelector('#loginError');
   AnchorElement resetPassword = querySelector('#resetPassword');
   CheckboxInputElement rememberMe = querySelector('#rememberMe input');
+  rememberMe.checked = window.localStorage['rememberMe'] == 'true';
 
   resetPassword.onClick.listen((_) => resetPanel.display());
 
@@ -68,7 +69,10 @@ Future<bool> _initLogInTab() async {
     loginButton.disabled = true;
     loginError.text = null;
 
-    if (!rememberMe.checked) window.localStorage.remove('token');
+    var doRemember = rememberMe.checked;
+    if (!doRemember) window.localStorage.remove('token');
+
+    window.localStorage['rememberMe'] = '$doRemember';
 
     var loggedIn = await user.login(
       loginEmail.value,
