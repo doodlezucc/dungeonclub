@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
 
@@ -11,7 +12,7 @@ import 'roll_dice.dart';
 import 'session.dart';
 
 RollCombo _command;
-final List<String> _history = [''];
+List<String> _history;
 int _historyIndex = 0;
 final HtmlElement _messages = querySelector('#messages');
 final ButtonElement _sendButton = querySelector('#chatSend')
@@ -61,6 +62,10 @@ void _cleanupHistory() {
       _history.removeAt(i);
     }
   }
+
+  _chat.value = '';
+  _historyIndex = _history.length - 1;
+  _navigateHistory(0);
 }
 
 void _updateSendButton() {
@@ -98,9 +103,7 @@ void _submitChat({bool roll = false}) {
     _history.add(msg);
     _history.add('');
     _cleanupHistory();
-    _chat.value = '';
-    _historyIndex = _history.length - 1;
-    _navigateHistory(0);
+    _saveHistory();
   }
 }
 
@@ -116,9 +119,18 @@ void onChat(Map<String, dynamic> params) {
   _performChat(id, msg);
 }
 
+void _saveHistory() {
+  window.localStorage['chat'] =
+      jsonEncode(_history.sublist(0, _history.length - 1));
+}
+
 void initGameLog() {
   _chat.classes.add('ready');
   _sendButton.classes.add('ready');
+
+  var jsonList = jsonDecode(window.localStorage['chat'] ?? '[]');
+  _history = List<String>.from([...jsonList, '']);
+  _cleanupHistory();
 }
 
 SpanElement gameLog(String s, {bool mine = false, bool mild = false}) {
