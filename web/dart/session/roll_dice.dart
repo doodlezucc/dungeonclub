@@ -102,14 +102,14 @@ void onDiceRoll(RollCombo combo, {int initiator}) {
       ? 'You'
       : (initiator == null ? 'GM' : user.session.characters[initiator].name);
 
-  var resultString = _comboResultString(combo);
-
   var allResults = combo.rolls.expand((r) => r.resultsSigned);
 
   var sum = allResults.fold(0, (x, roll) => x + roll) + combo.modifier;
-  var sumString = allResults.length == 1 ? '.</span>' : '</span><br>= $sum.';
+  var showSum = allResults.length > 1 || combo.hasMod;
+  var sumString = !showSum ? '.</span>' : '</span><br>= $sum.';
 
   var comboString = _comboToHtml(combo);
+  var resultString = _comboResultString(combo);
 
   gameLog('''
     $name rolled $comboString
