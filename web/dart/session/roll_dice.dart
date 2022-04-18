@@ -165,7 +165,7 @@ Iterable<String> _rollStrings(SingleRoll roll) {
 }
 
 String _resultString(int sides, int result) {
-  var className = result == 1 ? ' bad' : (result == sides ? ' good' : '');
+  var className = result == sides ? ' good' : (result == 1 ? ' bad' : '');
   return _rollWrap(result, className);
 }
 

@@ -652,6 +652,7 @@ header {
     background-color: var(--color-header);
     position: sticky;
     z-index: 101;
+    user-select: none;
 
     > span > * {
         opacity: 1;

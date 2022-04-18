@@ -49,11 +49,11 @@ class SingleRoll {
   static SingleRoll parse(String s) {
     var dIndex = s.indexOf('d');
     var pre = s.substring(0, dIndex);
-    var repeat = int.tryParse(pre) ?? 1;
+    var repeat = pre == '-' ? -1 : (int.tryParse(pre) ?? 1);
     var suf = s.substring(dIndex + 1);
     var sides = int.tryParse(suf);
 
-    if (sides != null && sides > 0) {
+    if (sides != null && sides > 0 && repeat <= 1000 && sides <= 1000000) {
       return SingleRoll(repeat, sides);
     }
 

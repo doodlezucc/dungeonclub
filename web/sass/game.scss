@@ -602,7 +602,6 @@
     z-index: 2;
 
     &, > * {
-        user-select: none;
         display: flex;
         flex-direction: column;
     }
@@ -641,6 +640,7 @@
         @extend %with-tooltip;
         cursor: pointer;
         display: block;
+        user-select: none;
         
         &:hover { background-color: var(--color-button-hover); }
 
@@ -1100,6 +1100,7 @@ $ping-radius: 100px;
 #ambience {
     position: relative;
     z-index: 1;
+    user-select: none;
 
     > button {
         position: relative;
