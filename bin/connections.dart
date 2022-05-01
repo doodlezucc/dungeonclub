@@ -80,6 +80,8 @@ class Connection extends Socket {
     }
   }
 
+  bool get connectionClosed => ws.closeCode != null;
+
   @override
   Stream get messageStream => broadcastStream;
 
@@ -247,6 +249,11 @@ class Connection extends Socket {
 
             id = await game.dm.request(a.GAME_JOIN_REQUEST, {'name': name});
             if (id == null) return "You're not allowed to enter!";
+
+            if (connectionClosed) {
+              return game.dm.sendAction(a.GAME_CONNECTION, {'cancelled': true});
+            }
+
             game.assignPC(id, this);
           } else {
             game = await meta.open();

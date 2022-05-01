@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
@@ -30,6 +31,8 @@ class Session extends Game {
       ? 'http://localhost:8080/index.html?game=$id'
       : window.location.href;
   ConstantDialog _dmDisconnectedDialog;
+  final _connectionCtrl = StreamController<bool>.broadcast();
+  Stream<bool> get connectionEvent => _connectionCtrl.stream;
 
   bool get isDemo => this is DemoSession;
 
@@ -93,6 +96,8 @@ class Session extends Game {
     bool join = params['join'];
     int id = params['pc'];
 
+    if (join == null) return _connectionCtrl.add(true);
+
     if (id >= 0) {
       var pc = characters[id];
       var name = pc?.name;
@@ -104,6 +109,7 @@ class Session extends Game {
         gameLog('$name left the game.');
         removeMeasuring(id);
       }
+      _connectionCtrl.add(join);
     } else {
       if (!join) {
         _dmDisconnectedDialog = ConstantDialog('Your GM Disconnected')

@@ -53,6 +53,8 @@ class Account {
           .display();
     }
     if (available.length == 1) {
+      // Prevent adding multiple events to _joinStream simultaneously
+      await Future.microtask(() => null);
       _lockJoin--;
       _joinStream.add(true);
       return available.first.id;
@@ -72,7 +74,6 @@ class Account {
         ..append(ImageElement(src: ch.img))
         ..append(SpanElement()..text = ch.name)
         ..onClick.listen((e) {
-          ch.hasJoined = true;
           completer.complete(i);
         }));
     }
@@ -84,8 +85,10 @@ class Account {
     overlayVisible = false;
     parent.classes.remove('show');
 
-    _lockJoin--;
-    _joinStream.add(true);
+    unawaited(user.session.connectionEvent.firstWhere((join) => join).then((_) {
+      _lockJoin--;
+      _joinStream.add(true);
+    }));
     return result;
   }
 }
