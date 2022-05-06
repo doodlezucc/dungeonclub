@@ -102,7 +102,7 @@ class Connection extends Socket {
         }
 
         _account = Account(email, params['password']);
-        var code = randomAlphaNumeric(5);
+        var code = generateCode();
         activationCodes[this] = code;
         return await sendVerifyCreationMail(email, code)
             ? true
@@ -139,7 +139,7 @@ class Connection extends Socket {
           return 'No account connected to this email address found!';
         }
 
-        var code = randomAlphaNumeric(5);
+        var code = generateCode();
         resets[this] = PasswordReset(email, password, code);
         return await sendResetPasswordMail(email, code);
 
@@ -631,6 +631,23 @@ class Connection extends Socket {
       case 'manualSave':
         return data.manualSave();
     }
+  }
+
+  static String generateCode() {
+    var len = 5;
+    var alphaLen = randomBetween(0, len);
+    var alpha = randomString(
+      alphaLen,
+      from: upperAlphaStart,
+      to: upperAlphaEnd,
+    ).replaceAll(RegExp(r'O|I|S'), '');
+
+    var numeric = randomString(
+      len - alpha.length,
+      from: numericStart + 1,
+      to: numericEnd,
+    );
+    return randomMerge(alpha, numeric);
   }
 
   Future _uploadGameAvatars(Iterable jChars, [String gameId]) {
