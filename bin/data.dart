@@ -305,9 +305,14 @@ class Game {
       orElse: () => null,
     );
 
+    var pcId = _characters.indexOf(pc);
+    var logId = pcId < 0 ? '-' : String.fromCharCode(lowerAlphaStart + pcId);
+    var logMsg = '${meta.id} ($logId) ';
+    print(logMsg + (join ? 'joined' : 'left'));
+
     notify(a.GAME_CONNECTION, {
       'join': join,
-      'pc': _characters.indexOf(pc),
+      'pc': pcId,
     });
 
     if (!join) {
@@ -319,6 +324,7 @@ class Game {
       }
     } else {
       _connections.add(connection);
+      connection.logPrefix = logMsg;
     }
   }
 

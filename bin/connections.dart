@@ -44,6 +44,7 @@ class Connection extends Socket {
   final Stream broadcastStream;
   Timer _pingTimer;
   Game _game;
+  String logPrefix = '';
 
   Scene scene;
 
@@ -54,7 +55,7 @@ class Connection extends Socket {
     listen(
       onDone: () {
         print('Lost connection (${ws.closeCode})');
-        if (ws.closeCode != 1001) {
+        if (ws.closeCode != 1001 && (ws.closeReason?.isNotEmpty ?? false)) {
           print(ws.closeReason);
         }
         activationCodes.remove(this);
@@ -89,11 +90,11 @@ class Connection extends Socket {
   Future<void> send(data) async => ws.sink.add(data);
 
   @override
+  String modifyLog(String message) => '$logPrefix$message';
+
+  @override
   Future handleAction(String action, [Map<String, dynamic> params]) async {
     switch (action) {
-      case 'manualSave': // don't know about the safety of this one, chief
-        return data.manualSave();
-
       case a.ACCOUNT_REGISTER:
         var email = params['email'];
         if (data.getAccount(email) != null) {
@@ -626,6 +627,9 @@ class Connection extends Socket {
         if (_game == null) return;
         _game.ambience.ambienceFromJson(params);
         continue notify;
+
+      case 'manualSave':
+        return data.manualSave();
     }
   }
 

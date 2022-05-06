@@ -14,6 +14,8 @@ abstract class Socket {
   Future<void> send(dynamic data);
   Future handleAction(String action, [Map<String, dynamic> params]);
 
+  String modifyLog(String message) => message;
+
   StreamSubscription listen({void Function() onDone, Function onError}) =>
       messageStream.listen((data) async {
         if (data is String) {
@@ -22,7 +24,7 @@ abstract class Socket {
               s.length <= msgPrintLength ? s : s.substring(0, msgPrintLength);
 
           if (!confidentialRegex.hasMatch(short)) {
-            print(short);
+            print(modifyLog(short));
           }
 
           if (s[0] == '{') {
