@@ -249,7 +249,7 @@ class MapTab {
     };
 
     _e.onMouseWheel.listen((ev) {
-      if (visible && editMode) {
+      if (visible && editMode && map?.whiteboard?.selectedText == null) {
         transform.handleMousewheel(ev);
       }
     });
@@ -540,7 +540,7 @@ class GameMap {
     _minimapContainer.insertBefore(_minimap, _imgButton);
     this.name = name;
 
-    whiteboard = Whiteboard(_container, textControlsWrapMin: 80)
+    whiteboard = Whiteboard(_container, textControlsWrapMin: 150)
       ..backgroundImageElement.crossOrigin = 'anonymous'
       ..socket.sendStream.listen((data) {
         updateMiniImage();
