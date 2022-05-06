@@ -581,7 +581,7 @@ class GameMap {
   }
 
   Future<void> updateMiniImage() async {
-    var divide = 4;
+    var divide = whiteboard.naturalWidth / 300;
     var canvas = CanvasElement(
       width: whiteboard.naturalWidth ~/ divide,
       height: whiteboard.naturalHeight ~/ divide,
