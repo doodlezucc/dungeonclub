@@ -331,7 +331,7 @@ class Game {
   void playScene(int id) {
     playingSceneId = id;
     var scene = playingScene;
-    for (var c in connections) {
+    for (var c in _connections) {
       c.scene = scene;
     }
   }
@@ -442,7 +442,7 @@ class Game {
     var mapIndex = bytes[0];
     var map = _maps.firstWhere((m) => m.id == mapIndex);
     if (map.dataSocket.handleEvent(bytes.sublist(1))) {
-      for (var conni in connections) {
+      for (var conni in _connections) {
         if (conni != sender) {
           conni.send(bytes);
         }
