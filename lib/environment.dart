@@ -8,7 +8,10 @@ class Environment {
       bool.fromEnvironment(ENV_ENABLE_MUSIC, defaultValue: true);
 
   static const ENV_TIMESTAMP = 'timestamp';
-  static const buildTimestamp = int.fromEnvironment(ENV_TIMESTAMP);
+  static const buildTimestamp =
+      int.fromEnvironment(ENV_TIMESTAMP, defaultValue: -1);
+
+  static const isCompiled = buildTimestamp >= 0;
 
   static const allKeys = [
     ENV_MOCK_ACCOUNT,
