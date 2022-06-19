@@ -29,7 +29,7 @@ class ServerData {
   final gameMeta = <GameMeta>[];
   final Random rng = Random();
 
-  void init() async {
+  Future<void> init() async {
     await load();
     await histogram.load();
     histogram.startTracking();
@@ -206,6 +206,10 @@ class Account {
 
   bool ownsGame(String gameId) {
     return enteredGames.any((g) => g.id == gameId && g.owner == this);
+  }
+
+  void setPassword(String password) {
+    encryptedPassword = Crypt.sha256(password);
   }
 
   Account.fromJson(Map<String, dynamic> json)

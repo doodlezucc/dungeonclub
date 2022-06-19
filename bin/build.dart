@@ -4,11 +4,12 @@ import 'package:args/args.dart';
 import 'package:dnd_interactive/environment.dart';
 import 'package:path/path.dart' as p;
 
-const _COPY_MUSIC = 'copy-music';
+const BUILD_COPY_MUSIC = 'copy-music';
 
 final defaultConfig = {
+  Environment.ENV_MOCK_ACCOUNT: true,
   Environment.ENV_ENABLE_MUSIC: false,
-  _COPY_MUSIC: false,
+  BUILD_COPY_MUSIC: false,
   Environment.ENV_TIMESTAMP: DateTime.now().millisecondsSinceEpoch,
 };
 
@@ -38,21 +39,17 @@ ArgParser makeParser() {
   var parser = ArgParser(usageLineLength: 120)
     ..addFlag('help', abbr: 'h', negatable: false, hide: true);
 
-  void addFlag(
-    String key,
-    String description, {
-    bool negatable = true,
-  }) {
-    var def = defaultConfig[key];
-    var defString = def.toString();
-
-    if (def is bool) defString = def ? 'on' : 'off';
-
+  void addFlag(String key, String description, [bool negatable = true]) {
     parser.addFlag(key,
-        defaultsTo: def,
+        defaultsTo: defaultConfig[key],
         negatable: negatable,
-        help: '$description\n(defaults to $defString)');
+        help: description);
   }
+
+  addFlag(
+      Environment.ENV_MOCK_ACCOUNT,
+      'Whether to accept contents of "login.yaml" as a list of '
+      'registered accounts.');
 
   addFlag(
       Environment.ENV_ENABLE_MUSIC,
@@ -61,7 +58,7 @@ ArgParser makeParser() {
       'download 500 MB of background music.');
 
   addFlag(
-      _COPY_MUSIC,
+      BUILD_COPY_MUSIC,
       'Whether to include locally downloaded music (ambience/tracks/*.mp3) '
       'in the build.');
 
@@ -93,9 +90,18 @@ Future<void> build(Directory output, [Map<String, dynamic> D]) async {
   }
 
   await copySourceWebFiles(output);
-  await copyAmbience(output, D[_COPY_MUSIC]);
-
+  await copyAmbience(output, D[BUILD_COPY_MUSIC]);
   await copyMail(output);
+
+  if (D[Environment.ENV_MOCK_ACCOUNT]) {
+    var mockFile = File(p.join(output.path, 'login.yaml'));
+    await mockFile.create();
+    await mockFile.writeAsString('''
+# This file is interpreted as a list of registered accounts.
+# Each line may define an account in a format of "username: password".
+admin: admin
+''');
+  }
 
   printStep('Compiling SCSS');
   await compileStyling(output);

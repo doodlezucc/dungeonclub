@@ -61,7 +61,9 @@ void main(List<String> args) async {
     return;
   }
 
-  data.init();
+  unawaited(data.init().then((_) {
+    if (Environment.enableMockAccount) loadMockAccounts();
+  }));
 
   Response _cors(Response response) => response.change(headers: {
         'Access-Control-Allow-Origin': '*',
@@ -125,6 +127,32 @@ void listenToExit() {
       onExit();
     }
   });
+}
+
+Future<void> loadMockAccounts() async {
+  var separator = ': ';
+  var file = File('login.yaml');
+
+  if (await file.exists()) {
+    var lines = await file.readAsLines();
+    for (var line in lines) {
+      if (line.trimLeft().startsWith('#')) continue;
+
+      var index = line.indexOf(separator);
+      if (index > 0) {
+        var name = line.substring(0, index).trim();
+        var password = line.substring(index + 2).trim();
+
+        var acc = data.getAccount(name);
+        if (acc != null) {
+          acc.setPassword(password);
+        } else {
+          data.accounts.add(Account(name, password));
+          print('Registered mock account "$name"');
+        }
+      }
+    }
+  }
 }
 
 String getMimeType(File f) {
