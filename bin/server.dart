@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:dnd_interactive/environment.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:shelf/shelf.dart';
@@ -90,17 +91,20 @@ void main(List<String> args) async {
   listenToExit();
 
   await createAssetPreview('web/images/assets/pc', tileSize: 240, usePng: true);
-  // await resizeAll('web/images/assets/scene');
   await createAssetPreview('web/images/assets/scene', zoomIn: true);
 
-  try {
-    await loadAmbience();
-    print('Ambience audio is up to date!');
-  } on Exception catch (e) {
-    print(e.toString());
-    print('Failed to extract ambience track sources.'
-        ' If you require the integrated audio player,'
-        ' make sure you have youtube-dl and ffmpeg installed.');
+  if (Environment.enableMusic) {
+    try {
+      await loadAmbience();
+      print('Ambience audio is up to date!');
+    } on Exception catch (e) {
+      print(e.toString());
+      print('Failed to extract ambience track sources.'
+          ' If you require the integrated audio player,'
+          ' make sure you have youtube-dl and ffmpeg installed.');
+    }
+  } else {
+    print('Integrated audio player not enabled');
   }
 }
 

@@ -1,38 +1,51 @@
 import 'dart:io';
 
+import 'package:dnd_interactive/environment.dart';
 import 'package:path/path.dart' as p;
 
+final defaultConfig = {
+  Environment.ENV_ENABLE_MUSIC: false,
+  Environment.ENV_TIMESTAMP: DateTime.now().millisecondsSinceEpoch,
+};
+
 void main(List<String> args) async {
-  await build(Directory('build/latest'));
+  var buildConfig = Map.of(defaultConfig);
+
+  await build(Directory('build/latest'), buildConfig);
 }
 
 void printStep(String msg) {
   print('\n\n--- $msg\n');
 }
 
-Future<void> build(
-  Directory output, {
-  bool includeMusicTracks = false,
-  bool includeMailTemplates = true,
-}) async {
+Future<void> build(Directory output, [Map<String, dynamic> D]) async {
+  D ??= defaultConfig;
+  var env = Environment.declareArgs(D);
+
+  print('Building Dungeon Club with configuration');
+  for (var d in D.entries) {
+    print('  ${d.key}: ${d.value}');
+  }
+
   if (await output.exists()) {
     await output.delete(recursive: true);
   }
 
-  // printStep('Copying files');
   await copySourceWebFiles(output);
-  await copyAmbience(output, includeMusicTracks);
+  await copyAmbience(output, D[Environment.ENV_ENABLE_MUSIC]);
 
-  if (includeMailTemplates) await copyMail(output);
+  await copyMail(output);
 
   printStep('Compiling SCSS');
   await compileStyling(output);
 
   printStep('Compiling frontend');
-  await compileFrontend(output);
+  await compileFrontend(output, env);
 
   printStep('Compiling backend');
-  await compileBackend(output);
+  await compileBackend(output, env);
+
+  print('\nBuild successful!');
 }
 
 Future<void> copyAmbience(Directory output, bool includeTracks) {
@@ -51,11 +64,11 @@ Future<void> copyMail(Directory output) {
 }
 
 Future<void> copySourceWebFiles(Directory output) async {
-  var excludeExt = ['.dart', '.scss', '.sh', '.deps', '.map'];
+  var excludeExt = ['.dart', '.sh', '.deps', '.map'];
   await copyDirectory('web', p.join(output.path, 'web'), (fse) {
     if (fse is Directory) {
       var path = p.split(fse.path);
-      return !path.contains('dart') && !path.contains('sass');
+      return !path.contains('dart');
     }
 
     if (fse is File) {
@@ -105,7 +118,7 @@ Future<void> compileStyling(Directory output) async {
   ]));
 }
 
-Future<void> compileFrontend(Directory output) {
+Future<void> compileFrontend(Directory output, List<String> declarations) {
   return cmdAwait(Process.start('dart', [
     'compile',
     'js',
@@ -114,10 +127,11 @@ Future<void> compileFrontend(Directory output) {
     p.join(output.path, 'web', 'main.dart.js'),
     'web/main.dart',
     '-v',
+    ...declarations
   ]));
 }
 
-Future<void> compileBackend(Directory output) {
+Future<void> compileBackend(Directory output, List<String> declarations) {
   var ext = '';
   if (Platform.isWindows) {
     ext = '.exe';
@@ -130,6 +144,7 @@ Future<void> compileBackend(Directory output) {
     '-o',
     p.join(output.path, 'server$ext'),
     '-v',
+    ...declarations
   ]));
 }
 
