@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "dnd_interactive",
+            "name": "Start Server",
             "request": "launch",
             "type": "dart",
             "program": "bin/server.dart",
