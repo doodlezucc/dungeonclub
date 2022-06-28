@@ -6,10 +6,16 @@ import 'package:path/path.dart' as p;
 
 const BUILD_COPY_MUSIC = 'copy-music';
 
+const BUILD_PART = 'part';
+const BUILD_PART_SERVER = 'server';
+const BUILD_PART_ALL = 'all';
+const BUILD_PARTS = [BUILD_PART_SERVER, BUILD_PART_ALL];
+
 final defaultConfig = {
   Environment.ENV_MOCK_ACCOUNT: true,
   Environment.ENV_ENABLE_MUSIC: false,
   BUILD_COPY_MUSIC: false,
+  BUILD_PART: BUILD_PART_ALL,
   Environment.ENV_TIMESTAMP: DateTime.now().millisecondsSinceEpoch,
 };
 
@@ -62,6 +68,11 @@ ArgParser makeParser() {
       'Whether to include locally downloaded music (ambience/tracks/*.mp3) '
       'in the build.');
 
+  parser.addOption(BUILD_PART,
+      help: 'Which parts to compile and include in the build.',
+      allowed: BUILD_PARTS,
+      defaultsTo: BUILD_PART_ALL);
+
   return parser;
 }
 
@@ -89,25 +100,29 @@ Future<void> build(Directory output, [Map<String, dynamic> D]) async {
     await output.delete(recursive: true);
   }
 
-  await copySourceWebFiles(output);
-  await copyAmbience(output, D[BUILD_COPY_MUSIC]);
-  await copyMail(output);
+  await output.create(recursive: true);
 
-  if (D[Environment.ENV_MOCK_ACCOUNT]) {
-    var mockFile = File(p.join(output.path, 'login.yaml'));
-    await mockFile.create();
-    await mockFile.writeAsString('''
+  if (D[BUILD_PART] == BUILD_PART_ALL) {
+    await copySourceWebFiles(output);
+    await copyAmbience(output, D[BUILD_COPY_MUSIC]);
+    await copyMail(output);
+
+    if (D[Environment.ENV_MOCK_ACCOUNT]) {
+      var mockFile = File(p.join(output.path, 'login.yaml'));
+      await mockFile.create();
+      await mockFile.writeAsString('''
 # This file is interpreted as a list of registered accounts.
 # Each line may define an account in a format of "username: password".
 admin: admin
 ''');
+    }
+
+    printStep('Compiling SCSS');
+    await compileStyling(output);
+
+    printStep('Compiling frontend');
+    await compileFrontend(output, env);
   }
-
-  printStep('Compiling SCSS');
-  await compileStyling(output);
-
-  printStep('Compiling frontend');
-  await compileFrontend(output, env);
 
   printStep('Compiling backend');
   await compileBackend(output, env);

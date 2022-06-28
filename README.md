@@ -101,3 +101,4 @@ Additional arguments can be provided when compiling Dungeon Club into native mac
 Option | Definition | Default
 ------ | ---------- | -------
 `--[no-]copy-music` | Whether to include locally downloaded music (ambience/tracks/*.mp3) in the build. | `false`
+`--part` | Which parts to compile and include in the build. Can be `server` or `all`. | `all`

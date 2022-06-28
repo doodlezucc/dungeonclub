@@ -8,12 +8,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - runs-on: ubuntu-latest
-            binary-name: linux_amd64
-          # - runs-on: macos-latest
-          #   binary-name: macos_amd64
-          # - runs-on: windows-latest
-          #   binary-name: windows.exe
+          - runs-on: macos-latest
+            artifact: macos
+            binary-name: server
+          - runs-on: windows-latest
+            artifact: windows
+            binary-name: server.exe
     runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v2
@@ -22,7 +22,64 @@ jobs:
       - name: Install dependencies
         run: dart pub get
 
-      - run: mkdir ${{ matrix.runs-on }}
-
       - name: Compile backend
-        run: dart compile exe bin/server.dart -o ${{ matrix.runs-on }}/dungeonclub-${{ matrix.binary-name }}
+        run: dart bin/build.dart --part server
+
+      - name: Upload as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: server_${{ matrix.artifact }}
+          path: build/latest/${{ matrix.binary-name }}
+
+  build-base:
+    name: Build All (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: dart-lang/setup-dart@v1.3
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Compile Dungeon Club
+        run: dart bin/build.dart
+
+      - name: Upload as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: all_linux
+          path: build/latest
+
+  bundle:
+    name: Bundle
+    needs: [build-backend, build-base]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Linux build
+        uses: actions/download-artifact@v3
+        with:
+          name: all_linux
+
+      - run: rm server
+      - name: Download Windows server
+        uses: actions/download-artifact@v3
+        with:
+          name: server_windows
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v3
+        with:
+          name: all_windows
+          path: .
+
+      - run: rm server.exe
+      - name: Download MacOS server
+        uses: actions/download-artifact@v3
+        with:
+          name: server_macos
+
+      - name: Upload MacOS build
+        uses: actions/upload-artifact@v3
+        with:
+          name: all_macos
+          path: .
