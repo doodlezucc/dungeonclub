@@ -1,0 +1,28 @@
+name: Build
+
+on: [workflow_dispatch, push]
+
+jobs:
+  build-backend:
+    name: Build Backend
+    strategy:
+      matrix:
+        include:
+          - runs-on: ubuntu-latest
+            binary-name: linux_amd64
+          # - runs-on: macos-latest
+          #   binary-name: macos_amd64
+          # - runs-on: windows-latest
+          #   binary-name: windows.exe
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: dart-lang/setup-dart@v1.3
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - run: mkdir ${{ matrix.runs-on }}
+
+      - name: Compile backend
+        run: dart compile exe bin/server.dart -o ${{ matrix.runs-on }}/dungeonclub-${{ matrix.binary-name }}
