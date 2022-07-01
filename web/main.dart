@@ -30,9 +30,9 @@ void main() async {
   querySelector('#signup').onClick.listen((_) {
     registerPanel.display();
   });
-  querySelector('#feedback').onClick.listen((_) {
-    feedback.display();
-  });
+  querySelector('#feedback').onClick.listen((_) => !Environment.isCompiled
+      ? feedback.display()
+      : querySelector('#discordLink').click());
 
   querySelector('button#save').onClick.listen((_) {
     socket.send('{"action":"manualSave"}');
