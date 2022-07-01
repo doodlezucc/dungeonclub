@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:dnd_interactive/environment.dart';
 import 'package:path/path.dart';
 
 import 'dart/communication.dart';
 import 'dart/home.dart' as home;
 import 'dart/panels/code_panel.dart';
-import 'dart/panels/edit_game.dart' as edit_game;
 import 'dart/panels/join_session.dart' as join_session;
 import 'dart/panels/feedback.dart' as feedback;
 import 'dart/session/demo.dart';
@@ -22,6 +22,7 @@ String get homeUrl => _homeUrl;
 
 void main() async {
   _listenToCssReload();
+  applyEnvironmentStyling();
 
   print('Ready!');
 
@@ -44,21 +45,10 @@ void main() async {
   _homeUrl = dirname(window.location.href);
   await home.init();
   processUrlPath();
-
-  //await testFlow();
 }
 
-Future<void> testFlow() async {
-  var edit = false;
-
-  await Future.delayed(Duration(milliseconds: 200));
-  if (!user.registered) return print('No login token provided');
-
-  if (edit) {
-    await edit_game.display(user.account.games.first);
-  } else {
-    await user.joinSession(user.account.games.last.id);
-  }
+void applyEnvironmentStyling() {
+  document.body.classes.toggle('no-music', !Environment.enableMusic);
 }
 
 void processUrlPath() {

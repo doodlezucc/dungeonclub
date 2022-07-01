@@ -1120,7 +1120,7 @@ $ping-radius: 100px;
 
     &:not(:hover) {
         .shrink {
-            max-height: 0;
+            max-height: 0 !important;
             padding: 0 !important;
             transition: max-height 0.3s, padding 0.1s 0.2s;
             overflow: hidden;
@@ -1217,4 +1217,22 @@ $ping-radius: 100px;
     grid-template-columns: auto auto;
     gap: 2px;
     padding: 8px 0;
+}
+
+.no-music {
+    #playlists, #playerMusicSlider {
+        display: none !important;
+    }
+    
+    #ambience:hover, #ambience.keep-open {
+        > .content {
+            max-height: 140px;
+        }
+
+        #pinPlayer { opacity: 1; }
+    }
+
+    #ambience .shrink {
+        max-height: 140px;
+    }
 }
