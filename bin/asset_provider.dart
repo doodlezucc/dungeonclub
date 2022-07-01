@@ -74,10 +74,6 @@ Future<void> createAssetPreview(
     img = image.copyInto(img, srcImg, dstY: tileSize * i);
   }
 
-  // print('png   ${image.encodePng(img).length ~/ 1000}');
-  // print('jpg90 ${image.encodeJpg(img, quality: 90).length ~/ 1000}');
-  // print('jpg95 ${image.encodeJpg(img, quality: 95).length ~/ 1000}');
-
   var bytes = usePng ? image.encodePng(img) : image.encodeJpg(img, quality: 90);
 
   await file.writeAsBytes(bytes);
@@ -94,5 +90,13 @@ Future<File> getAssetFile(String assetPath) async {
   }
 
   var assetIndex = int.parse(p.basename(assetPath));
+
+  // Only a single battle map asset is included in the repo.
+  // In the demo, asset 15 gets requested by default, which throws an error.
+  // As a workaround, respond with the first map if (and only if)
+  // it's the only available one.
+  if (assetIndex == 15 && _dirAssets[dir].length == 1) {
+    assetIndex = 0;
+  }
   return _dirAssets[dir][assetIndex];
 }
