@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:dnd_interactive/environment.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 
 import 'dart/communication.dart';
@@ -49,6 +50,12 @@ void main() async {
 
 void applyEnvironmentStyling() {
   document.body.classes.toggle('no-music', !Environment.enableMusic);
+  if (Environment.isCompiled) {
+    querySelector('#privacy').remove();
+    var time = DateTime.fromMillisecondsSinceEpoch(Environment.buildTimestamp);
+    var buildTime = DateFormat('y-MM-dd').format(time);
+    querySelector('#hostInfo').innerHtml = 'Self-Hosted (Build $buildTime)';
+  }
 }
 
 void processUrlPath() {

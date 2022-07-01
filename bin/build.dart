@@ -118,7 +118,9 @@ Future<void> copySourceWebFiles(Directory output) async {
     }
 
     if (fse is File) {
-      return !excludeExt.contains(p.extension(fse.path));
+      var ext = p.extension(fse.path);
+      var name = p.basename(fse.path);
+      return !excludeExt.contains(ext) && name != 'privacy.html';
     }
 
     return true;
