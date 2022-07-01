@@ -1,8 +1,9 @@
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:dnd_interactive/environment.dart';
 import 'package:path/path.dart' as p;
+
+import 'entry_parser.dart';
 
 const BUILD_COPY_MUSIC = 'copy-music';
 
@@ -14,9 +15,9 @@ const BUILD_PARTS = [BUILD_PART_SERVER, BUILD_PART_ALL];
 final defaultConfig = {
   Environment.ENV_MOCK_ACCOUNT: true,
   Environment.ENV_ENABLE_MUSIC: false,
+  Environment.ENV_TIMESTAMP: DateTime.now().millisecondsSinceEpoch,
   BUILD_COPY_MUSIC: false,
   BUILD_PART: BUILD_PART_ALL,
-  Environment.ENV_TIMESTAMP: DateTime.now().millisecondsSinceEpoch,
 };
 
 void main(List<String> args) async {
@@ -24,70 +25,33 @@ void main(List<String> args) async {
 }
 
 Future<void> buildWithArgs(Directory output, List<String> args) async {
-  var buildConfig = Map.of(defaultConfig);
-  var parser = makeParser();
-
-  try {
-    var results = parser.parse(args);
-    if (results.wasParsed('help')) return printHelp(parser);
-
-    buildConfig
-        .addEntries(results.options.map((key) => MapEntry(key, results[key])));
-
-    await build(output, buildConfig);
-  } on ArgParserException catch (e) {
-    print('Error: ${e.message}\n');
-    printHelp(parser);
-  }
-}
-
-ArgParser makeParser() {
-  var parser = ArgParser(usageLineLength: 120)
-    ..addFlag('help', abbr: 'h', negatable: false, hide: true);
-
-  void addFlag(String key, String description, [bool negatable = true]) {
-    parser.addFlag(key,
-        defaultsTo: defaultConfig[key],
-        negatable: negatable,
-        help: description);
-  }
-
-  addFlag(
-      Environment.ENV_MOCK_ACCOUNT,
-      'Whether to accept contents of "login.yaml" as a list of '
-      'registered accounts.');
-
-  addFlag(
-      Environment.ENV_ENABLE_MUSIC,
-      'Whether to enable the integrated audio player. '
-      'Server hosts may need to install youtube-dl and ffmpeg to '
-      'download 500 MB of background music.');
-
-  addFlag(
-      BUILD_COPY_MUSIC,
-      'Whether to include locally downloaded music (ambience/tracks/*.mp3) '
-      'in the build.');
-
-  parser.addOption(BUILD_PART,
-      help: 'Which parts to compile and include in the build.',
-      allowed: BUILD_PARTS,
-      defaultsTo: BUILD_PART_ALL);
-
-  return parser;
+  var parser = EntryParser(
+    defaultConfig,
+    prepend: (parser, addFlag) {
+      parser.addOption(BUILD_PART,
+          help: 'Which parts to compile and include in the build.',
+          allowed: BUILD_PARTS,
+          defaultsTo: BUILD_PART_ALL);
+    },
+    append: (parser, addFlag) {
+      addFlag(
+          BUILD_COPY_MUSIC,
+          'Whether to include locally downloaded music (ambience/tracks/*.mp3) '
+          'in the build.');
+    },
+  );
+  var config = parser.tryArgParse(args);
+  await build(output, config);
 }
 
 void printStep(String msg) {
   print('\n\n--- $msg\n');
 }
 
-void printHelp(ArgParser parser) {
-  print('Valid arguments:\n${parser.usage}');
-}
-
 Future<void> build(Directory output, [Map<String, dynamic> D]) async {
   D ??= defaultConfig;
   var hide = ['help', Environment.ENV_TIMESTAMP];
-  var env = Environment.declareArgs(D);
+  var env = declareArgs(D);
 
   print('Building Dungeon Club with configuration');
   for (var d in D.entries) {

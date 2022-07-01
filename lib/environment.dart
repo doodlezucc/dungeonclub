@@ -1,11 +1,16 @@
 class Environment {
+  static Map<String, dynamic> get defaultConfigServe => {
+        ENV_MOCK_ACCOUNT: enableMockAccount,
+        ENV_ENABLE_MUSIC: enableMusic,
+      };
+
   static const ENV_MOCK_ACCOUNT = 'mock-account';
-  static const enableMockAccount =
-      bool.fromEnvironment(ENV_MOCK_ACCOUNT, defaultValue: false);
+  static var enableMockAccount =
+      const bool.fromEnvironment(ENV_MOCK_ACCOUNT, defaultValue: false);
 
   static const ENV_ENABLE_MUSIC = 'music';
-  static const enableMusic =
-      bool.fromEnvironment(ENV_ENABLE_MUSIC, defaultValue: true);
+  static var enableMusic =
+      const bool.fromEnvironment(ENV_ENABLE_MUSIC, defaultValue: true);
 
   static const ENV_TIMESTAMP = 'timestamp';
   static const buildTimestamp =
@@ -19,10 +24,8 @@ class Environment {
     ENV_TIMESTAMP,
   ];
 
-  static List<String> declareArgs(Map<String, dynamic> declarations) {
-    return declarations.entries
-        .where((d) => allKeys.contains(d.key))
-        .map((d) => '-D${d.key}=${d.value}')
-        .toList();
+  static void applyConfig(Map<String, dynamic> config) {
+    enableMockAccount = config[ENV_MOCK_ACCOUNT] ?? enableMockAccount;
+    enableMusic = config[ENV_ENABLE_MUSIC] ?? enableMusic;
   }
 }

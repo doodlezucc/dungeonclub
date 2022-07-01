@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:dnd_interactive/environment.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
@@ -9,6 +8,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_web_socket/shelf_web_socket.dart' as ws;
 
+import 'entry_parser.dart';
 import 'asset_provider.dart';
 import 'audio.dart';
 import 'autosave.dart';
@@ -33,19 +33,19 @@ final accountMaintainer = AccountMaintainer('account');
 final httpClient = http.Client();
 const wsPing = Duration(seconds: 15);
 
-void main(List<String> args) async {
-  var parser = ArgParser()
-    ..addCommand('mail')
-    ..addOption('port', abbr: 'p');
-  var result = parser.parse(args);
+const SERVE_PORT = 'port';
 
-  var setupMail = result.command?.name == 'mail' ?? false;
+void main(List<String> args) async {
+  var D = serverParser.tryArgParse(args);
+  Environment.applyConfig(D);
+
+  var setupMail = args.contains('mail');
   if (setupMail) {
     return await setupMailAuth();
   }
 
   // For Google Cloud Run, we respect the PORT environment variable
-  var portStr = result['port'] ?? Platform.environment['PORT'] ?? '7070';
+  var portStr = D[SERVE_PORT] ?? Platform.environment['PORT'] ?? '7070';
   var port = int.tryParse(portStr);
 
   if (port == null) {
@@ -109,6 +109,16 @@ void main(List<String> args) async {
     print('Integrated audio player not enabled');
   }
 }
+
+final serverParser =
+    EntryParser(Environment.defaultConfigServe, prepend: (argParser, addFlag) {
+  argParser.addCommand('mail');
+  argParser.addOption(
+    SERVE_PORT,
+    abbr: 'p',
+    help: 'Specifies the server port.\n(defaults to 7070)',
+  );
+});
 
 void onExit() async {
   try {
