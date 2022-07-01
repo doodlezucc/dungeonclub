@@ -44,22 +44,16 @@ void main(List<String> args) async {
     return await setupMailAuth();
   }
 
-  // For Google Cloud Run, we respect the PORT environment variable
-  var portStr = D[SERVE_PORT] ?? Platform.environment['PORT'] ?? '7070';
-  var port = int.tryParse(portStr);
-
-  if (port == null) {
-    stdout.writeln('Could not parse port value "$portStr" into a number.');
-    // 64: command line usage error
-    exitCode = 64;
-    return;
-  }
-
   if (await maintainer.file.exists()) {
     print('Server restart blocked by maintenance file!');
     await Future.delayed(Duration(seconds: 5));
     return;
   }
+
+  print('Starting server...');
+
+  var portStr = D[SERVE_PORT] ?? Platform.environment['PORT'] ?? '7070';
+  var port = int.parse(portStr);
 
   unawaited(data.init().then((_) {
     if (Environment.enableMockAccount) loadMockAccounts();
@@ -84,7 +78,6 @@ void main(List<String> args) async {
   }
 
   _address = _address?.trim() ?? 'http://${server.address.host}:${server.port}';
-  print('Serving at $address');
 
   await initializeMailServer();
   autoSaver.init();
@@ -98,16 +91,18 @@ void main(List<String> args) async {
   if (Environment.enableMusic) {
     try {
       await loadAmbience();
-      print('Ambience audio is up to date!');
+      print('Background music up to date');
     } on Exception catch (e) {
       print(e.toString());
-      print('Failed to extract ambience track sources.'
-          ' If you require the integrated audio player,'
+      print('Failed to extract background music sources.'
+          ' If you require the integrated music player,'
           ' make sure you have youtube-dl and ffmpeg installed.');
     }
   } else {
-    print('Integrated audio player not enabled');
+    print('Music player not enabled');
   }
+
+  print('Dungeon Club is running at $address\nReady!\n');
 }
 
 final serverParser =

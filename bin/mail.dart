@@ -44,8 +44,8 @@ Future<void> initializeMailServer() async {
         ? path.basename(Platform.executable)
         : 'dart bin/server.dart';
 
-    return stderr.writeln('Missing gmail SMTP credentials at ${credFile.path}!'
-        ' Run "$exe mail" to walk through the activation process.');
+    return print('Mailing system not enabled '
+        '(run "$exe mail" to walk through the activation process)');
   }
 
   await MailCredentials.load();

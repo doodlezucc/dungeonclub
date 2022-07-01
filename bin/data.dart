@@ -74,7 +74,6 @@ class ServerData {
     owners.forEach((game, ownerEmail) {
       game.owner = data.getAccount(ownerEmail, alreadyEncrypted: true);
     });
-    print('Assigned all game owners');
 
     if (updateToDynamicLoading) {
       print('Updated to dynamic game loading system!');
@@ -109,7 +108,6 @@ class ServerData {
     var s = await file.readAsString();
     var json = jsonDecode(s);
     fromJson(json);
-    print('Loaded!');
   }
 
   Future<void> manualSave() async {
