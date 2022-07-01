@@ -3,6 +3,7 @@ import 'dart:html';
 
 import 'package:dnd_interactive/actions.dart';
 import 'package:dnd_interactive/comms.dart';
+import 'package:dnd_interactive/environment.dart';
 import 'package:path/path.dart';
 import 'package:web_whiteboard/communication/web_socket.dart';
 
@@ -15,8 +16,10 @@ import 'session/measuring.dart';
 final socket = FrontSocket();
 
 final bool isOnLocalHost = window.location.hostname == 'localhost';
+String get webPort => window.location.port;
 final String _serverAddress = isOnLocalHost
-    ? 'http://localhost:7070'
+    ? 'http://localhost:' +
+        ((!Environment.isCompiled && webPort == '8080') ? '7070' : webPort)
     : join(window.location.origin, 'dnd');
 
 final Map<String, String> localRedirect = {};
