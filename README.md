@@ -1,4 +1,4 @@
-# Dungeon Club - Virtual Tabletop <img align="right" src="web/images/icon.png" alt="Icon" height=96 />
+ # Dungeon Club - Virtual Tabletop <img align="right" src="web/images/icon.png" alt="Icon" height=96 />
 
 An online platform to gather and play Dungeons & Dragons, Call of Cthulu, Pathfinder and more.
 
@@ -59,7 +59,7 @@ You can find the official public version of Dungeon Club at https://theoreticall
 
 ### Pre-Compiled Releases
 
-Whenever an update rolls out to the public website, a new *release* is added to the repository [Releases](releases) tab. Releases consist of a short changelog followed by a list of pre-compiled builds for multiple platforms and architectures.
+Whenever an update rolls out to the public website, a new *release* is added to the repository [Releases](https://github.com/doodlezucc/dungeonclub/releases) tab. Releases consist of a short changelog followed by a list of pre-compiled builds for multiple platforms and architectures.
 
 After downloading and unzipping your selected build, you will find two relevant files inside:
 - **server.exe** - The executable server. (Depending on your platform, the file extension may differ.)
@@ -74,8 +74,6 @@ Upon a successful login, you're presented with the ability to create and manage 
 
 If you open the server port (`7070` by default) in your network, outside players should be able to interact with your locally hosted website by accessing your IP address.
 
-**Important**: Please note that closing the shell window can lead to losing **unsaved changes** on some platforms. It is recommended to gracefully shutdown the server by pressing <kbd>Control</kbd>+<kbd>C</kbd> inside the terminal.
-
 ### Custom Build
 Apart from the official list of executable releases, you can also build Dungeon Club yourself.
 Follow the one-time setup described in [Development](#development) to install required tools.
@@ -85,7 +83,7 @@ Then, execute the repository-included dedicated build script by running the foll
 dart bin/build.dart [options]
 ```
 
-For a list of possible arguments, run `dart bin/build.dart --help` or take a look at [Building Options](#building-options).
+For a list of possible arguments, run `dart bin/build.dart --help` or refer to the next section.
 
 ## Command Line Arguments
 The following options may be entered as arguments to both the server and the builder file.
