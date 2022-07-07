@@ -1,6 +1,9 @@
 name: Build
 
-on: [workflow_dispatch, push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build-backend:
@@ -87,6 +90,8 @@ jobs:
         with:
           name: server_macos
           path: build_macos
+
+      - run: chmod +x build_macos/server
 
       - name: Compress MacOS build
         run: cd build_macos; zip -r ../dungeonclub-macos.zip *; cd ..
