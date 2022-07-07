@@ -37,6 +37,7 @@ const wsPing = Duration(seconds: 15);
 const SERVE_PORT = 'port';
 
 void main(List<String> args) {
+  resetCurrentWorkingDir();
   var logFile = 'logs/latest.log';
 
   return bootstrap(
@@ -127,6 +128,13 @@ final serverParser =
     help: 'Specifies the server port.\n(defaults to 7070)',
   );
 });
+
+void resetCurrentWorkingDir() {
+  var exe = Platform.script.toFilePath();
+  var root = p.dirname(exe);
+  if (p.extension(exe) == '.dart') root = p.dirname(root);
+  Directory.current = root;
+}
 
 Future<int> onExit() async {
   try {
