@@ -44,42 +44,60 @@ jobs:
       - name: Compile Dungeon Club
         run: dart bin/build.dart
 
+      - name: Compress using tar
+        run: find build/latest -printf "%P\n" | tar -czf build.tgz --no-recursion -C build/latest -T -
+
       - name: Upload as artifact
         uses: actions/upload-artifact@v3
         with:
           name: all_linux
-          path: build/latest
+          path: build.tgz
 
   bundle:
     name: Bundle
     needs: [build-backend, build-base]
     runs-on: ubuntu-latest
     steps:
+      - name: Install zip
+        run: sudo apt-get install -y zip
+
       - name: Download Linux build
         uses: actions/download-artifact@v3
         with:
           name: all_linux
 
-      - run: rm server
+      - run: mkdir build
+      - name: Decompress
+        run: tar -xvf build.tgz -C build
+
+      - run: rm build/server
+      - run: cp -r build/. build_macos
+
       - name: Download Windows server
         uses: actions/download-artifact@v3
         with:
           name: server_windows
+          path: build
 
-      - name: Upload Windows build
-        uses: actions/upload-artifact@v3
-        with:
-          name: all_windows
-          path: .
+      - name: Compress Windows build
+        run: cd build; zip -r ../dungeonclub-windows.zip *; cd ..
 
-      - run: rm server.exe
       - name: Download MacOS server
         uses: actions/download-artifact@v3
         with:
           name: server_macos
+          path: build_macos
 
-      - name: Upload MacOS build
-        uses: actions/upload-artifact@v3
+      - name: Compress MacOS build
+        run: cd build_macos; zip -r ../dungeonclub-macos.zip *; cd ..
+
+      - run: mv build.tgz dungeonclub-linux.tgz
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: all_macos
-          path: .
+          draft: true
+          files: |
+            dungeonclub-windows.zip
+            dungeonclub-macos.zip
+            dungeonclub-linux.tgz
