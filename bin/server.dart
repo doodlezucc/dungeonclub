@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dnd_interactive/environment.dart';
+import 'package:graceful/graceful.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:shelf/shelf.dart';
@@ -35,7 +36,20 @@ const wsPing = Duration(seconds: 15);
 
 const SERVE_PORT = 'port';
 
-void main(List<String> args) async {
+void main(List<String> args) {
+  var logFile = 'logs/latest.log';
+
+  return bootstrap(
+    run,
+    args: args,
+    fileOut: logFile,
+    fileErr: logFile,
+    enableChildProcess: Environment.isCompiled,
+    onExit: onExit,
+  );
+}
+
+void run(List<String> args) async {
   var D = serverParser.tryArgParse(args);
   Environment.applyConfig(D);
 
@@ -83,7 +97,6 @@ void main(List<String> args) async {
   autoSaver.init();
   maintainer.autoCheckForFile();
   accountMaintainer.autoCheckForFile();
-  listenToExit();
 
   await createAssetPreview('web/images/assets/pc', tileSize: 240, usePng: true);
   await createAssetPreview('web/images/assets/scene', zoomIn: true);
@@ -115,23 +128,18 @@ final serverParser =
   );
 });
 
-void onExit() async {
+Future<int> onExit() async {
   try {
     httpClient.close();
     await Future.wait([data.save(), sendPendingFeedback(), closeMailServer()]);
   } finally {
-    exit(0);
-  }
-}
-
-void listenToExit() {
-  var shuttingDown = false;
-  ProcessSignal.sigint.watch().forEach((signal) {
-    if (!shuttingDown) {
-      shuttingDown = true;
-      onExit();
+    // Wait so users can read exit messages
+    if (Environment.isCompiled) {
+      await Future.delayed(Duration(seconds: 1));
     }
-  });
+
+    return 0;
+  }
 }
 
 Future<void> loadMockAccounts() async {

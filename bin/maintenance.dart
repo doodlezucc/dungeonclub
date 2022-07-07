@@ -53,7 +53,7 @@ class Maintainer extends FileChecker {
   void _waitForShutdown() async {
     var now = DateTime.now().millisecondsSinceEpoch;
     await Future.delayed(Duration(milliseconds: shutdownTime - now));
-    onExit();
+    await onExit();
   }
 
   Map<String, dynamic> get jsonEntry => {'shutdown': shutdownTime};

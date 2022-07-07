@@ -143,6 +143,7 @@ Future<bool> _sendMessage(Message message) async {
 }
 
 Future<void> closeMailServer() async {
+  if (_smtpServer == null) return false;
   await MailCredentials.save();
 }
 
@@ -229,7 +230,7 @@ Future<void> setupMailAuth() async {
   );
 
   await MailCredentials.configure(user, client, creds);
-  await closeMailServer();
+  await MailCredentials.save();
   httpClient.close();
   print('\nAuthorization complete! Emails can now be sent from $user');
 }
