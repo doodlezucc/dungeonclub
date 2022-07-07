@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:args/args.dart';
+import 'package:dnd_interactive/environment.dart';
+import 'package:graceful/graceful.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_web_socket/shelf_web_socket.dart' as ws;
 
+import 'entry_parser.dart';
 import 'asset_provider.dart';
 import 'audio.dart';
 import 'autosave.dart';
@@ -32,26 +34,28 @@ final accountMaintainer = AccountMaintainer('account');
 final httpClient = http.Client();
 const wsPing = Duration(seconds: 15);
 
-void main(List<String> args) async {
-  var parser = ArgParser()
-    ..addCommand('mail')
-    ..addOption('port', abbr: 'p');
-  var result = parser.parse(args);
+const SERVE_PORT = 'port';
 
-  var setupMail = result.command?.name == 'mail' ?? false;
+void main(List<String> args) {
+  var logFile = 'logs/latest.log';
+
+  return bootstrap(
+    run,
+    args: args,
+    fileOut: logFile,
+    fileErr: logFile,
+    enableChildProcess: Environment.isCompiled,
+    onExit: onExit,
+  );
+}
+
+void run(List<String> args) async {
+  var D = serverParser.tryArgParse(args);
+  Environment.applyConfig(D);
+
+  var setupMail = args.contains('mail');
   if (setupMail) {
     return await setupMailAuth();
-  }
-
-  // For Google Cloud Run, we respect the PORT environment variable
-  var portStr = result['port'] ?? Platform.environment['PORT'] ?? '7070';
-  var port = int.tryParse(portStr);
-
-  if (port == null) {
-    stdout.writeln('Could not parse port value "$portStr" into a number.');
-    // 64: command line usage error
-    exitCode = 64;
-    return;
   }
 
   if (await maintainer.file.exists()) {
@@ -60,7 +64,14 @@ void main(List<String> args) async {
     return;
   }
 
-  data.init();
+  print('Starting server...');
+
+  var portStr = D[SERVE_PORT] ?? Platform.environment['PORT'] ?? '7070';
+  var port = int.parse(portStr);
+
+  unawaited(data.init().then((_) {
+    if (Environment.enableMockAccount) loadMockAccounts();
+  }));
 
   Response _cors(Response response) => response.change(headers: {
         'Access-Control-Allow-Origin': '*',
@@ -81,46 +92,80 @@ void main(List<String> args) async {
   }
 
   _address = _address?.trim() ?? 'http://${server.address.host}:${server.port}';
-  print('Serving at $address');
 
   await initializeMailServer();
   autoSaver.init();
   maintainer.autoCheckForFile();
   accountMaintainer.autoCheckForFile();
-  listenToExit();
 
   await createAssetPreview('web/images/assets/pc', tileSize: 240, usePng: true);
-  // await resizeAll('web/images/assets/scene');
   await createAssetPreview('web/images/assets/scene', zoomIn: true);
 
-  try {
-    await loadAmbience();
-    print('Ambience audio is up to date!');
-  } on Exception catch (e) {
-    print(e.toString());
-    print('Failed to extract ambience track sources.'
-        ' If you require the integrated audio player,'
-        ' make sure you have youtube-dl and ffmpeg installed.');
+  if (Environment.enableMusic) {
+    try {
+      await loadAmbience();
+      print('Background music up to date');
+    } on Exception catch (e) {
+      print(e.toString());
+      print('Failed to extract background music sources.'
+          ' If you require the integrated music player,'
+          ' make sure you have youtube-dl and ffmpeg installed.');
+    }
+  } else {
+    print('Music player not enabled');
   }
+
+  print('Dungeon Club is running at $address\nReady!\n');
 }
 
-void onExit() async {
+final serverParser =
+    EntryParser(Environment.defaultConfigServe, prepend: (argParser, addFlag) {
+  argParser.addCommand('mail');
+  argParser.addOption(
+    SERVE_PORT,
+    abbr: 'p',
+    help: 'Specifies the server port.\n(defaults to 7070)',
+  );
+});
+
+Future<int> onExit() async {
   try {
     httpClient.close();
     await Future.wait([data.save(), sendPendingFeedback(), closeMailServer()]);
   } finally {
-    exit(0);
+    // Wait so users can read exit messages
+    if (Environment.isCompiled) {
+      await Future.delayed(Duration(seconds: 1));
+    }
+
+    return 0;
   }
 }
 
-void listenToExit() {
-  var shuttingDown = false;
-  ProcessSignal.sigint.watch().forEach((signal) {
-    if (!shuttingDown) {
-      shuttingDown = true;
-      onExit();
+Future<void> loadMockAccounts() async {
+  var separator = ': ';
+  var file = File('login.yaml');
+
+  if (await file.exists()) {
+    var lines = await file.readAsLines();
+    for (var line in lines) {
+      if (line.trimLeft().startsWith('#')) continue;
+
+      var index = line.indexOf(separator);
+      if (index > 0) {
+        var name = line.substring(0, index).trim();
+        var password = line.substring(index + 2).trim();
+
+        var acc = data.getAccount(name);
+        if (acc != null) {
+          acc.setPassword(password);
+        } else {
+          data.accounts.add(Account(name, password));
+          print('Registered mock account "$name"');
+        }
+      }
     }
-  });
+  }
 }
 
 String getMimeType(File f) {

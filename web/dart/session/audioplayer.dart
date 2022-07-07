@@ -6,6 +6,7 @@ import 'package:ambience/ambience.dart';
 import 'package:ambience/audio_track.dart';
 import 'package:ambience/metadata.dart';
 import 'package:dnd_interactive/actions.dart';
+import 'package:dnd_interactive/environment.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -99,8 +100,9 @@ class AudioPlayer {
       onSmoothChange: (v) => _weather.filter = 20000 - 19800 * pow(v, 0.5),
     );
 
-    _root.classes
-        .toggle('keep-open', window.localStorage['audioPin'] != 'false');
+    var pin = window.localStorage['audioPin'];
+    _root.classes.toggle(
+        'keep-open', Environment.enableMusic ? pin != 'false' : pin == 'true');
 
     _root.querySelector('button').onClick.listen((_) {
       window.localStorage['audioPin'] = '${_root.classes.toggle('keep-open')}';

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:crypt/crypt.dart';
 import 'package:dnd_interactive/actions.dart' as a;
 import 'package:dnd_interactive/comms.dart';
 import 'package:dnd_interactive/dice_parser.dart';
@@ -151,7 +150,7 @@ class Connection extends Socket {
         var acc = data.getAccount(reset.email);
         if (acc == null) return null;
 
-        acc.encryptedPassword = Crypt.sha256(reset.password);
+        acc.setPassword(reset.password);
 
         resets.remove(this);
         tokenAccounts.removeWhere((s, a) => a == acc);

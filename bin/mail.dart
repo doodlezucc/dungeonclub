@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dnd_interactive/environment.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as path;
 import 'package:prompts/prompts.dart' as prompts;
 
 import 'server.dart';
@@ -38,9 +40,12 @@ class Feedback {
 
 Future<void> initializeMailServer() async {
   if (!await credFile.exists()) {
-    return stderr.writeln('Missing gmail SMTP credentials at ${credFile.path}!'
-        ' Run "dart bin/server.dart mail" to walk through'
-        ' the activation process.');
+    var exe = Environment.isCompiled
+        ? path.basename(Platform.executable)
+        : 'dart bin/server.dart';
+
+    return print('Mailing system not enabled '
+        '(run "$exe mail" to walk through the activation process)');
   }
 
   await MailCredentials.load();
@@ -138,6 +143,7 @@ Future<bool> _sendMessage(Message message) async {
 }
 
 Future<void> closeMailServer() async {
+  if (_smtpServer == null) return false;
   await MailCredentials.save();
 }
 
@@ -224,7 +230,7 @@ Future<void> setupMailAuth() async {
   );
 
   await MailCredentials.configure(user, client, creds);
-  await closeMailServer();
+  await MailCredentials.save();
   httpClient.close();
   print('\nAuthorization complete! Emails can now be sent from $user');
 }

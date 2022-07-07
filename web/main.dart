@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:html';
 
+import 'package:dnd_interactive/environment.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 
 import 'dart/communication.dart';
 import 'dart/home.dart' as home;
 import 'dart/panels/code_panel.dart';
-import 'dart/panels/edit_game.dart' as edit_game;
 import 'dart/panels/join_session.dart' as join_session;
 import 'dart/panels/feedback.dart' as feedback;
 import 'dart/session/demo.dart';
@@ -22,15 +23,16 @@ String get homeUrl => _homeUrl;
 
 void main() async {
   _listenToCssReload();
+  applyEnvironmentStyling();
 
   print('Ready!');
 
   querySelector('#signup').onClick.listen((_) {
     registerPanel.display();
   });
-  querySelector('#feedback').onClick.listen((_) {
-    feedback.display();
-  });
+  querySelector('#feedback').onClick.listen((_) => !Environment.isCompiled
+      ? feedback.display()
+      : querySelector('#discordLink').click());
 
   querySelector('button#save').onClick.listen((_) {
     socket.send('{"action":"manualSave"}');
@@ -44,20 +46,15 @@ void main() async {
   _homeUrl = dirname(window.location.href);
   await home.init();
   processUrlPath();
-
-  //await testFlow();
 }
 
-Future<void> testFlow() async {
-  var edit = false;
-
-  await Future.delayed(Duration(milliseconds: 200));
-  if (!user.registered) return print('No login token provided');
-
-  if (edit) {
-    await edit_game.display(user.account.games.first);
-  } else {
-    await user.joinSession(user.account.games.last.id);
+void applyEnvironmentStyling() {
+  document.body.classes.toggle('no-music', !Environment.enableMusic);
+  if (Environment.isCompiled) {
+    querySelector('#privacy').remove();
+    var time = DateTime.fromMillisecondsSinceEpoch(Environment.buildTimestamp);
+    var buildTime = DateFormat('y-MM-dd').format(time);
+    querySelector('#hostInfo').innerHtml = 'Self-Hosted (Build $buildTime)';
   }
 }
 

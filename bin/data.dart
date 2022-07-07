@@ -29,7 +29,7 @@ class ServerData {
   final gameMeta = <GameMeta>[];
   final Random rng = Random();
 
-  void init() async {
+  Future<void> init() async {
     await load();
     await histogram.load();
     histogram.startTracking();
@@ -74,7 +74,6 @@ class ServerData {
     owners.forEach((game, ownerEmail) {
       game.owner = data.getAccount(ownerEmail, alreadyEncrypted: true);
     });
-    print('Assigned all game owners');
 
     if (updateToDynamicLoading) {
       print('Updated to dynamic game loading system!');
@@ -109,7 +108,6 @@ class ServerData {
     var s = await file.readAsString();
     var json = jsonDecode(s);
     fromJson(json);
-    print('Loaded!');
   }
 
   Future<void> manualSave() async {
@@ -206,6 +204,10 @@ class Account {
 
   bool ownsGame(String gameId) {
     return enteredGames.any((g) => g.id == gameId && g.owner == this);
+  }
+
+  void setPassword(String password) {
+    encryptedPassword = Crypt.sha256(password);
   }
 
   Account.fromJson(Map<String, dynamic> json)

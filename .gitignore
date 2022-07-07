@@ -12,6 +12,13 @@ ambience/tracks/
 database/
 database_backup/
 mail/gmail_credentials
-web/images/assets/
 web/main.dart.*
 web/style
+
+# Exclude asset previews but include source images
+web/images/assets/*
+!web/images/assets/**/
+
+# Include only a single battle map in the repo
+web/images/assets/scene/*
+!web/images/assets/scene/Shipyard (23x16) Base Map, Day.jpg

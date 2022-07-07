@@ -1,0 +1,103 @@
+name: Build
+
+on: [workflow_dispatch, push]
+
+jobs:
+  build-backend:
+    name: Build Backend
+    strategy:
+      matrix:
+        include:
+          - runs-on: macos-latest
+            artifact: macos
+            binary-name: server
+          - runs-on: windows-latest
+            artifact: windows
+            binary-name: server.exe
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: dart-lang/setup-dart@v1.3
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Compile backend
+        run: dart bin/build.dart --part server
+
+      - name: Upload as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: server_${{ matrix.artifact }}
+          path: build/latest/${{ matrix.binary-name }}
+
+  build-base:
+    name: Build All (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: dart-lang/setup-dart@v1.3
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Compile Dungeon Club
+        run: dart bin/build.dart
+
+      - name: Compress using tar
+        run: find build/latest -printf "%P\n" | tar -czf build.tgz --no-recursion -C build/latest -T -
+
+      - name: Upload as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: all_linux
+          path: build.tgz
+
+  bundle:
+    name: Bundle
+    needs: [build-backend, build-base]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install zip
+        run: sudo apt-get install -y zip
+
+      - name: Download Linux build
+        uses: actions/download-artifact@v3
+        with:
+          name: all_linux
+
+      - run: mkdir build
+      - name: Decompress
+        run: tar -xvf build.tgz -C build
+
+      - run: rm build/server
+      - run: cp -r build/. build_macos
+
+      - name: Download Windows server
+        uses: actions/download-artifact@v3
+        with:
+          name: server_windows
+          path: build
+
+      - name: Compress Windows build
+        run: cd build; zip -r ../dungeonclub-windows.zip *; cd ..
+
+      - name: Download MacOS server
+        uses: actions/download-artifact@v3
+        with:
+          name: server_macos
+          path: build_macos
+
+      - name: Compress MacOS build
+        run: cd build_macos; zip -r ../dungeonclub-macos.zip *; cd ..
+
+      - run: mv build.tgz dungeonclub-linux.tgz
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: |
+            dungeonclub-windows.zip
+            dungeonclub-macos.zip
+            dungeonclub-linux.tgz

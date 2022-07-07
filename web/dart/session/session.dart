@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
 
+import 'package:dnd_interactive/environment.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';
@@ -27,7 +28,7 @@ class Session extends Game {
   int _charId;
   int get charId => _charId;
   Character get myCharacter => _charId != null ? characters[_charId] : null;
-  String get inviteLink => isOnLocalHost
+  String get inviteLink => (isOnLocalHost && !Environment.isCompiled)
       ? 'http://localhost:8080/index.html?game=$id'
       : window.location.href;
   ConstantDialog _dmDisconnectedDialog;
