@@ -28,13 +28,13 @@
 </head>
 
 <body>
-	<header>
+	<header class="no-mobile">
 		<a href="/" class="title">
 			<div><img src="images/icon.png"></div>
 			<h1>Dungeon Club</h1>
 		</a>
 
-		<span class="no-mobile">
+		<span>
 			<button id="logOut" class="hidden">Log Out</button>
 			<button id="changelogButton">
 				Changelog
@@ -54,9 +54,33 @@
 
 	<div id="content">
 		<section id="home">
+			<header class="on-mobile">
+				<a href="/" class="title">
+					<div><img src="images/icon.png"></div>
+					<h1>Dungeon Club</h1>
+				</a>
+			</header>
+
+			<div class="on-mobile spacing product-info">
+				<h1>Your Independent Tabletop</h1>
+
+				<p>
+					<b>Dungeon Club</b> is a free virtual tabletop designed for <b>pen-and-paper</b> games such as
+					Dungeons & Dragons, Call of Cthulu, Pathfinder and more.
+				</p>
+				<p>
+					Aside from a vast repertoire of <b>intuitive tools</b> and a clean look, all of the source code is
+					public and can be found on <a href="https://github.com/doodlezucc/dungeonclub">GitHub</a>.
+				</p>
+				<p>
+					<b>Everyone</b> can contribute by reporting <b>bugs</b>, requesting <b>features</b> and inspiring
+					<b>new ideas</b>!
+				</p>
+			</div>
+
 			<span id="loginText">You're now logged in!</span>
 
-			<div id="loginTab" class="hidden">
+			<div id="loginTab" class="hidden no-mobile">
 				<div>
 					<h1>Sign in to Dungeon Club</h1>
 
@@ -67,7 +91,7 @@
 
 					<form action="javascript:void(0);" class="panel vertical-margin">
 						<div>
-							<p>Email address</p>
+							<p style="text-align: left;">Email address</p>
 							<input type="email" autocomplete="email" id="loginEmail">
 						</div>
 						<div>
@@ -92,7 +116,7 @@
 						<button id="signup" class="big">Create a New Account</button>
 					</span>
 				</div>
-				<div class="no-mobile">
+				<div>
 					<h1>Give It a Go</h1>
 
 					<p>Launch a private session and check out all features right now!</p>
@@ -586,7 +610,7 @@
 				<div id="online"></div>
 			</div>
 			<div id="log">
-				<div id="ambience">
+				<div id="ambience" class="no-mobile">
 					<button class="icon">
 						Audioplayer
 						<i class="fas fa-music"></i>

@@ -150,6 +150,7 @@ class Session extends Game {
       gameLog('Hello, ${myCharacter.name}!', mine: true);
     }
 
+    document.body.classes.add('is-session');
     audioplayer.init(this, ambienceJson);
 
     // Depends on global session object
