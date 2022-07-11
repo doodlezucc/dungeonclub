@@ -54,6 +54,23 @@ class HtmlTransform {
     zoom = 0;
   }
 
+  Future<void> _animate(double duration, void Function(double t) frame) async {
+    var fps = 50;
+    var step = (fps / 1000) / duration;
+    for (var t = 1.0; t > 0; t -= step) {
+      frame(t);
+      await Future.delayed(Duration(milliseconds: 1000 ~/ fps));
+    }
+  }
+
+  void applyZoomForce(double velocity) {
+    _animate(0.3, (t) => zoom += velocity * t);
+  }
+
+  void applyForce(Point velocity) {
+    _animate(velocity.magnitude / 50, (t) => position += velocity * t);
+  }
+
   void handlePanning(SimpleEvent first, Stream<SimpleEvent> moveStream) {
     moveStream.listen((ev) {
       position += ev.movement * (1 / scaledZoom);

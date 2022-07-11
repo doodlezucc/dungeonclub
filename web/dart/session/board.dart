@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:html';
 import 'dart:math';
 import 'dart:svg' as svg;
@@ -493,6 +494,8 @@ class Board {
     Timer timer;
     Point startP;
     Point previous;
+    final lastZooms = Queue<double>();
+    final lastPoints = Queue<Point>();
     int initialButton;
     double pinchStart;
     double pinchZoomStart;
@@ -537,6 +540,9 @@ class Board {
           pinchZoomStart = scaledZoom;
           return timer?.cancel();
         }
+
+        lastZooms.clear();
+        lastPoints.clear();
 
         var start = toSimple(ev);
         lastEv = start;
@@ -645,12 +651,21 @@ class Board {
           }
           return toSimple(ev).button == initialButton;
         });
-        pinchStart = null;
 
         var isClickEvent = false;
         if (timer != null && timer.isActive) {
           timer.cancel();
           isClickEvent = true;
+        } else if (pan) {
+          // Apply average velocity from last few pinches
+          if (lastZooms.isNotEmpty) {
+            var zoomVel = lastZooms.fold(0.0, (v, z) => v + z);
+            transform.applyZoomForce(zoomVel / lastZooms.length);
+          }
+          if (lastPoints.isNotEmpty) {
+            var velocity = lastPoints.fold(Point<num>(0, 0), (p, q) => p += q);
+            transform.applyForce(velocity * (1 / lastPoints.length));
+          }
         }
 
         if (clickedMovable != null) {
@@ -680,15 +695,22 @@ class Board {
             var distance = pinchDistance(ev.touches);
             var offset = offCenter(point);
             var off1 = offset * (1 / scaledZoom);
-            transform.scaledZoom = pinchZoomStart * (distance / pinchStart);
+            var nZoom = pinchZoomStart * (distance / pinchStart);
+            var deltaZoom = nZoom - scaledZoom;
+            transform.scaledZoom = nZoom;
+            lastZooms.add(deltaZoom);
             var off2 = offset * (1 / scaledZoom);
             var delta = off2 - off1;
             position += delta;
           }
 
           var sev = toSimple(ev);
+          lastPoints.add(sev.movement);
           moveStreamCtrl.add(sev);
           lastEv = sev;
+
+          if (lastZooms.length > 5) lastZooms.removeFirst();
+          if (lastPoints.length > 5) lastPoints.removeFirst();
         } else {
           if (selectedPrefab != null) {
             var p = evToPoint(ev) - _e.getBoundingClientRect().topLeft;
