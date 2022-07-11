@@ -3,6 +3,9 @@ import 'dart:math';
 
 import 'package:dnd_interactive/point_json.dart';
 
+final _scaledMin = 1 / e;
+final _scaledMax = exp(1.5);
+
 class HtmlTransform {
   Element element;
   Point Function() getMaxPosition;
@@ -18,10 +21,16 @@ class HtmlTransform {
   double _zoom = 0;
   double _scaledZoom = 1;
   double get zoom => _zoom;
-  double get scaledZoom => _scaledZoom;
   set zoom(double zoom) {
     _zoom = min(max(zoom, -1), 1.5);
     _scaledZoom = exp(_zoom);
+    _transform();
+  }
+
+  double get scaledZoom => _scaledZoom;
+  set scaledZoom(double scaled) {
+    _scaledZoom = min(max(scaled, _scaledMin), _scaledMax);
+    _zoom = log(_scaledZoom);
     _transform();
   }
 

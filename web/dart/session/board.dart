@@ -491,8 +491,20 @@ class Board {
     SimpleEvent lastEv;
     StreamController<SimpleEvent> moveStreamCtrl;
     Timer timer;
+    Point startP;
     Point previous;
     int initialButton;
+    double pinchStart;
+    double pinchZoomStart;
+
+    double pinchDistance(Iterable<Touch> touches) {
+      return touches.first.page.distanceTo(touches.last.page);
+    }
+
+    Point center(Iterable<Touch> touches) {
+      return touches.fold(Point<num>(0, 0), (p, t) => p + t.page) *
+          (1 / touches.length);
+    }
 
     void listenToCursorEvents<T extends Event>(
       Point Function(T ev) evToPoint,
@@ -508,7 +520,15 @@ class Board {
       }
 
       startEvent.listen((ev) async {
-        previous = evToPoint(ev);
+        startP = evToPoint(ev);
+        previous = startP;
+
+        if (ev is TouchEvent && ev.touches.length > 1) {
+          pinchStart = pinchDistance(ev.touches);
+          pinchZoomStart = scaledZoom;
+          return timer?.cancel();
+        }
+
         var start = toSimple(ev);
         lastEv = start;
 
@@ -610,6 +630,7 @@ class Board {
         }
 
         await endEvent.firstWhere((ev) => toSimple(ev).button == initialButton);
+        pinchStart = null;
 
         var isClickEvent = false;
         if (timer != null && timer.isActive) {
@@ -632,7 +653,18 @@ class Board {
 
       moveEvent.listen((ev) {
         if (moveStreamCtrl != null) {
-          timer?.cancel();
+          if (timer != null && timer.isActive) {
+            if (ev is! TouchEvent ||
+                evToPoint(ev).squaredDistanceTo(startP) > 64) {
+              timer.cancel();
+            }
+          }
+
+          if (ev is TouchEvent && ev.touches.length > 1) {
+            var distance = pinchDistance(ev.touches);
+            transform.scaledZoom = pinchZoomStart * (distance / pinchStart);
+          }
+
           var sev = toSimple(ev);
           moveStreamCtrl.add(sev);
           lastEv = sev;
@@ -649,7 +681,7 @@ class Board {
     listenToCursorEvents<MouseEvent>((ev) => ev.page, _container.onMouseDown,
         window.onMouseMove, window.onMouseUp);
 
-    listenToCursorEvents<TouchEvent>((ev) => ev.targetTouches[0].page,
+    listenToCursorEvents<TouchEvent>((ev) => center(ev.touches),
         _container.onTouchStart, window.onTouchMove, window.onTouchEnd);
 
     void triggerUpdate(bool alt) {

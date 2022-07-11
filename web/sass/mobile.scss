@@ -54,10 +54,15 @@
         flex-direction: column;
     }
 
+    #board {
+        transition: none;
+    }
+
     #log {
         min-width: 100%;
         max-width: 100%;
         height: 35vh;
+        display: none;
     }
 
     .panel.dialog {
