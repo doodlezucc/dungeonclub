@@ -496,14 +496,23 @@ class Board {
     int initialButton;
     double pinchStart;
     double pinchZoomStart;
+    bool pan;
 
     double pinchDistance(Iterable<Touch> touches) {
       return touches.first.page.distanceTo(touches.last.page);
     }
 
     Point center(Iterable<Touch> touches) {
-      return touches.fold(Point<num>(0, 0), (p, t) => p + t.page) *
-          (1 / touches.length);
+      var counted = touches;
+      if (!(pan ?? true)) counted = touches.take(1);
+
+      return counted.fold(Point<num>(0, 0), (p, t) => p + t.page) *
+          (1 / counted.length);
+    }
+
+    Point offCenter(Point p) {
+      var center = Point<num>(window.innerWidth, window.innerHeight) * 0.5;
+      return p - center;
     }
 
     void listenToCursorEvents<T extends Event>(
@@ -572,7 +581,7 @@ class Board {
         moveStreamCtrl = StreamController();
         var stream = moveStreamCtrl.stream;
 
-        var pan = !(start.button == 0 && mode != PAN);
+        pan = !(start.button == 0 && mode != PAN);
 
         Movable clickedMovable;
 
@@ -629,7 +638,13 @@ class Board {
           transform.handlePanning(start, stream);
         }
 
-        await endEvent.firstWhere((ev) => toSimple(ev).button == initialButton);
+        await endEvent.firstWhere((ev) {
+          if (ev is TouchEvent) {
+            previous = evToPoint(ev);
+            return ev.touches.isEmpty;
+          }
+          return toSimple(ev).button == initialButton;
+        });
         pinchStart = null;
 
         var isClickEvent = false;
@@ -653,16 +668,22 @@ class Board {
 
       moveEvent.listen((ev) {
         if (moveStreamCtrl != null) {
+          var point = evToPoint(ev);
           if (timer != null && timer.isActive) {
-            if (ev is! TouchEvent ||
-                evToPoint(ev).squaredDistanceTo(startP) > 64) {
+            if (ev is! TouchEvent || point.squaredDistanceTo(startP) > 64) {
               timer.cancel();
             }
           }
 
-          if (ev is TouchEvent && ev.touches.length > 1) {
+          // Pinch zooming
+          if (ev is TouchEvent && ev.touches.length > 1 && pan) {
             var distance = pinchDistance(ev.touches);
+            var offset = offCenter(point);
+            var off1 = offset * (1 / scaledZoom);
             transform.scaledZoom = pinchZoomStart * (distance / pinchStart);
+            var off2 = offset * (1 / scaledZoom);
+            var delta = off2 - off1;
+            position += delta;
           }
 
           var sev = toSimple(ev);
