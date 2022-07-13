@@ -13,6 +13,7 @@ import 'dart/panels/feedback.dart' as feedback;
 import 'dart/session/demo.dart';
 import 'dart/user.dart';
 
+final bool isMobile = window.screen.width < 800;
 final _interaction = Completer();
 Future get requireFirstInteraction => _interaction.future;
 
