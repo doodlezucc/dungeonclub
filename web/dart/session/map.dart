@@ -547,6 +547,7 @@ class GameMap {
         socket.send(Uint8List.fromList([id, ...data]).buffer);
       })
       ..useStartEvent = (ev) {
+        if (isMobile) return false;
         return ev is! MouseEvent || (ev as MouseEvent).button == 0;
       };
 

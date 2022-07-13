@@ -69,4 +69,10 @@
         min-width: 50vw;
         max-width: 90vw;
     }
+
+    @media (orientation: portrait) {
+        #maps {
+            transform: translateY(48px) !important;
+        }
+    }
 }

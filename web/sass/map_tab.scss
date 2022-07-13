@@ -30,6 +30,8 @@
         font-size: inherit;
         align-items: center;
         gap: 8px;
+        z-index: 2;
+        background-color: #1115 !important;
     }
 
     #mapTools button {
@@ -148,13 +150,15 @@
 
 #mapSelect {
     position: absolute;
-    top: 80px;
+    top: 0;
+    bottom: 0;
     display: flex;
     flex-wrap: wrap;
+    overflow-y: auto;
     align-items: center;
-    place-content: center;
+    place-content: start center;
     gap: 32px 8px;
-    padding: 0 48px;
+    padding: 66px 48px;
     transition-property: opacity, transform;
     z-index: 1;
 }
@@ -164,7 +168,7 @@
     @include base.center-background;
     position: relative;
     width: 240px;
-    height: 180px;
+    min-height: 180px;
     background-color: var(--color-not-intense);
     border: 2px solid var(--color-note);
     cursor: pointer;
@@ -240,7 +244,7 @@
     align-items: center;
     min-width: 100%;
     height: 100%;
-    max-height: calc(100% - 24px);
+    max-height: calc(100% - 20px);
     box-sizing: border-box;
     padding: 0 20px;
     transition-duration: 0.05s;
