@@ -3,8 +3,12 @@ import 'dart:math';
 
 import 'package:dnd_interactive/point_json.dart';
 
-final _scaledMin = 1 / e;
-final _scaledMax = exp(1.5);
+final _viewportM = sqrt(1920 / max(window.innerWidth, window.innerHeight));
+final _zoomMin = -1 * _viewportM;
+final _zoomMax = 1.5 / _viewportM;
+
+final _scaledMin = exp(_zoomMin);
+final _scaledMax = exp(_zoomMax);
 
 class HtmlTransform {
   Element element;
@@ -22,7 +26,7 @@ class HtmlTransform {
   double _scaledZoom = 1;
   double get zoom => _zoom;
   set zoom(double zoom) {
-    _zoom = min(max(zoom, -1), 1.5);
+    _zoom = min(max(zoom, _zoomMin), _zoomMax);
     _scaledZoom = exp(_zoom);
     _transform();
   }
