@@ -72,6 +72,33 @@
         max-width: 90vw;
     }
 
+    #initiativeBar {
+        min-width: 0;
+        max-width: calc(100vw - (32px + 36px + 16px));
+        right: 16px;
+        overflow-x: auto;
+        padding: 8px 0 !important;
+    }
+
+    .roster {
+        flex-wrap: nowrap;
+        justify-content: initial;
+        padding-left: 10px;
+    }
+
+    .char {
+        min-width: 48px;
+        pointer-events: none;
+
+        .step-input {
+            display: none;
+        }
+
+        &:last-of-type {
+            padding-right: 10px;
+        }
+    }
+
     @media (orientation: portrait) {
         #maps {
             transform: translateY(48px) !important;
