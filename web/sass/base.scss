@@ -1,3 +1,4 @@
+@use 'mixins.scss';
 @import url('https://fonts.googleapis.com/css2?family=Recursive&family=Lato&family=Fira+Mono&display=swap');
 
 $radius: 4px;
@@ -173,14 +174,25 @@ h3 {
         opacity: 0.5;
     }
 }
-%clickable:not(:disabled) {
-    cursor: pointer;
+.elevate {
+    padding-bottom: 12px;
+    box-shadow: 0 -4px 0 #0007 inset;
+    background-color: var(--color-not-intense);
 }
-%clickable:not(:disabled):hover, .tab %clickable:not(:disabled):focus {
+@include mixins.on-desktop {
+    %clickable:not(:disabled) {
+        cursor: pointer;
+    }
+    %clickable:not(:disabled):hover, .tab %clickable:not(:disabled):focus {
+        background-color: var(--color-button-hover);
+        color: var(--color-text-primary);
+    }
+}
+%clickable:not(:disabled).hovered {
     background-color: var(--color-button-hover);
     color: var(--color-text-primary);
 }
-%clickable:not(:disabled):active, %clickable:not(:disabled).hovered {
+%clickable:not(:disabled):active {
     background-color: var(--color-button-active);
     transition-duration: 0s;
 }
@@ -469,15 +481,6 @@ li {
     background-origin: border-box;
     background-position: center;
     background-clip: content-box;
-}
-
-.elevate {
-    padding-bottom: 12px;
-    box-shadow: 0 -4px 0 #0007 inset;
-
-    &:not(:hover) {
-        background-color: var(--color-not-intense);
-    }
 }
 
 .roster {

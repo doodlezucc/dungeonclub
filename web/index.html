@@ -283,11 +283,11 @@
 					</div>
 				</div>
 				<div id="playerControls" class="controls no-edit">
-					<button class="icon dm" id="editScene">
+					<button class="icon elevate dm" id="editScene">
 						Edit Scene
 						<i class="fas fa-wrench"></i>
 					</button>
-					<button class="icon tab" id="diceTab">
+					<button class="icon elevate tab" id="diceTab">
 						Roll Dice
 						<i class="fas fa-dice-d20"></i>
 						<div class="content">
@@ -297,7 +297,7 @@
 							<table id="dice"></table>
 						</div>
 					</button>
-					<button class="icon tab toggle dm no-hover" id="fogOfWar">
+					<button class="icon elevate tab toggle dm no-hover" id="fogOfWar">
 						Fog of War
 						<i class="fas fa-cloud"></i>
 						<div class="content">
@@ -308,7 +308,7 @@
 							</div>
 						</div>
 					</button>
-					<button class="icon tab toggle" id="measureDistance">
+					<button class="icon elevate tab toggle" id="measureDistance">
 						Measuring
 						<i class="fas fa-ruler"></i>
 						<div class="content">
@@ -337,11 +337,11 @@
 							</div>
 						</div>
 					</button>
-					<button class="icon" id="openMap">
+					<button class="icon elevate" id="openMap">
 						Map View
 						<i class="fas fa-map"></i>
 					</button>
-					<button class="icon dm toggle" id="initiativeTracker">
+					<button class="icon elevate dm toggle" id="initiativeTracker">
 						Roll Initiative
 						<i class="fas fa-sort-numeric-up-alt"></i>
 					</button>
@@ -425,15 +425,15 @@
 						</span>
 						<div id="conds"></div>
 						<div class="left-col">
-							<button id="movableInvisible" class="icon with-tooltip toggle">
+							<button id="movableInvisible" class="icon elevate with-tooltip toggle">
 								<i class="fas fa-eye"></i>
 								<span>Visible</span>
 							</button>
-							<button id="movableSnap" class="icon with-tooltip">
+							<button id="movableSnap" class="icon elevate with-tooltip">
 								<i class="fas fa-arrows-to-dot"></i>
 								<span>Snap to Grid</span>
 							</button>
-							<button id="movableRemove" class="icon with-tooltip">
+							<button id="movableRemove" class="icon elevate with-tooltip">
 								<i class="fas fa-trash"></i>
 								<span>Remove From Scene</span>
 							</button>
@@ -519,7 +519,7 @@
 					Your players are <b>not seeing this scene</b> at the moment.
 					<br>Click here to move them!
 				</span>
-				<span id="tooltip"></span>
+				<span id="tooltip" class="no-mobile"></span>
 				<div id="map">
 					<div id="mapSelect">
 						<button id="addMap" class="icon big dm">

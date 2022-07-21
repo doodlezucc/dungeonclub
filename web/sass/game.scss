@@ -317,10 +317,6 @@
         gap: 8px;
         white-space: nowrap;
 
-        > .left-col > button {
-            @extend .elevate;
-        }
-
         > span {
             gap: 8px;
             justify-content: flex-start;
@@ -448,7 +444,6 @@
         padding: 0;
 
         button {
-            @extend .elevate;
             height: 40px;
         }
 
@@ -474,7 +469,7 @@
 
             &:active { background-color: var(--color-button-hover); }
 
-            &:not(.no-hover):hover, &.active {
+            &.hovered, &.active {
                 .content {
                     pointer-events: all;
                     opacity: 1;

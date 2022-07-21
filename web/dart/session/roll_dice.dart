@@ -10,7 +10,8 @@ import '../communication.dart';
 import '../formatting.dart';
 import 'log.dart';
 
-final TableElement _table = querySelector('table#dice');
+ButtonElement get _button => querySelector('#diceTab');
+final TableElement _table = _button.querySelector('table#dice');
 bool _visible = true;
 Timer _rollTimer;
 
@@ -43,8 +44,12 @@ void initDiceTable() {
   _initVisibility();
   _initScrollControls();
 
-  void sendSingleRoll(int sides, int repeat) {
-    sendRollDice(RollCombo([SingleRoll(repeat, sides)]));
+  void sendSingleRoll(int sides, int repeat) async {
+    await sendRollDice(RollCombo([SingleRoll(repeat, sides)]));
+
+    if (isMobile) {
+      _button.classes.remove('hovered');
+    }
   }
 
   [4, 6, 8, 10, 12, 20, 100].forEach((sides) {
@@ -65,7 +70,7 @@ void _initScrollControls() {
   _table.onMouseWheel.listen((ev) {
     offset -= ev.deltaY.sign.toInt();
   });
-  querySelector('#diceTab').onMouseEnter.listen((_) {
+  _button.onMouseEnter.listen((_) {
     offset = 0;
   });
 }

@@ -25,6 +25,7 @@ String get homeUrl => _homeUrl;
 void main() async {
   _listenToCssReload();
   applyEnvironmentStyling();
+  applyMobileStyling();
 
   print('Ready!');
 
@@ -47,6 +48,26 @@ void main() async {
   _homeUrl = dirname(window.location.href);
   await home.init();
   processUrlPath();
+}
+
+void applyMobileStyling() {
+  if (isMobile) {
+    // Remove text from icon buttons
+    querySelectorAll('#playerControls .icon').forEach((btn) => btn.childNodes
+        .firstWhere((node) => node is Text, orElse: () => null)
+        .remove());
+  }
+
+  // Register a custom .hovered selector to use instead of :hover
+  querySelectorAll('.tab:not(no-hover)').forEach(
+      (e) => (isMobile ? e.onTouchStart : e.onMouseEnter).listen((_) async {
+            if (!e.classes.add('hovered')) return;
+
+            await (isMobile
+                ? window.onTouchStart.firstWhere((ev) => !ev.path.contains(e))
+                : e.onMouseLeave.first);
+            e.classes.remove('hovered');
+          }));
 }
 
 void applyEnvironmentStyling() {
