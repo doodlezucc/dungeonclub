@@ -123,7 +123,7 @@ void _performChat(int pcId, String msg) {
 
   gameLog(
     (mine ? '' : '<span class="dice">$name</span> ') + msg,
-    owner: mine ? msgMine : msgOthers,
+    msgType: mine ? msgMine : msgOthers,
   );
 }
 
@@ -156,16 +156,19 @@ void initGameLog() {
   }
 }
 
-const msgGlobal = 0;
-const msgMine = 1;
-const msgOthers = 2;
+const msgMine = 0;
+const msgOthers = 1;
+const msgSystem = 2;
+const msgBig = 3;
 
-SpanElement gameLog(String s, {int owner = msgGlobal, bool mild = false}) {
+SpanElement gameLog(String s, {int msgType = msgSystem, bool mild = false}) {
   var line = SpanElement()..innerHtml = s;
 
-  if (owner == msgGlobal) {
-    line.className = 'global';
-  } else if (owner == msgMine) {
+  if (msgType == msgSystem) {
+    line.className = 'system';
+  } else if (msgType == msgBig) {
+    line.className = 'big';
+  } else if (msgType == msgMine) {
     line.className = 'mine';
   }
 
@@ -213,7 +216,7 @@ void miniLog(String s) {
 }
 
 void demoLog(String s) {
-  gameLog(s, mild: true);
+  gameLog(s, mild: true, msgType: msgBig);
 }
 
 void logInviteLink(Session session) async {
@@ -227,7 +230,7 @@ void logInviteLink(Session session) async {
   var tooltip = SpanElement()..text = 'Copied to Clipboard!';
 
   var line = gameLog('''Hello, GM!<br>Players can join at
-    <b>${session.inviteLink}</b>.''', owner: msgOthers)
+    <b>${session.inviteLink}</b>.''', msgType: msgBig)
     ..classes.add('clickable');
 
   line

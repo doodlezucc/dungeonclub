@@ -629,8 +629,11 @@
 
         &.hidden { opacity: 0.6; }
 
-        &.global {
+        &.big {
             max-width: calc(100% - 16px);
+        }
+
+        &.system {
             align-self: center;
             text-align: center;
             background: none;
@@ -645,7 +648,6 @@
     > .clickable {
         @extend %responsive;
         @extend %with-tooltip;
-        max-width: calc(100% - 16px);
         cursor: pointer;
         display: block;
         user-select: none;

@@ -119,7 +119,7 @@ void onDiceRoll(RollCombo combo, {int initiator}) {
   gameLog(
     '''$name rolled $comboString
     and got <span>$resultString$sumString''',
-    owner: mine ? msgMine : msgOthers,
+    msgType: mine ? msgMine : msgOthers,
   );
 }
 
