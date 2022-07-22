@@ -227,7 +227,8 @@ void logInviteLink(Session session) async {
   var tooltip = SpanElement()..text = 'Copied to Clipboard!';
 
   var line = gameLog('''Hello, GM!<br>Players can join at
-    <b>${session.inviteLink}</b>.''')..classes.add('clickable');
+    <b>${session.inviteLink}</b>.''', owner: msgOthers)
+    ..classes.add('clickable');
 
   line
     ..onMouseDown.listen((_) {

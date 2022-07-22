@@ -630,8 +630,11 @@
         &.hidden { opacity: 0.6; }
 
         &.global {
-            max-width: fit-content;
+            max-width: calc(100% - 16px);
             align-self: center;
+            text-align: center;
+            background: none;
+            color: var(--color-note);
         }
 
         &.mine {
@@ -642,6 +645,7 @@
     > .clickable {
         @extend %responsive;
         @extend %with-tooltip;
+        max-width: calc(100% - 16px);
         cursor: pointer;
         display: block;
         user-select: none;
@@ -1042,8 +1046,9 @@ $ping-radius: 100px;
     flex-wrap: wrap-reverse;
     gap: 4px;
     width: 20vw;
+    min-width: 300px;
     min-height: 30px;
-    z-index: 6;
+    z-index: 5;
 
     > span {
         display: flex;
