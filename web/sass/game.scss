@@ -629,6 +629,11 @@
 
         &.hidden { opacity: 0.6; }
 
+        &.global {
+            max-width: fit-content;
+            align-self: center;
+        }
+
         &.mine {
             align-self: flex-end;
         }

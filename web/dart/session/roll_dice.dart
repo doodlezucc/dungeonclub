@@ -116,9 +116,11 @@ void onDiceRoll(RollCombo combo, {int initiator}) {
   var comboString = _comboToHtml(combo);
   var resultString = _comboResultString(combo);
 
-  gameLog('''
-    $name rolled $comboString
-    and got <span>$resultString$sumString''', mine: mine);
+  gameLog(
+    '''$name rolled $comboString
+    and got <span>$resultString$sumString''',
+    owner: mine ? msgMine : msgOthers,
+  );
 }
 
 String _comboToHtml(RollCombo combo) {

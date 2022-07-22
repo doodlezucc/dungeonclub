@@ -123,7 +123,7 @@ void _performChat(int pcId, String msg) {
 
   gameLog(
     (mine ? '' : '<span class="dice">$name</span> ') + msg,
-    mine: mine,
+    owner: mine ? msgMine : msgOthers,
   );
 }
 
@@ -156,11 +156,19 @@ void initGameLog() {
   }
 }
 
-SpanElement gameLog(String s, {bool mine = false, bool mild = false}) {
+const msgGlobal = 0;
+const msgMine = 1;
+const msgOthers = 2;
+
+SpanElement gameLog(String s, {int owner = msgGlobal, bool mild = false}) {
   var line = SpanElement()..innerHtml = s;
-  if (mine) {
+
+  if (owner == msgGlobal) {
+    line.className = 'global';
+  } else if (owner == msgMine) {
     line.className = 'mine';
   }
+
   if (mild) {
     line.classes.add('hidden');
   }
@@ -195,12 +203,12 @@ void miniLog(String s) {
     {'opacity': 0.9},
   ], 1000);
 
-  Future.delayed(Duration(seconds: 5), () {
+  Future.delayed(Duration(seconds: 4), () {
     mini.animate([
       {'opacity': 0.9},
       {'opacity': 0},
-    ], 1000);
-    Future.delayed(Duration(seconds: 1), mini.remove);
+    ], 3000);
+    Future.delayed(Duration(seconds: 3), mini.remove);
   });
 }
 
