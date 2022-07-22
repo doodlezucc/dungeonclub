@@ -1,8 +1,12 @@
-@use '_mixins.scss';
+@use 'mixins';
 
 @include mixins.on-desktop {
     .on-mobile {
         display: none !important;
+    }
+
+    #messages > :hover {
+        opacity: 1;
     }
 }
 
@@ -61,10 +65,45 @@
     }
 
     #log {
+        position: fixed;
         min-width: 100%;
         max-width: 100%;
-        height: 35vh;
-        display: none;
+        bottom: 0;
+        min-height: 240px;
+        max-height: 50vh;
+        z-index: 6;
+        transition: 0.15s;
+        box-shadow: 0 0 24px 6px #000a;
+        border-radius: 12px 12px 0 0;
+        background-color: var(--color-background);
+
+        &.hidden {
+            box-shadow: 0 0 24px 0px #0000;
+            transform: translateY(100%);
+        }
+    }
+
+    #messages {
+        padding: 0;
+        border: 4px solid var(--color-background);
+        border-radius: inherit;
+        box-sizing: border-box;
+        margin-bottom: auto;
+    }
+
+    #chat {
+        > textarea {
+            min-height: 38px;
+            border: none;
+            margin: 0;
+            border-top: 1px solid var(--color-input-underline);
+            padding: 4px 6px;
+        }
+
+        > div {
+            flex-direction: row;
+            padding-right: 2px;
+        }
     }
 
     .panel.dialog {
@@ -97,6 +136,10 @@
         &:last-of-type {
             padding-right: 10px;
         }
+    }
+
+    .tab {
+        height: 36px !important;
     }
 
     @media (orientation: portrait) {

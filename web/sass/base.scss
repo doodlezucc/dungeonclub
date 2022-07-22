@@ -1,4 +1,4 @@
-@use 'mixins.scss';
+@use 'mixins';
 @import url('https://fonts.googleapis.com/css2?family=Recursive&family=Lato&family=Fira+Mono&display=swap');
 
 $radius: 4px;
@@ -663,7 +663,7 @@ footer {
     position: relative;
     display: flex;
     justify-content: center;
-    
+
     > span {
         transition-duration: 0.1s;
         position: absolute;
@@ -681,9 +681,11 @@ footer {
         font-weight: normal;
     }
 
-    &:hover, &.hovered {
-        > span {
-            opacity: 1;
+    @include mixins.on-desktop {
+        &:hover, &.hovered {
+            > span {
+                opacity: 1;
+            }
         }
     }
 }
@@ -721,5 +723,20 @@ footer {
 
     > span {
         bottom: calc(100% + 4px);
+    }
+}
+
+button.floating-action {
+    background-color: var(--color-button-hover);
+    right: 16px;
+    bottom: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    box-shadow: 0 2px 12px 2px #0007;
+    font-size: 20px;
+
+    &.hovered {
+        background-color: var(--color-button-active);
     }
 }

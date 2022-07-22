@@ -1,5 +1,6 @@
 @use 'base.scss';
 @use 'panels.scss';
+@use 'mixins';
 @use 'sass:math';
 
 %active {
@@ -572,8 +573,10 @@
         @extend .invisible;
     }
 
-    > *:not(:last-child) {
-        border-right: 2px solid var(--color-separator);
+    @include mixins.on-desktop {
+        > *:not(:last-child) {
+            border-right: 2px solid var(--color-separator);
+        }
     }
 }
 
@@ -623,7 +626,6 @@
         }
 
         &.hidden { opacity: 0.6; }
-        &:hover { opacity: 1; }
 
         &.mine {
             background-color: var(--color-not-intense);
@@ -1011,7 +1013,7 @@ $ping-radius: 100px;
     position: absolute;
     bottom: 0;
     left: 0;
-    padding: 16px;
+    padding: 20px 16px;
     display: flex;
     flex-wrap: wrap-reverse;
     gap: 4px;

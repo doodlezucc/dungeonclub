@@ -59,7 +59,7 @@ void applyMobileStyling() {
   }
 
   // Register a custom .hovered selector to use instead of :hover
-  querySelectorAll('.tab:not(no-hover)').forEach(
+  querySelectorAll('button:not(no-hover)').forEach(
       (e) => (isMobile ? e.onTouchStart : e.onMouseEnter).listen((_) async {
             if (!e.classes.add('hovered')) return;
 

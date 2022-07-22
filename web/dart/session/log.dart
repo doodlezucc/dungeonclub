@@ -14,6 +14,11 @@ import 'session.dart';
 RollCombo _command;
 List<String> _history;
 int _historyIndex = 0;
+HtmlElement get logElem => querySelector('#log');
+
+bool get mobileShowLog => !logElem.classes.contains('hidden');
+set mobileShowLog(bool v) => logElem.classes.toggle('hidden', !v);
+
 final HtmlElement _messages = querySelector('#messages');
 final ButtonElement _sendButton = querySelector('#chatSend')
   ..onClick.listen((_) {
@@ -105,6 +110,9 @@ void _submitChat({bool roll = false}) {
     _cleanupHistory();
     _saveHistory();
   }
+  if (isMobile) {
+    _chat.focus();
+  }
 }
 
 void _performChat(int pcId, String msg) {
@@ -131,6 +139,15 @@ void initGameLog() {
   var jsonList = jsonDecode(window.localStorage['chat'] ?? '[]');
   _history = List<String>.from([...jsonList, '']);
   _cleanupHistory();
+
+  if (isMobile) {
+    _chat.rows = 1;
+    querySelector('#chatOpen').onClick.listen((_) async {
+      mobileShowLog = true;
+      await window.onTouchStart.firstWhere((ev) => !ev.path.contains(logElem));
+      mobileShowLog = false;
+    });
+  }
 }
 
 SpanElement gameLog(String s, {bool mine = false, bool mild = false}) {
