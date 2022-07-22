@@ -23,6 +23,7 @@ class ServerData {
   static final _manualSaveWatch = Stopwatch();
   static final directory = Directory('database');
   static final file = File(path.join(directory.path, 'data.json'));
+  static bool _isInitialized = false;
 
   final histogram = PlayingHistogram(path.join(directory.path, 'histogram'));
   final accounts = <Account>[];
@@ -34,6 +35,7 @@ class ServerData {
     await histogram.load();
     histogram.startTracking();
     _manualSaveWatch.start();
+    _isInitialized = true;
   }
 
   Account getAccount(String email, {bool alreadyEncrypted = false}) {
@@ -81,6 +83,8 @@ class ServerData {
   }
 
   Future<void> save() async {
+    if (!_isInitialized) return print('Not initialized, skipped save.');
+
     var json = JsonEncoder.withIndent(' ').convert(toJson());
     // print(json);
     await file.writeAsString(json);
