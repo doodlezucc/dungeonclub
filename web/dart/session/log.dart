@@ -15,6 +15,8 @@ RollCombo _command;
 List<String> _history;
 int _historyIndex = 0;
 HtmlElement get logElem => querySelector('#log');
+ButtonElement get _chatOpenButton => querySelector('#chatOpen');
+HtmlElement get _miniChat => querySelector('#miniChat');
 
 bool get mobileShowLog => !logElem.classes.contains('hidden');
 set mobileShowLog(bool v) => logElem.classes.toggle('hidden', !v);
@@ -142,7 +144,7 @@ void initGameLog() {
 
   if (isMobile) {
     _chat.rows = 1;
-    querySelector('#chatOpen').onClick.listen((_) async {
+    _chatOpenButton.onClick.listen((_) async {
       mobileShowLog = true;
       await window.onTouchStart.firstWhere((ev) => !ev.path.contains(logElem));
       mobileShowLog = false;
@@ -172,7 +174,30 @@ SpanElement gameLog(String s, {bool mine = false, bool mild = false}) {
     });
   }
 
+  if (isMobile) miniLog(s);
+
   return line;
+}
+
+void miniLog(String s) {
+  var mini = SpanElement()
+    ..className = 'tooltip'
+    ..innerHtml = s;
+
+  _miniChat.append(mini);
+
+  mini.animate([
+    {'opacity': 1},
+    {'opacity': 0.9},
+  ], 1000);
+
+  Future.delayed(Duration(seconds: 5), () {
+    mini.animate([
+      {'opacity': 0.9},
+      {'opacity': 0},
+    ], 1000);
+    Future.delayed(Duration(seconds: 1), mini.remove);
+  });
 }
 
 void demoLog(String s) {
