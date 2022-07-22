@@ -1,3 +1,8 @@
+## 22-07-2022
+- The website has been vastly improved for *mobile devices*.
+- If you're using a touch device, you can now *pinch zoom* on battle maps.
+- You can now *compile or host* Dungeon Club yourself. For more information, take a look at the GitHub repository.
+
 ## 18-04-2022
 - Introduced *dice parsing*. Enter any roll command [(e.g. "2d8 + d4")] directly into the chat to receive a compact summary.
 - You can now reuse previous chat messages by pressing the *Up/Down Arrow* keys.
