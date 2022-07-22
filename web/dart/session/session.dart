@@ -147,7 +147,7 @@ class Session extends Game {
     if (isDM) {
       logInviteLink(this);
     } else {
-      gameLog('Hello, ${myCharacter.name}!', mine: true);
+      gameLog('Hello, ${myCharacter.name}!');
     }
 
     document.body.classes.add('is-session');

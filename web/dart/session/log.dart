@@ -119,8 +119,12 @@ void _submitChat({bool roll = false}) {
 
 void _performChat(int pcId, String msg) {
   var name = pcId == null ? 'GM' : user.session.characters[pcId].name;
+  var mine = pcId == user.session.charId;
 
-  gameLog('<span class="dice">$name</span> $msg');
+  gameLog(
+    (mine ? '' : '<span class="dice">$name</span> ') + msg,
+    mine: mine,
+  );
 }
 
 void onChat(Map<String, dynamic> params) {

@@ -618,6 +618,8 @@
         overflow-wrap: break-word;
         background-color: var(--color-not-intense);
         border-radius: 8px;
+        max-width: 80%;
+        width: max-content;
 
         > span {
             color: #999;
@@ -628,7 +630,7 @@
         &.hidden { opacity: 0.6; }
 
         &.mine {
-            background-color: var(--color-not-intense);
+            align-self: flex-end;
         }
     }
 
