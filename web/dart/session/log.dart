@@ -195,6 +195,7 @@ SpanElement gameLog(String s, {int msgType = msgSystem, bool mild = false}) {
 }
 
 void miniLog(String s) {
+  if (mobileShowLog) return;
   var mini = SpanElement()
     ..className = 'tooltip'
     ..innerHtml = s;

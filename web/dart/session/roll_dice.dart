@@ -46,10 +46,6 @@ void initDiceTable() {
 
   void sendSingleRoll(int sides, int repeat) async {
     await sendRollDice(RollCombo([SingleRoll(repeat, sides)]));
-
-    if (isMobile) {
-      _button.classes.remove('hovered');
-    }
   }
 
   [4, 6, 8, 10, 12, 20, 100].forEach((sides) {
