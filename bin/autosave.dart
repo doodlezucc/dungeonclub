@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:archive/archive_io.dart';
 import 'package:path/path.dart' as p;
@@ -48,38 +49,53 @@ class AutoSaver {
 
   Future<void> zipTo(String path,
       {bool force = false, bool includeImages = false}) async {
-    var zipFile = File(path);
-    if (!force && await zipFile.exists()) return;
+    if (!force && await File(path).exists()) return;
 
     print('Saving backup... ($path)');
     await data.save();
-    var encoder = ZipFileEncoder();
-    encoder.create(path);
 
-    var dir = ServerData.directory;
-    var files = await dir.list(recursive: true).toList();
-    for (var file in files) {
-      if (file is! File) {
-        continue;
-      }
+    var receive = ReceivePort();
+    var isolate = await Isolate.spawn(
+        _isolateZip, [receive.sendPort, path, includeImages]);
 
-      var fp = file.path;
+    double sizeInMBs = await receive.first;
+    print('Zipped backup size: ${sizeInMBs.toStringAsFixed(2)} MB');
 
-      if (!includeImages) {
-        var ext = p.extension(fp);
-        if (!(ext == '.json' || fp.endsWith('histogram'))) {
-          continue;
-        }
-      }
+    receive.close();
+    isolate.kill();
+  }
+}
 
-      var relPath = p.relative(fp, from: dir.path);
-      encoder.addFile(file, relPath);
+void _isolateZip(List<Object> args) async {
+  SendPort port = args[0];
+  String path = args[1];
+  bool includeImages = args[2];
+
+  var encoder = ZipFileEncoder();
+  encoder.create(path);
+
+  var dir = ServerData.directory;
+  var files = await dir.list(recursive: true).toList();
+  for (var file in files) {
+    if (file is! File) {
+      continue;
     }
 
-    encoder.close();
+    var fp = file.path;
 
-    var stat = await zipFile.stat();
-    var sizeInMBs = stat.size / 1024 / 1024;
-    print('Zipped backup size: ${sizeInMBs.toStringAsFixed(2)} MB');
+    if (!includeImages) {
+      var ext = p.extension(fp);
+      if (!(ext == '.json' || fp.endsWith('histogram'))) {
+        continue;
+      }
+    }
+
+    var relPath = p.relative(fp, from: dir.path);
+    encoder.addFile(file, relPath);
   }
+
+  encoder.close();
+
+  var stat = await File(path).stat();
+  port.send(stat.size / 1024 / 1024);
 }
