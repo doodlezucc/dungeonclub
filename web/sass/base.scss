@@ -686,7 +686,7 @@ footer {
     }
 
     @include mixins.on-desktop {
-        &:hover, &.hovered {
+        &:hover {
             > span {
                 opacity: 1;
             }
