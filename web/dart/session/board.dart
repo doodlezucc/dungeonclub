@@ -690,27 +690,30 @@ class Board {
             }
           }
 
-          // Pinch zooming
-          if (ev is TouchEvent && ev.touches.length > 1 && pan) {
-            var distance = pinchDistance(ev.touches);
-            var offset = offCenter(point);
-            var off1 = offset * (1 / scaledZoom);
-            var nZoom = pinchZoomStart * (distance / pinchStart);
-            var deltaZoom = nZoom - scaledZoom;
-            transform.scaledZoom = nZoom;
-            lastZooms.add(deltaZoom);
-            var off2 = offset * (1 / scaledZoom);
-            var delta = off2 - off1;
-            position += delta;
-          }
-
           var sev = toSimple(ev);
-          lastPoints.add(sev.movement);
           moveStreamCtrl.add(sev);
           lastEv = sev;
 
-          if (lastZooms.length > 5) lastZooms.removeFirst();
-          if (lastPoints.length > 5) lastPoints.removeFirst();
+          if (ev is TouchEvent && pan) {
+            if (ev.touches.length == 1) {
+              // Pinch zooming
+              lastPoints.add(sev.movement);
+            } else {
+              // Pinch zooming
+              var distance = pinchDistance(ev.touches);
+              var offset = offCenter(point);
+              var off1 = offset * (1 / scaledZoom);
+              var nZoom = pinchZoomStart * (distance / pinchStart);
+              var deltaZoom = nZoom - scaledZoom;
+              transform.scaledZoom = nZoom;
+              lastZooms.add(deltaZoom);
+              var off2 = offset * (1 / scaledZoom);
+              var delta = off2 - off1;
+              position += delta;
+            }
+            if (lastZooms.length > 5) lastZooms.removeFirst();
+            if (lastPoints.length > 5) lastPoints.removeFirst();
+          }
         } else {
           if (selectedPrefab != null) {
             var p = evToPoint(ev) - _e.getBoundingClientRect().topLeft;
