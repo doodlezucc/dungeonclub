@@ -35,17 +35,34 @@ final httpClient = http.Client();
 const wsPing = Duration(seconds: 15);
 
 const SERVE_PORT = 'port';
+const SERVE_BOOTSTRAP = 'bootstrap';
+const SERVE_BOOTSTRAP_NONE = 'none';
+const SERVE_BOOTSTRAP_LOGGING = 'logging';
+const SERVE_BOOTSTRAP_ALL = 'all';
+const SERVE_BOOTSTRAP_ALLOWED = [
+  SERVE_BOOTSTRAP_NONE,
+  SERVE_BOOTSTRAP_LOGGING,
+  SERVE_BOOTSTRAP_ALL,
+];
 
 void main(List<String> args) {
   resetCurrentWorkingDir();
   var logFile = 'logs/latest.log';
+
+  var D = serverParser.tryArgParse(args);
+  var bootstrapMode = D[SERVE_BOOTSTRAP];
+
+  if (bootstrapMode == SERVE_BOOTSTRAP_NONE) {
+    return run(args);
+  }
 
   return bootstrap(
     run,
     args: args,
     fileOut: logFile,
     fileErr: logFile,
-    enableChildProcess: Environment.isCompiled,
+    enableChildProcess:
+        bootstrapMode == SERVE_BOOTSTRAP_ALL || Environment.isCompiled,
     onExit: onExit,
   );
 }
@@ -62,7 +79,7 @@ void run(List<String> args) async {
   if (await maintainer.file.exists()) {
     print('Server restart blocked by maintenance file!');
     await Future.delayed(Duration(seconds: 5));
-    return;
+    return exit(1);
   }
 
   print('Starting server...');
@@ -126,6 +143,27 @@ final serverParser =
     SERVE_PORT,
     abbr: 'p',
     help: 'Specifies the server port.\n(defaults to 7070)',
+  );
+
+  var defaultBoot = SERVE_BOOTSTRAP_LOGGING;
+  if (Environment.isCompiled) {
+    defaultBoot = SERVE_BOOTSTRAP_ALL;
+  } else if (isDebugMode) {
+    defaultBoot = SERVE_BOOTSTRAP_NONE;
+  }
+
+  argParser.addOption(
+    SERVE_BOOTSTRAP,
+    aliases: ['boot'],
+    allowed: SERVE_BOOTSTRAP_ALLOWED,
+    defaultsTo: defaultBoot,
+    allowedHelp: {
+      SERVE_BOOTSTRAP_NONE: 'Run without additional functionality',
+      SERVE_BOOTSTRAP_LOGGING: 'Enable log files',
+      SERVE_BOOTSTRAP_ALL:
+          'Enable log files and graceful exits (launches in a detached process)'
+    },
+    help: 'Which parts to enable in the bootstrapper.',
   );
 });
 

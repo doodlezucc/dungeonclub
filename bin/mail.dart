@@ -233,4 +233,5 @@ Future<void> setupMailAuth() async {
   await MailCredentials.save();
   httpClient.close();
   print('\nAuthorization complete! Emails can now be sent from $user');
+  exit(0);
 }

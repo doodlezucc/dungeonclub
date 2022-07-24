@@ -86,16 +86,16 @@ dart bin/build.dart [options]
 For a list of possible arguments, run `dart bin/build.dart --help` or refer to the next section.
 
 ## Command Line Arguments
-The following options may be entered as arguments to both the server and the builder file.
-
-Additional arguments can be provided when running a server or when compiling Dungeon Club into native machine code.
+The following options may be entered as arguments to the server and/or builder.
 
 Option | Definition | Default (serve) | Default (build)
 ------ | ---------- | --------------- | ---------------
+`-h, --help` | Prints a list of available flags and options.
 `--[no-]mock-account` | Whether to accept contents of "login.yaml" as a list of registered accounts. | `false` | `true`
 `--[no-]music` | Whether to enable the integrated music player. Server hosts may need to install youtube-dl and ffmpeg to download 500 MB of background music. | `true` | `false`
 **Server Only**
 `-p, --port` | Specifies the server port. | `7070` |
+`--bootstrap` | <ul><li>`all` - Enable log files and graceful exits</li><li>`logging` - Enable log files</li><li>`none` - Bypass bootstrapper</li></ul> | `all` |
 **Build Only**
 `--[no-]copy-music` | Whether to include locally downloaded music (ambience/tracks/*.mp3) in the build. | | `false`
 `--part` | Which parts to compile and include in the build. Can be `server` or `all`. | | `all`
