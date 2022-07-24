@@ -107,7 +107,8 @@ void processUrlPath() {
     }
   }
 
-  (querySelector('a.title') as AnchorElement).href = _homeUrl;
+  querySelectorAll('a.title')
+      .forEach((e) => (e as AnchorElement).href = _homeUrl);
 }
 
 void _listenToCssReload() {
