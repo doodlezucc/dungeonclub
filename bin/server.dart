@@ -239,6 +239,8 @@ Future<Response> _handleRequest(Request request) async {
     return await ws.webSocketHandler(onConnect, pingInterval: wsPing)(request);
   } else if (path.isEmpty || path == 'home') {
     path = 'index.html';
+  } else if (path == 'privacy') {
+    path += '.html';
   } else if (path.endsWith('.mp4')) {
     var vid = path.substring(path.lastIndexOf('/'));
     return Response.seeOther('$githubUrl/web/videos$vid', headers: {
