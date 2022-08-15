@@ -1,7 +1,7 @@
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dnd_interactive/actions.dart';
+import 'package:dungeonclub/actions.dart';
 import 'package:meta/meta.dart';
 
 import '../../main.dart';

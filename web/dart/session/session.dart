@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dnd_interactive/environment.dart';
+import 'package:dungeonclub/environment.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';

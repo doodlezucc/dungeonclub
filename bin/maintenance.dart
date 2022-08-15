@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dnd_interactive/actions.dart';
+import 'package:dungeonclub/actions.dart';
 
 import 'connections.dart';
 import 'server.dart';

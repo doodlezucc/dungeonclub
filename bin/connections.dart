@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:dnd_interactive/actions.dart' as a;
-import 'package:dnd_interactive/comms.dart';
-import 'package:dnd_interactive/dice_parser.dart';
-import 'package:dnd_interactive/limits.dart';
-import 'package:dnd_interactive/point_json.dart';
+import 'package:dungeonclub/actions.dart' as a;
+import 'package:dungeonclub/comms.dart';
+import 'package:dungeonclub/dice_parser.dart';
+import 'package:dungeonclub/limits.dart';
+import 'package:dungeonclub/point_json.dart';
 import 'package:meta/meta.dart';
 import 'package:random_string/random_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dnd_interactive/environment.dart';
+import 'package:dungeonclub/environment.dart';
 import 'package:graceful/graceful.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;

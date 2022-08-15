@@ -2,7 +2,7 @@ import 'dart:html';
 import 'dart:math';
 import 'dart:svg' as svg;
 
-import 'package:dnd_interactive/point_json.dart';
+import 'package:dungeonclub/point_json.dart';
 import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';

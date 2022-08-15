@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:dnd_interactive/actions.dart';
-import 'package:dnd_interactive/comms.dart';
-import 'package:dnd_interactive/environment.dart';
+import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/comms.dart';
+import 'package:dungeonclub/environment.dart';
 import 'package:path/path.dart';
 import 'package:web_whiteboard/communication/web_socket.dart';
 

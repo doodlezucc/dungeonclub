@@ -5,9 +5,9 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:crypt/crypt.dart';
-import 'package:dnd_interactive/actions.dart' as a;
-import 'package:dnd_interactive/limits.dart';
-import 'package:dnd_interactive/point_json.dart';
+import 'package:dungeonclub/actions.dart' as a;
+import 'package:dungeonclub/limits.dart';
+import 'package:dungeonclub/point_json.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
 import 'package:web_whiteboard/communication/data_socket.dart';

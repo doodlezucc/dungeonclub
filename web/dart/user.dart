@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:dnd_interactive/actions.dart';
+import 'package:dungeonclub/actions.dart';
 
 import '../main.dart';
 import 'account.dart';

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dnd_interactive/environment.dart';
+import 'package:dungeonclub/environment.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';

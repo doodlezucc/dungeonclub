@@ -1,7 +1,7 @@
 import 'dart:html';
 import 'dart:svg' as svg;
 
-import 'package:dnd_interactive/actions.dart';
+import 'package:dungeonclub/actions.dart';
 import 'package:web_polymask/polygon_canvas.dart';
 
 import '../communication.dart';

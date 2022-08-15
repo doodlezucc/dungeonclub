@@ -4,9 +4,9 @@ import 'dart:html';
 import 'dart:math';
 import 'dart:svg' as svg;
 
-import 'package:dnd_interactive/actions.dart' as a;
-import 'package:dnd_interactive/limits.dart';
-import 'package:dnd_interactive/point_json.dart';
+import 'package:dungeonclub/actions.dart' as a;
+import 'package:dungeonclub/limits.dart';
+import 'package:dungeonclub/point_json.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';

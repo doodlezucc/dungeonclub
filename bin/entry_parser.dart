@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:dnd_interactive/environment.dart';
+import 'package:dungeonclub/environment.dart';
 
 typedef ParserBuilder = void Function(
   ArgParser parser,

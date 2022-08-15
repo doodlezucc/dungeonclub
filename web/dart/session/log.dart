@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dnd_interactive/actions.dart';
-import 'package:dnd_interactive/dice_parser.dart';
+import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/dice_parser.dart';
 
 import '../../main.dart';
 import '../communication.dart';

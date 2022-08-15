@@ -1,6 +1,6 @@
 import 'dart:html';
 
-import 'package:dnd_interactive/actions.dart';
+import 'package:dungeonclub/actions.dart';
 
 import '../communication.dart';
 import 'character.dart';

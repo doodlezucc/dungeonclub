@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dnd_interactive/actions.dart';
+import 'package:dungeonclub/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';

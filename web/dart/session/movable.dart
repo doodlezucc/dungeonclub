@@ -1,7 +1,7 @@
 import 'dart:html';
 import 'dart:math' as math;
 
-import 'package:dnd_interactive/point_json.dart';
+import 'package:dungeonclub/point_json.dart';
 import 'package:meta/meta.dart';
 
 import '../font_awesome.dart';

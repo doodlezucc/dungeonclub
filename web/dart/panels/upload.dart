@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dnd_interactive/actions.dart';
-import 'package:dnd_interactive/point_json.dart';
+import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/point_json.dart';
 import 'package:meta/meta.dart';
 
 import '../../main.dart';

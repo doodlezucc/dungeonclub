@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:html';
 
-import 'package:dnd_interactive/limits.dart';
+import 'package:dungeonclub/limits.dart';
 
 import '../main.dart';
 import 'changelog.dart';

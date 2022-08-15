@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:dnd_interactive/actions.dart';
-import 'package:dnd_interactive/limits.dart';
+import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/limits.dart';
 
 import '../../main.dart';
 import '../communication.dart';

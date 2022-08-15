@@ -5,8 +5,8 @@ import 'dart:math';
 import 'package:ambience/ambience.dart';
 import 'package:ambience/audio_track.dart';
 import 'package:ambience/metadata.dart';
-import 'package:dnd_interactive/actions.dart';
-import 'package:dnd_interactive/environment.dart';
+import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/environment.dart';
 
 import '../../main.dart';
 import '../communication.dart';

@@ -1,7 +1,7 @@
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dnd_interactive/point_json.dart';
+import 'package:dungeonclub/point_json.dart';
 
 final _viewportM = sqrt(1920 / max(window.innerWidth, window.innerHeight));
 final _zoomMin = -1 * _viewportM;

@@ -1,7 +1,7 @@
 import 'dart:html';
 
-import 'package:dnd_interactive/actions.dart';
-import 'package:dnd_interactive/point_json.dart';
+import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/point_json.dart';
 
 import '../main.dart';
 import 'session/log.dart';

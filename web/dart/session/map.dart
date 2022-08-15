@@ -5,8 +5,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
-import 'package:dnd_interactive/actions.dart';
-import 'package:dnd_interactive/limits.dart';
+import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/limits.dart';
 import 'package:web_whiteboard/whiteboard.dart';
 
 import '../../main.dart';
