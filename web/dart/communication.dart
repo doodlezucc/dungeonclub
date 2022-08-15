@@ -20,7 +20,7 @@ String get webPort => window.location.port;
 final String _serverAddress = isOnLocalHost
     ? 'http://localhost:' +
         ((!Environment.isCompiled && webPort == '8080') ? '7070' : webPort)
-    : join(window.location.origin, 'dnd');
+    : window.location.origin;
 
 final Map<String, String> localRedirect = {};
 

@@ -2,8 +2,8 @@
 
 An online platform to gather and play Dungeons & Dragons, Call of Cthulu, Pathfinder and more.
 
-[**Dungeon Club**](https://theoretically.online/dnd) strives to be the most *user-friendly* virtual tabletop of all, providing tons of features and a comfortable design.
-Visit the homepage for a demonstration of features or [try the demo](https://theoretically.online/dnd/game/sandbox) right now!
+[**Dungeon Club**](https://dungeonclub.net) strives to be the most *user-friendly* virtual tabletop of all, providing tons of features and a comfortable design.
+Visit the homepage for a demonstration of features or [try the demo](https://dungeonclub.net/game/sandbox) right now!
 
 ## Development
 There are three essential parts to debugging and running this VTT locally, all of which require an [installation of Dart](https://dart.dev/get-dart).
@@ -55,7 +55,7 @@ Changes to the source code are reflected at different times depending on what pa
 - **Website Stylesheet** - after refreshing the website or by pressing <kbd>Shift</kbd>+<kbd>R</kbd> (not available on Firefox).
 
 ## Self-Hosting
-You can find the official public version of Dungeon Club at https://theoretically.online/dnd. In case you (for one reason or another) want to host a local server on your machine, there are two ways to achieve this.
+You can find the official public version of Dungeon Club at https://dungeonclub.net. In case you (for one reason or another) want to host a local server on your machine, there are two ways to achieve this.
 
 ### Pre-Compiled Releases
 
