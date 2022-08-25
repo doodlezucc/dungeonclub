@@ -35,8 +35,10 @@ void _initVisibility() {
 
   button.onClick.listen((_) {
     _visible = !_visible;
+    window.localStorage['rollPublic'] = '$_visible';
     update();
   });
+  _visible = window.localStorage['rollPublic'] == 'true';
   update();
 }
 
