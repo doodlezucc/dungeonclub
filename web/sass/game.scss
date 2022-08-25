@@ -693,12 +693,19 @@
 }
 
 #chatRoll {
-    color: var(--color-primary);
+    transition: 0.2s ease-out;
 
-    &:disabled {
-        margin-top: -100%;
+    &.disabled {
+        pointer-events: none;
+        margin-top: -36px;
         opacity: 0;
     }
+}
+#chatRollPublic {
+    color: var(--color-primary);
+}
+#chatSend {
+    align-self: flex-end;
 }
 
 #miniChat {

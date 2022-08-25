@@ -73,7 +73,7 @@ void _initScrollControls() {
   });
 }
 
-Future<void> sendRollDice(RollCombo combo) async {
+Future<void> sendRollDice(RollCombo combo, {bool visible}) async {
   if (combo?.rolls?.isEmpty ?? true) return;
 
   if (user.isInDemo) {
@@ -88,7 +88,7 @@ Future<void> sendRollDice(RollCombo combo) async {
   var results = await socket.request(GAME_ROLL_DICE, {
     ...combo.toJson(),
     'id': user.session.charId,
-    if (user.session.isDM) 'public': _visible,
+    if (user.session.isDM) 'public': visible ?? _visible,
   });
 
   onDiceRollJson(results);
