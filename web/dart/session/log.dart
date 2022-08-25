@@ -11,6 +11,8 @@ import '../formatting.dart';
 import 'roll_dice.dart';
 import 'session.dart';
 
+const _historyLimit = 50;
+
 RollCombo _command;
 List<String> _history;
 int _historyIndex = 0;
@@ -134,6 +136,10 @@ void onChat(Map<String, dynamic> params) {
 }
 
 void _saveHistory() {
+  while (_history.length - 1 > _historyLimit) {
+    _history.removeAt(0);
+  }
+
   window.localStorage['chat'] =
       jsonEncode(_history.sublist(0, _history.length - 1));
 }
