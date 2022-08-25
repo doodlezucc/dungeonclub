@@ -10,7 +10,6 @@ import '../font_awesome.dart';
 import '../panels/context_menu.dart';
 import '../panels/panel_overlay.dart';
 import '../panels/upload.dart';
-import 'character.dart';
 import 'movable.dart';
 import 'prefab.dart';
 
@@ -238,7 +237,7 @@ class InitiativeTracker {
     for (var entry in _summary.entries) {
       if (entry.movable.id == id) {
         var prefab = entry.movable.prefab;
-        if (prefab is CharacterPrefab) prefab.character.defaultModifier = mod;
+        if (prefab is HasInitiativeMod) prefab.initiativeMod = mod;
 
         entry.modifier = mod;
         return _summary.sort();
@@ -377,9 +376,6 @@ class InitiativeEntry {
     }
   }
 
-  bool get isChar => movable.prefab is CharacterPrefab;
-  Character get char =>
-      isChar ? (movable.prefab as CharacterPrefab).character : null;
   int get total => base + modifier;
 
   int _modifier;
@@ -389,7 +385,10 @@ class InitiativeEntry {
     modText.text = (modifier >= 0 ? '+$modifier' : '$modifier');
     totalText.text = '$total';
 
-    char?.defaultModifier = modifier;
+    var pref = movable.prefab;
+    if (pref is HasInitiativeMod) {
+      pref.initiativeMod = modifier;
+    }
   }
 
   InitiativeEntry(this.movable, this.base, bool dmOnly) {
@@ -422,7 +421,12 @@ class InitiativeEntry {
       });
 
     this.dmOnly = dmOnly;
-    modifier = char?.defaultModifier ?? 0;
+    var pref = movable.prefab;
+    if (pref is HasInitiativeMod) {
+      modifier = pref.initiativeMod;
+    } else {
+      modifier = 0;
+    }
   }
 
   void _onClick(MouseEvent ev) async {
@@ -458,7 +462,6 @@ class InitiativeEntry {
         'id': movable.id,
         'mod': modifier,
         'dm': dmOnly,
-        if (isChar) 'pc': char.id,
       });
     }
   }

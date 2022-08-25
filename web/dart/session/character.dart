@@ -12,7 +12,6 @@ class Character {
   final String name;
   final int id;
   final CharacterPrefab prefab;
-  int defaultModifier;
 
   final HtmlElement _onlineIndicator;
   bool _hasJoined = false;
@@ -34,7 +33,6 @@ class Character {
     Session session, {
     @required String color,
     @required this.name,
-    this.defaultModifier = 0,
     Map prefabJson,
     bool joined = false,
   })  : prefab = CharacterPrefab(),
@@ -65,7 +63,6 @@ class Character {
           session,
           color: color,
           name: json['name'],
-          defaultModifier: json['mod'],
           joined: json['connected'] ?? false,
           prefabJson: json['prefab'],
         );

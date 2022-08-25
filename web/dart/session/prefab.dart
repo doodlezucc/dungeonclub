@@ -88,7 +88,17 @@ class EmptyPrefab extends Prefab {
   }
 }
 
-class CharacterPrefab extends Prefab {
+mixin HasInitiativeMod on Prefab {
+  int initiativeMod = 0;
+
+  @override
+  void fromJson(Map<String, dynamic> json) {
+    super.fromJson(json);
+    initiativeMod = json['mod'] ?? 0;
+  }
+}
+
+class CharacterPrefab extends Prefab with HasInitiativeMod {
   Character _character;
   Character get character => _character;
   set character(Character c) {
@@ -107,7 +117,7 @@ class CharacterPrefab extends Prefab {
   String img({bool cacheBreak = true}) => character.img;
 }
 
-class CustomPrefab extends Prefab {
+class CustomPrefab extends Prefab with HasInitiativeMod {
   final int _id;
   String _name;
   String _bufferedImg;

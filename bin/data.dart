@@ -348,7 +348,9 @@ class Game {
     return p;
   }
 
-  EntityBase getPrefab(String id) {
+  HasInitiativeMod getPrefab(String id) {
+    if (id == 'e') return null;
+
     var isPC = id[0] == 'c';
     if (isPC) {
       return _characters[int.parse(id.substring(1))].prefab;
@@ -613,21 +615,22 @@ class GameMap {
 class PlayerCharacter {
   Connection connection;
   String name;
-  int initiativeMod;
   final CharacterPrefab prefab;
 
-  PlayerCharacter(this.name)
-      : prefab = CharacterPrefab(),
-        initiativeMod = 0;
+  PlayerCharacter(this.name) : prefab = CharacterPrefab();
   PlayerCharacter.fromJson(Map<String, dynamic> json)
       : name = json['name'],
-        prefab = CharacterPrefab()..fromJson(json['prefab'] ?? {}),
-        initiativeMod = json['mod'] ?? 0;
+        prefab = CharacterPrefab()..fromJson(json['prefab'] ?? {}) {
+    /// Legacy
+    /// Initiative mod was saved in PlayerCharacter instead of mixin
+    if (json['mod'] != null) {
+      prefab.mod = json['mod'];
+    }
+  }
 
   Map<String, dynamic> toJson({bool includeStatus = false}) => {
         'name': name,
         'prefab': prefab.toJson(),
-        'mod': initiativeMod,
         if (includeStatus) 'connected': connection != null,
       };
 }
@@ -731,14 +734,30 @@ abstract class EntityBase {
       };
 }
 
-class CharacterPrefab extends EntityBase {
+mixin HasInitiativeMod on EntityBase {
+  int mod = 0;
+
+  @override
+  void fromJson(Map<String, dynamic> json) {
+    super.fromJson(json);
+    mod = json['mod'] ?? 0;
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        ...super.toJson(),
+        'mod': mod,
+      };
+}
+
+class CharacterPrefab extends EntityBase with HasInitiativeMod {
   CharacterPrefab({int size}) : super(size: size);
   CharacterPrefab.fromJson(Map<String, dynamic> json) {
     fromJson(json);
   }
 }
 
-class CustomPrefab extends EntityBase {
+class CustomPrefab extends EntityBase with HasInitiativeMod {
   final int id;
   String name;
   List<int> accessIds;

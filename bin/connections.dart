@@ -531,7 +531,6 @@ class Connection extends Socket {
 
       case a.GAME_UPDATE_INITIATIVE:
         int id = params['id'];
-        int pc = params['pc'];
         int mod = params['mod'];
         bool dmOnly = params['dm'];
 
@@ -539,9 +538,9 @@ class Connection extends Socket {
             .firstWhere((ini) => ini.movableId == id);
         initiative.mod = mod;
 
-        if (pc != null) {
-          _game.characters.elementAt(pc).initiativeMod = mod;
-        }
+        var movable = scene.getMovable(id);
+        var prefab = _game.getPrefab(movable.prefab);
+        prefab?.mod = mod;
 
         if (dmOnly != null) {
           if (initiative.dmOnly != dmOnly) {
@@ -569,11 +568,8 @@ class Connection extends Socket {
 
         var mod = 0;
         var movable = scene.getMovable(id);
-        if (movable.prefab.startsWith('c')) {
-          var charId = int.parse(movable.prefab.substring(1));
-          var character = _game.characters.elementAt(charId);
-          mod = character.initiativeMod;
-        }
+        var prefab = _game.getPrefab(movable.prefab);
+        mod = prefab?.mod ?? 0;
 
         scene.initiativeState.initiatives.add(Initiative(id, roll, mod, dm));
         if (dm) return;
