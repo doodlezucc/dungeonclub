@@ -45,13 +45,24 @@ class AmbienceState {
   num inside = 0;
   int crowd = -1;
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson({bool includeTracklist = true}) => {
         'playlist': playlistName,
         'weather': weather,
         'inside': inside,
         'crowd': crowd,
-        if (list != null) ...list.toJson(),
+        if (includeTracklist && list != null) ...list.toJson(),
       };
+
+  void fromJson(Map<String, dynamic> json) {
+    playlistName = json['playlist'];
+    ambienceFromJson(json);
+    var pl = collection.playlists.firstWhere(
+      (pl) => pl.title == json['playlist'],
+      orElse: () => null,
+    );
+
+    list = pl?.toTracklist(shuffle: true);
+  }
 
   void ambienceFromJson(json) {
     weather = json['weather'];

@@ -469,7 +469,11 @@ class Game {
             .toList(),
         _maps = List.from(json['maps'] ?? [])
             .map((j) => GameMap.fromJson(j))
-            .toList();
+            .toList() {
+    if (json['ambience'] != null) {
+      ambience.fromJson(json['ambience']);
+    }
+  }
 
   Map<String, dynamic> toJson() => {
         'scene': playingSceneId,
@@ -477,6 +481,7 @@ class Game {
         'scenes': _scenes.map((e) => e.toJson(true)).toList(),
         'prefabs': _prefabs.map((e) => e.toJson()).toList(),
         'maps': _maps.map((e) => e.toJson()).toList(),
+        'ambience': ambience.toJson(includeTracklist: false),
       };
 
   Map<String, dynamic> toSessionSnippet(Connection c, [int mine]) => {
