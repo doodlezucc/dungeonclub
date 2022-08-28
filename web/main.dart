@@ -23,11 +23,10 @@ String _homeUrl;
 String get homeUrl => _homeUrl;
 
 void main() async {
+  document.title = appName;
   _listenToCssReload();
   applyEnvironmentStyling();
   applyMobileStyling();
-
-  print('Ready!');
 
   querySelector('#signup').onClick.listen((_) {
     registerPanel.display();
