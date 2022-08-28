@@ -50,6 +50,12 @@ final TextAreaElement _chat = querySelector('#chat textarea')
       case 40:
         _navigateHistory(1);
         return ev.preventDefault();
+      // Tab
+      case 9:
+        if (_command != null) {
+          rollPublic = !rollPublic;
+        }
+        return ev.preventDefault();
       default:
     }
   })
@@ -190,7 +196,7 @@ SpanElement gameLog(
     line.classes.add('hidden');
   }
   if (private) {
-    line.append(icon('user-lock')
+    line.append(icon('eye-slash')
       ..classes.add('with-tooltip')
       ..append(SpanElement()..text = 'Private'));
   }
