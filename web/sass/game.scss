@@ -692,17 +692,20 @@
     }
 }
 
-#chatRoll {
+#chatRoller {
+    display: flex;
     transition: 0.2s ease-out;
+    margin-top: 0;
 
     &.disabled {
         pointer-events: none;
-        margin-top: -36px;
+        margin-top: -50%;
         opacity: 0;
     }
-}
-#chatRollPublic {
-    color: var(--color-primary);
+
+    button {
+        color: var(--color-primary);
+    }
 }
 #chatSend {
     align-self: flex-end;

@@ -28,16 +28,11 @@ final ButtonElement _sendButton = querySelector('#chatSend')
   ..onClick.listen((_) {
     _submitChat();
   });
-HtmlElement get _rollButtonContainer => querySelector('#chatRoll');
+HtmlElement get _rollButtonContainer => querySelector('#chatRoller');
 final ButtonElement _rollButton =
-    _rollButtonContainer.querySelector('#chatRollPublic')
+    _rollButtonContainer.querySelector('#chatRoll')
       ..onClick.listen((_) {
         _submitChat(roll: true);
-      });
-final ButtonElement _rollButtonPrivate =
-    _rollButtonContainer.querySelector('#chatRollPrivate')
-      ..onClick.listen((_) {
-        _submitChat(roll: true, rollPrivate: true);
       });
 final TextAreaElement _chat = querySelector('#chat textarea')
   ..onKeyDown.listen((ev) {
@@ -93,8 +88,6 @@ void _updateSendButton() {
     if (_command != null) {
       var cmdHtml = wrapAround(_command.toCommandString(), 'b');
       _rollButton.querySelector('span').innerHtml = 'Roll $cmdHtml';
-      _rollButtonPrivate.querySelector('span').innerHtml =
-          'Roll $cmdHtml (private)';
     }
   } else {
     _command = null;
@@ -102,13 +95,13 @@ void _updateSendButton() {
   _rollButtonContainer.classes.toggle('disabled', _command == null);
 }
 
-void _submitChat({bool roll = false, bool rollPrivate = false}) {
+void _submitChat({bool roll = false}) {
   var msg = _chat.value.trimRight();
   if (msg.isNotEmpty) {
     var pc = user.session.charId;
 
     if (roll) {
-      sendRollDice(_command, visible: !rollPrivate);
+      sendRollDice(_command);
     } else {
       _performChat(pc, msg);
       socket.sendAction(GAME_CHAT, {'msg': msg, 'pc': pc});

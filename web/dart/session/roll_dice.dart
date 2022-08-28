@@ -10,12 +10,26 @@ import '../communication.dart';
 import '../formatting.dart';
 import 'log.dart';
 
+const maxRolls = 5;
+
 ButtonElement get _button => querySelector('#diceTab');
 final TableElement _table = _button.querySelector('table#dice');
-bool _visible = true;
+final ElementList _visButtons = querySelectorAll('.roll-visibility');
+
 Timer _rollTimer;
 
-const maxRolls = 5;
+bool _visible = true;
+bool get rollPublic => _visible;
+set rollPublic(bool public) {
+  _visible = public;
+  window.localStorage['rollPublic'] = '$public';
+
+  var icon = public ? 'user-group' : 'user-lock';
+  for (var btn in _visButtons) {
+    btn.querySelector('i').className = 'fas fa-$icon';
+    btn.querySelector('span').text = public ? 'Public' : 'Private';
+  }
+}
 
 int _offset = 0;
 int get offset => _offset;
@@ -25,21 +39,8 @@ set offset(int offset) {
 }
 
 void _initVisibility() {
-  var button = _table.parent.querySelector('span');
-
-  void update() {
-    var icon = _visible ? 'eye' : 'eye-slash';
-    button.querySelector('i').className = 'fas fa-$icon';
-    button.querySelector('span').text = _visible ? 'All Players' : 'Only You';
-  }
-
-  button.onClick.listen((_) {
-    _visible = !_visible;
-    window.localStorage['rollPublic'] = '$_visible';
-    update();
-  });
-  _visible = window.localStorage['rollPublic'] == 'true';
-  update();
+  _visButtons.onClick.listen((_) => rollPublic = !rollPublic);
+  rollPublic = window.localStorage['rollPublic'] != 'false';
 }
 
 void initDiceTable() {
@@ -73,7 +74,7 @@ void _initScrollControls() {
   });
 }
 
-Future<void> sendRollDice(RollCombo combo, {bool visible}) async {
+Future<void> sendRollDice(RollCombo combo) async {
   if (combo?.rolls?.isEmpty ?? true) return;
 
   if (user.isInDemo) {
@@ -88,7 +89,7 @@ Future<void> sendRollDice(RollCombo combo, {bool visible}) async {
   var results = await socket.request(GAME_ROLL_DICE, {
     ...combo.toJson(),
     'id': user.session.charId,
-    if (user.session.isDM) 'public': visible ?? _visible,
+    if (user.session.isDM) 'public': _visible,
   });
 
   onDiceRollJson(results);
