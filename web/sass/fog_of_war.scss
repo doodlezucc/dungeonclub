@@ -46,6 +46,10 @@ $margin: 80px;
     }
 }
 
+mask > rect {
+    --darkreader-inline-fill: white !important;
+}
+
 .polypattern, #polyMaskWrapper.opaque .positive-pole {
     fill: url(#barrier) !important;
     opacity: 0.7;
