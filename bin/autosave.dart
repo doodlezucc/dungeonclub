@@ -91,7 +91,7 @@ void _isolateZip(List<Object> args) async {
     }
 
     var relPath = p.relative(fp, from: dir.path);
-    encoder.addFile(file, relPath);
+    await encoder.addFile(file, relPath);
   }
 
   encoder.close();
