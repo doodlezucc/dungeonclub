@@ -250,8 +250,9 @@ class Board {
     });
     _fowToggle.onClick.listen((ev) {
       if (ev.target == fogOfWar.previewButton) {
-        print(fogOfWar.opaque);
         fogOfWar.opaque = !fogOfWar.opaque;
+      } else if (ev.target == fogOfWar.fillButton) {
+        fogOfWar.fillAllToggle();
       } else {
         mode = FOG_OF_WAR;
       }

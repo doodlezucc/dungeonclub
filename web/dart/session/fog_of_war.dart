@@ -22,6 +22,7 @@ class FogOfWar {
 
   Element get wrapper => querySelector('#polymaskWrapper');
   Element get previewButton => querySelector('#fowPreview');
+  Element get fillButton => querySelector('#fowFill');
 
   bool get opaque => wrapper.classes.contains('opaque');
   set opaque(bool opaque) {
@@ -43,6 +44,15 @@ class FogOfWar {
   void load(String data) {
     if (data != null) {
       canvas.fromData(data);
+      _updateFillClearButtonDisplay();
+    } else {
+      canvas.clear();
+    }
+  }
+
+  void fillAllToggle() {
+    if (canvas.isEmpty) {
+      canvas.fillCanvas();
     } else {
       canvas.clear();
     }
@@ -57,7 +67,16 @@ class FogOfWar {
     maskRect.height.baseVal.newValueSpecifiedUnits(unit, height + _marginPx);
   }
 
+  void _updateFillClearButtonDisplay() {
+    var icon = canvas.isEmpty ? 'paint-roller' : 'xmark';
+    fillButton
+      ..className = 'fas fa-$icon'
+      ..querySelector('span').text =
+          canvas.isEmpty ? 'Fill Scene' : 'Clear Scene';
+  }
+
   void _onPolymaskChange() {
     socket.sendAction(GAME_SCENE_FOG_OF_WAR, {'data': canvas.toData()});
+    _updateFillClearButtonDisplay();
   }
 }

@@ -522,10 +522,6 @@
     }
 }
 
-#fogOfWar:not(.active) {
-    .content { @extend .invisible; }
-}
-
 #selectionArea {
     stroke: white;
     stroke-width: 2px;
@@ -1143,11 +1139,19 @@ $ping-radius: 100px;
     }
 }
 
-#measureSettings {
-    position: absolute;
-    top: 4px;
-    left: 100%;
-    transition-duration: 0.1s;
+#fogOfWar {
+    &:not(.active) {
+        #fowTools { @extend .invisible; }
+    }
+}
+
+.tab-horiz {
+    display: flex;
+    gap: 4px;
+
+    > * {
+        transition: opacity 0.1s;
+    }
 }
 
 #ambience {
