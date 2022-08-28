@@ -39,6 +39,7 @@ class FogOfWar {
         return (ev is! MouseEvent) || (ev as MouseEvent).button == 0;
       }
       ..modifyPoint = (p) => p * (1 / board.scaledZoom);
+    _updateFillClearButtonDisplay();
   }
 
   void load(String data) {
