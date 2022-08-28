@@ -612,6 +612,7 @@
     gap: 6px;
 
     > * {
+        position: relative;
         padding: 8px;
         text-shadow: var(--shadow-text);
         font-size: 1.1em;
@@ -642,6 +643,20 @@
 
         &.mine {
             align-self: flex-end;
+        }
+    }
+
+    i {
+        display: flex;
+        position: absolute;
+        right: 100%;
+        padding: 6px;
+        top: calc(50% - 12px);
+        font-size: 14px;
+        color: var(--color-note);
+
+        span {
+            color: white;
         }
     }
 

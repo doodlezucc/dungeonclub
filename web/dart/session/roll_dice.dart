@@ -89,17 +89,17 @@ Future<void> sendRollDice(RollCombo combo) async {
   var results = await socket.request(GAME_ROLL_DICE, {
     ...combo.toJson(),
     'id': user.session.charId,
-    if (user.session.isDM) 'public': _visible,
+    if (user.session.isDM) 'public': rollPublic,
   });
 
-  onDiceRollJson(results);
+  onDiceRollJson(results, private: user.session.isDM && !rollPublic);
 }
 
-void onDiceRollJson(Map<String, dynamic> json) {
-  onDiceRoll(RollCombo.fromJson(json), initiator: json['id']);
+void onDiceRollJson(Map<String, dynamic> json, {bool private = false}) {
+  onDiceRoll(RollCombo.fromJson(json), initiator: json['id'], private: private);
 }
 
-void onDiceRoll(RollCombo combo, {int initiator}) {
+void onDiceRoll(RollCombo combo, {int initiator, bool private = false}) {
   var mine = initiator == user.session.charId;
 
   var name = mine
@@ -119,6 +119,7 @@ void onDiceRoll(RollCombo combo, {int initiator}) {
     '''$name rolled $comboString
     and got <span>$resultString$sumString''',
     msgType: mine ? msgMine : msgOthers,
+    private: private,
   );
 }
 

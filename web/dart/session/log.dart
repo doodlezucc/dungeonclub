@@ -7,6 +7,7 @@ import 'package:dungeonclub/dice_parser.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../font_awesome.dart';
 import '../formatting.dart';
 import 'roll_dice.dart';
 import 'session.dart';
@@ -169,7 +170,12 @@ const msgOthers = 1;
 const msgSystem = 2;
 const msgBig = 3;
 
-SpanElement gameLog(String s, {int msgType = msgSystem, bool mild = false}) {
+SpanElement gameLog(
+  String s, {
+  int msgType = msgSystem,
+  bool mild = false,
+  bool private = false,
+}) {
   var line = SpanElement()..innerHtml = s;
 
   if (msgType == msgSystem) {
@@ -182,6 +188,11 @@ SpanElement gameLog(String s, {int msgType = msgSystem, bool mild = false}) {
 
   if (mild) {
     line.classes.add('hidden');
+  }
+  if (private) {
+    line.append(icon('user-lock')
+      ..classes.add('with-tooltip')
+      ..append(SpanElement()..text = 'Private'));
   }
 
   _messages.append(line);
