@@ -566,8 +566,8 @@ class Board {
 
         if (mode == FOG_OF_WAR &&
             start.button == 2 &&
-            fogOfWar.canvas.activePolygon != null) {
-          fogOfWar.canvas.instantiateActivePolygon();
+            fogOfWar.canvas.activePath != null) {
+          return;
         }
 
         initialButton = start.button;
