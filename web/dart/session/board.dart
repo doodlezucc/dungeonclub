@@ -7,6 +7,7 @@ import 'dart:svg' as svg;
 import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/point_json.dart';
+import 'package:grid/grid.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';
@@ -57,7 +58,7 @@ HtmlElement get _measureVisible => querySelector('#measureVisible');
 
 class Board {
   final Session session;
-  final grid = Grid();
+  final grid = SceneGrid();
   final mapTab = MapTab();
   final movables = <Movable>[];
   final selected = <Movable>{};
@@ -622,6 +623,7 @@ class Board {
                 _handleMovableMove(start, stream, clickedMovable);
                 pan = false;
               } else if (selectedPrefab != null) {
+                print('LITTLE BITCH ${start.p} ${selectedPrefab.size}');
                 var gridPos = grid.offsetToGridSpace(
                     start.p * (1 / scaledZoom), selectedPrefab.size);
 
@@ -801,7 +803,9 @@ class Board {
     MeasuringPath measuring;
 
     void alignText() {
-      var p = (clicked.position + clicked.displaySizePoint) * grid.cellSize;
+      var p = (clicked.position.cast<num>() +
+              clicked.displaySizePoint.cast<num>()) *
+          grid.cellSize;
       measuring.alignDistanceText(p);
     }
 
@@ -839,7 +843,7 @@ class Board {
 
       if (delta != lastDelta) {
         for (var mv in affected) {
-          mv.position += delta - lastDelta;
+          mv.position = mv.position.cast<num>() + delta - lastDelta;
         }
         lastDelta = delta;
         if (measuring != null) {
@@ -870,7 +874,7 @@ class Board {
 
     var offset = doOffset ? Point(0.5, 0.5) : Point(0.0, 0.0);
 
-    var origin = grid.offsetToGridSpaceUnscaled(p, offset: offset) -
+    var origin = grid.offsetToGridSpaceUnscaled(p, offset: offset).cast<num>() -
         Point(0.5, 0.5) +
         offset;
 

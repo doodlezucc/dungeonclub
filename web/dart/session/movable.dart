@@ -2,6 +2,7 @@ import 'dart:html';
 import 'dart:math' as math;
 
 import 'package:dungeonclub/point_json.dart';
+import 'package:grid/grid.dart';
 import 'package:meta/meta.dart';
 
 import '../font_awesome.dart';
@@ -61,8 +62,9 @@ class Movable extends EntityBase {
   }
 
   int get displaySize => size != 0 ? size : prefab.size;
-  Point get displaySizePoint => Point(displaySize, displaySize);
-  Point get center => position + (displaySizePoint - Point(1, 1)) * 0.5;
+  Point<int> get displaySizePoint => Point(displaySize, displaySize);
+  Point get center =>
+      position.cast<num>() + (displaySizePoint - Point(1, 1)).cast<num>() * 0.5;
 
   Movable._({
     @required this.board,

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:svg' as svg;
 
 import 'package:dungeonclub/point_json.dart';
+import 'package:grid/grid.dart';
 import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';
@@ -15,7 +16,8 @@ final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
 final DivElement _crop = querySelector('#gridPadding');
 const minSize = Point<double>(200, 200);
 
-class Grid {
+class SceneGrid {
+  Grid _grid = Grid.square(1);
   final HtmlElement e;
   final svg.SvgSvgElement _canvas = querySelector('#gridCanvas');
   final svg.PatternElement _pattern = querySelector('#gridPattern');
@@ -28,40 +30,24 @@ class Grid {
   int get tiles => _tiles;
   set tiles(int tiles) {
     _tiles = max(8, tiles);
-    _updateCellSize();
+    if (_grid is TiledGrid) {
+      (_grid as TiledGrid).tilesInRow = _tiles;
+    }
+
     user.session.board.movables.forEach((m) => m.position += Point(0, 0));
-    redrawCanvas();
   }
 
-  Point _size = minSize;
-  Point get size => _size;
-  set size(Point size) {
-    _size = size;
-    _rect.setAttribute('width', '${size.x}');
-    _rect.setAttribute('height', '${size.y}');
-    e.style.width = '${size.x}px';
-    e.style.height = '${size.y}px';
-    redrawCanvas();
-    _updateCellSize();
-  }
+  Point get offset => _grid.zero;
+  Point get size => _grid.size;
 
-  num get cellSize => (_size.x - 1) / _tiles;
+  num get cellSize => (_grid as TiledGrid).tileWidth;
   Point<double> get _imgSize =>
       Point(_canvas.clientWidth.toDouble(), _canvas.clientHeight.toDouble());
-
-  Point _offset = Point<double>(0, 0);
-  Point get offset => _offset;
-  set offset(Point offset) {
-    _offset = offset;
-    e.style.left = '${_offset.x}px';
-    e.style.top = '${_offset.y}px';
-    _rect.setAttribute('transform', 'translate(${offset.x}, ${offset.y})');
-  }
 
   num _tileMultiply;
   String _tileUnit;
 
-  Grid() : e = querySelector('#grid') {
+  SceneGrid() : e = querySelector('#grid') {
     _initGridEditor();
   }
 
@@ -103,6 +89,8 @@ class Grid {
     gridTiles
       ..onInput.listen((event) {
         tiles = gridTiles.valueAsNumber;
+        _applyCellSize();
+        redrawCanvas();
       })
       ..onMouseEnter.listen((_) {
         blink = true;
@@ -185,19 +173,47 @@ class Grid {
     });
   }
 
-  void _setPosAndSize(Point p, Point<double> s) {
-    p = forceDoublePoint(p);
-    offset = clamp(p, Point(0, 0), _imgSize - forceDoublePoint(size));
-    size = clamp(s, minSize, _imgSize - forceDoublePoint(offset));
-    offset = clamp(p, Point(0, 0), _imgSize - forceDoublePoint(size));
-
-    _crop.style.left = '${_offset.x}px';
-    _crop.style.top = '${_offset.y}px';
-    _crop.style.width = '${_size.x}px';
-    _crop.style.height = '${_size.y}px';
+  void _applyGrid() {
+    tiles = (_grid as TiledGrid).tilesInRow;
+    gridTiles.valueAsNumber = tiles;
+    _applyZero();
+    _applySize();
+    _applyCellSize();
+    redrawCanvas();
   }
 
-  void _updateCellSize() {
+  void _applyZero() {
+    _crop.style.left = '${offset.x}px';
+    _crop.style.top = '${offset.y}px';
+    e.style.left = '${offset.x}px';
+    e.style.top = '${offset.y}px';
+    _rect.setAttribute('transform', 'translate(${offset.x}, ${offset.y})');
+  }
+
+  void _applySize() {
+    _rect.setAttribute('width', '${size.x}');
+    _rect.setAttribute('height', '${size.y}');
+    e.style.width = '${size.x}px';
+    e.style.height = '${size.y}px';
+    _crop.style.width = '${size.x}px';
+    _crop.style.height = '${size.y}px';
+  }
+
+  void _setPosAndSize(Point p, Point<double> s) {
+    p = forceDoublePoint(p);
+    final oldZero = _grid.zero;
+    final oldSize = _grid.size;
+    _grid.zero = clamp(p, Point(0, 0), _imgSize - forceDoublePoint(size));
+    _grid.size = clamp(s, minSize, _imgSize - forceDoublePoint(offset));
+    _grid.zero = clamp(p, Point(0, 0), _imgSize - forceDoublePoint(size));
+
+    if (_grid.zero != oldZero) _applyZero();
+    if (_grid.size != oldSize) _applySize();
+    if (_grid.size.x != oldSize.x) _applyCellSize();
+    redrawCanvas();
+  }
+
+  void _applyCellSize() {
     e.style.setProperty('--cell-size', '$cellSize');
   }
 
@@ -206,10 +222,10 @@ class Grid {
     bool round = true,
     Point offset = const Point(0.5, 0.5),
   }) {
-    var p = ((point - offset - _offset) * (1 / cellSize)) - offset;
+    var p = _grid.worldToGridSpace(point - offset) - offset;
 
     if (round) {
-      p = Point(p.x.round(), p.y.round());
+      p = p.round();
     }
     return p;
   }
@@ -220,22 +236,12 @@ class Grid {
     bool round = true,
   }) {
     var size = Point(targetSize * cellSize / 2, targetSize * cellSize / 2);
-
-    var p = point - offset - size;
+    var p = _grid.worldToGridSpace(point - size).cast<num>();
 
     if (round) {
-      var cs = cellSize;
-      p = Point((p.x / cs).round(), (p.y / cs).round());
+      p = p.round();
     }
     return p;
-  }
-
-  Point roundToCell(Point p) {
-    var cs = cellSize;
-
-    var off = Point(cs / 2, cs / 2);
-    p = p - off;
-    return Point((p.x / cs).round() * cs, (p.y / cs).round() * cs) + off;
   }
 
   void resize(int width, int height) {
@@ -262,13 +268,16 @@ class Grid {
     Point position,
     Point size,
   }) {
-    this.tiles = tiles;
-    gridTiles.valueAsNumber = this.tiles;
+    _grid = Grid.square(
+      tiles,
+      zero: position,
+      size: forceDoublePoint(size ?? _imgSize),
+    );
+    _applyGrid();
     _gridTileUnit.value = tileUnit;
     _validateTileUnit();
     _gridColor.value = color;
     _gridAlpha.valueAsNumber = alpha;
-    _setPosAndSize(position, forceDoublePoint(size ?? _imgSize));
   }
 
   Map<String, dynamic> toJson() => {
