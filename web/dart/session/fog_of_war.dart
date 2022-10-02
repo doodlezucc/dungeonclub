@@ -9,17 +9,18 @@ import 'package:web_polymask/brushes/tool.dart';
 import 'package:web_polymask/polygon_canvas.dart';
 
 import '../communication.dart';
+import '../panels/dialog.dart';
 import 'board.dart';
 
 const _marginPx = 80;
 
 class FogOfWar {
   static const tooltips = {
-    StrokeBrush: '''Hold *left click* to draw a stroke of fog.<br>
-      Hold *shift* to make holes.''',
-    LassoBrush: '''Hold *left click* to outline a new shape or <br>*click
-      successively* to add individual points (rightclick to close).<br>
-      Hold *shift* to make holes.'''
+    StrokeBrush: '''Hold *left click* to add fog.
+      Hold *shift* to erase.''',
+    LassoBrush: '''Hold *left click* to outline a new shape or *click
+      successively* to add<br>
+      individual points (*rightclick* to close). Hold *shift* to erase.'''
   };
 
   final canvas = PolygonCanvas(
@@ -39,6 +40,7 @@ class FogOfWar {
   Element get btnFill => toolbox.querySelector('#fowFill');
   Element get btnGrid => toolbox.querySelector('#fowGrid');
 
+  String _currentData;
   bool _useGrid = true;
   bool get useGrid => _useGrid;
 
@@ -88,6 +90,7 @@ class FogOfWar {
   }
 
   void load(String data) {
+    _currentData = data ?? '';
     if (data != null) {
       canvas.fromData(data);
       _updateFillClearButtonDisplay();
@@ -96,10 +99,21 @@ class FogOfWar {
     }
   }
 
-  void fillAllToggle() {
+  void fillAllToggle() async {
     if (canvas.isEmpty) {
       canvas.fillCanvas();
     } else {
+      if (_currentData.length >= 30) {
+        final confirm = await Dialog<bool>(
+          'Clear Fog of War?',
+          onClose: () => false,
+          okText: 'Clear',
+        ).addParagraph('''The fog of war in this scene will be reset and
+            hidden areas will be revealed.''').display();
+
+        if (!confirm) return;
+      }
+
       canvas.clear();
     }
   }
@@ -122,7 +136,8 @@ class FogOfWar {
   }
 
   void _onPolymaskChange() {
-    socket.sendAction(GAME_SCENE_FOG_OF_WAR, {'data': canvas.toData()});
+    _currentData = canvas.toData();
+    socket.sendAction(GAME_SCENE_FOG_OF_WAR, {'data': _currentData});
     _updateFillClearButtonDisplay();
   }
 }
