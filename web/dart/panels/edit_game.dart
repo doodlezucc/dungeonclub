@@ -99,13 +99,17 @@ Future<Game> displayPrepare() async {
   _saveButton.text = 'Create Campaign';
   _saveButton.disabled = false;
 
-  _gameNameInput
-    ..value = ''
-    ..focus();
+  _gameNameInput.value = '';
+  _gameNameInput.focus();
   _chars.forEach((c) => c.e.remove());
   _chars.clear();
-  _idCounter = 0;
   _removes.clear();
+
+  // Add 4 default characters
+  _idCounter = 3;
+  for (var i = 0; i <= _idCounter; i++) {
+    _chars.add(_EditChar(i));
+  }
 
   _updateAddButton();
 
@@ -159,6 +163,7 @@ class _EditChar {
         ..placeholder = 'Name...'
         ..value = name)
       ..append(iconButton('times', className: 'bad')
+        ..tabIndex = -1
         ..onClick.listen((_) => remove()));
 
     _roster.append(e);
