@@ -494,15 +494,10 @@
 					</div>
 					<div id="grid">
 						<svg id="distanceCanvas" class="fill-board grid-canvas"></svg>
-						<svg id="measureCanvas" class="fill-board grid-canvas"></svg>
 						<div id="movableGhost" class="movable">
 							<div class="img"></div>
 						</div>
 					</div>
-
-					<svg class="fill-board" style="pointer-events: none;">
-						<rect id="selectionArea" x="-2000" y="-2000"></rect>
-					</svg>
 
 					<div id="polymaskWrapper" class="fill-board">
 						<svg id="polymask">
@@ -539,6 +534,11 @@
 							<polygon id="polyprev"></polygon>
 						</svg>
 					</div>
+
+					<svg id="measureCanvas" class="fill-board grid-canvas"></svg>
+					<svg class="fill-board" style="pointer-events: none;">
+						<rect id="selectionArea" x="-2000" y="-2000"></rect>
+					</svg>
 				</div>
 				<span id="inactiveSceneWarning" class="hidden">
 					Your players are <b>not seeing this scene</b> at the moment.
