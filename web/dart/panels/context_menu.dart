@@ -25,14 +25,13 @@ class ContextMenu {
     hovered ??= event.path.firstWhere(_prefer, orElse: () => event.target);
     var p = event.page;
 
-    var normalPos = true;
+    var startsHovered = true;
     var bottom = window.innerHeight - p.y;
     if (bottom > 120) {
       _e.style
         ..top = '${p.y - 12}px'
         ..bottom = 'auto';
     } else {
-      normalPos = false;
       _e.style
         ..bottom = '12px'
         ..top = 'auto';
@@ -44,7 +43,7 @@ class ContextMenu {
         ..left = '${p.x}px'
         ..right = 'auto';
     } else {
-      normalPos = false;
+      startsHovered = false;
       _e.style
         ..right = '12px'
         ..left = 'auto';
@@ -59,7 +58,7 @@ class ContextMenu {
             _e.onMouseLeave.first,
             _e.onMouseUp
                 .where((event) => event.target != _e)
-                .elementAt(normalPos ? 0 : 1),
+                .elementAt(startsHovered ? 0 : 1),
           ]);
 
     _e.classes.remove('show');
