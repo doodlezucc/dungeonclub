@@ -521,7 +521,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "904fd4f6240d23f12c1340b841dc8b85880cabf6"
+      resolved-ref: bb62bb848f234332e7e67b7eb88154e56ac25b9f
       url: "https://github.com/doodlezucc/web_polymask.git"
     source: git
     version: "0.0.0"

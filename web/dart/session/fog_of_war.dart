@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:html';
 import 'dart:svg' as svg;
 
@@ -64,11 +65,27 @@ class FogOfWar {
     _registerToolButton(board, btnToolLasso, canvas.toolBrushLasso);
     _setTool(canvas.toolBrushStroke);
     btnFill.onClick.listen((_) => fillAllToggle());
-    btnVisible.onClick.listen((_) => opaque = !opaque);
+    btnVisible.onClick.listen((_) {
+      opaque = !opaque;
+      _saveSettings();
+    });
     btnGrid.onClick.listen((_) {
       _useGrid = !_useGrid;
       applyUseGrid(board);
+      _saveSettings();
     });
+
+    final settings = window.localStorage['fogOfWar'];
+    if (settings != null) {
+      _settingsFromJson(board, jsonDecode(settings));
+    }
+
+    canvas.onSettingsChange = _saveSettings;
+  }
+
+  void _saveSettings() {
+    final json = _settingsToJson();
+    window.localStorage['fogOfWar'] = jsonEncode(json);
   }
 
   void applyUseGrid(Board board) {
@@ -78,7 +95,7 @@ class FogOfWar {
 
   void _setTool(PolygonTool tool) {
     canvas.activeTool = tool;
-    btnToolLasso.parent.querySelectorAll('.active').classes.remove('active');
+    btnToolStroke.parent.querySelectorAll('.active').classes.remove('active');
     toolbox.querySelector('[tool=${tool.id}]').classes.add('active');
   }
 
@@ -140,4 +157,18 @@ class FogOfWar {
     socket.sendAction(GAME_SCENE_FOG_OF_WAR, {'data': _currentData});
     _updateFillClearButtonDisplay();
   }
+
+  void _settingsFromJson(Board board, Map<String, dynamic> json) {
+    if (board.session.isDM) opaque = json['opaque'];
+    _useGrid = json['useGrid'];
+    applyUseGrid(board);
+    canvas.settingsFromJson(json);
+    _setTool(canvas.activeTool);
+  }
+
+  Map<String, dynamic> _settingsToJson() => {
+        'opaque': opaque,
+        'useGrid': useGrid,
+        ...canvas.settingsToJson(),
+      };
 }
