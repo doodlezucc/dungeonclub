@@ -151,7 +151,7 @@ class Board {
       if (mode == MEASURE) {
         displayTooltip(getMeasureTooltip());
       } else {
-        displayTooltip(FogOfWar.tooltip);
+        displayTooltip(fogOfWar.tooltip);
       }
     } else {
       displayTooltip('');
@@ -232,12 +232,11 @@ class Board {
       if (target is HtmlElement) {
         var mMode = target.getAttribute('mode');
         if (mMode != null) {
-          var oldMode = measureMode;
           measureMode = int.parse(mMode);
           displayTooltip(getMeasureTooltip());
 
           // Prevent mode toggle
-          if (mode == MEASURE && measureMode != oldMode) return null;
+          if (mode == MEASURE) return;
         } else if (target == _measureSticky) {
           return _toggleMeasureSticky();
         } else if (target == _measureVisible) {
@@ -249,13 +248,10 @@ class Board {
       mode = MEASURE;
     });
     _fowToggle.onClick.listen((ev) {
-      if (ev.target == fogOfWar.previewButton) {
-        fogOfWar.opaque = !fogOfWar.opaque;
-      } else if (ev.target == fogOfWar.fillButton) {
-        fogOfWar.fillAllToggle();
-      } else {
-        mode = FOG_OF_WAR;
+      if (ev.path.any((e) => e is Element && e.classes.contains('toolbox'))) {
+        if (mode == FOG_OF_WAR) return;
       }
+      mode = FOG_OF_WAR;
     });
 
     _container.onMouseWheel.listen((event) {
@@ -263,9 +259,16 @@ class Board {
         if (event.target != document.activeElement) {
           (event.target as InputElement).focus();
         }
-      } else if (!mapTab.visible &&
-          !event.path
-              .any((e) => e is HtmlElement && e.classes.contains('controls'))) {
+      } else {
+        if (mode == FOG_OF_WAR && fogOfWar.canvas.activeTool.employMouseWheel) {
+          return;
+        }
+
+        if (mapTab.visible ||
+            event.path
+                .any((e) => e is Element && e.classes.contains('controls'))) {
+          return;
+        }
         transform.handleMousewheel(event);
       }
     });
@@ -567,7 +570,7 @@ class Board {
         if (mode == FOG_OF_WAR &&
             start.button == 2 &&
             fogOfWar.canvas.activePath != null) {
-          return;
+          return fogOfWar.canvas.instantiateActivePolygon();
         }
 
         initialButton = start.button;

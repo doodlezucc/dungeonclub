@@ -1131,18 +1131,12 @@ $ping-radius: 100px;
     }
 }
 
-#measureDistance {
-    &:not(.active) {
-        #measureTools .active { color: unset; background-color: var(--color-background); }
-
-        #measureSettings { @extend .invisible; }
-    }
+#measureDistance:not(.active) {
+    #measureSettings { @extend .invisible; }
 }
 
-#fogOfWar {
-    &:not(.active) {
-        #fowTools { @extend .invisible; }
-    }
+#fogOfWar:not(.active) {
+    #fowTools { @extend .invisible; }
 }
 
 .tab-horiz {

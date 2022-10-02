@@ -5,7 +5,7 @@ String formatToHtml(
   String tagClass,
 }) {
   // Match between markdown char
-  var _regex = RegExp(markdown + r'.*?' + markdown);
+  var _regex = RegExp(markdown + r'.*?' + markdown, dotAll: true);
 
   return text.replaceAllMapped(_regex, (match) {
     var part = match[0].substring(1, match[0].length - 1);
