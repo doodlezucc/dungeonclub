@@ -249,8 +249,14 @@ class Board {
       mode = MEASURE;
     });
     _fowToggle.onClick.listen((ev) {
-      if (ev.path.any((e) => e is Element && e.classes.contains('toolbox'))) {
-        if (mode == FOG_OF_WAR) return;
+      final Element clickedBox = ev.path.firstWhere(
+        (e) => e is Element && e.classes.contains('toolbox'),
+        orElse: () => null,
+      );
+      if (clickedBox != null) {
+        if (mode == FOG_OF_WAR || clickedBox.previousElementSibling != null) {
+          return;
+        }
       }
       mode = FOG_OF_WAR;
     });
