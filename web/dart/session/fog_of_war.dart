@@ -28,7 +28,9 @@ class FogOfWar {
     querySelector('#polymask'),
     captureInput: false,
     cropMargin: _marginPx,
-  )..toolBrushStroke.shape = shapeSquare;
+  )
+    ..toolBrushStroke.shape = shapeSquare
+    ..movementScale = 2;
 
   String get tooltip => tooltips[canvas.activeTool.runtimeType];
   Element get wrapper => querySelector('#polymaskWrapper');
