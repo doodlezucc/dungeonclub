@@ -111,7 +111,7 @@ class Movable extends EntityBase {
 
   void onMove(Point delta) async {
     e.classes.add('animate-move');
-    position += delta;
+    position = position.cast<num>() + delta;
     await Future.delayed(Duration(milliseconds: 300));
     e.classes.remove('animate-move');
   }

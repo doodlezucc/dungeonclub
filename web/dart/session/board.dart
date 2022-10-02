@@ -623,7 +623,6 @@ class Board {
                 _handleMovableMove(start, stream, clickedMovable);
                 pan = false;
               } else if (selectedPrefab != null) {
-                print('LITTLE BITCH ${start.p} ${selectedPrefab.size}');
                 var gridPos = grid.offsetToGridSpace(
                     start.p * (1 / scaledZoom), selectedPrefab.size);
 
@@ -1157,6 +1156,7 @@ class Board {
     var viewBox = '-0.5 -0.5 $x $y';
     measuringRoot.setAttribute('viewBox', viewBox);
     distanceRoot.setAttribute('viewBox', viewBox);
+    fogOfWar.applyUseGrid(this);
   }
 
   void resetTransform() {

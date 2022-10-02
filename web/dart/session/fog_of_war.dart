@@ -2,6 +2,7 @@ import 'dart:html';
 import 'dart:svg' as svg;
 
 import 'package:dungeonclub/actions.dart';
+import 'package:grid/grid.dart';
 import 'package:web_polymask/brushes/lasso.dart';
 import 'package:web_polymask/brushes/stroke.dart';
 import 'package:web_polymask/brushes/tool.dart';
@@ -25,10 +26,9 @@ class FogOfWar {
     querySelector('#polymask'),
     captureInput: false,
     cropMargin: _marginPx,
-  );
+  )..toolBrushStroke.shape = shapeSquare;
 
   String get tooltip => tooltips[canvas.activeTool.runtimeType];
-
   Element get wrapper => querySelector('#polymaskWrapper');
 
   Element _toolbox;
@@ -37,6 +37,10 @@ class FogOfWar {
   Element get btnToolLasso => toolbox.querySelector('#fowLasso');
   Element get btnVisible => toolbox.querySelector('#fowPreview');
   Element get btnFill => toolbox.querySelector('#fowFill');
+  Element get btnGrid => toolbox.querySelector('#fowGrid');
+
+  bool _useGrid = true;
+  bool get useGrid => _useGrid;
 
   bool get opaque => wrapper.classes.contains('opaque');
   set opaque(bool opaque) {
@@ -59,6 +63,15 @@ class FogOfWar {
     _setTool(canvas.toolBrushStroke);
     btnFill.onClick.listen((_) => fillAllToggle());
     btnVisible.onClick.listen((_) => opaque = !opaque);
+    btnGrid.onClick.listen((_) {
+      _useGrid = !_useGrid;
+      applyUseGrid(board);
+    });
+  }
+
+  void applyUseGrid(Board board) {
+    btnGrid.classes.toggle('active', useGrid);
+    canvas.grid = useGrid ? board.grid.grid : Grid.unclamped();
   }
 
   void _setTool(PolygonTool tool) {

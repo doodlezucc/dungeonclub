@@ -518,7 +518,7 @@
         #measureCanvas { pointer-events: none; }
     }
     &:not([mode="fow"]) {
-        #polymaskWrapper { pointer-events: none; opacity: 0.7; }
+        #polymaskWrapper { pointer-events: none; opacity: 0.85; }
     }
 }
 
@@ -1129,14 +1129,6 @@ $ping-radius: 100px;
         border-radius: 0%;
         transition-duration: 0s;
     }
-}
-
-#measureDistance:not(.active) {
-    #measureSettings { @extend .invisible; }
-}
-
-#fogOfWar:not(.active) {
-    #fowTools { @extend .invisible; }
 }
 
 .tab-horiz {

@@ -17,11 +17,13 @@ final DivElement _crop = querySelector('#gridPadding');
 const minSize = Point<double>(200, 200);
 
 class SceneGrid {
-  Grid _grid = Grid.square(1);
   final HtmlElement e;
   final svg.SvgSvgElement _canvas = querySelector('#gridCanvas');
   final svg.PatternElement _pattern = querySelector('#gridPattern');
   final svg.RectElement _rect = querySelector('#gridCanvas rect');
+
+  Grid _grid = Grid.square(1);
+  Grid get grid => _grid;
 
   bool get blink => _canvas.classes.contains('blink');
   set blink(bool blink) => _canvas.classes.toggle('blink', blink);

@@ -46,13 +46,20 @@ $margin: 80px;
     }
 }
 
+#polyprevpos, #polyprevneg {
+    stroke: white !important;
+    stroke-width: $outline;
+}
+
+#polyprevpos { opacity: 0.9; }
+#polyprevneg { opacity: 0.75; }
+
 mask > rect {
     --darkreader-inline-fill: white !important;
 }
 
 .polypattern, #polyMaskWrapper.opaque .positive-pole {
     fill: url(#barrier) !important;
-    opacity: 0.7;
 }
 
 #polymaskWrapper.opaque {

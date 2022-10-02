@@ -316,9 +316,12 @@
 									<span>Outline</span>
 								</i>
 							</div>
-							<div class="toolbox" id="fowTools">
+							<div class="toolbox">
 								<i class="fas fa-glasses" id="fowPreview">
 									<span>X-Ray</span>
+								</i>
+								<i class="fas fa-border-all" id="fowGrid">
+									<span>Use Grid</span>
 								</i>
 								<i id="fowFill"><span></span></i>
 							</div>
@@ -345,7 +348,7 @@
 									<span>Line</span>
 								</i>
 							</div>
-							<div class="toolbox" id="measureSettings">
+							<div class="toolbox">
 								<i id="measureVisible"><span></span></i>
 								<i class="fas fa-thumbtack" id="measureSticky">
 									<span>Sticky</span>
@@ -370,7 +373,7 @@
 					</button>
 					<div id="gridControls">
 						<span>Tiles in each row:
-							<input id="gridTiles" placeholder="Total tiles in width..." type="number" min="2"
+							<input id="gridTiles" placeholder="Total tiles in width..." type="number" min="8"
 								value="16">
 						</span>
 						<span>Tile size unit:
@@ -504,12 +507,12 @@
 					<div id="polymaskWrapper" class="fill-board">
 						<svg id="polymask">
 							<defs>
-								<pattern id="barrier" width="21" height="10" patternUnits="userSpaceOnUse"
+								<pattern id="barrier" width="61" height="30" patternUnits="userSpaceOnUse"
 									patternTransform="rotate(45 50 50)">
-									<rect fill="#1115"></rect>
-									<line stroke="#fb8" stroke-width="20px" y2="10" />
+									<rect fill="#3335"></rect>
+									<line stroke="#fb85" stroke-width="60px" y2="30" />
 									<animateTransform attributeType="xml" attributeName="patternTransform"
-										type="translate" from="0" to="21" dur="3s" repeatCount="indefinite"
+										type="translate" from="0" to="61" dur="5s" repeatCount="indefinite"
 										additive="sum" />
 								</pattern>
 
