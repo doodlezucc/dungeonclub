@@ -64,6 +64,7 @@ void main(List<String> args) {
     enableChildProcess:
         bootstrapMode == SERVE_BOOTSTRAP_ALL || Environment.isCompiled,
     onExit: onExit,
+    exitAfterBody: false,
   );
 }
 

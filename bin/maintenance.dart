@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dungeonclub/actions.dart';
+import 'package:graceful/graceful.dart';
 
 import 'connections.dart';
 import 'server.dart';
@@ -53,7 +54,7 @@ class Maintainer extends FileChecker {
   void _waitForShutdown() async {
     var now = DateTime.now().millisecondsSinceEpoch;
     await Future.delayed(Duration(milliseconds: shutdownTime - now));
-    await onExit();
+    exitGracefully();
   }
 
   Map<String, dynamic> get jsonEntry => {'shutdown': shutdownTime};
