@@ -7,6 +7,7 @@ import 'package:grid/grid.dart';
 import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';
+import 'measuring.dart';
 
 final HtmlElement _controls = querySelector('#sceneEditor');
 final InputElement gridTiles = _controls.querySelector('#gridTiles');
@@ -185,6 +186,8 @@ class SceneGrid {
   }
 
   void _applyZero() {
+    measuringRoot.style.left = '${offset.x}px';
+    measuringRoot.style.top = '${offset.y}px';
     _crop.style.left = '${offset.x}px';
     _crop.style.top = '${offset.y}px';
     e.style.left = '${offset.x}px';
@@ -193,6 +196,8 @@ class SceneGrid {
   }
 
   void _applySize() {
+    measuringRoot.style.width = '${size.x}px';
+    measuringRoot.style.height = '${size.y}px';
     _rect.setAttribute('width', '${size.x}');
     _rect.setAttribute('height', '${size.y}');
     e.style.width = '${size.x}px';
