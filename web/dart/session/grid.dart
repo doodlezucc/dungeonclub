@@ -275,11 +275,11 @@ class SceneGrid {
       zero: position,
       size: forceDoublePoint(size ?? _imgSize),
     );
-    _applyGrid();
     _gridTileUnit.value = tileUnit;
     _validateTileUnit();
     _gridColor.value = color;
     _gridAlpha.valueAsNumber = alpha;
+    _applyGrid();
   }
 
   Map<String, dynamic> toJson() => {
