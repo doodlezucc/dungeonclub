@@ -1,3 +1,9 @@
+## 04-10-2022
+- The *Fog of War* tool has undergone an overhaul, introducing a paintbrush and the ability to *snap to grid cells*.
+- *Conditions* have been split into categories to make them easier to find.
+- All tokens can now be labeled with a *nickname* to differentiate between similar creatures.
+- You can now *see the names* of individual characters by simply *hovering* over their token.
+
 ## 22-07-2022
 - The website has been vastly improved for *mobile devices*.
 - If you're using a touch device, you can now *pinch zoom* on battle maps.
