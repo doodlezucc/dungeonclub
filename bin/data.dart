@@ -8,6 +8,7 @@ import 'package:crypt/crypt.dart';
 import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/point_json.dart';
+import 'package:dungeonclub/session_util.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
 import 'package:web_whiteboard/communication/data_socket.dart';
@@ -665,6 +666,8 @@ class Scene {
 
   Movable addMovable(Map<String, dynamic> json) {
     var m = Movable.create(nextMovableId, json);
+    m.label = generateNewLabel<Movable>(
+        m, movables, (e) => MovableStruct(e.prefab, e.label));
     movables.add(m);
     return m;
   }
@@ -796,6 +799,7 @@ class Movable extends EntityBase {
   final int id;
   final List<int> conds = [];
   String prefab;
+  String label;
   num x;
   num y;
   num auraRadius;
@@ -810,14 +814,12 @@ class Movable extends EntityBase {
   }
 
   static Movable create(int id, Map<String, dynamic> json) {
-    if (json['prefab'] == 'e') {
-      return EmptyMovable._(id, json);
-    }
     return Movable._(id, json);
   }
 
   @override
   void fromJson(Map<String, dynamic> json) {
+    label = json['label'] ?? '';
     size = json['size'] ?? 0;
     auraRadius = json['aura'] ?? 0.0;
     invisible = json['invisible'] ?? false;
@@ -829,29 +831,12 @@ class Movable extends EntityBase {
   Map<String, dynamic> toJson() => {
         'id': id,
         'prefab': prefab,
+        'label': label,
         'x': x,
         'y': y,
         'conds': conds,
         'aura': auraRadius,
         'invisible': invisible,
-        ...super.toJson(),
-      };
-}
-
-class EmptyMovable extends Movable {
-  String label;
-
-  EmptyMovable._(int id, Map<String, dynamic> json) : super._(id, json);
-
-  @override
-  void fromJson(Map<String, dynamic> json) {
-    label = json['label'] ?? '';
-    super.fromJson(json);
-  }
-
-  @override
-  Map<String, dynamic> toJson() => {
-        'label': label,
         ...super.toJson(),
       };
 }

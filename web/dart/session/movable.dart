@@ -34,6 +34,18 @@ class Movable extends EntityBase {
     return false;
   }
 
+  String _label = '';
+  String get label => _label;
+  set label(String label) {
+    _label = label;
+    board.initiativeTracker.onNameUpdate(this);
+  }
+
+  String get displayName {
+    if (label.isEmpty) return prefab.name;
+    return '${prefab.name} ($label)';
+  }
+
   bool get invisible => e.classes.contains('invisible');
   set invisible(bool invisible) => e.classes.toggle('invisible', invisible);
 
@@ -188,6 +200,7 @@ class Movable extends EntityBase {
       };
 
   Map<String, dynamic> _sharedJson() => {
+        'label': label,
         'conds': _conds.toList(),
         'aura': auraRadius,
         'invisible': invisible,
@@ -197,6 +210,7 @@ class Movable extends EntityBase {
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
+    label = json['label'] ?? '';
     auraRadius = json['aura'] ?? 0;
     invisible = json['invisible'] ?? false;
     applyConditions(List<int>.from(json['conds'] ?? []));
@@ -206,21 +220,16 @@ class Movable extends EntityBase {
 class EmptyMovable extends Movable {
   SpanElement _labelSpan;
 
-  String _label = '';
-  String get label => _label;
+  @override
   set label(String label) {
-    _label = label;
-    _labelSpan.text = label;
+    super.label = label;
 
+    _labelSpan.text = label;
     var lines = label.split(' ');
 
     var length = lines.fold(0, (len, line) => math.max<int>(len, line.length));
     _labelSpan.style.setProperty('--length', '${length + 1}');
-    board.initiativeTracker.onNameUpdate(this);
   }
-
-  @override
-  String get name => label;
 
   EmptyMovable._({
     @required Board board,
@@ -236,22 +245,4 @@ class EmptyMovable extends Movable {
 
   @override
   void onImageChange(String img) {}
-
-  @override
-  Map<String, dynamic> toCloneJson() => {
-        ...super.toCloneJson(),
-        'label': label,
-      };
-
-  @override
-  Map<String, dynamic> toJson() => {
-        ...super.toJson(),
-        'label': label,
-      };
-
-  @override
-  void fromJson(Map<String, dynamic> json) {
-    super.fromJson(json);
-    label = json['label'] ?? '';
-  }
 }

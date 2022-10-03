@@ -7,6 +7,7 @@ import 'dart:svg' as svg;
 import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/point_json.dart';
+import 'package:dungeonclub/session_util.dart';
 import 'package:grid/grid.dart';
 import 'package:meta/meta.dart';
 
@@ -43,7 +44,9 @@ final ButtonElement _changeImage = _controls.querySelector('#changeImage');
 
 final svg.RectElement _selectionArea = _e.querySelector('#selectionArea');
 final HtmlElement _selectionProperties = querySelector('#selectionProperties');
-final InputElement _selectedLabel = querySelector('#movableLabel');
+final HtmlElement _selectedLabelWrapper = querySelector('#movableLabel');
+final HtmlElement _selectedLabelPrefix = _selectedLabelWrapper.children.first;
+final InputElement _selectedLabel = _selectedLabelWrapper.children.last;
 final InputElement _selectedSize = querySelector('#movableSize');
 final InputElement _selectedAura = querySelector('#movableAura');
 final ButtonElement _selectedInvisible = querySelector('#movableInvisible');
@@ -181,13 +184,13 @@ class Board {
       activeMovable.e.classes.add('active');
 
       // Assign current values to HTML inputs
-      if (activeMovable is EmptyMovable) {
-        _selectedLabel.value = activeMovable.label;
-        _selectionProperties.classes.add('empty');
-      } else {
-        _selectionProperties.classes.remove('empty');
+      var nicknamePrefix = '';
+      if (activeMovable is! EmptyMovable) {
+        nicknamePrefix = activeMovable.name;
       }
 
+      _selectedLabelPrefix.text = nicknamePrefix;
+      _selectedLabel.value = activeMovable.label;
       _selectedAura.valueAsNumber = activeMovable.auraRadius;
       _updateSelectedInvisible(activeMovable.invisible);
       _selectedSize.valueAsNumber = activeMovable.size;
@@ -477,9 +480,7 @@ class Board {
     _selectedSnap.onClick.listen((_) => _snapSelection());
 
     _listenSelectedLazyUpdate(_selectedLabel, onChange: (m, value) {
-      if (m is EmptyMovable) {
-        m.label = value;
-      }
+      m.label = value;
     });
     _listenSelectedLazyUpdate(_selectedAura, onChange: (m, value) {
       m.auraRadius = double.parse(value);
@@ -1069,9 +1070,8 @@ class Board {
         conds: src.conds,
       )..fromJson(jsons.elementAt(i));
 
-      if (src is EmptyMovable) {
-        (m as EmptyMovable).label = src.label;
-      }
+      m.label = generateNewLabel<Movable>(
+          m, movables, (e) => MovableStruct(e.prefab.id, e.label));
 
       dest.add(m);
       movables.add(m);
@@ -1098,6 +1098,10 @@ class Board {
 
     var m = Movable.create(
         board: this, prefab: prefab, id: id, pos: pos, conds: []);
+
+    m.label = generateNewLabel<Movable>(
+        m, movables, (e) => MovableStruct(e.prefab.id, e.label));
+
     movables.add(m);
     grid.e.append(m.e);
     _syncMovableAnim();
