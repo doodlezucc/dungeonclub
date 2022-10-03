@@ -193,8 +193,16 @@ class Board {
       _selectedSize.valueAsNumber = activeMovable.size;
       _updateSelectionSizeInherit();
       _selectedConds.querySelectorAll('.active').classes.remove('active');
-      for (var cond in activeMovable.conds) {
-        _selectedConds.children[cond].classes.add('active');
+      for (var c = 0; c < Condition.categories.length; c++) {
+        final category = Condition.categories[c];
+        final row = _selectedConds.children[c].children.first;
+
+        for (var cc = 0; cc < category.conditions.length; cc++) {
+          if (activeMovable.conds
+              .contains(category.conditions.keys.elementAt(cc))) {
+            row.children[cc].classes.add('active');
+          }
+        }
       }
     }
 
@@ -933,18 +941,28 @@ class Board {
   }
 
   void _initSelectionConds() {
-    var conds = Condition.items;
-    for (var i = 0; i < conds.length; i++) {
-      var cond = conds[i];
-      var ico = icon(cond.icon)..append(SpanElement()..text = cond.name);
+    final categories = Condition.categories;
+    for (var category in categories) {
+      final row = DivElement()..className = 'toolbox';
+      final div = DivElement()
+        ..append(row)
+        ..append(ParagraphElement()..text = category.name);
 
-      _selectedConds.append(ico
-        ..onClick.listen((_) {
-          var activate = !_activeMovable.conds.contains(i);
-          selected.forEach((m) => m.toggleCondition(i, activate));
-          ico.classes.toggle('active', activate);
-          _sendSelectedMovablesUpdate();
-        }));
+      for (var e in category.conditions.entries) {
+        final id = e.key;
+        final cond = e.value;
+        final ico = icon(cond.icon)..append(SpanElement()..text = cond.name);
+
+        row.append(ico
+          ..onClick.listen((_) {
+            var activate = !_activeMovable.conds.contains(id);
+            selected.forEach((m) => m.toggleCondition(id, activate));
+            ico.classes.toggle('active', activate);
+            _sendSelectedMovablesUpdate();
+          }));
+      }
+
+      _selectedConds.append(div);
     }
 
     _selectionProperties.querySelector('a').onClick.listen((_) {

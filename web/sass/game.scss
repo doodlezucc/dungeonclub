@@ -325,12 +325,6 @@
             > input { width: 100%; }
         }
 
-        > #conds {
-            @extend .toolbox;
-            grid-template-rows: min-content min-content;
-            grid-auto-flow: column;
-        }
-
         &.hidden {
             @extend .invisible;
         }
@@ -1018,6 +1012,15 @@ $blink-off: #888d;
     0%   { transform: scale(1.3); }
     50%  { transform: scale(1.5); }
     100% { transform: scale(1.3); }
+}
+
+#conds {
+    gap: 8px;
+
+    .toolbox {
+        grid-auto-flow: column;
+        grid-auto-columns: max-content;
+    }
 }
 
 $ping-radius: 100px;
