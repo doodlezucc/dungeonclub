@@ -37,6 +37,8 @@ class SceneGrid {
     }
 
     user.session.board.movables.forEach((m) => m.position += Point(0, 0));
+    _applyCellSize();
+    redrawCanvas();
   }
 
   Point get offset => _grid.zero;
@@ -91,8 +93,6 @@ class SceneGrid {
     gridTiles
       ..onInput.listen((event) {
         tiles = gridTiles.valueAsNumber;
-        _applyCellSize();
-        redrawCanvas();
       })
       ..onMouseEnter.listen((_) {
         blink = true;
