@@ -39,6 +39,7 @@ class Movable extends EntityBase {
   set label(String label) {
     _label = label;
     board.initiativeTracker.onNameUpdate(this);
+    updateTooltip();
   }
 
   String get displayName {
@@ -84,6 +85,7 @@ class Movable extends EntityBase {
     @required this.id,
     @required Point pos,
     @required Iterable<int> conds,
+    bool createTooltip = true,
   }) {
     e
       ..className = 'movable'
@@ -91,6 +93,13 @@ class Movable extends EntityBase {
       ..append(DivElement()..className = 'ring')
       ..append(DivElement()..className = 'img')
       ..append(DivElement()..className = 'conds');
+
+    if (createTooltip) {
+      e.append(board.transform.registerInvZoom(
+        SpanElement()..className = 'toast',
+        scaleByCell: true,
+      ));
+    }
 
     prefab.movables.add(this);
     onImageChange(prefab.img(cacheBreak: false));
@@ -116,9 +125,14 @@ class Movable extends EntityBase {
         board: board, prefab: prefab, id: id, pos: pos, conds: conds);
   }
 
+  void updateTooltip() {
+    e.querySelector('.toast').text = displayName;
+  }
+
   void onPrefabUpdate() {
     e.style.setProperty('--size', '$displaySize');
     e.classes.toggle('accessible', accessible);
+    updateTooltip();
   }
 
   void onMove(Point delta) async {
@@ -184,6 +198,7 @@ class Movable extends EntityBase {
 
     e.classes.add('animate-remove');
     await Future.delayed(Duration(milliseconds: 500));
+    board.transform.unregisterInvZoom(e.querySelector('.toast'));
     e.remove();
   }
 
@@ -237,7 +252,14 @@ class EmptyMovable extends Movable {
     @required int id,
     @required Point pos,
     @required Iterable<int> conds,
-  }) : super._(board: board, prefab: prefab, id: id, pos: pos, conds: conds) {
+  }) : super._(
+          board: board,
+          prefab: prefab,
+          id: id,
+          pos: pos,
+          conds: conds,
+          createTooltip: false,
+        ) {
     e
       ..classes.add('empty')
       ..append(_labelSpan = SpanElement());
@@ -245,4 +267,7 @@ class EmptyMovable extends Movable {
 
   @override
   void onImageChange(String img) {}
+
+  @override
+  void updateTooltip() {}
 }

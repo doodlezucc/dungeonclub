@@ -75,13 +75,8 @@ class Board {
 
   final showMoveDistances = true;
 
-  final transform = BoardTransform(
-    _e,
-    getMaxPosition: () => Point(
-      _ground.naturalWidth,
-      _ground.naturalHeight,
-    ),
-  );
+  BoardTransform _transform;
+  BoardTransform get transform => _transform;
 
   Point get position => transform.position;
   set position(Point p) => transform.position = p;
@@ -217,6 +212,12 @@ class Board {
   bool _init = false;
 
   Board(this.session) {
+    _transform = BoardTransform(this, _e, getMaxPosition: () {
+      return Point(
+        _ground.naturalWidth,
+        _ground.naturalHeight,
+      );
+    });
     position = Point(0, 0);
 
     if (!_init) {
@@ -1218,13 +1219,35 @@ class Board {
 }
 
 class BoardTransform extends HtmlTransform {
-  BoardTransform(Element element, {Point Function() getMaxPosition})
+  final Board board;
+  final Map<Element, bool> _invZoom = {};
+
+  BoardTransform(this.board, Element element, {Point Function() getMaxPosition})
       : super(element, getMaxPosition: getMaxPosition);
 
   @override
   set zoom(double zoom) {
     super.zoom = zoom;
-    var invZoomScale = 'scale(${1 / scaledZoom})';
-    querySelectorAll('.distance-text').style.transform = invZoomScale;
+    _applyInvZoom();
+  }
+
+  String get _invZoomScale => 'scale(${1 / scaledZoom})';
+  String get _invZoomScaleCell =>
+      'scale(${70 / board.grid.cellSize / scaledZoom})';
+
+  void _applyInvZoom() {
+    final scale = _invZoomScale;
+    final scaleCell = _invZoomScaleCell;
+    _invZoom.forEach((e, c) => e.style.transform = c ? scaleCell : scale);
+  }
+
+  Element registerInvZoom(Element e, {bool scaleByCell = false}) {
+    _invZoom[e] = scaleByCell;
+    e.style.transform = scaleByCell ? _invZoomScaleCell : _invZoomScale;
+    return e;
+  }
+
+  void unregisterInvZoom(Element e) {
+    _invZoom.remove(e);
   }
 }

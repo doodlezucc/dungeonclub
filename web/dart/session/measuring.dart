@@ -137,11 +137,13 @@ abstract class Measuring {
     _pcMeasurings[pc] = this;
     root ??= measuringRoot;
     root.append(_e);
+    user.session.board.transform.registerInvZoom(_distanceText);
     querySelector('#board').append(_distanceText..className = 'distance-text');
     redraw(origin);
   }
 
   void dispose() {
+    user.session.board.transform.unregisterInvZoom(_distanceText);
     _e.remove();
     _distanceText.remove();
   }
