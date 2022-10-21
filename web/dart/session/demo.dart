@@ -28,6 +28,7 @@ class DemoSession extends Session {
 
     await initialize(characters: characters, playingId: 0, sceneCount: 1);
     board.grid.configure(
+      gridType: GRID_SQUARE,
       tiles: 23,
       tileUnit: 'ft',
       alpha: 0.5,

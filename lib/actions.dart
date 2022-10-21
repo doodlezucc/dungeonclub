@@ -57,3 +57,7 @@ const IMAGE_TYPE_MAP = 'map';
 
 const MAINTENANCE = 'maintenance';
 const FEEDBACK = 'feedback';
+
+const GRID_SQUARE = 0;
+const GRID_HEX = 1;
+const GRID_NONE = 2;

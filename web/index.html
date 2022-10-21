@@ -377,6 +377,24 @@
 						Change Scene Image
 						<i class="fas fa-image"></i>
 					</button>
+					<span>
+						<button id="gridTSquare" class="icon with-tooltip">
+							<i class="fas fa-square"></i>
+							<span>Square Grid</span>
+						</button>
+						<button id="gridTHex" class="icon with-tooltip">
+							<i class="fas">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+									<polygon class="hex" points="300,150 225,280 75,280 0,150 75,20 225,20"></polygon>
+								</svg>
+							</i>
+							<span>Hexagonal Grid</span>
+						</button>
+						<button id="gridTNone" class="icon with-tooltip">
+							<i class="fas fa-border-none"></i>
+							<span>No Grid</span>
+						</button>
+					</span>
 					<div id="gridControls">
 						<span>Tiles in each row:
 							<input id="gridTiles" placeholder="Total tiles in width..." type="number" min="8"
@@ -499,8 +517,8 @@
 						<div class="corner bottom left" style="cursor: sw-resize;"></div>
 						<div class="corner top left" style="cursor: nw-resize;"></div>
 					</div>
+					<svg id="distanceCanvas" class="fill-board grid-canvas"></svg>
 					<div id="grid">
-						<svg id="distanceCanvas" class="fill-board grid-canvas"></svg>
 						<div id="movableGhost" class="movable">
 							<div class="img"></div>
 						</div>

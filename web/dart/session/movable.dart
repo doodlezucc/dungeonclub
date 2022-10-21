@@ -62,9 +62,11 @@ class Movable extends EntityBase {
   Point get position => _position;
   set position(Point position) {
     _position = position;
+    var pos = board.grid.grid.gridToWorldSpace(_position);
+
     e.style
-      ..setProperty('--x', '${position.x}')
-      ..setProperty('--y', '${position.y}');
+      ..setProperty('--x', '${pos.x}')
+      ..setProperty('--y', '${pos.y}');
     board.updateSnapToGrid();
   }
 

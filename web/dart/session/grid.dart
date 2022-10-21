@@ -2,6 +2,7 @@ import 'dart:html';
 import 'dart:math';
 import 'dart:svg' as svg;
 
+import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:grid/grid.dart';
 import 'package:web_whiteboard/util.dart';
@@ -15,6 +16,12 @@ final InputElement _gridTileUnit = _controls.querySelector('#gridTileUnit');
 final InputElement _gridColor = _controls.querySelector('#gridColor');
 final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
 final DivElement _crop = querySelector('#gridPadding');
+final _typeButtons = <ButtonElement, int>{
+  querySelector('#gridTSquare'): GRID_SQUARE,
+  querySelector('#gridTHex'): GRID_HEX,
+  querySelector('#gridTNone'): GRID_NONE,
+};
+
 const minSize = Point<double>(200, 200);
 
 class SceneGrid {
@@ -28,6 +35,9 @@ class SceneGrid {
 
   bool get blink => _canvas.classes.contains('blink');
   set blink(bool blink) => _canvas.classes.toggle('blink', blink);
+
+  int _gridType = GRID_SQUARE;
+  int get gridType => _gridType;
 
   int _tiles = 16;
   int get tiles => _tiles;
@@ -45,7 +55,7 @@ class SceneGrid {
   Point get offset => _grid.zero;
   Point get size => _grid.size;
 
-  num get cellSize => (_grid as TiledGrid).tileWidth;
+  num get cellSize => _grid is TiledGrid ? (_grid as TiledGrid).tileWidth : 1;
   Point<double> get _imgSize =>
       Point(_canvas.clientWidth.toDouble(), _canvas.clientHeight.toDouble());
 
@@ -91,6 +101,10 @@ class SceneGrid {
   }
 
   void _initGridEditor() {
+    _typeButtons.forEach((btn, gridType) {
+      btn.onClick.listen((_) => changeGridType(gridType));
+    });
+
     gridTiles
       ..onInput.listen((event) {
         tiles = gridTiles.valueAsNumber;
@@ -176,13 +190,41 @@ class SceneGrid {
     });
   }
 
+  static Grid _createGrid(int type, int tilesInRow) {
+    switch (type) {
+      case GRID_SQUARE:
+        return Grid.square(tilesInRow);
+      case GRID_HEX:
+        return Grid.hexagonal(tilesInRow);
+      case GRID_NONE:
+        return Grid.unclamped();
+    }
+    return null;
+  }
+
+  void changeGridType(int type) {
+    final nGrid = _createGrid(type, tiles);
+    _grid = nGrid
+      ..zero = offset
+      ..size = size;
+    _gridType = type;
+    _applyGridType();
+  }
+
   void _applyGrid() {
     tiles = (_grid as TiledGrid).tilesInRow;
     gridTiles.valueAsNumber = tiles;
+    _applyGridType();
     _applyZero();
     _applySize();
     _applyCellSize();
     redrawCanvas();
+  }
+
+  void _applyGridType() {
+    _typeButtons.forEach((btn, btnType) {
+      btn.classes.toggle('active', btnType == gridType);
+    });
   }
 
   void _applyZero() {
@@ -190,8 +232,6 @@ class SceneGrid {
     measuringRoot.style.top = '${offset.y}px';
     _crop.style.left = '${offset.x}px';
     _crop.style.top = '${offset.y}px';
-    e.style.left = '${offset.x}px';
-    e.style.top = '${offset.y}px';
     _rect.setAttribute('transform', 'translate(${offset.x}, ${offset.y})');
   }
 
@@ -200,8 +240,6 @@ class SceneGrid {
     measuringRoot.style.height = '${size.y}px';
     _rect.setAttribute('width', '${size.x}');
     _rect.setAttribute('height', '${size.y}');
-    e.style.width = '${size.x}px';
-    e.style.height = '${size.y}px';
     _crop.style.width = '${size.x}px';
     _crop.style.height = '${size.y}px';
   }
@@ -229,7 +267,8 @@ class SceneGrid {
     bool round = true,
     Point offset = const Point(0.5, 0.5),
   }) {
-    var p = _grid.worldToGridSpace(point - offset) - offset;
+    Point cOffset = offset.cast<double>();
+    var p = _grid.worldToGridSpace(point.cast<double>() - cOffset) - cOffset;
 
     if (round) {
       p = p.round();
@@ -268,6 +307,7 @@ class SceneGrid {
   }
 
   void configure({
+    int gridType,
     int tiles,
     String tileUnit,
     String color,
@@ -275,11 +315,11 @@ class SceneGrid {
     Point position,
     Point size,
   }) {
-    _grid = Grid.square(
-      tiles,
-      zero: position,
-      size: forceDoublePoint(size ?? _imgSize),
-    );
+    _gridType = gridType;
+    _grid = _createGrid(gridType, tiles)
+      ..zero = position
+      ..size = forceDoublePoint(size ?? _imgSize);
+
     _gridTileUnit.value = tileUnit;
     _validateTileUnit();
     _gridColor.value = color;
@@ -288,6 +328,7 @@ class SceneGrid {
   }
 
   Map<String, dynamic> toJson() => {
+        'type': _gridType,
         'offset': writePoint(offset),
         'size': writePoint(size),
         'tiles': tiles,
@@ -298,6 +339,7 @@ class SceneGrid {
 
   void fromJson(Map<String, dynamic> json) {
     configure(
+      gridType: json['type'],
       tiles: json['tiles'],
       tileUnit: json['tileUnit'],
       color: json['color'],

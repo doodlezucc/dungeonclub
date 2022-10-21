@@ -644,6 +644,7 @@ class PlayerCharacter {
 class Scene {
   final List<Movable> movables;
   int get nextMovableId => movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
+  int gridType;
   Point gridOffset;
   Point gridSize;
   int tiles;
@@ -693,6 +694,7 @@ class Scene {
   }
 
   void applyGrid(Map<String, dynamic> json) {
+    gridType = json['type'] ?? a.GRID_SQUARE;
     gridOffset = parsePoint(json['offset']) ?? Point(0, 0);
     gridSize = parsePoint(json['size']);
     tiles = json['tiles'] ?? 16;
@@ -715,6 +717,7 @@ class Scene {
 
   Map<String, dynamic> toJson(bool includeDM) => {
         'grid': {
+          'type': gridType,
           'offset': writePoint(gridOffset),
           'size': writePoint(gridSize),
           'tiles': tiles,

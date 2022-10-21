@@ -164,6 +164,7 @@ h3 {
     border-radius: $radius;
     background-color: transparent;
     color: var(--color-button-text);
+    fill: var(--color-button-text);
     padding: 8px 12px;
     transition-duration: 0.05s;
     transition-timing-function: ease-out;
@@ -186,11 +187,13 @@ h3 {
     %clickable:not(:disabled):hover, .tab %clickable:not(:disabled):focus {
         background-color: var(--color-button-hover);
         color: var(--color-text-primary);
+        fill: var(--color-text-primary);
     }
 }
 %clickable:not(:disabled).hovered {
     background-color: var(--color-button-hover);
     color: var(--color-text-primary);
+    fill: var(--color-text-primary);
 }
 %clickable:not(:disabled):active {
     background-color: var(--color-button-active);
@@ -371,6 +374,11 @@ input {
 }
 @supports (-moz-appearance:none) {
     input[type=checkbox] { --brightness: 1.4; }
+}
+
+i svg {
+    fill: inherit;
+    height: 16px;
 }
 
 .step-input {
