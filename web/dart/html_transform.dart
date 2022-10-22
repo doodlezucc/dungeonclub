@@ -11,10 +11,11 @@ final _scaledMin = exp(_zoomMin);
 final _scaledMax = exp(_zoomMax);
 
 class HtmlTransform {
+  double zoomAmount;
   Element element;
   Point Function() getMaxPosition;
 
-  HtmlTransform(this.element, {this.getMaxPosition});
+  HtmlTransform(this.element, {this.getMaxPosition, this.zoomAmount = 0.33});
 
   Point _position;
   Point get position => _position;
@@ -39,8 +40,11 @@ class HtmlTransform {
   }
 
   void _transform() {
-    element?.style?.transform =
-        'scale($scaledZoom) translate(${position.x}px, ${position.y}px)';
+    if (element != null) {
+      element.style
+        ..setProperty('scale', '$scaledZoom')
+        ..transform = 'translate(${position.x}px, ${position.y}px)';
+    }
   }
 
   void clampPosition([Point pos]) {
@@ -89,7 +93,7 @@ class HtmlTransform {
 
   void handleMousewheel(WheelEvent event) {
     var v = min(50, event.deltaY.abs()) / 50;
-    zoom -= event.deltaY.sign * v / 3;
+    zoom -= event.deltaY.sign * v * zoomAmount;
   }
 }
 

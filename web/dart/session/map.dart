@@ -244,7 +244,6 @@ class MapTab {
 
     transform.getMapSize = () => _mapSize;
     transform.onChange = (offCenter) {
-      print(offCenter);
       _updateToolsVisibility();
     };
 
@@ -611,7 +610,7 @@ class MapTransform extends HtmlTransform {
   void Function(bool) onChange;
   Point Function() getMapSize;
 
-  MapTransform() : super(null) {
+  MapTransform() : super(null, zoomAmount: 0.2) {
     getMaxPosition = () => getMapSize() * zoom;
   }
 

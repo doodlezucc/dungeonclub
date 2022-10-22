@@ -752,7 +752,7 @@
 #board {
     position: absolute;
     display: flex;
-    transition-duration: 0.05s;
+    transition: scale 0.05s;
     border: 2px solid var(--color-separator);
     box-sizing: border-box;
     box-shadow: 0 0 20px #0003;

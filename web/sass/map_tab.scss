@@ -247,7 +247,7 @@
     max-height: calc(100% - 20px);
     box-sizing: border-box;
     padding: 0 20px;
-    transition-duration: 0.05s;
+    transition: scale 0.05s;
 
     > div {
         height: 100%;
