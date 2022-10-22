@@ -65,8 +65,8 @@ class Movable extends EntityBase {
     var pos = board.grid.grid.gridToWorldSpace(_position);
 
     e.style
-      ..setProperty('--x', '${pos.x}')
-      ..setProperty('--y', '${pos.y}');
+      ..setProperty('--x', '${pos.x}px')
+      ..setProperty('--y', '${pos.y}px');
     board.updateSnapToGrid();
   }
 
@@ -99,7 +99,6 @@ class Movable extends EntityBase {
     if (createTooltip) {
       e.append(board.transform.registerInvZoom(
         SpanElement()..className = 'toast',
-        scaleByCell: true,
       ));
     }
 

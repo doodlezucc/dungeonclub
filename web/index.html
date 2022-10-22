@@ -500,8 +500,23 @@
 					<img id="ground">
 					<svg id="gridCanvas" class="fill-board">
 						<defs>
-							<pattern id="gridPattern" width="80" height="80" patternUnits="userSpaceOnUse">
-								<path d="M 1000 0 L 0 0 0 1000" fill="none" stroke="gray" stroke-width="4" />
+							<pattern id="gridPatternSquare" width="1" height="1" patternUnits="userSpaceOnUse">
+								<path d="M 1 0 L 0 0 0 1" />
+							</pattern>
+							<pattern id="gridPatternHexH" width="2" height="1.154701" patternUnits="userSpaceOnUse">
+								<g>
+									<polygon
+										points="0.167,1.077 0.833,1.077 1.167,0.5 0.833,-0.077 0.167,-0.077 -0.167,0.5" />
+									<polygon
+										points="0.167,1.077 0.833,1.077 1.167,0.5 0.833,-0.077 0.167,-0.077 -0.167,0.5"
+										transform="translate(0, 1.155)" />
+									<polygon
+										points="0.167,1.077 0.833,1.077 1.167,0.5 0.833,-0.077 0.167,-0.077 -0.167,0.5"
+										transform="translate(1, 0.577)" />
+									<polygon
+										points="0.167,1.077 0.833,1.077 1.167,0.5 0.833,-0.077 0.167,-0.077 -0.167,0.5"
+										transform="translate(1, -0.577)" />
+								</g>
 							</pattern>
 						</defs>
 						<rect fill="url(#gridPattern)"></rect>

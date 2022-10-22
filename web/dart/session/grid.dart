@@ -22,12 +22,12 @@ final _typeButtons = <ButtonElement, int>{
   querySelector('#gridTNone'): GRID_NONE,
 };
 
+const noneGridScale = 70.0;
 const minSize = Point<double>(200, 200);
 
 class SceneGrid {
-  final HtmlElement e;
+  final HtmlElement e = querySelector('#grid');
   final svg.SvgSvgElement _canvas = querySelector('#gridCanvas');
-  final svg.PatternElement _pattern = querySelector('#gridPattern');
   final svg.RectElement _rect = querySelector('#gridCanvas rect');
 
   Grid _grid = Grid.square(1);
@@ -47,7 +47,7 @@ class SceneGrid {
       (_grid as TiledGrid).tilesInRow = _tiles;
     }
 
-    user.session.board.movables.forEach((m) => m.position += Point(0, 0));
+    _repositionMovables();
     _applyCellSize();
     redrawCanvas();
   }
@@ -55,14 +55,15 @@ class SceneGrid {
   Point get offset => _grid.zero;
   Point get size => _grid.size;
 
-  num get cellSize => _grid is TiledGrid ? (_grid as TiledGrid).tileWidth : 1;
+  num get cellSize =>
+      _grid is TiledGrid ? (_grid as TiledGrid).tileWidth : noneGridScale;
   Point<double> get _imgSize =>
       Point(_canvas.clientWidth.toDouble(), _canvas.clientHeight.toDouble());
 
   num _tileMultiply;
   String _tileUnit;
 
-  SceneGrid() : e = querySelector('#grid') {
+  SceneGrid() {
     _initGridEditor();
   }
 
@@ -190,6 +191,10 @@ class SceneGrid {
     });
   }
 
+  void _repositionMovables() {
+    user.session.board.movables.forEach((m) => m.position += Point(0, 0));
+  }
+
   static Grid _createGrid(int type, int tilesInRow) {
     switch (type) {
       case GRID_SQUARE:
@@ -197,7 +202,7 @@ class SceneGrid {
       case GRID_HEX:
         return Grid.hexagonal(tilesInRow);
       case GRID_NONE:
-        return Grid.unclamped();
+        return Grid.unclamped(scale: noneGridScale);
     }
     return null;
   }
@@ -209,10 +214,12 @@ class SceneGrid {
       ..size = size;
     _gridType = type;
     _applyGridType();
+    _repositionMovables();
+    redrawCanvas();
   }
 
-  void _applyGrid() {
-    tiles = (_grid as TiledGrid).tilesInRow;
+  void _applyGrid(int tilesOverride) {
+    tiles = tilesOverride;
     gridTiles.valueAsNumber = tiles;
     _applyGridType();
     _applyZero();
@@ -296,14 +303,29 @@ class SceneGrid {
     }
   }
 
-  void redrawCanvas() {
-    var size = cellSize;
-    _pattern.setAttribute('width', '$size');
-    _pattern.setAttribute('height', '$size');
+  static String _patternId(Grid grid) {
+    if (grid is SquareGrid) return '#gridPatternSquare';
+    if (grid is HexagonalGrid) {
+      return '#gridPatternHex' + (grid.horizontal ? 'H' : 'V');
+    }
 
-    svg.PathElement path = _pattern.children.first;
-    path.setAttribute('stroke', _gridColor.value);
-    path.setAttribute('opacity', _gridAlpha.value);
+    return '';
+  }
+
+  void redrawCanvas() {
+    var patternId = _patternId(grid);
+    var fill = gridType == GRID_NONE ? 'none' : 'url($patternId)';
+    _rect.setAttribute('fill', fill);
+
+    if (gridType == GRID_NONE) return;
+
+    var pattern = querySelector(patternId);
+    var size = cellSize;
+    pattern.setAttribute('patternTransform', 'scale($size)');
+
+    var patternG = pattern.children.first;
+    patternG.setAttribute('stroke', _gridColor.value);
+    patternG.setAttribute('opacity', _gridAlpha.value);
   }
 
   void configure({
@@ -324,7 +346,7 @@ class SceneGrid {
     _validateTileUnit();
     _gridColor.value = color;
     _gridAlpha.valueAsNumber = alpha;
-    _applyGrid();
+    _applyGrid(tiles);
   }
 
   Map<String, dynamic> toJson() => {

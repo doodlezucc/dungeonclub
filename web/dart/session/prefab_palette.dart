@@ -102,10 +102,11 @@ void toggleMovableGhostVisible(bool v, {bool translucent = false}) {
 }
 
 void alignMovableGhost(Point point, EntityBase entity) {
-  var p = user.session.board.grid.offsetToGridSpace(point, entity.size);
+  var gp = user.session.board.grid.offsetToGridSpace(point, entity.size);
+  var p = user.session.board.grid.grid.gridToWorldSpace(gp);
 
-  _movableGhost.style.setProperty('--x', '${p.x}');
-  _movableGhost.style.setProperty('--y', '${p.y}');
+  _movableGhost.style.setProperty('--x', '${p.x}px');
+  _movableGhost.style.setProperty('--y', '${p.y}px');
 }
 
 void _updateAccessSpan() {
@@ -142,8 +143,8 @@ void _initPrefabPalette() {
 }
 
 void imitateMovableGhost(Movable m) {
-  _movableGhost.style.setProperty('--x', '${m.position.x}');
-  _movableGhost.style.setProperty('--y', '${m.position.y}');
+  _movableGhost.style.setProperty('--x', '${m.position.x}px');
+  _movableGhost.style.setProperty('--y', '${m.position.y}px');
   _movableGhost.style.setProperty('--size', '${m.displaySize}');
   _movableGhost.classes.toggle('empty', m is EmptyMovable);
   var img = m.prefab.img(cacheBreak: false);
