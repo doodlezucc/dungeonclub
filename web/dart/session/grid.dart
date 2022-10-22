@@ -18,17 +18,17 @@ final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
 final DivElement _crop = querySelector('#gridPadding');
 final _typeButtons = <ButtonElement, int>{
   querySelector('#gridTSquare'): GRID_SQUARE,
-  querySelector('#gridTHex'): GRID_HEX,
+  querySelector('#gridTHexH'): GRID_HEX_H,
+  querySelector('#gridTHexV'): GRID_HEX_V,
   querySelector('#gridTNone'): GRID_NONE,
 };
 
-const noneGridScale = 70.0;
 const minSize = Point<double>(200, 200);
 
 class SceneGrid {
   final HtmlElement e = querySelector('#grid');
   final svg.SvgSvgElement _canvas = querySelector('#gridCanvas');
-  final svg.RectElement _rect = querySelector('#gridCanvas rect');
+  final svg.RectElement _rect = querySelector('#gridCanvasMask');
 
   Grid _grid = Grid.square(1);
   Grid get grid => _grid;
@@ -55,8 +55,7 @@ class SceneGrid {
   Point get offset => _grid.zero;
   Point get size => _grid.size;
 
-  num get cellSize =>
-      _grid is TiledGrid ? (_grid as TiledGrid).tileWidth : noneGridScale;
+  num get cellSize => size.x / tiles;
   Point<double> get _imgSize =>
       Point(_canvas.clientWidth.toDouble(), _canvas.clientHeight.toDouble());
 
@@ -199,10 +198,12 @@ class SceneGrid {
     switch (type) {
       case GRID_SQUARE:
         return Grid.square(tilesInRow);
-      case GRID_HEX:
-        return Grid.hexagonal(tilesInRow);
+      case GRID_HEX_H:
+        return Grid.hexagonal(tilesInRow, horizontal: true);
+      case GRID_HEX_V:
+        return Grid.hexagonal(tilesInRow, horizontal: false);
       case GRID_NONE:
-        return Grid.unclamped(scale: noneGridScale);
+        return Grid.square(tilesInRow);
     }
     return null;
   }
@@ -303,17 +304,20 @@ class SceneGrid {
     }
   }
 
-  static String _patternId(Grid grid) {
-    if (grid is SquareGrid) return '#gridPatternSquare';
-    if (grid is HexagonalGrid) {
-      return '#gridPatternHex' + (grid.horizontal ? 'H' : 'V');
+  static String _patternId(int gridType) {
+    switch (gridType) {
+      case GRID_SQUARE:
+        return '#gridPatternSquare';
+      case GRID_HEX_H:
+        return '#gridPatternHexH';
+      case GRID_HEX_V:
+        return '#gridPatternHexV';
     }
-
     return '';
   }
 
   void redrawCanvas() {
-    var patternId = _patternId(grid);
+    var patternId = _patternId(gridType);
     var fill = gridType == GRID_NONE ? 'none' : 'url($patternId)';
     _rect.setAttribute('fill', fill);
 

@@ -142,10 +142,14 @@ void _initPrefabPalette() {
   });
 }
 
+void _copyStyleProp(String name, Element a, Element b) {
+  b.style.setProperty(name, a.style.getPropertyValue(name));
+}
+
 void imitateMovableGhost(Movable m) {
-  _movableGhost.style.setProperty('--x', '${m.position.x}px');
-  _movableGhost.style.setProperty('--y', '${m.position.y}px');
-  _movableGhost.style.setProperty('--size', '${m.displaySize}');
+  _copyStyleProp('--x', m.e, _movableGhost);
+  _copyStyleProp('--y', m.e, _movableGhost);
+  _copyStyleProp('--size', m.e, _movableGhost);
   _movableGhost.classes.toggle('empty', m is EmptyMovable);
   var img = m.prefab.img(cacheBreak: false);
   _movableGhost.style.backgroundImage = 'url($img)';

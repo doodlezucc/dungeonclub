@@ -99,6 +99,7 @@ class Movable extends EntityBase {
     if (createTooltip) {
       e.append(board.transform.registerInvZoom(
         SpanElement()..className = 'toast',
+        scaleByCell: true,
       ));
     }
 

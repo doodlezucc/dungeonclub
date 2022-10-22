@@ -378,21 +378,29 @@
 						<i class="fas fa-image"></i>
 					</button>
 					<span>
+						<button id="gridTNone" class="icon with-tooltip">
+							<i class="fas fa-border-none"></i>
+							<span>No Grid</span>
+						</button>
 						<button id="gridTSquare" class="icon with-tooltip">
 							<i class="fas fa-square"></i>
 							<span>Square Grid</span>
 						</button>
-						<button id="gridTHex" class="icon with-tooltip">
+						<button id="gridTHexH" class="icon with-tooltip">
 							<i class="fas">
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
 									<polygon class="hex" points="300,150 225,280 75,280 0,150 75,20 225,20"></polygon>
 								</svg>
 							</i>
-							<span>Hexagonal Grid</span>
+							<span>Hex Grid (Horizontal)</span>
 						</button>
-						<button id="gridTNone" class="icon with-tooltip">
-							<i class="fas fa-border-none"></i>
-							<span>No Grid</span>
+						<button id="gridTHexV" class="icon with-tooltip">
+							<i class="fas">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+									<polygon class="hex" points="150,300 280,225 280,75 150,0 20,75 20,225"></polygon>
+								</svg>
+							</i>
+							<span>Hex Grid (Vertical)</span>
 						</button>
 					</span>
 					<div id="gridControls">
@@ -501,7 +509,7 @@
 					<svg id="gridCanvas" class="fill-board">
 						<defs>
 							<pattern id="gridPatternSquare" width="1" height="1" patternUnits="userSpaceOnUse">
-								<path d="M 1 0 L 0 0 0 1" />
+								<rect width="1" height="1" />
 							</pattern>
 							<pattern id="gridPatternHexH" width="2" height="1.154701" patternUnits="userSpaceOnUse">
 								<g>
@@ -518,8 +526,17 @@
 										transform="translate(1, -0.577)" />
 								</g>
 							</pattern>
+							<pattern id="gridPatternHexV" width="1" height="1.732050" patternUnits="userSpaceOnUse">
+								<g>
+									<polygon points="1,0.211 1,0.789 0.5,1.077 0,0.789 0,0.211 0.5,-0.077" />
+									<polygon points="1,0.211 1,0.789 0.5,1.077 0,0.789 0,0.211 0.5,-0.077"
+										transform="translate(0.5, 0.866)" />
+									<polygon points="1,0.211 1,0.789 0.5,1.077 0,0.789 0,0.211 0.5,-0.077"
+										transform="translate(-0.5, 0.866)" />
+								</g>
+							</pattern>
 						</defs>
-						<rect fill="url(#gridPattern)"></rect>
+						<rect id="gridCanvasMask" fill="url(#gridPattern)"></rect>
 					</svg>
 					<div id="gridPadding" class="crop-container">
 						<div class="width top" style="cursor: n-resize;"></div>

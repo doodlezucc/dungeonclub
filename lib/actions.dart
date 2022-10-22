@@ -59,5 +59,6 @@ const MAINTENANCE = 'maintenance';
 const FEEDBACK = 'feedback';
 
 const GRID_SQUARE = 0;
-const GRID_HEX = 1;
-const GRID_NONE = 2;
+const GRID_NONE = 1;
+const GRID_HEX_H = 2;
+const GRID_HEX_V = 3;
