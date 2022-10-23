@@ -240,14 +240,12 @@ class SceneGrid {
     measuringRoot.style.top = '${offset.y}px';
     _crop.style.left = '${offset.x}px';
     _crop.style.top = '${offset.y}px';
-    _rect.setAttribute('transform', 'translate(${offset.x}, ${offset.y})');
+    redrawCanvas();
   }
 
   void _applySize() {
     measuringRoot.style.width = '${size.x}px';
     measuringRoot.style.height = '${size.y}px';
-    _rect.setAttribute('width', '${size.x}');
-    _rect.setAttribute('height', '${size.y}');
     _crop.style.width = '${size.x}px';
     _crop.style.height = '${size.y}px';
   }
@@ -263,6 +261,7 @@ class SceneGrid {
     if (_grid.zero != oldZero) _applyZero();
     if (_grid.size != oldSize) _applySize();
     if (_grid.size.x != oldSize.x) _applyCellSize();
+    _repositionMovables();
     redrawCanvas();
   }
 
@@ -325,7 +324,10 @@ class SceneGrid {
 
     var pattern = querySelector(patternId);
     var size = cellSize;
-    pattern.setAttribute('patternTransform', 'scale($size)');
+    pattern.setAttribute(
+      'patternTransform',
+      'translate(${offset.x}, ${offset.y}) scale($size)',
+    );
 
     var patternG = pattern.children.first;
     patternG.setAttribute('stroke', _gridColor.value);

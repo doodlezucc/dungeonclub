@@ -490,9 +490,7 @@
         }
 
         #gridCanvas {
-            &.blink path {
-                animation: blink 2s infinite linear;
-                fill: none !important;
+            &.blink pattern > * {
                 opacity: 1 !important;
             }
         }
@@ -537,7 +535,7 @@
     pointer-events: none;
 
     pattern {
-        stroke-width: 0.02;
+        stroke-width: 0.05;
         fill: none;
     }
 }
