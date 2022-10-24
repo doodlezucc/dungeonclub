@@ -818,8 +818,8 @@ class Board {
     MeasuringPath measuring;
 
     void alignText() {
-      var p = (clicked.position.cast<num>() +
-              clicked.displaySizePoint.cast<num>()) *
+      var p = (clicked.position.cast<double>() +
+              clicked.displaySizePoint.cast<double>()) *
           grid.cellSize;
       measuring.alignDistanceText(p);
     }
@@ -845,9 +845,9 @@ class Board {
 
         var showDistance = affected.length == 1;
         if (showDistance) {
-          measuring =
-              MeasuringPath(clicked.center, -1, background: true, round: false);
-          zoom += 0; // Rescale distance text
+          measuring = MeasuringPath(clicked.position, -1,
+              background: true, round: false, size: clicked.displaySize);
+          transform.applyInvZoom();
           alignText();
           imitateMovableGhost(clicked);
         }
@@ -862,7 +862,7 @@ class Board {
         }
         lastDelta = delta;
         if (measuring != null) {
-          measuring.redraw(clicked.center);
+          measuring.redraw(clicked.position);
           alignText();
           toggleMovableGhostVisible(delta != Point(0, 0), translucent: true);
         }
@@ -889,14 +889,12 @@ class Board {
 
     var offset = doOffset ? Point(0.5, 0.5) : Point(0.0, 0.0);
 
-    var origin = grid.offsetToGridSpaceUnscaled(p, offset: offset).cast<num>() -
-        Point(0.5, 0.5) +
-        offset;
+    var origin = grid.grid.worldToGridSpace(p).cast<num>();
 
     removeMeasuring(session.charId, sendEvent: true);
     var m = Measuring.create(type, origin, session.charId);
     m.alignDistanceText(p);
-    zoom += 0; // Rescale distance text
+    transform.applyInvZoom();
 
     if (isPublic) sendCreationEvent(type, origin, p);
 
@@ -1180,11 +1178,6 @@ class Board {
   }
 
   void rescaleMeasurings() {
-    var x = grid.tiles;
-    var y = x * (grid.size.y / grid.size.x);
-    var viewBox = '-0.5 -0.5 $x $y';
-    measuringRoot.setAttribute('viewBox', viewBox);
-    distanceRoot.setAttribute('viewBox', viewBox);
     fogOfWar.applyUseGrid(this);
   }
 
@@ -1228,14 +1221,14 @@ class BoardTransform extends HtmlTransform {
   @override
   set zoom(double zoom) {
     super.zoom = zoom;
-    _applyInvZoom();
+    applyInvZoom();
   }
 
   String get _invZoomScale => 'scale(${1 / scaledZoom})';
   String get _invZoomScaleCell =>
       'scale(${70 / board.grid.cellSize / scaledZoom})';
 
-  void _applyInvZoom() {
+  void applyInvZoom() {
     final scale = _invZoomScale;
     final scaleCell = _invZoomScaleCell;
     _invZoom.forEach((e, c) => e.style.transform = c ? scaleCell : scale);

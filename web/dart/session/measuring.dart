@@ -20,8 +20,8 @@ const _precision = 63;
 final Map<int, Measuring> _pcMeasurings = {};
 
 final HtmlElement _toolbox = querySelector('#measureTools');
-final svg.SvgSvgElement measuringRoot = querySelector('#measureCanvas');
-final svg.SvgSvgElement distanceRoot = querySelector('#distanceCanvas');
+final svg.SvgSvgElement _measuringRoot = querySelector('#measureCanvas');
+final svg.SvgSvgElement _distanceRoot = querySelector('#distanceCanvas');
 double _bufferedLineWidth = 1;
 
 int _measureMode;
@@ -97,7 +97,7 @@ void handleMeasuringEvent(Uint8List bytes) {
     case 0:
       var m = Measuring.create(reader.readUInt8(), _readPrecision(reader), pc);
       m.alignDistanceText(reader.readPoint());
-      user.session.board.zoom += 0; // Rescale distance text
+      user.session.board.transform.applyInvZoom(); // Rescale distance text
       return;
     case 1:
       return _pcMeasurings[pc]?.handleUpdateEvent(reader);
@@ -135,7 +135,7 @@ abstract class Measuring {
         color = user.session.getPlayerColor(pc) {
     _pcMeasurings[pc]?.dispose();
     _pcMeasurings[pc] = this;
-    root ??= measuringRoot;
+    root ??= _measuringRoot;
     root.append(_e);
     user.session.board.transform.registerInvZoom(_distanceText);
     querySelector('#board').append(_distanceText..className = 'distance-text');
@@ -190,19 +190,22 @@ abstract class Measuring {
 }
 
 class MeasuringPath extends Measuring {
-  static const _stopRadius = 0.2;
-
   final path = svg.PathElement();
-  final lastE = svg.CircleElement()..setAttribute('r', '$_stopRadius');
+  final lastE = svg.CircleElement();
   final points = <Point>[];
+  final int size;
   bool round;
   int pointsSinceSync = 0;
   double previousDistance = 0;
 
-  MeasuringPath(Point origin, int pc,
-      {bool background = false, this.round = true})
-      : super(origin, svg.GElement(), pc,
-            background ? distanceRoot : measuringRoot) {
+  MeasuringPath(
+    Point origin,
+    int pc, {
+    bool background = false,
+    this.round = true,
+    this.size = 1,
+  }) : super(origin, svg.GElement(), pc,
+            background ? _distanceRoot : _measuringRoot) {
     _e
       ..append(path)
       ..append(lastE);
@@ -234,8 +237,8 @@ class MeasuringPath extends Measuring {
   @override
   void addPoint(Point p) {
     if (round) p = forceIntPoint(p);
-    var stop = svg.CircleElement()..setAttribute('r', '$_stopRadius');
-    _applyCircle(stop, p);
+    var stop = svg.CircleElement();
+    _applyCircle(stop, p, size: size);
     _e.append(stop);
 
     previousDistance += _lastSegmentLength(p);
@@ -258,7 +261,7 @@ class MeasuringPath extends Measuring {
   void redraw(Point end) {
     if (round) end = forceIntPoint(end);
     path.setAttribute('d', _toPathData(end));
-    _applyCircle(lastE, end);
+    _applyCircle(lastE, end, size: size);
     _updateDistanceText(end);
   }
 
@@ -270,7 +273,8 @@ class MeasuringPath extends Measuring {
   String _toPathData(Point end) {
     if (points.isEmpty) return '';
 
-    String writePoint(Point p) {
+    String writePoint(Point ps) {
+      var p = user.session.board.grid.centeredWorldPoint(ps, size);
       return ' ${p.x} ${p.y}';
     }
 
@@ -292,10 +296,10 @@ abstract class CoveredMeasuring extends Measuring {
 
   CoveredMeasuring(Point origin, svg.SvgElement elem, int pc)
       : super(origin, elem, pc) {
-    _applyCircle(_center..setAttribute('r', '0.25'), origin);
-    measuringRoot.insertBefore(_squares..setAttribute('fill', '${color}60'),
+    _applyCircle(_center, origin);
+    _measuringRoot.insertBefore(_squares..setAttribute('fill', '${color}60'),
         _e..classes.add('no-fill'));
-    measuringRoot.append(_center);
+    _measuringRoot.append(_center);
   }
 
   @override
@@ -554,7 +558,9 @@ class MeasuringLine extends CoveredMeasuring {
   }
 }
 
-void _applyCircle(svg.CircleElement elem, Point p) {
+void _applyCircle(svg.CircleElement elem, Point ps, {int size = 1}) {
+  print(ps);
+  var p = user.session.board.grid.centeredWorldPoint(ps, size);
   elem.setAttribute('cx', '${p.x}');
   elem.setAttribute('cy', '${p.y}');
 }

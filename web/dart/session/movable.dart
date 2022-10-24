@@ -62,11 +62,7 @@ class Movable extends EntityBase {
   Point get position => _position;
   set position(Point position) {
     _position = position;
-    var pos = board.grid.grid.gridToWorldSpace(_position);
-
-    e.style
-      ..setProperty('--x', '${pos.x}px')
-      ..setProperty('--y', '${pos.y}px');
+    applyPosition();
     board.updateSnapToGrid();
   }
 
@@ -78,8 +74,8 @@ class Movable extends EntityBase {
 
   int get displaySize => size != 0 ? size : prefab.size;
   Point<int> get displaySizePoint => Point(displaySize, displaySize);
-  Point get center =>
-      position.cast<num>() + (displaySizePoint - Point(1, 1)).cast<num>() * 0.5;
+  Point<double> get centerWorld =>
+      board.grid.centeredWorldPoint(_position, displaySize);
 
   Movable._({
     @required this.board,
@@ -125,6 +121,15 @@ class Movable extends EntityBase {
     }
     return Movable._(
         board: board, prefab: prefab, id: id, pos: pos, conds: conds);
+  }
+
+  void applyPosition() {
+    var pos = centerWorld -
+        Point<double>(0.5, 0.5) * (board.grid.cellSize * displaySize);
+
+    e.style
+      ..setProperty('--x', '${pos.x}px')
+      ..setProperty('--y', '${pos.y}px');
   }
 
   void updateTooltip() {

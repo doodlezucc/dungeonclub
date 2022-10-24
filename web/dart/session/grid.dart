@@ -8,7 +8,6 @@ import 'package:grid/grid.dart';
 import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';
-import 'measuring.dart';
 
 final HtmlElement _controls = querySelector('#sceneEditor');
 final InputElement gridTiles = _controls.querySelector('#gridTiles');
@@ -191,7 +190,7 @@ class SceneGrid {
   }
 
   void _repositionMovables() {
-    user.session.board.movables.forEach((m) => m.position += Point(0, 0));
+    user.session.board.movables.forEach((m) => m.applyPosition());
   }
 
   static Grid _createGrid(int type, int tilesInRow) {
@@ -236,16 +235,12 @@ class SceneGrid {
   }
 
   void _applyZero() {
-    measuringRoot.style.left = '${offset.x}px';
-    measuringRoot.style.top = '${offset.y}px';
     _crop.style.left = '${offset.x}px';
     _crop.style.top = '${offset.y}px';
     redrawCanvas();
   }
 
   void _applySize() {
-    measuringRoot.style.width = '${size.x}px';
-    measuringRoot.style.height = '${size.y}px';
     _crop.style.width = '${size.x}px';
     _crop.style.height = '${size.y}px';
   }
@@ -295,6 +290,15 @@ class SceneGrid {
       p = p.round();
     }
     return p;
+  }
+
+  Point centeredWorldPoint(Point gridSpace, int size) {
+    return grid.gridToWorldSpace(
+        gridSpace.cast<double>() + Point<double>(size * 0.5, size * 0.5));
+  }
+
+  Point centeredGridPoint(Point gridSpace, int size) {
+    return grid.worldToGridSpace(centeredWorldPoint(gridSpace, size));
   }
 
   void resize(int width, int height) {
