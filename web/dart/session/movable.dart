@@ -74,8 +74,6 @@ class Movable extends EntityBase {
 
   int get displaySize => size != 0 ? size : prefab.size;
   Point<int> get displaySizePoint => Point(displaySize, displaySize);
-  Point<double> get centerWorld =>
-      board.grid.centeredWorldPoint(_position, displaySize);
 
   Movable._({
     @required this.board,
@@ -101,11 +99,11 @@ class Movable extends EntityBase {
 
     prefab.movables.add(this);
     onImageChange(prefab.img(cacheBreak: false));
-    position = pos ?? Point(0, 0);
     applyConditions(conds);
 
     super.size = 0;
     onPrefabUpdate();
+    position = pos ?? Point(0, 0);
   }
 
   static Movable create({
@@ -124,8 +122,7 @@ class Movable extends EntityBase {
   }
 
   void applyPosition() {
-    var pos = centerWorld -
-        Point<double>(0.5, 0.5) * (board.grid.cellSize * displaySize);
+    var pos = board.grid.gridToWorldPointTopLeft(_position, displaySize);
 
     e.style
       ..setProperty('--x', '${pos.x}px')
@@ -154,7 +151,8 @@ class Movable extends EntityBase {
   }
 
   void roundToGrid() {
-    position = Point(position.x.round(), position.y.round());
+    position =
+        board.grid.grid.gridSnapCentered(position.cast<double>(), displaySize);
   }
 
   void snapToGrid(Point pos) {

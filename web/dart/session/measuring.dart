@@ -274,7 +274,7 @@ class MeasuringPath extends Measuring {
     if (points.isEmpty) return '';
 
     String writePoint(Point ps) {
-      var p = user.session.board.grid.centeredWorldPoint(ps, size);
+      var p = user.session.board.grid.grid.gridToWorldSpace(ps);
       return ' ${p.x} ${p.y}';
     }
 
@@ -559,8 +559,7 @@ class MeasuringLine extends CoveredMeasuring {
 }
 
 void _applyCircle(svg.CircleElement elem, Point ps, {int size = 1}) {
-  print(ps);
-  var p = user.session.board.grid.centeredWorldPoint(ps, size);
+  var p = user.session.board.grid.grid.gridToWorldSpace(ps);
   elem.setAttribute('cx', '${p.x}');
   elem.setAttribute('cy', '${p.y}');
 }

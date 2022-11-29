@@ -639,8 +639,11 @@ class Board {
                 _handleMovableMove(start, stream, clickedMovable);
                 pan = false;
               } else if (selectedPrefab != null) {
-                var gridPos = grid.offsetToGridSpace(
-                    start.p * (1 / scaledZoom), selectedPrefab.size);
+                final worldPos = grid.centeredWorldPoint(
+                  start.p * (1 / scaledZoom),
+                  selectedPrefab.size,
+                );
+                var gridPos = grid.grid.worldToGridSpace(worldPos);
 
                 var newMov = await addMovable(selectedPrefab, gridPos);
 
@@ -793,8 +796,8 @@ class Board {
   }
 
   void _selectMovablesInScreenRect(Rectangle r) {
-    Point scale(Point p) => grid.offsetToGridSpaceUnscaled(p,
-        round: false, offset: const Point(0, 0));
+    Point scale(Point p) =>
+        grid.offsetToGridSpaceUnscaled(p, offset: const Point(0, 0));
 
     var rect = Rectangle.fromPoints(scale(r.topLeft), scale(r.bottomRight));
 
@@ -811,10 +814,11 @@ class Board {
   void _handleMovableMove(
       SimpleEvent first, Stream<SimpleEvent> moveStream, Movable clicked) {
     toggleMovableGhostVisible(false);
-    var off = Point<num>(0, 0);
-    var movedOnce = false;
     var affected = {clicked, ...selected};
-    var lastDelta = Point<num>(0, 0);
+    final origins = {for (var mv in affected) mv: mv.position.cast<double>()};
+
+    var movedOnce = false;
+    var lastDelta = Point<double>(0, 0);
     MeasuringPath measuring;
 
     void alignText() {
@@ -824,12 +828,17 @@ class Board {
       measuring.alignDistanceText(p);
     }
 
-    Point scale(Point p) {
-      var offset = scalePoint(p, (v) => v / scaledZoom);
-      return grid.offsetToGridSpaceUnscaled(offset, round: false);
+    Point<double> zoomApplied(Point p) {
+      return scalePoint(p, (v) => v / scaledZoom);
     }
 
-    var initial = scale(first.p);
+    Point<double> worldSnapCentered(Point<double> worldPoint) {
+      return grid.grid
+          .worldSnapCentered(worldPoint, clicked.displaySize)
+          .cast<double>();
+    }
+
+    final worldOrigin = grid.grid.gridToWorldSpace(clicked.position);
 
     moveStream.listen((ev) {
       if (!movedOnce) {
@@ -837,10 +846,6 @@ class Board {
         if (!clicked.e.classes.contains('selected') && !first.shift) {
           _deselectAll();
           affected = {clicked};
-        }
-
-        if (!first.alt && affected.length == 1) {
-          off = scalePoint(clicked.position, (v) => ((v + 0.5) % 1.0) - 0.5);
         }
 
         var showDistance = affected.length == 1;
@@ -853,12 +858,15 @@ class Board {
         }
       }
 
-      var delta = scale(ev.p) - initial;
-      if (!ev.alt) delta = roundPoint(delta) - off;
+      var worldPoint = zoomApplied(ev.p.cast<double>());
+      if (!ev.alt) {
+        worldPoint = worldSnapCentered(worldPoint);
+      }
+      var delta = grid.grid.worldToGridSpace(worldPoint - worldOrigin);
 
       if (delta != lastDelta) {
         for (var mv in affected) {
-          mv.position = mv.position.cast<num>() + delta - lastDelta;
+          mv.position = origins[mv] + delta;
         }
         lastDelta = delta;
         if (measuring != null) {
@@ -918,7 +926,6 @@ class Board {
       p = ev.p * (1 / scaledZoom);
       measureEnd = grid.offsetToGridSpaceUnscaled(
         p,
-        round: false,
         offset: Point(0.5, 0.5) - offset,
       );
 

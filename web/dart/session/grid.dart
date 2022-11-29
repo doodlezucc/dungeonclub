@@ -55,6 +55,9 @@ class SceneGrid {
   Point get size => _grid.size;
 
   num get cellSize => size.x / tiles;
+  num get tokenSize => cellSize;
+  // grid is TiledGrid ? (grid as TiledGrid).tileH : cellSize;
+
   Point<double> get _imgSize =>
       Point(_canvas.clientWidth.toDouble(), _canvas.clientHeight.toDouble());
 
@@ -214,6 +217,7 @@ class SceneGrid {
       ..size = size;
     _gridType = type;
     _applyGridType();
+    _applyCellSize();
     _repositionMovables();
     redrawCanvas();
   }
@@ -261,44 +265,35 @@ class SceneGrid {
   }
 
   void _applyCellSize() {
-    e.style.setProperty('--cell-size', '$cellSize');
+    e.style.setProperty('--cell-size', '$tokenSize');
   }
 
   Point offsetToGridSpaceUnscaled(
     Point point, {
-    bool round = true,
     Point offset = const Point(0.5, 0.5),
   }) {
     Point cOffset = offset.cast<double>();
     var p = _grid.worldToGridSpace(point.cast<double>() - cOffset) - cOffset;
-
-    if (round) {
-      p = p.round();
-    }
     return p;
   }
 
-  Point offsetToGridSpace(
-    Point point,
-    num targetSize, {
-    bool round = true,
-  }) {
-    var size = Point(targetSize * cellSize / 2, targetSize * cellSize / 2);
-    var p = _grid.worldToGridSpace(point - size).cast<num>();
-
-    if (round) {
-      p = p.round();
-    }
-    return p;
+  Point gridToCenteredWorldPoint(Point center, int size) {
+    final off = 0.5 * size * tokenSize;
+    return grid.gridToWorldSpace(center) - Point<double>(off, off);
   }
 
-  Point centeredWorldPoint(Point gridSpace, int size) {
-    return grid.gridToWorldSpace(
-        gridSpace.cast<double>() + Point<double>(size * 0.5, size * 0.5));
+  Point gridToWorldPointTopLeft(Point center, int size) {
+    final off = 0.5 * size * tokenSize;
+    return grid.gridToWorldSpace(center) - Point<double>(off, off);
   }
 
-  Point centeredGridPoint(Point gridSpace, int size) {
-    return grid.worldToGridSpace(centeredWorldPoint(gridSpace, size));
+  Point centeredWorldPoint(Point center, int size) {
+    return grid.worldSnapCentered(center, size);
+  }
+
+  Point centeredWorldPointTopLeft(Point center, int size) {
+    final off = 0.5 * size * tokenSize;
+    return centeredWorldPoint(center, size) - Point<double>(off, off);
   }
 
   void resize(int width, int height) {

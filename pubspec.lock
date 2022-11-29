@@ -7,7 +7,7 @@ packages:
       name: _fe_analyzer_shared
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "49.0.0"
+    version: "50.0.0"
   ambience:
     dependency: "direct main"
     description:
@@ -23,14 +23,14 @@ packages:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.1.0"
+    version: "5.2.0"
   archive:
     dependency: "direct main"
     description:
       name: archive
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.3.2"
+    version: "3.3.5"
   args:
     dependency: "direct main"
     description:
@@ -44,7 +44,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.9.0"
+    version: "2.10.0"
   bazel_worker:
     dependency: transitive
     description:
@@ -86,7 +86,7 @@ packages:
       name: build_resolvers
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.10"
+    version: "2.1.0"
   build_runner:
     dependency: "direct dev"
     description:
@@ -100,7 +100,7 @@ packages:
       name: build_runner_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.2.6"
+    version: "7.2.7"
   build_web_compilers:
     dependency: "direct dev"
     description:
@@ -121,7 +121,7 @@ packages:
       name: built_value
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "8.4.1"
+    version: "8.4.2"
   charcode:
     dependency: transitive
     description:
@@ -205,14 +205,14 @@ packages:
       name: frontend_server_client
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.1.0"
+    version: "3.2.0"
   glob:
     dependency: transitive
     description:
       name: glob
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   googleapis_auth:
     dependency: "direct main"
     description:
@@ -239,7 +239,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "44d315a105bcc131e1c152eda9b792c9bdc2210a"
+      resolved-ref: becf03bd95626f0f7a3efde9121296d873c3cabf
       url: "https://github.com/doodlezucc/dart_grid.git"
     source: git
     version: "0.1.0"
@@ -326,7 +326,7 @@ packages:
       name: matcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.12.12"
+    version: "0.12.13"
   meta:
     dependency: "direct main"
     description:
@@ -369,6 +369,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.1.0"
+  pointycastle:
+    dependency: transitive
+    description:
+      name: pointycastle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.6.2"
   pool:
     dependency: transitive
     description:
@@ -403,7 +410,7 @@ packages:
       name: pub_semver
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.2"
+    version: "2.1.3"
   pubspec_parse:
     dependency: transitive
     description:
@@ -445,7 +452,7 @@ packages:
       name: shelf_web_socket
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   source_maps:
     dependency: transitive
     description:
@@ -480,14 +487,14 @@ packages:
       name: stream_transform
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.1"
+    version: "2.1.0"
   string_scanner:
     dependency: transitive
     description:
       name: string_scanner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.1"
+    version: "1.2.0"
   term_glyph:
     dependency: transitive
     description:
@@ -521,7 +528,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "22bc1ffacffd9ba2f02319bf1e8808e290adcebb"
+      resolved-ref: aa2327a033da3ce7925fc96e2a5c4aaa343170ea
       url: "https://github.com/doodlezucc/web_polymask.git"
     source: git
     version: "0.0.0"
@@ -547,7 +554,7 @@ packages:
       name: xml
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.2.0"
+    version: "6.2.2"
   yaml:
     dependency: transitive
     description:

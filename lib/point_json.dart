@@ -11,7 +11,7 @@ Map<String, dynamic> writePoint(Point point) => point != null
       }
     : null;
 
-Point scalePoint(Point p, num Function(num v) convert) {
+Point<T> scalePoint<T extends num>(Point p, T Function(num v) convert) {
   return Point(convert(p.x), convert(p.y));
 }
 
