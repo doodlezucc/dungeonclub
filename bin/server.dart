@@ -19,8 +19,7 @@ import 'mail.dart';
 import 'maintenance.dart';
 import 'untaint.dart';
 
-// For Google Cloud Run, set _hostname to '0.0.0.0'.
-const _hostname = 'localhost';
+const _hostname = '0.0.0.0';
 const githubUrl =
     'https://raw.githubusercontent.com/doodlezucc/dungeonclub/master';
 
