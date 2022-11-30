@@ -13,16 +13,26 @@ import 'font_awesome.dart';
 import 'panels/dialog.dart';
 import 'session/measuring.dart';
 
+final String _serverAddress = _getServerAddress();
+
 final socket = FrontSocket();
-
-final bool isOnLocalHost = window.location.hostname == 'localhost';
-String get webPort => window.location.port;
-final String _serverAddress = isOnLocalHost
-    ? 'http://localhost:' +
-        ((!Environment.isCompiled && webPort == '8080') ? '7070' : webPort)
-    : window.location.origin;
-
 final Map<String, String> localRedirect = {};
+
+bool get isDebugging {
+  final webPort = window.location.port;
+  return !Environment.isCompiled && webPort == '8080';
+}
+
+String _getServerAddress() {
+  final address = window.location.origin;
+
+  if (isDebugging) {
+    // Replace address port 8080 with default server port 7070
+    return address.substring(0, address.length - 4) + '7070';
+  }
+
+  return address;
+}
 
 String getFile(String path, {bool cacheBreak = true}) {
   var out = join(_serverAddress, path);
@@ -33,7 +43,6 @@ String getFile(String path, {bool cacheBreak = true}) {
 
 String getGameFile(String path, {String gameId, bool cacheBreak = true}) {
   if (user.isInDemo) {
-    print('getting $path');
     var redirect = localRedirect[path];
     if (redirect.startsWith('images/assets')) {
       return getFile(redirect, cacheBreak: false);

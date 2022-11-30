@@ -55,7 +55,7 @@ Changes to the source code are reflected at different times depending on what pa
 - **Website Stylesheet** - after refreshing the website or by pressing <kbd>Shift</kbd>+<kbd>R</kbd> (not available on Firefox).
 
 ## Self-Hosting
-You can find the official public version of Dungeon Club at https://dungeonclub.net. In case you (for one reason or another) want to host a local server on your machine, there are two ways to achieve this.
+You can find the official public version of Dungeon Club at https://dungeonclub.net. In case you want to host a local server on your machine, there are two ways to achieve this.
 
 ### Pre-Compiled Releases
 
@@ -65,7 +65,7 @@ After downloading and unzipping your selected build, you will find two relevant 
 - **server.exe** - The executable server. (Depending on your platform, the file extension may differ.)
 - **login.yaml** - A file which may define custom account logins.
 
-When executing `server.exe`, a terminal opens up, informing you that Dungeon Club is now _`serving at http://localhost:7070`_.
+When executing `server.exe`, a terminal opens up, informing you that Dungeon Club is now serving at _`http://localhost:7070`_.
 You can navigate to this address and see your very own copy of the VTT loaded and ready to use.
 
 Try logging into the pre-registered mock account by filling in email "admin", password "admin" on the homepage.

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dungeonclub/environment.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';
@@ -28,8 +27,8 @@ class Session extends Game {
   int _charId;
   int get charId => _charId;
   Character get myCharacter => _charId != null ? characters[_charId] : null;
-  String get inviteLink => (isOnLocalHost && !Environment.isCompiled)
-      ? 'http://localhost:8080/index.html?game=$id'
+  String get inviteLink => isDebugging
+      ? '${window.location.origin}/index.html?game=$id'
       : window.location.href;
   ConstantDialog _dmDisconnectedDialog;
   final _connectionCtrl = StreamController<bool>.broadcast();

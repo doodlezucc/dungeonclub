@@ -109,7 +109,8 @@ void run(List<String> args) async {
     _address = await config.readAsString();
   }
 
-  _address = _address?.trim() ?? 'http://${server.address.host}:${server.port}';
+  var servePort = server.port;
+  _address = _address?.trim() ?? 'http://${await _getNetworkIP()}:$servePort';
 
   await initializeMailServer();
   autoSaver.init();
@@ -133,7 +134,15 @@ void run(List<String> args) async {
     print('Music player not enabled');
   }
 
-  print('Dungeon Club is running at $address\nReady!\n');
+  print('''\nDungeon Club is ready!
+  - Local:   http://localhost:$servePort
+  - Network: $address
+''');
+}
+
+Future<String> _getNetworkIP() async {
+  final available = await NetworkInterface.list(type: InternetAddressType.IPv4);
+  return available[0].addresses[0].address;
 }
 
 final serverParser =
