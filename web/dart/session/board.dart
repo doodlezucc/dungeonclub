@@ -840,7 +840,7 @@ class Board {
           .cast<double>();
     }
 
-    final worldOrigin = grid.grid.gridToWorldSpace(clicked.position);
+    final gridOrigin = clicked.position.cast<double>();
 
     moveStream.listen((ev) {
       if (!movedOnce) {
@@ -860,11 +860,11 @@ class Board {
         }
       }
 
-      var worldPoint = zoomApplied(ev.p.cast<double>());
+      var worldPoint = zoomApplied(ev.p);
       if (!ev.alt) {
         worldPoint = worldSnapCentered(worldPoint);
       }
-      var delta = grid.grid.worldToGridSpace(worldPoint - worldOrigin);
+      var delta = grid.grid.worldToGridSpace(worldPoint) - gridOrigin;
 
       if (delta != lastDelta) {
         for (var mv in affected) {

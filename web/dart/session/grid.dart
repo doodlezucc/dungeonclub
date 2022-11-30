@@ -280,11 +280,6 @@ class SceneGrid {
     return p;
   }
 
-  Point gridToCenteredWorldPoint(Point center, int size) {
-    final off = 0.5 * size * tokenSize;
-    return grid.gridToWorldSpace(center) - Point<double>(off, off);
-  }
-
   Point gridToWorldPointTopLeft(Point center, int size) {
     final off = 0.5 * size * tokenSize;
     return grid.gridToWorldSpace(center) - Point<double>(off, off);
