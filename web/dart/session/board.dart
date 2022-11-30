@@ -822,12 +822,10 @@ class Board {
     MeasuringPath measuring;
 
     void alignText() {
+      var mPos = clicked.position.cast<double>();
       var offset = clicked.displaySizePoint.cast<double>() * 0.35;
-      var p = multiplyPoints(
-        clicked.position.cast<double>() + offset,
-        grid.cellSize,
-      );
-      measuring.alignDistanceText(p);
+      var textPos = grid.grid.gridToWorldSpace(mPos + offset);
+      measuring.alignDistanceText(textPos);
     }
 
     Point<double> zoomApplied(Point p) {
