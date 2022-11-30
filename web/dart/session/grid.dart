@@ -54,9 +54,12 @@ class SceneGrid {
   Point get offset => _grid.zero;
   Point get size => _grid.size;
 
-  num get cellSize => size.x / tiles;
-  num get tokenSize => cellSize;
-  // grid is TiledGrid ? (grid as TiledGrid).tileH : cellSize;
+  num get cellWidth => size.x / tiles;
+  num get cellHeight =>
+      grid is TiledGrid ? (grid as TiledGrid).tileHeight : cellWidth;
+  Point get cellSize => Point(cellWidth, cellHeight);
+
+  num get tokenSize => cellWidth;
 
   Point<double> get _imgSize =>
       Point(_canvas.clientWidth.toDouble(), _canvas.clientHeight.toDouble());
@@ -322,7 +325,7 @@ class SceneGrid {
     if (gridType == GRID_NONE) return;
 
     var pattern = querySelector(patternId);
-    var size = cellSize;
+    var size = cellWidth;
     pattern.setAttribute(
       'patternTransform',
       'translate(${offset.x}, ${offset.y}) scale($size)',

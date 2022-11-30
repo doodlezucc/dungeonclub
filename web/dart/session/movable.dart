@@ -155,16 +155,6 @@ class Movable extends EntityBase {
         board.grid.grid.gridSnapCentered(position.cast<double>(), displaySize);
   }
 
-  void snapToGrid(Point pos) {
-    var p = pos ?? position;
-
-    num modify(num v) {
-      return (v / board.grid.cellSize).round();
-    }
-
-    position = Point(modify(p.x), modify(p.y));
-  }
-
   bool toggleCondition(int id, [bool add]) {
     var didAdd = false;
     if (add != null) {

@@ -11,6 +11,10 @@ Map<String, dynamic> writePoint(Point point) => point != null
       }
     : null;
 
+Point<T> multiplyPoints<T extends num>(Point a, Point b) {
+  return Point((a.x * b.x) as T, (a.y * b.y) as T);
+}
+
 Point<T> scalePoint<T extends num>(Point p, T Function(num v) convert) {
   return Point(convert(p.x), convert(p.y));
 }

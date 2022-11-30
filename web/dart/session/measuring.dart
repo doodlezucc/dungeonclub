@@ -180,7 +180,7 @@ abstract class Measuring {
 
   void handleUpdateEvent(BinaryReader reader) {
     var extra = _readPrecision(reader);
-    alignDistanceText(extra * user.session.board.grid.cellSize);
+    alignDistanceText(extra * user.session.board.grid.cellWidth);
     if (handleSpecifics(reader)) return;
     redraw(extra);
   }

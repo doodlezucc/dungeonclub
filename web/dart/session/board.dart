@@ -822,9 +822,11 @@ class Board {
     MeasuringPath measuring;
 
     void alignText() {
-      var p = (clicked.position.cast<double>() +
-              clicked.displaySizePoint.cast<double>()) *
-          grid.cellSize;
+      var offset = clicked.displaySizePoint.cast<double>() * 0.35;
+      var p = multiplyPoints(
+        clicked.position.cast<double>() + offset,
+        grid.cellSize,
+      );
       measuring.alignDistanceText(p);
     }
 
@@ -1233,7 +1235,7 @@ class BoardTransform extends HtmlTransform {
 
   String get _invZoomScale => 'scale(${1 / scaledZoom})';
   String get _invZoomScaleCell =>
-      'scale(${70 / board.grid.cellSize / scaledZoom})';
+      'scale(${70 / board.grid.cellWidth / scaledZoom})';
 
   void applyInvZoom() {
     final scale = _invZoomScale;
