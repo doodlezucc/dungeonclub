@@ -927,7 +927,7 @@ $blink-off: #888d;
         > .img { background-color: #1118; }
     }
     &.animate-move {
-        transition: left 0.3s, top 0.3s;
+        transition: transform 0.3s;
     }
     &.animate-remove {
         animation: movable-remove 0.4s forwards cubic-bezier(0.6, -0.28, 0.735, 0.045) !important;
