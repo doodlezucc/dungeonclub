@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:svg' as svg;
 
 import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/measuring/ruleset.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:grid/grid.dart';
 import 'package:web_whiteboard/util.dart';
@@ -37,6 +38,9 @@ class SceneGrid {
 
   int _gridType = GRID_SQUARE;
   int get gridType => _gridType;
+
+  MeasuringRuleset _measuringRuleset;
+  MeasuringRuleset get measuringRuleset => _measuringRuleset;
 
   int _tiles = 16;
   int get tiles => _tiles;
@@ -236,6 +240,14 @@ class SceneGrid {
   }
 
   void _applyGridType() {
+    if (_grid is SquareGrid) {
+      _measuringRuleset = MeasuringRuleset.squareDmg;
+    } else if (_grid is HexagonalGrid) {
+      _measuringRuleset = MeasuringRuleset.hexDefault;
+    } else {
+      _measuringRuleset = MeasuringRuleset.unclampedDefault;
+    }
+
     _typeButtons.forEach((btn, btnType) {
       btn.classes.toggle('active', btnType == gridType);
     });

@@ -8,6 +8,7 @@ import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import 'grid.dart';
 
 const MEASURING_PATH = 0;
 const MEASURING_CIRCLE = 1;
@@ -142,6 +143,10 @@ abstract class Measuring {
     redraw(origin);
   }
 
+  SceneGrid getGrid() {
+    return user.session.board.grid;
+  }
+
   void dispose() {
     user.session.board.transform.unregisterInvZoom(_distanceText);
     _e.remove();
@@ -194,7 +199,6 @@ class MeasuringPath extends Measuring {
   final lastE = svg.CircleElement();
   final points = <Point>[];
   final int size;
-  bool round;
   int pointsSinceSync = 0;
   double previousDistance = 0;
 
@@ -202,7 +206,6 @@ class MeasuringPath extends Measuring {
     Point origin,
     int pc, {
     bool background = false,
-    this.round = true,
     this.size = 1,
   }) : super(origin, svg.GElement(), pc,
             background ? _distanceRoot : _measuringRoot) {
@@ -236,7 +239,6 @@ class MeasuringPath extends Measuring {
 
   @override
   void addPoint(Point p) {
-    if (round) p = forceIntPoint(p);
     var stop = svg.CircleElement();
     _applyCircle(stop, p, size: size);
     _e.append(stop);
@@ -249,17 +251,15 @@ class MeasuringPath extends Measuring {
 
   double _lastSegmentLength(Point end) {
     if (points.isEmpty) return 0;
-    // Chebychov distance
-    var distance = max(
-      (end.x - points.last.x).abs(),
-      (end.y - points.last.y).abs(),
-    );
+
+    final distance = getGrid()
+        .measuringRuleset
+        .distanceBetweenGridPoints(getGrid().grid, points.last, end);
     return distance.toDouble();
   }
 
   @override
   void redraw(Point end) {
-    if (round) end = forceIntPoint(end);
     path.setAttribute('d', _toPathData(end));
     _applyCircle(lastE, end, size: size);
     _updateDistanceText(end);

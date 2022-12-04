@@ -851,7 +851,7 @@ class Board {
         var showDistance = affected.length == 1;
         if (showDistance) {
           measuring = MeasuringPath(clicked.position, -1,
-              background: true, round: false, size: clicked.displaySize);
+              background: true, size: clicked.displaySize);
           transform.applyInvZoom();
           alignText();
           imitateMovableGhost(clicked);
@@ -895,9 +895,14 @@ class Board {
     var doOffset = type != MEASURING_CUBE && first.shift;
     if (type == MEASURING_PATH) doOffset = !doOffset;
 
-    var offset = doOffset ? Point(0.5, 0.5) : Point(0.0, 0.0);
+    final snapSize = doOffset ? 1 : 0;
 
-    var origin = grid.grid.worldToGridSpace(p).cast<num>();
+    Point snapWorldToGrid(Point p) {
+      var gridPos = grid.grid.worldToGridSpace(p).cast<num>();
+      return grid.grid.gridSnapCentered(gridPos, snapSize);
+    }
+
+    var origin = snapWorldToGrid(p);
 
     removeMeasuring(session.charId, sendEvent: true);
     var m = Measuring.create(type, origin, session.charId);
@@ -924,10 +929,7 @@ class Board {
 
     moveStream.listen((ev) {
       p = ev.p * (1 / scaledZoom);
-      measureEnd = grid.offsetToGridSpaceUnscaled(
-        p,
-        offset: Point(0.5, 0.5) - offset,
-      );
+      measureEnd = snapWorldToGrid(p);
 
       if (ev.button == 2) {
         m.addPoint(measureEnd);

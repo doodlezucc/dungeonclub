@@ -11,7 +11,7 @@ class DefaultHexMeasuringRuleset extends HexMeasuringRuleset {
   @override
   num distanceBetweenGridPoints(HexagonalGrid grid, Point a, Point b) {
     final vx = b.x - a.x;
-    final vy = (b.y - a.y) * grid.tileHeight;
+    final vy = (b.y - a.y) * grid.tileHeightRatio;
     if (grid.horizontal) {
       final angle = (atan2(vx, -vy) + pi) ~/ degrees60;
       var rotate = -angle * degrees60 - degrees30;
@@ -19,7 +19,7 @@ class DefaultHexMeasuringRuleset extends HexMeasuringRuleset {
     } else {
       final angle = (atan2(vx, -vy) + pi * 7 / 6) ~/ degrees60;
       var rotate = -angle * degrees60;
-      return (vx * sin(rotate) + vy * cos(rotate)) / grid.tileHeight;
+      return (vx * sin(rotate) + vy * cos(rotate)) / grid.tileHeightRatio;
     }
   }
 
