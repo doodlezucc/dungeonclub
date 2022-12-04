@@ -103,7 +103,7 @@ void toggleMovableGhostVisible(bool v, {bool translucent = false}) {
 
 void alignMovableGhost(Point point, EntityBase entity) {
   final grid = user.session.board.grid;
-  final p = grid.centeredWorldPointTopLeft(point, entity.size);
+  final p = grid.centeredWorldPoint(point, entity.size);
 
   _movableGhost.style.setProperty('--x', '${p.x}px');
   _movableGhost.style.setProperty('--y', '${p.y}px');

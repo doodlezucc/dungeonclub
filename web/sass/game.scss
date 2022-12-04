@@ -896,17 +896,22 @@ $blink-off: #888d;
     pointer-events: none;
 }
 
+$token-unit-size: 70;
+$token-unit-size-px: $token-unit-size + px;
+$token-unit-size-half-px: ($token-unit-size * -0.5) + px;
+
 .movable {
     position: absolute;
     display: flex;
     justify-content: center;
     border: 0 solid var(--color-background);
-    width: calc(var(--size) * 70px);
-    height: calc(var(--size) * 70px);
+    left: calc(var(--size) * $token-unit-size-half-px);
+    top: calc(var(--size) * $token-unit-size-half-px);
+    width: calc(var(--size) * $token-unit-size-px);
+    height: calc(var(--size) * $token-unit-size-px);
     box-sizing: border-box;
-    transform-origin: top left;
-    transform: translate(var(--x), var(--y)) scale(calc(var(--cell-size) / 70));
-    transition: border-color 0.1s, width 0.1s, height 0.1s, opacity 0.1s;
+    transform: translate(var(--x), var(--y)) scale(calc(var(--cell-size) / $token-unit-size));
+    transition: transform 0.3s, left 0.1s, top 0.1s, width 0.1s, height 0.1s, opacity 0.1s;
     z-index: calc(100 - var(--size));
 
     --size: 1;
@@ -926,8 +931,8 @@ $blink-off: #888d;
 
         > .img { background-color: #1118; }
     }
-    &.animate-move {
-        transition: transform 0.3s;
+    &.no-animate-move {
+        transition-property: border-color, width, height, opacity;
     }
     &.animate-remove {
         animation: movable-remove 0.4s forwards cubic-bezier(0.6, -0.28, 0.735, 0.045) !important;

@@ -493,7 +493,7 @@ class Board {
       _sendSelectedMovablesUpdate();
     });
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
-      m.size = int.parse(value);
+      m.setSizeWithGridSpecifics(int.parse(value));
       _updateSelectionSizeInherit();
     });
   }
@@ -821,6 +821,12 @@ class Board {
     var lastDelta = Point<double>(0, 0);
     MeasuringPath measuring;
 
+    void setCssTransitionEnabled(bool enable) {
+      for (var mv in affected) {
+        mv.e.classes.toggle('no-animate-move', !enable);
+      }
+    }
+
     void alignText() {
       var mPos = clicked.position.cast<double>();
       var offset = clicked.displaySizePoint.cast<double>() * 0.35;
@@ -856,6 +862,8 @@ class Board {
           alignText();
           imitateMovableGhost(clicked);
         }
+
+        setCssTransitionEnabled(false);
       }
 
       var worldPoint = zoomApplied(ev.p);
@@ -876,6 +884,7 @@ class Board {
         }
       }
     }, onDone: () {
+      setCssTransitionEnabled(true);
       toggleMovableGhostVisible(false);
       measuring?.dispose();
       if (lastDelta != Point(0, 0)) {

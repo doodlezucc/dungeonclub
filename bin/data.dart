@@ -685,7 +685,7 @@ class Scene {
 
   Scene(Map<String, dynamic> json)
       : movables = List.from(json['movables'] ?? [])
-            .map((j) => Movable.create(j['id'], j))
+            .map((j) => Movable(j['id'], j))
             .toList() {
     applyGrid(json['grid'] ?? {});
     fogOfWar = json['fow'];
@@ -695,7 +695,7 @@ class Scene {
   }
 
   Movable addMovable(Map<String, dynamic> json) {
-    var m = Movable.create(nextMovableId, json);
+    var m = Movable(nextMovableId, json);
     m.label = generateNewLabel<Movable>(
         m, movables, (e) => MovableStruct(e.prefab, e.label));
     movables.add(m);
@@ -837,20 +837,16 @@ class Movable extends EntityBase {
   num auraRadius;
   bool invisible;
 
-  Movable._(int id, Map<String, dynamic> json)
+  Movable(int id, Map<String, dynamic> json)
       : id = id,
-        prefab = json['prefab'],
-        x = json['x'],
-        y = json['y'] {
+        prefab = json['prefab'] {
     fromJson(json);
-  }
-
-  static Movable create(int id, Map<String, dynamic> json) {
-    return Movable._(id, json);
   }
 
   @override
   void fromJson(Map<String, dynamic> json) {
+    x = json['x'];
+    y = json['y'];
     label = json['label'] ?? '';
     size = json['size'] ?? 0;
     auraRadius = json['aura'] ?? 0.0;

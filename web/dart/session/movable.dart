@@ -63,17 +63,19 @@ class Movable extends EntityBase {
   set position(Point position) {
     _position = position;
     applyPosition();
-    board.updateSnapToGrid();
   }
 
   @override
   set size(int size) {
     super.size = size;
     e.style.setProperty('--size', '$displaySize');
+    applyPosition();
   }
 
   int get displaySize => size != 0 ? size : prefab.size;
   Point<int> get displaySizePoint => Point(displaySize, displaySize);
+  Point<double> get topLeft =>
+      position.cast<double>() - Point(0.5 * displaySize, 0.5 * displaySize);
 
   Movable._({
     @required this.board,
@@ -102,8 +104,8 @@ class Movable extends EntityBase {
     applyConditions(conds);
 
     super.size = 0;
-    onPrefabUpdate();
     position = pos ?? Point(0, 0);
+    onPrefabUpdate();
   }
 
   static Movable create({
@@ -122,11 +124,21 @@ class Movable extends EntityBase {
   }
 
   void applyPosition() {
-    var pos = board.grid.gridToWorldPointTopLeft(_position, displaySize);
+    var pos = board.grid.grid.gridToWorldSpace(_position);
+    board.updateSnapToGrid();
 
     e.style
       ..setProperty('--x', '${pos.x}px')
       ..setProperty('--y', '${pos.y}px');
+  }
+
+  void setSizeWithGridSpecifics(int newSize) {
+    final oldTopLeft = topLeft;
+    size = newSize;
+
+    if (board.grid.grid is SquareGrid) {
+      position = position.cast<num>() + oldTopLeft - topLeft;
+    }
   }
 
   void updateTooltip() {
@@ -134,16 +146,16 @@ class Movable extends EntityBase {
   }
 
   void onPrefabUpdate() {
-    e.style.setProperty('--size', '$displaySize');
+    if (size == 0) {
+      e.style.setProperty('--size', '$displaySize');
+      applyPosition();
+    }
     e.classes.toggle('accessible', accessible);
     updateTooltip();
   }
 
   void onMove(Point delta) async {
-    e.classes.add('animate-move');
     position = position.cast<num>() + delta;
-    await Future.delayed(Duration(milliseconds: 300));
-    e.classes.remove('animate-move');
   }
 
   void onImageChange(String img) {
@@ -199,7 +211,6 @@ class Movable extends EntityBase {
 
   Map<String, dynamic> toCloneJson() => {
         'prefab': prefab.id,
-        ...writePoint(position),
         ..._sharedJson(),
       };
 
@@ -210,6 +221,7 @@ class Movable extends EntityBase {
       };
 
   Map<String, dynamic> _sharedJson() => {
+        ...writePoint(position),
         'label': label,
         'conds': _conds.toList(),
         'aura': auraRadius,
@@ -220,6 +232,7 @@ class Movable extends EntityBase {
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
+    position = parsePoint(json);
     label = json['label'] ?? '';
     auraRadius = json['aura'] ?? 0;
     invisible = json['invisible'] ?? false;
