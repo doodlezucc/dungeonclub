@@ -48,6 +48,8 @@ class SceneGrid {
     _tiles = max(8, tiles);
     if (_grid is TiledGrid) {
       (_grid as TiledGrid).tilesInRow = _tiles;
+    } else {
+      (_grid as UnclampedGrid).scale = tokenSize;
     }
 
     _repositionMovables();
@@ -203,25 +205,25 @@ class SceneGrid {
     user.session.board.movables.forEach((m) => m.applyPosition());
   }
 
-  static Grid _createGrid(int type, int tilesInRow) {
+  static Grid _createGrid(int type, int tilesInRow, Point zero, Point size) {
     switch (type) {
       case GRID_SQUARE:
-        return Grid.square(tilesInRow);
+        return Grid.square(tilesInRow, zero: zero, size: size);
       case GRID_HEX_H:
-        return Grid.hexagonal(tilesInRow, horizontal: true);
+        return Grid.hexagonal(tilesInRow,
+            horizontal: true, zero: zero, size: size);
       case GRID_HEX_V:
-        return Grid.hexagonal(tilesInRow, horizontal: false);
+        return Grid.hexagonal(tilesInRow,
+            horizontal: false, zero: zero, size: size);
       case GRID_NONE:
-        return Grid.square(tilesInRow);
+        return Grid.unclamped(scale: size.x / tilesInRow, zero: zero)
+          ..size = size;
     }
     return null;
   }
 
   void changeGridType(int type) {
-    final nGrid = _createGrid(type, tiles);
-    _grid = nGrid
-      ..zero = offset
-      ..size = size;
+    _grid = _createGrid(type, tiles, offset, size);
     _gridType = type;
     _applyGridType();
     _applyCellSize();
@@ -239,15 +241,21 @@ class SceneGrid {
     redrawCanvas();
   }
 
-  void _applyGridType() {
-    if (_grid is SquareGrid) {
-      _measuringRuleset = MeasuringRuleset.squareDmg;
-    } else if (_grid is HexagonalGrid) {
-      _measuringRuleset = MeasuringRuleset.hexDefault;
-    } else {
-      _measuringRuleset = MeasuringRuleset.unclampedDefault;
+  MeasuringRuleset _defaultRulesetOfType(int gridType) {
+    switch (gridType) {
+      case GRID_NONE:
+        return MeasuringRuleset.unclampedDefault;
+      case GRID_SQUARE:
+        return MeasuringRuleset.squareDmg;
+      case GRID_HEX_H:
+      case GRID_HEX_V:
+        return MeasuringRuleset.hexDefault;
     }
+    throw ArgumentError.value(gridType);
+  }
 
+  void _applyGridType() {
+    _measuringRuleset = _defaultRulesetOfType(gridType);
     _typeButtons.forEach((btn, btnType) {
       btn.classes.toggle('active', btnType == gridType);
     });
@@ -281,6 +289,10 @@ class SceneGrid {
 
   void _applyCellSize() {
     e.style.setProperty('--cell-size', '$tokenSize');
+    if (_grid is UnclampedGrid) {
+      (_grid as UnclampedGrid).scale = tokenSize;
+    }
+    user.session.board.transform.applyInvZoom();
   }
 
   Point offsetToGridSpaceUnscaled(
@@ -353,9 +365,8 @@ class SceneGrid {
     Point size,
   }) {
     _gridType = gridType;
-    _grid = _createGrid(gridType, tiles)
-      ..zero = position
-      ..size = forceDoublePoint(size ?? _imgSize);
+    _grid = _createGrid(
+        gridType, tiles, position, (size ?? _imgSize).cast<double>());
 
     _gridTileUnit.value = tileUnit;
     _validateTileUnit();

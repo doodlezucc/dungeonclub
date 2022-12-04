@@ -3,7 +3,6 @@ import 'dart:html';
 import 'dart:svg' as svg;
 
 import 'package:dungeonclub/actions.dart';
-import 'package:grid/grid.dart';
 import 'package:web_polymask/brushes/lasso.dart';
 import 'package:web_polymask/brushes/stroke.dart';
 import 'package:web_polymask/brushes/tool.dart';
@@ -92,7 +91,7 @@ class FogOfWar {
 
   void applyUseGrid(Board board) {
     btnGrid.classes.toggle('active', useGrid);
-    canvas.grid = useGrid ? board.grid.grid : Grid.unclamped();
+    canvas.grid = board.grid.grid;
   }
 
   void _setTool(PolygonTool tool) {
