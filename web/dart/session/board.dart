@@ -645,7 +645,8 @@ class Board {
                 );
                 var gridPos = grid.grid.worldToGridSpace(worldPos);
 
-                var newMov = await addMovable(selectedPrefab, gridPos);
+                var newMov =
+                    await addMovable(selectedPrefab, gridPos.undeviate());
 
                 if (newMov != null) {
                   toggleSelect([newMov], state: true);
@@ -871,6 +872,7 @@ class Board {
         worldPoint = worldSnapCentered(worldPoint);
       }
       var delta = grid.grid.worldToGridSpace(worldPoint) - gridOrigin;
+      delta = delta.undeviate();
 
       if (delta != lastDelta) {
         for (var mv in affected) {

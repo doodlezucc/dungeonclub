@@ -26,3 +26,19 @@ Point<T> clamp<T extends num>(Point<T> point, Point<T> pMin, Point<T> pMax,
 Point<T> clampMin<T extends num>(Point<T> point, Point<T> pMin) {
   return Point<T>(max(point.x, pMin.x), max(point.y, pMin.y));
 }
+
+double _correct(num x) {
+  return (x * 100).roundToDouble() / 100;
+}
+
+extension PointNumExtension on Point<num> {
+  Point snapDeviation() {
+    return Point<num>(_correct(x), _correct(y));
+  }
+}
+
+extension PointDoubleExtension on Point<double> {
+  Point<double> undeviate() {
+    return Point<double>(_correct(x), _correct(y));
+  }
+}

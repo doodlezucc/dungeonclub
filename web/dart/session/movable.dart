@@ -61,7 +61,7 @@ class Movable extends EntityBase {
   Point _position;
   Point get position => _position;
   set position(Point position) {
-    _position = position;
+    _position = position.snapDeviation();
     applyPosition();
   }
 
