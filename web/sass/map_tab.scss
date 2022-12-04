@@ -316,9 +316,9 @@
 }
   
 @keyframes pin-pulse {
-      0% { r: 10 }
-     50% { r: 15 }
-    100% { r: 10 }
+      0% { r: 10px; }
+     50% { r: 15px; }
+    100% { r: 10px; }
 }
 
 #whiteboardTextControls {
