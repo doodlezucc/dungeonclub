@@ -19,6 +19,7 @@ import 'audio.dart';
 import 'connections.dart';
 import 'playing_histogram.dart';
 import 'server.dart';
+import 'versioning.dart';
 
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
@@ -247,7 +248,9 @@ class Account {
 Directory gameResources(String id) =>
     Directory(path.join(ServerData.directory.path, 'games', id));
 
-class Game {
+class Game with Upgradeable {
+  static const CURRENT_FILE_VERSION = 1;
+
   final GameMeta meta;
   Directory get resources => gameResources(meta.id);
 
@@ -474,9 +477,13 @@ class Game {
     if (json['ambience'] != null) {
       ambience.fromJson(json['ambience']);
     }
+
+    int saveVersion = json['version'] ?? 0;
+    upgradeFromTo(saveVersion, CURRENT_FILE_VERSION);
   }
 
   Map<String, dynamic> toJson() => {
+        'version': CURRENT_FILE_VERSION,
         'scene': playingSceneId,
         'pcs': _characters.map((e) => e.toJson()).toList(),
         'scenes': _scenes.map((e) => e.toJson(true)).toList(),
@@ -502,6 +509,28 @@ class Game {
         'name': meta.name,
         'pcs': _characters.map((e) => e.toJson(includeStatus: true)).toList(),
       };
+
+  int _getMovableDisplaySize(Movable m) {
+    if (m.size == 0) {
+      return getPrefab(m.prefab)?.size ?? 1;
+    }
+    return m.size;
+  }
+
+  @override
+  Future<void> applyVersion(int targetVersion) async {
+    switch (targetVersion) {
+      case 1: // Tokens are now anchored to their center instead of top left
+        for (var scene in _scenes) {
+          for (var mv in scene.movables) {
+            final off = 0.5 * _getMovableDisplaySize(mv);
+            mv.x = mv.x + off;
+            mv.y = mv.y + off;
+          }
+        }
+        return;
+    }
+  }
 
   Future<bool> applyChanges(Map<String, dynamic> data) async {
     meta.name = data['name'];
