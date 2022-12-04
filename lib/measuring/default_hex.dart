@@ -8,6 +8,13 @@ class DefaultHexMeasuringRuleset extends HexMeasuringRuleset {
   static const degrees30 = pi / 6;
   static const degrees60 = pi / 3;
 
+  /// Determines the distance between two points on a hex grid.
+  ///
+  /// This is done by sorting the vector between `A` and `B` into one of six
+  /// triangles. This triangle is then rotated around the origin to point
+  /// upwards, which lets us look at a straight horizontal line that
+  /// crosses `B`. The distance between `A` and `B` is the (normalized)
+  /// Y coordinate of this line.
   @override
   num distanceBetweenGridPoints(HexagonalGrid grid, Point a, Point b) {
     final vx = b.x - a.x;

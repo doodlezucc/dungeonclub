@@ -26,8 +26,9 @@ abstract class MeasuringRuleset<T extends Grid> {
     ...hexRulesets
   };
 
-  /// Chebychov distance
-  static U chebychov<U extends num>(Point<U> a, Point<U> b) {
+  /// Chebyshev distance. Returns either the horizontal or the vertical
+  /// difference, whichever is greater.
+  static U chebyshev<U extends num>(Point<U> a, Point<U> b) {
     return max((a.x - b.x).abs(), (a.y - b.y).abs());
   }
 }

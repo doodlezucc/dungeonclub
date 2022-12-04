@@ -6,6 +6,6 @@ import 'ruleset.dart';
 class DMGSquareMeasuringRuleset extends SquareMeasuringRuleset {
   @override
   num distanceBetweenGridPoints(SquareGrid grid, Point a, Point b) {
-    return MeasuringRuleset.chebychov(a, b);
+    return MeasuringRuleset.chebyshev(a, b);
   }
 }
