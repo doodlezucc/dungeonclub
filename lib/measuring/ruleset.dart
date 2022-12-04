@@ -4,11 +4,12 @@ import 'package:grid/grid.dart';
 
 import 'default_hex.dart';
 import 'dmg_square.dart';
+import 'unclamped.dart';
 
 abstract class MeasuringRuleset<T extends Grid> {
-  num distanceBetweenCells(T grid, Point<int> a, Point<int> b);
-  num distanceBetweenIntersections(T grid, Point<double> a, Point<double> b);
+  num distanceBetweenGridPoints(T grid, Point a, Point b);
 
+  static final unclampedDefault = UnclampedMeasuringRuleset();
   static final squareDmg = DMGSquareMeasuringRuleset();
   static final hexDefault = DefaultHexMeasuringRuleset();
 
@@ -19,7 +20,11 @@ abstract class MeasuringRuleset<T extends Grid> {
     hexDefault,
   ];
 
-  static final allRulesets = {...squareRulesets, ...hexRulesets};
+  static final allRulesets = {
+    unclampedDefault,
+    ...squareRulesets,
+    ...hexRulesets
+  };
 
   /// Chebychov distance
   static U chebychov<U extends num>(Point<U> a, Point<U> b) {

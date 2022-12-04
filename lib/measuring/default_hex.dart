@@ -5,7 +5,25 @@ import 'package:grid/grid.dart';
 import 'ruleset.dart';
 
 class DefaultHexMeasuringRuleset extends HexMeasuringRuleset {
+  static const degrees30 = pi / 6;
+  static const degrees60 = pi / 3;
+
   @override
+  num distanceBetweenGridPoints(HexagonalGrid grid, Point a, Point b) {
+    final vx = b.x - a.x;
+    final vy = (b.y - a.y) * grid.tileHeight;
+    if (grid.horizontal) {
+      final angle = (atan2(vx, -vy) + pi) ~/ degrees60;
+      var rotate = -angle * degrees60 - degrees30;
+      return vx * sin(rotate) + vy * cos(rotate);
+    } else {
+      final angle = (atan2(vx, -vy) + pi * 7 / 6) ~/ degrees60;
+      var rotate = -angle * degrees60;
+      return (vx * sin(rotate) + vy * cos(rotate)) / grid.tileHeight;
+    }
+  }
+
+  @deprecated
   int distanceBetweenCells(HexagonalGrid grid, Point<int> a, Point<int> b) {
     // Calculations are based on a vertical grid - apply conversion
     if (grid.horizontal) {
@@ -27,11 +45,5 @@ class DefaultHexMeasuringRuleset extends HexMeasuringRuleset {
 
     final xSteps = xDistance.truncate();
     return deltaYAbs + max(0, xSteps);
-  }
-
-  @override
-  num distanceBetweenIntersections(
-      HexagonalGrid grid, Point<double> a, Point<double> b) {
-    throw UnimplementedError();
   }
 }
