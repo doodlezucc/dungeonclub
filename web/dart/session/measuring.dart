@@ -1,8 +1,11 @@
 import 'dart:html';
-import 'dart:math';
 import 'dart:svg' as svg;
 import 'dart:typed_data';
 
+import 'package:dungeonclub/measuring/area_of_effect.dart';
+import 'package:dungeonclub/measuring/area_of_effect_svg.dart';
+import 'package:dungeonclub/measuring/ruleset.dart';
+import 'package:grid/grid.dart';
 import 'package:web_whiteboard/binary.dart';
 import 'package:web_whiteboard/util.dart';
 
@@ -21,7 +24,7 @@ const _precision = 63;
 final Map<int, Measuring> _pcMeasurings = {};
 
 final HtmlElement _toolbox = querySelector('#measureTools');
-final svg.SvgSvgElement _measuringRoot = querySelector('#measureCanvas');
+final svg.GElement _measuringRoot = querySelector('#measuringRoot');
 final svg.SvgSvgElement _distanceRoot = querySelector('#distanceCanvas');
 double _bufferedLineWidth = 1;
 
@@ -55,6 +58,14 @@ String getMeasureTooltip() {
                 Hold *shift* to start at a square's center.''';
   }
   return '';
+}
+
+void scaleMeasuringCanvas() {
+  final sceneGrid = Measuring.getGrid();
+  final off = sceneGrid.offset;
+  final size = sceneGrid.cellSize;
+  final transform = 'translate(${off.x} ${off.y}) scale(${size.x} ${size.y})';
+  _measuringRoot.setAttribute('transform', transform);
 }
 
 void _writePrecision(BinaryWriter writer, Point p) {
@@ -126,13 +137,14 @@ abstract class Measuring {
     return null;
   }
 
-  final svg.SvgElement _e;
+  final svg.GElement _e;
   final HtmlElement _distanceText;
-  final Point origin;
+  final Point<double> origin;
   final String color;
 
-  Measuring(this.origin, this._e, int pc, [svg.SvgElement root])
-      : _distanceText = SpanElement(),
+  Measuring(Point origin, this._e, int pc, [svg.SvgElement root])
+      : origin = origin.cast<double>(),
+        _distanceText = SpanElement(),
         color = user.session.getPlayerColor(pc) {
     _pcMeasurings[pc]?.dispose();
     _pcMeasurings[pc] = this;
@@ -140,10 +152,9 @@ abstract class Measuring {
     root.append(_e);
     user.session.board.transform.registerInvZoom(_distanceText);
     querySelector('#board').append(_distanceText..className = 'distance-text');
-    redraw(origin);
   }
 
-  SceneGrid getGrid() {
+  static SceneGrid getGrid() {
     return user.session.board.grid;
   }
 
@@ -196,7 +207,7 @@ abstract class Measuring {
 
 class MeasuringPath extends Measuring {
   final path = svg.PathElement();
-  final lastE = svg.CircleElement();
+  final lastE = svg.CircleElement()..classes.add('origin');
   final points = <Point>[];
   final int size;
   int pointsSinceSync = 0;
@@ -239,8 +250,8 @@ class MeasuringPath extends Measuring {
 
   @override
   void addPoint(Point p) {
-    var stop = svg.CircleElement();
-    _applyCircle(stop, p, size: size);
+    var stop = svg.CircleElement()..classes.add('origin');
+    _applyCircle(stop, p);
     _e.append(stop);
 
     previousDistance += _lastSegmentLength(p);
@@ -252,16 +263,16 @@ class MeasuringPath extends Measuring {
   double _lastSegmentLength(Point end) {
     if (points.isEmpty) return 0;
 
-    final distance = getGrid()
+    final distance = Measuring.getGrid()
         .measuringRuleset
-        .distanceBetweenGridPoints(getGrid().grid, points.last, end);
+        .distanceBetweenGridPoints(Measuring.getGrid().grid, points.last, end);
     return distance.toDouble();
   }
 
   @override
   void redraw(Point end) {
     path.setAttribute('d', _toPathData(end));
-    _applyCircle(lastE, end, size: size);
+    _applyCircle(lastE, end);
     _updateDistanceText(end);
   }
 
@@ -273,8 +284,7 @@ class MeasuringPath extends Measuring {
   String _toPathData(Point end) {
     if (points.isEmpty) return '';
 
-    String writePoint(Point ps) {
-      var p = user.session.board.grid.grid.gridToWorldSpace(ps);
+    String writePoint(Point p) {
       return ' ${p.x} ${p.y}';
     }
 
@@ -290,57 +300,82 @@ class MeasuringPath extends Measuring {
   }
 }
 
-abstract class CoveredMeasuring extends Measuring {
-  final _center = svg.CircleElement();
-  final _squares = svg.GElement();
-
-  CoveredMeasuring(Point origin, svg.SvgElement elem, int pc)
-      : super(origin, elem, pc) {
-    _applyCircle(_center, origin);
-    _measuringRoot.insertBefore(_squares..setAttribute('fill', '${color}60'),
-        _e..classes.add('no-fill'));
-    _measuringRoot.append(_center);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _center.remove();
-    _squares.remove();
-  }
-}
-
-class MeasuringCircle extends CoveredMeasuring {
+abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
+    extends Measuring {
+  final _center = svg.CircleElement()..classes.add('origin');
+  final _tiles = svg.GElement();
   double _bufferedRadius = -1;
+  T _aoe;
 
-  MeasuringCircle(Point origin, int pc)
-      : super(origin, svg.CircleElement(), pc) {
-    _applyCircle(_e, origin);
+  CoveredMeasuring(Point origin, int pc) : super(origin, svg.GElement(), pc) {
+    _applyCircle(_center, origin);
+
+    _tiles
+      ..setAttribute('transform', 'translate(-0.5 -0.5)')
+      ..setAttribute('fill', '${color}60');
+    _e
+      ..append(_tiles)
+      ..append(_center);
+
+    _measuringRoot.append(_e);
+
+    final sceneGrid = Measuring.getGrid();
+    final painter = AreaOfEffectSvgPainter(_e);
+    _aoe = createAoE(sceneGrid.measuringRuleset, painter, sceneGrid.grid);
   }
 
   @override
   void redraw(Point extra) {
-    var distance = origin.distanceTo(extra).roundToDouble();
+    final extraCast = extra.cast<double>();
+    final sceneGrid = Measuring.getGrid();
+    final grid = sceneGrid.grid;
+    final ruleset = sceneGrid.measuringRuleset;
+    var distance = ruleset.distanceBetweenGridPoints(grid, origin, extraCast);
+
+    if (grid is TiledGrid) {
+      distance = distance.roundToDouble();
+    }
 
     if (distance == _bufferedRadius) return;
     _bufferedRadius = distance;
 
     _e.setAttribute('r', '$distance');
     updateDistanceText(distance);
-    _updateSquares(distance);
+
+    _aoe.onMove(extraCast);
+    _updateTiles();
   }
 
-  void _updateSquares(double radius) {
-    _squares.children.clear();
-    for (var x = -radius - origin.x % 1; x < radius; x++) {
-      for (var y = -radius - origin.y % 1; y < radius; y++) {
-        if ((x * x + y * y) < radius * radius) {
-          _squares.append(svg.RectElement()
-            ..setAttribute('x', '${origin.x + x - 0.5}')
-            ..setAttribute('y', '${origin.y + y - 0.5}'));
-        }
-      }
+  @override
+  void dispose() {
+    super.dispose();
+    _center.remove();
+    _tiles.remove();
+  }
+
+  void _updateTiles() {
+    _tiles.children.clear();
+    for (var tile in _aoe.getAffectedTiles()) {
+      final gridPos = (_aoe.grid as TiledGrid).tileCenterInGrid(tile);
+      _tiles.append(svg.RectElement()
+        ..setAttribute('x', '${gridPos.x}')
+        ..setAttribute('y', '${gridPos.y}'));
     }
+  }
+
+  T createAoE(
+      MeasuringRuleset ruleset, AreaOfEffectPainter painter, Grid grid) {
+    throw UnimplementedError();
+  }
+}
+
+class MeasuringCircle extends CoveredMeasuring<SphereAreaOfEffect> {
+  MeasuringCircle(Point<num> origin, int pc) : super(origin, pc);
+
+  @override
+  SphereAreaOfEffect<Grid> createAoE(covariant SupportsSphere ruleset,
+      AreaOfEffectPainter painter, Grid grid) {
+    return ruleset.aoeSphere(origin, AreaOfEffectSvgPainter(_e), grid);
   }
 }
 
@@ -348,8 +383,7 @@ class MeasuringCone extends CoveredMeasuring {
   double lockedRadius;
   bool lockRadius = false;
 
-  MeasuringCone(Point origin, int pc)
-      : super(forceDoublePoint(origin), svg.PolygonElement(), pc);
+  MeasuringCone(Point origin, int pc) : super(forceDoublePoint(origin), pc);
 
   @override
   void addPoint(Point<num> point) {
@@ -368,98 +402,98 @@ class MeasuringCone extends CoveredMeasuring {
     return false;
   }
 
-  @override
-  void redraw(Point extra) {
-    var distance = lockRadius
-        ? lockedRadius
-        : origin.distanceTo(forceDoublePoint(extra)).roundToDouble();
+  // @override
+  // void redraw(Point extra) {
+  //   var distance = lockRadius
+  //       ? lockedRadius
+  //       : origin.distanceTo(forceDoublePoint(extra)).roundToDouble();
 
-    if (!lockRadius) {
-      lockedRadius = distance;
-    }
+  //   if (!lockRadius) {
+  //     lockedRadius = distance;
+  //   }
 
-    if (distance > 0) {
-      var vec = forceDoublePoint(extra) - origin;
-      var rounded = vec * (distance / vec.distanceTo(Point(0, 0)));
+  //   if (distance > 0) {
+  //     var vec = forceDoublePoint(extra) - origin;
+  //     var rounded = vec * (distance / vec.distanceTo(Point(0, 0)));
 
-      var p1 = origin + rounded + Point<double>(-rounded.y / 2, rounded.x / 2);
-      var p2 = origin + rounded + Point<double>(rounded.y / 2, -rounded.x / 2);
+  //     var p1 = origin + rounded + Point<double>(-rounded.y / 2, rounded.x / 2);
+  //     var p2 = origin + rounded + Point<double>(rounded.y / 2, -rounded.x / 2);
 
-      _e.setAttribute(
-          'points', '${_toSvg(origin)} ${_toSvg(p1)} ${_toSvg(p2)}');
-      _updateSquares(p1, p2, distance);
-    } else {
-      _e.setAttribute('points', '');
-      _squares.children.clear();
-    }
+  //     _e.setAttribute(
+  //         'points', '${_toSvg(origin)} ${_toSvg(p1)} ${_toSvg(p2)}');
+  //     _updateSquares(p1, p2, distance);
+  //   } else {
+  //     _e.setAttribute('points', '');
+  //     _squares.children.clear();
+  //   }
 
-    updateDistanceText(distance);
-  }
+  //   updateDistanceText(distance);
+  // }
 
-  static String _toSvg(Point p) => '${p.x},${p.y}';
+  // static String _toSvg(Point p) => '${p.x},${p.y}';
 
-  void _updateSquares(Point<double> p1, Point<double> p2, double distance) {
-    Point<int> fixPoint(Point p) =>
-        Point((p.x + 0.5).floor(), (p.y + 0.5).floor());
+  // void _updateSquares(Point<double> p1, Point<double> p2, double distance) {
+  //   Point<int> fixPoint(Point p) =>
+  //       Point((p.x + 0.5).floor(), (p.y + 0.5).floor());
 
-    var affected = <Point<int>>{};
-    var lengthStep = 0.3;
+  //   var affected = <Point<int>>{};
+  //   var lengthStep = 0.3;
 
-    for (var w = 0.0; w <= 1; w += 0.2 / distance) {
-      var q = p1 + (p2 - p1) * w;
-      var vec = (q - origin) * (lengthStep / distance);
+  //   for (var w = 0.0; w <= 1; w += 0.2 / distance) {
+  //     var q = p1 + (p2 - p1) * w;
+  //     var vec = (q - origin) * (lengthStep / distance);
 
-      var p = origin + vec;
+  //     var p = origin + vec;
 
-      for (var l = lengthStep; l < distance; l += lengthStep) {
-        affected.add(fixPoint(p));
-        p += vec;
-      }
-    }
+  //     for (var l = lengthStep; l < distance; l += lengthStep) {
+  //       affected.add(fixPoint(p));
+  //       p += vec;
+  //     }
+  //   }
 
-    _squares.children.clear();
-    for (var p in affected) {
-      _squares.append(svg.RectElement()
-        ..setAttribute('x', '${p.x - 0.5}')
-        ..setAttribute('y', '${p.y - 0.5}'));
-    }
-  }
+  //   _squares.children.clear();
+  //   for (var p in affected) {
+  //     _squares.append(svg.RectElement()
+  //       ..setAttribute('x', '${p.x - 0.5}')
+  //       ..setAttribute('y', '${p.y - 0.5}'));
+  //   }
+  // }
 }
 
 class MeasuringCube extends CoveredMeasuring {
-  MeasuringCube(Point origin, int pc) : super(origin, svg.RectElement(), pc);
+  MeasuringCube(Point origin, int pc) : super(origin, pc);
 
-  @override
-  void redraw(Point extra) {
-    var distance = max((extra.x - origin.x).abs(), (extra.y - origin.y).abs())
-        .roundToDouble();
+  // @override
+  // void redraw(Point extra) {
+  //   var distance = max((extra.x - origin.x).abs(), (extra.y - origin.y).abs())
+  //       .roundToDouble();
 
-    var signed = Point((extra.x - origin.x).sign * distance,
-        (extra.y - origin.y).sign * distance);
-    var rect = Rectangle.fromPoints(
-        origin, forceDoublePoint(origin) + forceDoublePoint(signed));
+  //   var signed = Point((extra.x - origin.x).sign * distance,
+  //       (extra.y - origin.y).sign * distance);
+  //   var rect = Rectangle.fromPoints(
+  //       origin, forceDoublePoint(origin) + forceDoublePoint(signed));
 
-    _e
-      ..setAttribute('x', '${rect.left}')
-      ..setAttribute('y', '${rect.top}')
-      ..setAttribute('width', '${rect.width}')
-      ..setAttribute('height', '${rect.height}');
-    _updateSquares(rect);
+  //   _e
+  //     ..setAttribute('x', '${rect.left}')
+  //     ..setAttribute('y', '${rect.top}')
+  //     ..setAttribute('width', '${rect.width}')
+  //     ..setAttribute('height', '${rect.height}');
+  //   _updateSquares(rect);
 
-    updateDistanceText(distance);
-  }
+  //   updateDistanceText(distance);
+  // }
 
-  void _updateSquares(Rectangle rect) {
-    _squares.children.clear();
+  // void _updateSquares(Rectangle rect) {
+  //   _squares.children.clear();
 
-    for (var x = rect.left; x < rect.right; x++) {
-      for (var y = rect.top; y < rect.bottom; y++) {
-        _squares.append(svg.RectElement()
-          ..setAttribute('x', '$x')
-          ..setAttribute('y', '$y'));
-      }
-    }
-  }
+  //   for (var x = rect.left; x < rect.right; x++) {
+  //     for (var y = rect.top; y < rect.bottom; y++) {
+  //       _squares.append(svg.RectElement()
+  //         ..setAttribute('x', '$x')
+  //         ..setAttribute('y', '$y'));
+  //     }
+  //   }
+  // }
 }
 
 class MeasuringLine extends CoveredMeasuring {
@@ -467,8 +501,7 @@ class MeasuringLine extends CoveredMeasuring {
   double width = _bufferedLineWidth;
   bool changeWidth = false;
 
-  MeasuringLine(Point origin, int pc)
-      : super(forceDoublePoint(origin), svg.PolygonElement(), pc);
+  MeasuringLine(Point origin, int pc) : super(forceDoublePoint(origin), pc);
 
   @override
   void addPoint(Point<num> point) {
@@ -486,80 +519,79 @@ class MeasuringLine extends CoveredMeasuring {
     endBuffered = _readPrecision(reader);
     width = reader.readUInt8().toDouble();
     changeWidth = false;
-    _update(endBuffered);
+    // _update(endBuffered);
     return true;
   }
 
-  @override
-  void redraw(Point extra) {
-    if (!changeWidth) {
-      _update(extra);
-    } else {
-      var distance =
-          endBuffered.distanceTo(forceDoublePoint(extra)).roundToDouble();
-      width = distance;
-      _bufferedLineWidth = distance;
-      _update(endBuffered);
-    }
-  }
+  // @override
+  // void redraw(Point extra) {
+  //   if (!changeWidth) {
+  //     _update(extra);
+  //   } else {
+  //     var distance =
+  //         endBuffered.distanceTo(forceDoublePoint(extra)).roundToDouble();
+  //     width = distance;
+  //     _bufferedLineWidth = distance;
+  //     _update(endBuffered);
+  //   }
+  // }
 
-  void _update(Point extra) {
-    extra = forceDoublePoint(extra);
-    var distance = origin.distanceTo(extra).roundToDouble();
-    distance = max(0, distance - 1);
+  // void _update(Point extra) {
+  //   extra = forceDoublePoint(extra);
+  //   var distance = origin.distanceTo(extra).roundToDouble();
+  //   distance = max(0, distance - 1);
 
-    if (distance > 0) {
-      var vec = forceDoublePoint(extra - origin);
-      var norm = vec * (1 / vec.distanceTo(Point(0, 0)));
-      var end = origin + norm * distance;
-      var right = Point(-norm.y, norm.x) * (width / 2);
+  //   if (distance > 0) {
+  //     var vec = forceDoublePoint(extra - origin);
+  //     var norm = vec * (1 / vec.distanceTo(Point(0, 0)));
+  //     var end = origin + norm * distance;
+  //     var right = Point(-norm.y, norm.x) * (width / 2);
 
-      var p1 = origin + right;
-      var p2 = end + right;
-      var q1 = origin - right;
-      var q2 = end - right;
+  //     var p1 = origin + right;
+  //     var p2 = end + right;
+  //     var q1 = origin - right;
+  //     var q2 = end - right;
 
-      _e.setAttribute(
-          'points', '${_toSvg(p1)} ${_toSvg(p2)} ${_toSvg(q2)} ${_toSvg(q1)}');
-      _updateSquares(norm, right, distance);
-    } else {
-      _e.setAttribute('points', '');
-      _squares.children.clear();
-    }
+  //     _e.setAttribute(
+  //         'points', '${_toSvg(p1)} ${_toSvg(p2)} ${_toSvg(q2)} ${_toSvg(q1)}');
+  //     _updateSquares(norm, right, distance);
+  //   } else {
+  //     _e.setAttribute('points', '');
+  //     _squares.children.clear();
+  //   }
 
-    endBuffered = extra;
-    updateDistanceText(changeWidth ? width : distance);
-  }
+  //   endBuffered = extra;
+  //   updateDistanceText(changeWidth ? width : distance);
+  // }
 
-  static String _toSvg(Point p) => '${p.x},${p.y}';
+  // static String _toSvg(Point p) => '${p.x},${p.y}';
 
-  void _updateSquares(Point norm, Point right, double distance) {
-    Point<int> fixPoint(Point p) =>
-        Point((p.x + 0.5).floor(), (p.y + 0.5).floor());
+  // void _updateSquares(Point norm, Point right, double distance) {
+  //   Point<int> fixPoint(Point p) =>
+  //       Point((p.x + 0.5).floor(), (p.y + 0.5).floor());
 
-    var affected = <Point<int>>{};
-    var lengthStep = 1;
+  //   var affected = <Point<int>>{};
+  //   var lengthStep = 1;
 
-    for (var w = -1.0; w <= 1; w += 0.5 / width) {
-      var p = origin + right * w;
+  //   for (var w = -1.0; w <= 1; w += 0.5 / width) {
+  //     var p = origin + right * w;
 
-      for (var l = 0; l <= distance; l += lengthStep) {
-        affected.add(fixPoint(p));
-        p += norm * lengthStep;
-      }
-    }
+  //     for (var l = 0; l <= distance; l += lengthStep) {
+  //       affected.add(fixPoint(p));
+  //       p += norm * lengthStep;
+  //     }
+  //   }
 
-    _squares.children.clear();
-    for (var p in affected) {
-      _squares.append(svg.RectElement()
-        ..setAttribute('x', '${p.x - 0.5}')
-        ..setAttribute('y', '${p.y - 0.5}'));
-    }
-  }
+  //   _squares.children.clear();
+  //   for (var p in affected) {
+  //     _squares.append(svg.RectElement()
+  //       ..setAttribute('x', '${p.x - 0.5}')
+  //       ..setAttribute('y', '${p.y - 0.5}'));
+  //   }
+  // }
 }
 
-void _applyCircle(svg.CircleElement elem, Point ps, {int size = 1}) {
-  var p = user.session.board.grid.grid.gridToWorldSpace(ps);
+void _applyCircle(svg.CircleElement elem, Point p) {
   elem.setAttribute('cx', '${p.x}');
   elem.setAttribute('cy', '${p.y}');
 }

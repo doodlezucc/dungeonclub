@@ -7,8 +7,6 @@ import 'dmg_square.dart';
 import 'unclamped.dart';
 
 abstract class MeasuringRuleset<T extends Grid> {
-  num distanceBetweenGridPoints(T grid, Point a, Point b);
-
   static final unclampedDefault = UnclampedMeasuringRuleset();
   static final squareDmg = DMGSquareMeasuringRuleset();
   static final hexDefault = DefaultHexMeasuringRuleset();
@@ -31,6 +29,8 @@ abstract class MeasuringRuleset<T extends Grid> {
   static U chebyshev<U extends num>(Point<U> a, Point<U> b) {
     return max((a.x - b.x).abs(), (a.y - b.y).abs());
   }
+
+  num distanceBetweenGridPoints(T grid, Point a, Point b);
 }
 
 abstract class SquareMeasuringRuleset extends MeasuringRuleset<SquareGrid> {}

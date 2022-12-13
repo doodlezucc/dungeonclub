@@ -9,6 +9,7 @@ import 'package:grid/grid.dart';
 import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';
+import 'measuring.dart';
 
 final HtmlElement _controls = querySelector('#sceneEditor');
 final InputElement gridTiles = _controls.querySelector('#gridTiles');
@@ -334,15 +335,17 @@ class SceneGrid {
     if (gridType == GRID_NONE) return;
 
     var pattern = querySelector(patternId);
-    var size = cellWidth;
+    var scale = cellWidth;
     pattern.setAttribute(
       'patternTransform',
-      'translate(${offset.x}, ${offset.y}) scale($size)',
+      'translate(${offset.x}, ${offset.y}) scale($scale)',
     );
 
     var patternG = pattern.children.first;
     patternG.setAttribute('stroke', _gridColor.value);
     patternG.setAttribute('opacity', _gridAlpha.value);
+
+    scaleMeasuringCanvas();
   }
 
   void configure({
