@@ -908,8 +908,12 @@ class Board {
 
     final snapSize = doOffset ? 1 : 0;
 
+    Point worldToGrid(Point p) {
+      return grid.grid.worldToGridSpace(p).cast<num>();
+    }
+
     Point snapWorldToGrid(Point p) {
-      var gridPos = grid.grid.worldToGridSpace(p).cast<num>();
+      var gridPos = worldToGrid(p);
       return grid.grid.gridSnapCentered(gridPos, snapSize);
     }
 
@@ -940,7 +944,7 @@ class Board {
 
     moveStream.listen((ev) {
       p = ev.p * (1 / scaledZoom);
-      measureEnd = snapWorldToGrid(p);
+      measureEnd = worldToGrid(p);
 
       if (ev.button == 2) {
         m.addPoint(measureEnd);

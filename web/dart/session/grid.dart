@@ -260,6 +260,7 @@ class SceneGrid {
     _typeButtons.forEach((btn, btnType) {
       btn.classes.toggle('active', btnType == gridType);
     });
+    updateCanvasSvgTile();
   }
 
   void _applyZero() {
@@ -294,6 +295,7 @@ class SceneGrid {
       (_grid as UnclampedGrid).scale = tokenSize;
     }
     user.session.board.transform.applyInvZoom();
+    updateCanvasSvgTile();
   }
 
   Point offsetToGridSpaceUnscaled(
@@ -344,8 +346,6 @@ class SceneGrid {
     var patternG = pattern.children.first;
     patternG.setAttribute('stroke', _gridColor.value);
     patternG.setAttribute('opacity', _gridAlpha.value);
-
-    scaleMeasuringCanvas();
   }
 
   void configure({

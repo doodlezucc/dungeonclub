@@ -47,7 +47,7 @@ abstract class AreaOfEffectTemplate<S extends _Supports> {
     _grid = grid;
     _group = ShapeGroup(painter);
     initialize(origin, _group);
-    onMove(origin);
+    onMove(origin, 0);
 
     for (var shape in _group.shapes) {
       painter.addShape(shape);
@@ -64,7 +64,7 @@ abstract class AreaOfEffectTemplate<S extends _Supports> {
 
   @protected
   void initialize(Point<double> origin, ShapeMaker maker);
-  void onMove(Point<double> position);
+  void onMove(Point<double> position, double distance);
 }
 
 class SphereAreaOfEffect<G extends Grid>
@@ -82,9 +82,8 @@ class SphereAreaOfEffect<G extends Grid>
   }
 
   @override
-  void onMove(Point<double> position) {
-    _outline.radius =
-        ruleset.distanceBetweenGridPoints(grid, _outline.center, position);
+  void onMove(Point<double> position, double distance) {
+    _outline.radius = distance;
   }
 
   @override

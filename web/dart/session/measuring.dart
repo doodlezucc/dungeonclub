@@ -1,4 +1,5 @@
 import 'dart:html';
+import 'dart:math';
 import 'dart:svg' as svg;
 import 'dart:typed_data';
 
@@ -24,7 +25,8 @@ const _precision = 63;
 final Map<int, Measuring> _pcMeasurings = {};
 
 final HtmlElement _toolbox = querySelector('#measureTools');
-final svg.GElement _measuringRoot = querySelector('#measuringRoot');
+final svg.SvgSvgElement _measuringRoot = querySelector('#measureCanvas');
+final svg.PolygonElement _measuringTile = _measuringRoot.querySelector('#tile');
 final svg.SvgSvgElement _distanceRoot = querySelector('#distanceCanvas');
 double _bufferedLineWidth = 1;
 
@@ -60,12 +62,18 @@ String getMeasureTooltip() {
   return '';
 }
 
-void scaleMeasuringCanvas() {
-  final sceneGrid = Measuring.getGrid();
-  final off = sceneGrid.offset;
-  final size = sceneGrid.cellSize;
-  final transform = 'translate(${off.x} ${off.y}) scale(${size.x} ${size.y})';
-  _measuringRoot.setAttribute('transform', transform);
+void updateCanvasSvgTile() {
+  final grid = Measuring.getGrid().grid;
+  _measuringTile.points.clear();
+
+  if (grid is TiledGrid) {
+    for (var point in grid.tileShape.points) {
+      final p = Point(point.x * grid.tileWidth, point.y * grid.tileWidth);
+      _measuringTile.points.appendItem(_measuringRoot.createSvgPoint()
+        ..x = p.x
+        ..y = p.y);
+    }
+  }
 }
 
 void _writePrecision(BinaryWriter writer, Point p) {
@@ -141,6 +149,7 @@ abstract class Measuring {
   final HtmlElement _distanceText;
   final Point<double> origin;
   final String color;
+  int snapSize;
 
   Measuring(Point origin, this._e, int pc, [svg.SvgElement root])
       : origin = origin.cast<double>(),
@@ -248,16 +257,21 @@ class MeasuringPath extends Measuring {
     return false;
   }
 
+  Point snapped(Point p) {
+    return Measuring.getGrid().grid.gridSnapCentered(p, size);
+  }
+
   @override
   void addPoint(Point p) {
+    p = snapped(p);
     var stop = svg.CircleElement()..classes.add('origin');
-    _applyCircle(stop, p);
+    _applyCircleGridToWorld(stop, p);
     _e.append(stop);
 
     previousDistance += _lastSegmentLength(p);
     points.add(p);
     pointsSinceSync++;
-    redraw(p);
+    redraw(p, doSnap: false);
   }
 
   double _lastSegmentLength(Point end) {
@@ -270,9 +284,12 @@ class MeasuringPath extends Measuring {
   }
 
   @override
-  void redraw(Point end) {
+  void redraw(Point end, {bool doSnap = true}) {
+    if (doSnap) {
+      end = snapped(end);
+    }
     path.setAttribute('d', _toPathData(end));
-    _applyCircle(lastE, end);
+    _applyCircleGridToWorld(lastE, end);
     _updateDistanceText(end);
   }
 
@@ -284,7 +301,8 @@ class MeasuringPath extends Measuring {
   String _toPathData(Point end) {
     if (points.isEmpty) return '';
 
-    String writePoint(Point p) {
+    String writePoint(Point ps) {
+      final p = Measuring.getGrid().grid.gridToWorldSpace(ps);
       return ' ${p.x} ${p.y}';
     }
 
@@ -304,14 +322,18 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
     extends Measuring {
   final _center = svg.CircleElement()..classes.add('origin');
   final _tiles = svg.GElement();
-  double _bufferedRadius = -1;
+  double _bufferedDistance = -1;
   T _aoe;
 
   CoveredMeasuring(Point origin, int pc) : super(origin, svg.GElement(), pc) {
-    _applyCircle(_center, origin);
+    _applyCircleGridToWorld(_center, origin);
+
+    final grid = Measuring.getGrid();
+    final tilesTransform =
+        'translate(-${grid.cellWidth / 2} -${grid.cellHeight / 2})';
 
     _tiles
-      ..setAttribute('transform', 'translate(-0.5 -0.5)')
+      ..setAttribute('transform', tilesTransform)
       ..setAttribute('fill', '${color}60');
     _e
       ..append(_tiles)
@@ -319,10 +341,16 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
 
     _measuringRoot.append(_e);
 
-    final sceneGrid = Measuring.getGrid();
-    final painter = AreaOfEffectSvgPainter(_e);
-    _aoe = createAoE(sceneGrid.measuringRuleset, painter, sceneGrid.grid);
+    final transform = PaintTransform(
+      grid.offset.cast<double>(),
+      grid.cellSize.cast<double>(),
+    );
+    final painter = AreaOfEffectSvgPainter(_e, transform);
+    _aoe = createAoE(grid.measuringRuleset, painter, grid.grid);
+    redraw(origin);
   }
+
+  static final _sqrt3 = sqrt(3);
 
   @override
   void redraw(Point extra) {
@@ -330,19 +358,23 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
     final sceneGrid = Measuring.getGrid();
     final grid = sceneGrid.grid;
     final ruleset = sceneGrid.measuringRuleset;
-    var distance = ruleset.distanceBetweenGridPoints(grid, origin, extraCast);
+
+    double distance =
+        ruleset.distanceBetweenGridPoints(grid, origin, extraCast);
 
     if (grid is TiledGrid) {
+      if (grid is HexagonalGrid) {
+        distance *= _sqrt3 / 2;
+      }
       distance = distance.roundToDouble();
     }
 
-    if (distance == _bufferedRadius) return;
-    _bufferedRadius = distance;
+    if (distance == _bufferedDistance) return;
+    _bufferedDistance = distance;
 
-    _e.setAttribute('r', '$distance');
     updateDistanceText(distance);
 
-    _aoe.onMove(extraCast);
+    _aoe.onMove(extraCast, distance * 2 / _sqrt3);
     _updateTiles();
   }
 
@@ -356,10 +388,10 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
   void _updateTiles() {
     _tiles.children.clear();
     for (var tile in _aoe.getAffectedTiles()) {
-      final gridPos = (_aoe.grid as TiledGrid).tileCenterInGrid(tile);
-      _tiles.append(svg.RectElement()
-        ..setAttribute('x', '${gridPos.x}')
-        ..setAttribute('y', '${gridPos.y}'));
+      final gridPos = (_aoe.grid as TiledGrid).tileCenterInWorld(tile);
+      _tiles.append(svg.UseElement()
+        ..setAttribute('href', '#tile')
+        ..setAttribute('transform', 'translate(${gridPos.x} ${gridPos.y})'));
     }
   }
 
@@ -374,9 +406,8 @@ class MeasuringCircle extends CoveredMeasuring<SphereAreaOfEffect> {
 
   @override
   SphereAreaOfEffect<Grid> createAoE(covariant SupportsSphere ruleset,
-      AreaOfEffectPainter painter, Grid grid) {
-    return ruleset.aoeSphere(origin, AreaOfEffectSvgPainter(_e), grid);
-  }
+          AreaOfEffectPainter painter, Grid grid) =>
+      ruleset.aoeSphere(origin, painter, grid);
 }
 
 class MeasuringCone extends CoveredMeasuring {
@@ -594,4 +625,8 @@ class MeasuringLine extends CoveredMeasuring {
 void _applyCircle(svg.CircleElement elem, Point p) {
   elem.setAttribute('cx', '${p.x}');
   elem.setAttribute('cy', '${p.y}');
+}
+
+void _applyCircleGridToWorld(svg.CircleElement elem, Point p) {
+  _applyCircle(elem, Measuring.getGrid().grid.gridToWorldSpace(p));
 }

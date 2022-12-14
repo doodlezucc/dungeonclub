@@ -809,7 +809,7 @@ $blink-off: #888d;
     fill: #eee7;
 }
 .grid-canvas {
-    stroke-width: 0.1px;
+    stroke-width: 10px;
     stroke-linecap: round;
     stroke-linejoin: round;
 
@@ -817,15 +817,16 @@ $blink-off: #888d;
     
     path, .no-fill {
         fill: none !important;
+        vector-effect: non-scaling-stroke;
     }
     circle.origin {
         stroke: none !important;
-        r: 0.2px;
+        r: 20px;
     }
     g > rect {
         fill: unset;
         stroke: #fff !important;
-        stroke-width: 0.05px;
+        stroke-width: 1px;
         width: 1px;
         height: 1px;
     }
