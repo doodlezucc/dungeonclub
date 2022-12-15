@@ -826,9 +826,7 @@ $blink-off: #888d;
     g > rect {
         fill: unset;
         stroke: #fff !important;
-        stroke-width: 1px;
-        width: 1px;
-        height: 1px;
+        stroke-width: 10px;
     }
 }
 

@@ -37,6 +37,10 @@ extension PointNumExtension on Point<num> {
   Point snapDeviation() {
     return Point<num>(x.undeviate(), y.undeviate());
   }
+
+  Point<int> ceil() {
+    return Point(x.ceil(), y.ceil());
+  }
 }
 
 extension PointDoubleExtension on Point<double> {

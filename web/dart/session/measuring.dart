@@ -368,7 +368,7 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
       distance = distance.roundToDouble();
     }
 
-    if (distance == _bufferedDistance) return;
+    // if (distance == _bufferedDistance) return;
     _bufferedDistance = distance;
 
     updateDistanceText(distance);
@@ -407,6 +407,15 @@ class MeasuringCircle extends CoveredMeasuring<SphereAreaOfEffect> {
   SphereAreaOfEffect<Grid> createAoE(covariant SupportsSphere ruleset,
           AreaOfEffectPainter painter, Grid grid) =>
       ruleset.aoeSphere(origin, painter, grid);
+}
+
+class MeasuringCube extends CoveredMeasuring<CubeAreaOfEffect> {
+  MeasuringCube(Point origin, int pc) : super(origin, pc);
+
+  @override
+  CubeAreaOfEffect<Grid> createAoE(covariant SupportsCube ruleset,
+          AreaOfEffectPainter painter, Grid grid) =>
+      ruleset.aoeCube(origin, painter, grid);
 }
 
 class MeasuringCone extends CoveredMeasuring {
@@ -486,42 +495,6 @@ class MeasuringCone extends CoveredMeasuring {
   //     _squares.append(svg.RectElement()
   //       ..setAttribute('x', '${p.x - 0.5}')
   //       ..setAttribute('y', '${p.y - 0.5}'));
-  //   }
-  // }
-}
-
-class MeasuringCube extends CoveredMeasuring {
-  MeasuringCube(Point origin, int pc) : super(origin, pc);
-
-  // @override
-  // void redraw(Point extra) {
-  //   var distance = max((extra.x - origin.x).abs(), (extra.y - origin.y).abs())
-  //       .roundToDouble();
-
-  //   var signed = Point((extra.x - origin.x).sign * distance,
-  //       (extra.y - origin.y).sign * distance);
-  //   var rect = Rectangle.fromPoints(
-  //       origin, forceDoublePoint(origin) + forceDoublePoint(signed));
-
-  //   _e
-  //     ..setAttribute('x', '${rect.left}')
-  //     ..setAttribute('y', '${rect.top}')
-  //     ..setAttribute('width', '${rect.width}')
-  //     ..setAttribute('height', '${rect.height}');
-  //   _updateSquares(rect);
-
-  //   updateDistanceText(distance);
-  // }
-
-  // void _updateSquares(Rectangle rect) {
-  //   _squares.children.clear();
-
-  //   for (var x = rect.left; x < rect.right; x++) {
-  //     for (var y = rect.top; y < rect.bottom; y++) {
-  //       _squares.append(svg.RectElement()
-  //         ..setAttribute('x', '$x')
-  //         ..setAttribute('y', '$y'));
-  //     }
   //   }
   // }
 }

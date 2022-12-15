@@ -35,6 +35,9 @@ class AreaOfEffectSvgPainter extends AreaOfEffectPainter {
 
   @override
   Circle circle() => SvgCircle(transform);
+
+  @override
+  Rect rect() => SvgRect(transform);
 }
 
 extension SvgAttributeHelper on svg.SvgElement {
@@ -44,6 +47,11 @@ extension SvgAttributeHelper on svg.SvgElement {
 
   void attrPx(String name, dynamic value) {
     setAttribute(name, '${value}px');
+  }
+
+  void attrPoint(String nameX, String nameY, Point point) {
+    attrPx(nameX, point.x);
+    attrPx(nameY, point.y);
   }
 }
 
@@ -62,16 +70,38 @@ class SvgCircle extends SvgShape<svg.CircleElement> with Circle {
         );
 
   @override
-  set radius(double _radius) {
-    super.radius = _radius;
-    element.attrPx('r', radius * transform.sizing.x);
+  set radius(double r) {
+    super.radius = r;
+    element.attrPx('r', r * transform.sizing.x);
   }
 
   @override
   set center(Point<double> p) {
     super.center = p;
     final normalized = transform.translate(p);
-    element.attrPx('cx', normalized.x);
-    element.attrPx('cy', normalized.y);
+    element.attrPoint('cx', 'cy', normalized);
+  }
+}
+
+class SvgRect extends SvgShape<svg.RectElement> with Rect {
+  SvgRect(PaintTransform transform)
+      : super(
+          transform,
+          svg.RectElement()..classes.add('no-fill'),
+        );
+
+  @override
+  set position(Point p) {
+    super.position = p;
+    final normalized = transform.translate(p);
+    element.attrPoint('x', 'y', normalized);
+  }
+
+  @override
+  set size(Point s) {
+    super.position = s;
+    final scale = transform.sizing.x;
+    final normalized = Point(s.x * scale, s.y * scale);
+    element.attrPoint('width', 'height', normalized);
   }
 }

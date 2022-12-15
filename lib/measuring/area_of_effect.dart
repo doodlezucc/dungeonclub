@@ -11,6 +11,7 @@ abstract class AreaOfEffectPainter with ShapeMaker {
 
 mixin ShapeMaker {
   Circle circle();
+  Rect rect();
 }
 
 class ShapeGroup with ShapeMaker {
@@ -26,6 +27,8 @@ class ShapeGroup with ShapeMaker {
 
   @override
   Circle circle() => _wrap(_maker.circle());
+  @override
+  Rect rect() => _wrap(_maker.rect());
 }
 
 abstract class AreaOfEffectTemplate<S extends _Supports> {
@@ -87,8 +90,65 @@ class SphereAreaOfEffect<G extends Grid>
   }
 
   @override
-  Set<Point<int>> getAffectedTiles() {
-    return ruleset.getTilesAffectedBySphere(this);
+  Set<Point<int>> getAffectedTiles() => ruleset.getTilesAffectedBySphere(this);
+}
+
+abstract class CubeAreaOfEffect<G extends Grid>
+    extends AreaOfEffectTemplate<SupportsCube<G>> {
+  @override
+  G get grid => _grid;
+
+  @override
+  Set<Point<int>> getAffectedTiles() => ruleset.getTilesAffectedByCube(this);
+}
+
+class SquareCubeAreaOfEffect extends CubeAreaOfEffect {
+  final bool useDistance;
+  Rect _rect;
+
+  Point<double> _from;
+  Point<double> _to;
+
+  Point<double> get boundsMin =>
+      Point(min(_from.x, _to.x), min(_from.y, _to.y));
+  Point<double> get boundsMax =>
+      Point(max(_from.x, _to.x), max(_from.y, _to.y));
+
+  SquareCubeAreaOfEffect({@required this.useDistance});
+
+  void _updateRect() {
+    final bMin = boundsMin;
+    _rect
+      ..position = bMin
+      ..size = boundsMax - bMin;
+  }
+
+  @override
+  void initialize(Point<double> origin, ShapeMaker maker) {
+    _rect = maker.rect();
+    _from = _to = origin;
+    _updateRect();
+  }
+
+  @override
+  void onMove(Point<double> position, double distance) {
+    final v = position - _from;
+    final size = useDistance ? distance : max(v.x.abs(), v.y.abs());
+
+    _to = _from + Point(v.x.sign * size, v.y.sign * size);
+    _updateRect();
+  }
+}
+
+class HexCubeAreaOfEffect extends CubeAreaOfEffect<HexagonalGrid> {
+  @override
+  void initialize(Point<double> origin, ShapeMaker maker) {
+    // TODO
+  }
+
+  @override
+  void onMove(Point<double> position, double distance) {
+    // TODO
   }
 }
 
@@ -99,11 +159,22 @@ mixin SupportsSphere<G extends Grid> implements _Supports<G> {
     Point<double> origin,
     AreaOfEffectPainter painter,
     G grid,
-  ) {
-    return SphereAreaOfEffect()..create(origin, painter, this, grid);
-  }
+  ) =>
+      SphereAreaOfEffect()..create(origin, painter, this, grid);
 
   Set<Point<int>> getTilesAffectedBySphere(SphereAreaOfEffect<G> aoe);
+}
+
+mixin SupportsCube<G extends Grid> implements _Supports<G> {
+  CubeAreaOfEffect aoeCube(
+    Point<double> origin,
+    AreaOfEffectPainter painter,
+    G grid,
+  ) =>
+      makeInstance()..create(origin, painter, this, grid);
+
+  CubeAreaOfEffect makeInstance();
+  Set<Point<int>> getTilesAffectedByCube(CubeAreaOfEffect aoe);
 }
 
 mixin Shape {}
@@ -111,4 +182,9 @@ mixin Shape {}
 mixin Circle implements Shape {
   Point<double> center;
   double radius;
+}
+
+mixin Rect implements Shape {
+  Point position;
+  Point size;
 }

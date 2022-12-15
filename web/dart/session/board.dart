@@ -909,12 +909,12 @@ class Board {
     final snapSize = doOffset ? 1 : 0;
 
     Point worldToGrid(Point p) {
-      return grid.grid.worldToGridSpace(p).cast<num>();
+      return grid.grid.worldToGridSpace(p).snapDeviation().cast<num>();
     }
 
     Point snapWorldToGrid(Point p) {
       var gridPos = worldToGrid(p);
-      return grid.grid.gridSnapCentered(gridPos, snapSize);
+      return grid.grid.gridSnapCentered(gridPos, snapSize).snapDeviation();
     }
 
     var origin = snapWorldToGrid(p);
