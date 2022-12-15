@@ -1,5 +1,4 @@
 import 'dart:html';
-import 'dart:math';
 import 'dart:svg' as svg;
 import 'dart:typed_data';
 
@@ -350,8 +349,6 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
     redraw(origin);
   }
 
-  static final _sqrt3 = sqrt(3);
-
   @override
   void redraw(Point extra) {
     final extraCast = extra.cast<double>();
@@ -362,10 +359,12 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
     double distance =
         ruleset.distanceBetweenGridPoints(grid, origin, extraCast);
 
+    var tileDistance = 1.0;
     if (grid is TiledGrid) {
       if (grid is HexagonalGrid) {
-        distance *= _sqrt3 / 2;
+        tileDistance = grid.tileDistance;
       }
+      distance /= tileDistance;
       distance = distance.roundToDouble();
     }
 
@@ -374,7 +373,7 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
 
     updateDistanceText(distance);
 
-    _aoe.onMove(extraCast, distance * 2 / _sqrt3);
+    _aoe.onMove(extraCast, distance * tileDistance);
     _updateTiles();
   }
 

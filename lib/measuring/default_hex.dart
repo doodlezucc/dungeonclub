@@ -62,40 +62,8 @@ class DefaultHexMeasuringRuleset extends HexMeasuringRuleset
     return deltaYAbs + max(0, xSteps);
   }
 
-  Point<double> _applyRatio(Point<double> point, HexagonalGrid grid) {
-    return Point(point.x, point.y * grid.tileHeightRatio);
-  }
-
   @override
   Set<Point<int>> getTilesAffectedBySphere(
-      SphereAreaOfEffect<HexagonalGrid> aoe) {
-    final grid = aoe.grid;
-    final radius = aoe.radius;
-    final center = _applyRatio(aoe.center, grid);
-    final heightRatio = grid.tileHeightRatio;
-
-    final radiusPointMax = Point(radius + 2, radius + 2).floor();
-    final centerFloored = aoe.center.floor();
-
-    var boundsMin = centerFloored - radiusPointMax;
-    var boundsMax = centerFloored + radiusPointMax;
-    boundsMin = Point(boundsMin.x, (boundsMin.y * heightRatio).floor());
-    boundsMax = Point(boundsMax.x, (boundsMax.y * heightRatio).ceil());
-
-    final result = <Point<int>>{};
-
-    final radiusSqr = radius * radius;
-    for (var x = boundsMin.x; x < boundsMax.x; x++) {
-      for (var y = boundsMin.y; y < boundsMax.y; y++) {
-        final tile = Point(x, y);
-        final tileCenter = _applyRatio(grid.tileCenterInGrid(tile), grid);
-
-        if (tileCenter.squaredDistanceTo(center) <= radiusSqr) {
-          result.add(tile);
-        }
-      }
-    }
-
-    return result;
-  }
+          SphereAreaOfEffect<HexagonalGrid> aoe) =>
+      MeasuringRuleset.getTilesWithinCircle(aoe.grid, aoe.center, aoe.radius);
 }
