@@ -321,7 +321,6 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
     extends Measuring {
   final _center = svg.CircleElement()..classes.add('origin');
   final _tiles = svg.GElement();
-  double _bufferedDistance = -1;
   T _aoe;
 
   CoveredMeasuring(Point origin, int pc) : super(origin, svg.GElement(), pc) {
@@ -359,22 +358,21 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
     double distance =
         ruleset.distanceBetweenGridPoints(grid, origin, extraCast);
 
-    var tileDistance = 1.0;
+    var tileDistance = _aoe.distanceMultiplier;
     if (grid is TiledGrid) {
       if (grid is HexagonalGrid) {
-        tileDistance = grid.tileDistance;
+        tileDistance *= grid.tileDistance;
+        distance /= tileDistance;
       }
-      distance /= tileDistance;
       distance = distance.roundToDouble();
     }
 
-    // if (distance == _bufferedDistance) return;
-    _bufferedDistance = distance;
-
     updateDistanceText(distance);
 
-    _aoe.onMove(extraCast, distance * tileDistance);
-    _updateTiles();
+    final areaChanged = _aoe.onMove(extraCast, distance * tileDistance);
+    if (areaChanged) {
+      _updateTiles();
+    }
   }
 
   @override
@@ -386,7 +384,8 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
 
   void _updateTiles() {
     _tiles.children.clear();
-    for (var tile in _aoe.getAffectedTiles()) {
+    final tiles = _aoe.getAffectedTiles();
+    for (var tile in tiles) {
       final gridPos = (_aoe.grid as TiledGrid).tileCenterInWorld(tile);
       _tiles.append(svg.UseElement()
         ..setAttribute('href', '#tile')

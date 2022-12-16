@@ -7,7 +7,7 @@ import 'package:grid/grid.dart';
 import 'ruleset.dart';
 
 class DefaultHexMeasuringRuleset extends HexMeasuringRuleset
-    with SupportsSphere<HexagonalGrid> {
+    with SupportsSphere<HexagonalGrid>, SupportsCube<HexagonalGrid> {
   static const degrees30 = pi / 6;
   static const degrees60 = pi / 3;
 
@@ -66,4 +66,12 @@ class DefaultHexMeasuringRuleset extends HexMeasuringRuleset
   Set<Point<int>> getTilesAffectedBySphere(
           SphereAreaOfEffect<HexagonalGrid> aoe) =>
       MeasuringRuleset.getTilesWithinCircle(aoe.grid, aoe.center, aoe.radius);
+
+  @override
+  Set<Point<int>> getTilesAffectedByCube(covariant HexCubeAreaOfEffect aoe) =>
+      MeasuringRuleset.getTilesWithinCircle(aoe.grid, aoe.origin, aoe.distance,
+          useTileShape: true);
+
+  @override
+  HexCubeAreaOfEffect makeInstance() => HexCubeAreaOfEffect();
 }

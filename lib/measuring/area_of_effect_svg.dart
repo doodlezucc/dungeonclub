@@ -100,8 +100,8 @@ class SvgRect extends SvgShape<svg.RectElement> with Rect {
   @override
   set size(Point s) {
     super.position = s;
-    final scale = transform.sizing.x;
-    final normalized = Point(s.x * scale, s.y * scale);
+    final scale = transform.sizing;
+    final normalized = Point(s.x * scale.x, s.y * scale.y);
     element.attrPoint('width', 'height', normalized);
   }
 }

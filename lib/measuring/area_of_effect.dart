@@ -38,6 +38,8 @@ abstract class AreaOfEffectTemplate<S extends _Supports> {
   Grid _grid;
   Grid get grid => _grid;
 
+  double get distanceMultiplier => 1;
+
   ShapeGroup _group;
 
   void create(
@@ -50,7 +52,6 @@ abstract class AreaOfEffectTemplate<S extends _Supports> {
     _grid = grid;
     _group = ShapeGroup(painter);
     initialize(origin, _group);
-    onMove(origin, 0);
 
     for (var shape in _group.shapes) {
       painter.addShape(shape);
@@ -67,7 +68,7 @@ abstract class AreaOfEffectTemplate<S extends _Supports> {
 
   @protected
   void initialize(Point<double> origin, ShapeMaker maker);
-  void onMove(Point<double> position, double distance);
+  bool onMove(Point<double> position, double distance);
 }
 
 class SphereAreaOfEffect<G extends Grid>
@@ -85,8 +86,11 @@ class SphereAreaOfEffect<G extends Grid>
   }
 
   @override
-  void onMove(Point<double> position, double distance) {
+  bool onMove(Point<double> position, double distance) {
+    if (_outline.radius == distance) return false;
+
     _outline.radius = distance;
+    return true;
   }
 
   @override
@@ -131,24 +135,49 @@ class SquareCubeAreaOfEffect extends CubeAreaOfEffect {
   }
 
   @override
-  void onMove(Point<double> position, double distance) {
+  bool onMove(Point<double> position, double distance) {
     final v = position - _from;
     final size = useDistance ? distance : max(v.x.abs(), v.y.abs());
 
-    _to = _from + Point(v.x.sign * size, v.y.sign * size);
+    final to = _from + Point(v.x.sign * size, v.y.sign * size);
+
+    if (to == _to) return false;
+
+    _to = to;
     _updateRect();
+    return true;
   }
 }
 
 class HexCubeAreaOfEffect extends CubeAreaOfEffect<HexagonalGrid> {
+  Rect _rect;
+
+  Point<double> _origin;
+  Point<double> get origin => _origin;
+
+  double _distance;
+  double get distance => _distance;
+
+  @override
+  double get distanceMultiplier => 0.5;
+
   @override
   void initialize(Point<double> origin, ShapeMaker maker) {
-    // TODO
+    _origin = origin;
+    _rect = maker.rect();
   }
 
   @override
-  void onMove(Point<double> position, double distance) {
-    // TODO
+  bool onMove(Point<double> position, double distance) {
+    distance = max(0, distance - 0.5);
+    if (distance == _distance) return false;
+
+    _distance = distance;
+
+    final distTwice = distance * 2;
+    _rect.position = origin - Point(distance, distance);
+    _rect.size = Point(distTwice, distTwice);
+    return true;
   }
 }
 

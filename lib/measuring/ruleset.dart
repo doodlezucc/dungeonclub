@@ -34,11 +34,12 @@ abstract class MeasuringRuleset<T extends Grid> {
   static Set<Point<int>> getTilesWithinCircle(
     TiledGrid grid,
     Point<double> center,
-    double radius,
-  ) {
+    double radius, {
+    bool useTileShape = false,
+  }) {
     final heightRatio = grid.tileHeightRatio;
     final radiusPointMax =
-        Point(radius + 2, (radius + 2) / heightRatio).floor();
+        Point(radius + 3, (radius + 3) / heightRatio).floor();
 
     center = Point(center.x, center.y * heightRatio);
     final centerFloored = center.floor();
@@ -47,16 +48,27 @@ abstract class MeasuringRuleset<T extends Grid> {
     final boundsMax = centerFloored + radiusPointMax;
 
     final result = <Point<int>>{};
+    final thresholdSqr = pow(radius + 0.05, 2);
 
-    final radiusSqr = radius * radius;
     for (var x = boundsMin.x; x <= boundsMax.x; x++) {
       for (var y = boundsMin.y; y <= boundsMax.y; y++) {
         final tile = Point(x, y);
         final tc = grid.tileCenterInGrid(tile);
-        final normalizedTile = Point(tc.x, tc.y * heightRatio);
+        var normalizedTile = Point(tc.x, tc.y * heightRatio);
 
-        if (normalizedTile.squaredDistanceTo(center) <= radiusSqr + 0.01) {
-          result.add(tile);
+        if (!useTileShape) {
+          if (normalizedTile.squaredDistanceTo(center) <= thresholdSqr) {
+            result.add(tile);
+          }
+        } else {
+          normalizedTile -= Point(0.5, 0.5 * heightRatio);
+          for (var point in grid.tileShape.points) {
+            final sum = point + normalizedTile;
+            if (sum.squaredDistanceTo(center) <= thresholdSqr) {
+              result.add(tile);
+              break;
+            }
+          }
         }
       }
     }
