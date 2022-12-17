@@ -469,9 +469,10 @@ class Board {
   }
 
   void updateSnapToGrid() {
-    var allSnapped = selected.every((m) {
-      var p = m.position;
-      return p.x % 1 == 0 && p.y % 1 == 0;
+    final allSnapped = selected.every((m) {
+      final p =
+          grid.grid.gridSnapCentered(m.position, m.displaySize).snapDeviation();
+      return p == m.position;
     });
     _selectedSnap.disabled = allSnapped;
   }
