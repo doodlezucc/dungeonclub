@@ -2,12 +2,16 @@ import 'dart:math';
 
 import 'package:dungeonclub/measuring/area_of_effect.dart';
 import 'package:dungeonclub/point_json.dart';
+import 'package:dungeonclub/shape_painter/painter.dart';
 import 'package:grid/grid.dart';
 
 import 'ruleset.dart';
 
 class DefaultHexMeasuringRuleset extends HexMeasuringRuleset
-    with SupportsSphere<HexagonalGrid>, SupportsCube<HexagonalGrid> {
+    with
+        SupportsSphere<HexagonalGrid>,
+        SupportsCube<HexagonalGrid>,
+        SupportsCone<HexagonalGrid> {
   static const degrees30 = pi / 6;
   static const degrees60 = pi / 3;
 
@@ -74,4 +78,9 @@ class DefaultHexMeasuringRuleset extends HexMeasuringRuleset
 
   @override
   HexCubeAreaOfEffect makeInstance() => HexCubeAreaOfEffect();
+
+  @override
+  Set<Point<int>> getTilesAffectedByPolygon(
+          Polygon polygon, HexagonalGrid grid) =>
+      MeasuringRuleset.getTilesOverlappingPolygon(grid, polygon.points);
 }

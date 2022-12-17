@@ -4,32 +4,7 @@ import 'package:dungeonclub/measuring/ruleset.dart';
 import 'package:grid/grid.dart';
 import 'package:meta/meta.dart';
 
-abstract class AreaOfEffectPainter with ShapeMaker {
-  void addShape(Shape shape);
-  void removeShape(Shape shape);
-}
-
-mixin ShapeMaker {
-  Circle circle();
-  Rect rect();
-}
-
-class ShapeGroup with ShapeMaker {
-  final ShapeMaker _maker;
-  final shapes = <Shape>[];
-
-  ShapeGroup(ShapeMaker maker) : _maker = maker;
-
-  Shape _wrap(Shape shape) {
-    shapes.add(shape);
-    return shape;
-  }
-
-  @override
-  Circle circle() => _wrap(_maker.circle());
-  @override
-  Rect rect() => _wrap(_maker.rect());
-}
+import '../shape_painter/painter.dart';
 
 abstract class AreaOfEffectTemplate<S extends _Supports> {
   S _ruleset;
@@ -44,7 +19,7 @@ abstract class AreaOfEffectTemplate<S extends _Supports> {
 
   void create(
     Point<double> origin,
-    AreaOfEffectPainter painter,
+    ShapePainter painter,
     S ruleset,
     Grid grid,
   ) {
@@ -58,7 +33,7 @@ abstract class AreaOfEffectTemplate<S extends _Supports> {
     }
   }
 
-  void dispose(AreaOfEffectPainter painter) {
+  void dispose(ShapePainter painter) {
     for (var shape in _group.shapes) {
       painter.removeShape(shape);
     }
@@ -181,12 +156,62 @@ class HexCubeAreaOfEffect extends CubeAreaOfEffect<HexagonalGrid> {
   }
 }
 
+class ConeAreaOfEffect<G extends Grid>
+    extends AreaOfEffectTemplate<SupportsCone<G>> {
+  Polygon _polygon;
+
+  Point<double> _origin;
+  Point<double> get origin => _origin;
+
+  double _distance;
+  double get distance => _distance;
+
+  @override
+  void initialize(Point<double> origin, ShapeMaker maker) {
+    _origin = origin;
+    _polygon = maker.polygon()..points = [origin, origin, origin];
+  }
+
+  @override
+  bool onMove(Point<double> position, double distance) {
+    if (distance == 0) {
+      if (_distance != 0) {
+        _distance = 0;
+        _polygon.points[1] = _polygon.points[2] = origin;
+        _polygon.handlePointsChanged();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    _distance = distance;
+
+    final u = position - origin;
+    final v = u * (distance / u.distanceTo(Point(0, 0)));
+
+    final p1 = origin + v + Point<double>(-v.y / 2, v.x / 2);
+    final p2 = origin + v + Point<double>(v.y / 2, -v.x / 2);
+
+    _polygon.points[1] = p1;
+    _polygon.points[2] = p2;
+    _polygon.handlePointsChanged();
+    return true;
+  }
+
+  @override
+  Set<Point<int>> getAffectedTiles() {
+    if (distance == 0) return const {};
+    return ruleset.getTilesAffectedByCone(_polygon, grid);
+  }
+}
+
 mixin _Supports<G extends Grid> on MeasuringRuleset<G> {}
 
 mixin SupportsSphere<G extends Grid> implements _Supports<G> {
   SphereAreaOfEffect<G> aoeSphere(
     Point<double> origin,
-    AreaOfEffectPainter painter,
+    ShapePainter painter,
     G grid,
   ) =>
       SphereAreaOfEffect()..create(origin, painter, this, grid);
@@ -197,7 +222,7 @@ mixin SupportsSphere<G extends Grid> implements _Supports<G> {
 mixin SupportsCube<G extends Grid> implements _Supports<G> {
   CubeAreaOfEffect aoeCube(
     Point<double> origin,
-    AreaOfEffectPainter painter,
+    ShapePainter painter,
     G grid,
   ) =>
       makeInstance()..create(origin, painter, this, grid);
@@ -206,14 +231,18 @@ mixin SupportsCube<G extends Grid> implements _Supports<G> {
   Set<Point<int>> getTilesAffectedByCube(CubeAreaOfEffect aoe);
 }
 
-mixin Shape {}
-
-mixin Circle implements Shape {
-  Point<double> center;
-  double radius;
+mixin SupportsPolygon<G extends Grid> implements _Supports<G> {
+  Set<Point<int>> getTilesAffectedByPolygon(Polygon polygon, G grid);
 }
 
-mixin Rect implements Shape {
-  Point position;
-  Point size;
+mixin SupportsCone<G extends Grid> implements SupportsPolygon<G> {
+  ConeAreaOfEffect aoeCone(
+    Point<double> origin,
+    ShapePainter painter,
+    G grid,
+  ) =>
+      ConeAreaOfEffect()..create(origin, painter, this, grid);
+
+  Set<Point<int>> getTilesAffectedByCone(Polygon polygon, G grid) =>
+      getTilesAffectedByPolygon(polygon, grid);
 }

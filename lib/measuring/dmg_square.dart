@@ -1,11 +1,15 @@
 import 'dart:math';
 import 'package:dungeonclub/measuring/area_of_effect.dart';
+import 'package:dungeonclub/shape_painter/painter.dart';
 import 'package:grid/grid.dart';
 
 import 'ruleset.dart';
 
 class DMGSquareMeasuringRuleset extends SquareMeasuringRuleset
-    with SupportsSphere<SquareGrid>, SupportsCube<SquareGrid> {
+    with
+        SupportsSphere<SquareGrid>,
+        SupportsCube<SquareGrid>,
+        SupportsCone<SquareGrid> {
   @override
   num distanceBetweenGridPoints(Grid grid, Point a, Point b) {
     return MeasuringRuleset.chebyshev(a, b);
@@ -18,21 +22,22 @@ class DMGSquareMeasuringRuleset extends SquareMeasuringRuleset
 
   @override
   Set<Point<int>> getTilesAffectedByCube(covariant SquareCubeAreaOfEffect aoe) {
-    final result = <Point<int>>{};
-
-    final boundsMin = aoe.boundsMin.round();
-    final boundsMax = aoe.boundsMax.round();
-
-    for (var x = boundsMin.x; x < boundsMax.x; x++) {
-      for (var y = boundsMin.y; y < boundsMax.y; y++) {
-        result.add(Point(x, y));
-      }
-    }
-
-    return result;
+    return MeasuringRuleset.getTilesInBounds(
+      aoe.boundsMin.round(),
+      aoe.boundsMax.round(),
+    );
   }
 
   @override
   SquareCubeAreaOfEffect makeInstance() =>
       SquareCubeAreaOfEffect(useDistance: true);
+
+  @override
+  Set<Point<int>> getTilesAffectedByPolygon(Polygon polygon, SquareGrid grid) =>
+      MeasuringRuleset.getTilesOverlappingPolygon(grid, polygon.points);
+
+  @override
+  Set<Point<int>> getTilesAffectedByCone(Polygon polygon, SquareGrid grid) =>
+      MeasuringRuleset.getTilesOverlappingPolygon(grid, polygon.points,
+          centerIndex: 0);
 }

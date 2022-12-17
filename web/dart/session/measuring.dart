@@ -3,7 +3,8 @@ import 'dart:svg' as svg;
 import 'dart:typed_data';
 
 import 'package:dungeonclub/measuring/area_of_effect.dart';
-import 'package:dungeonclub/measuring/area_of_effect_svg.dart';
+import 'package:dungeonclub/shape_painter/painter.dart';
+import 'package:dungeonclub/shape_painter/svg_painter.dart';
 import 'package:dungeonclub/measuring/ruleset.dart';
 import 'package:grid/grid.dart';
 import 'package:web_whiteboard/binary.dart';
@@ -343,7 +344,7 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
       grid.offset.cast<double>(),
       grid.cellSize.cast<double>(),
     );
-    final painter = AreaOfEffectSvgPainter(_e, transform);
+    final painter = SvgShapePainter(_e, transform);
     _aoe = createAoE(grid.measuringRuleset, painter, grid.grid);
     redraw(origin);
   }
@@ -393,8 +394,7 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
     }
   }
 
-  T createAoE(
-      MeasuringRuleset ruleset, AreaOfEffectPainter painter, Grid grid) {
+  T createAoE(MeasuringRuleset ruleset, ShapePainter painter, Grid grid) {
     throw UnimplementedError();
   }
 }
@@ -403,8 +403,8 @@ class MeasuringCircle extends CoveredMeasuring<SphereAreaOfEffect> {
   MeasuringCircle(Point<num> origin, int pc) : super(origin, pc);
 
   @override
-  SphereAreaOfEffect<Grid> createAoE(covariant SupportsSphere ruleset,
-          AreaOfEffectPainter painter, Grid grid) =>
+  SphereAreaOfEffect<Grid> createAoE(
+          covariant SupportsSphere ruleset, ShapePainter painter, Grid grid) =>
       ruleset.aoeSphere(origin, painter, grid);
 }
 
@@ -412,16 +412,22 @@ class MeasuringCube extends CoveredMeasuring<CubeAreaOfEffect> {
   MeasuringCube(Point origin, int pc) : super(origin, pc);
 
   @override
-  CubeAreaOfEffect<Grid> createAoE(covariant SupportsCube ruleset,
-          AreaOfEffectPainter painter, Grid grid) =>
+  CubeAreaOfEffect<Grid> createAoE(
+          covariant SupportsCube ruleset, ShapePainter painter, Grid grid) =>
       ruleset.aoeCube(origin, painter, grid);
 }
 
 class MeasuringCone extends CoveredMeasuring {
-  double lockedRadius;
+  double lockedRadius = 0;
   bool lockRadius = false;
 
   MeasuringCone(Point origin, int pc) : super(forceDoublePoint(origin), pc);
+
+  @override
+  void redraw(Point extra) {
+    super.redraw(extra);
+    lockedRadius = (_aoe as ConeAreaOfEffect).distance;
+  }
 
   @override
   void addPoint(Point<num> point) {
@@ -440,62 +446,10 @@ class MeasuringCone extends CoveredMeasuring {
     return false;
   }
 
-  // @override
-  // void redraw(Point extra) {
-  //   var distance = lockRadius
-  //       ? lockedRadius
-  //       : origin.distanceTo(forceDoublePoint(extra)).roundToDouble();
-
-  //   if (!lockRadius) {
-  //     lockedRadius = distance;
-  //   }
-
-  //   if (distance > 0) {
-  //     var vec = forceDoublePoint(extra) - origin;
-  //     var rounded = vec * (distance / vec.distanceTo(Point(0, 0)));
-
-  //     var p1 = origin + rounded + Point<double>(-rounded.y / 2, rounded.x / 2);
-  //     var p2 = origin + rounded + Point<double>(rounded.y / 2, -rounded.x / 2);
-
-  //     _e.setAttribute(
-  //         'points', '${_toSvg(origin)} ${_toSvg(p1)} ${_toSvg(p2)}');
-  //     _updateSquares(p1, p2, distance);
-  //   } else {
-  //     _e.setAttribute('points', '');
-  //     _squares.children.clear();
-  //   }
-
-  //   updateDistanceText(distance);
-  // }
-
-  // static String _toSvg(Point p) => '${p.x},${p.y}';
-
-  // void _updateSquares(Point<double> p1, Point<double> p2, double distance) {
-  //   Point<int> fixPoint(Point p) =>
-  //       Point((p.x + 0.5).floor(), (p.y + 0.5).floor());
-
-  //   var affected = <Point<int>>{};
-  //   var lengthStep = 0.3;
-
-  //   for (var w = 0.0; w <= 1; w += 0.2 / distance) {
-  //     var q = p1 + (p2 - p1) * w;
-  //     var vec = (q - origin) * (lengthStep / distance);
-
-  //     var p = origin + vec;
-
-  //     for (var l = lengthStep; l < distance; l += lengthStep) {
-  //       affected.add(fixPoint(p));
-  //       p += vec;
-  //     }
-  //   }
-
-  //   _squares.children.clear();
-  //   for (var p in affected) {
-  //     _squares.append(svg.RectElement()
-  //       ..setAttribute('x', '${p.x - 0.5}')
-  //       ..setAttribute('y', '${p.y - 0.5}'));
-  //   }
-  // }
+  @override
+  ConeAreaOfEffect createAoE(
+          covariant SupportsCone ruleset, ShapePainter painter, Grid grid) =>
+      ruleset.aoeCone(origin, painter, grid);
 }
 
 class MeasuringLine extends CoveredMeasuring {

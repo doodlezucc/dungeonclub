@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:svg' as svg;
 
-import 'package:dungeonclub/measuring/area_of_effect.dart';
+import 'painter.dart';
 
 class PaintTransform {
   final Point<double> offset;
@@ -17,11 +17,11 @@ class PaintTransform {
   }
 }
 
-class AreaOfEffectSvgPainter extends AreaOfEffectPainter {
+class SvgShapePainter extends ShapePainter {
   final svg.GElement rootElement;
   final PaintTransform transform;
 
-  AreaOfEffectSvgPainter(this.rootElement, this.transform);
+  SvgShapePainter(this.rootElement, this.transform);
 
   @override
   void addShape(covariant SvgShape e) {
@@ -38,13 +38,12 @@ class AreaOfEffectSvgPainter extends AreaOfEffectPainter {
 
   @override
   Rect rect() => SvgRect(transform);
+
+  @override
+  Polygon polygon() => SvgPolygon(transform);
 }
 
 extension SvgAttributeHelper on svg.SvgElement {
-  operator []=(String name, dynamic value) {
-    setAttribute(name, value);
-  }
-
   void attrPx(String name, dynamic value) {
     setAttribute(name, '${value}px');
   }
@@ -59,15 +58,13 @@ abstract class SvgShape<E extends svg.SvgElement> with Shape {
   final PaintTransform transform;
   final E element;
 
-  SvgShape(this.transform, this.element);
+  SvgShape(this.transform, this.element) {
+    element.classes.add('no-fill');
+  }
 }
 
 class SvgCircle extends SvgShape<svg.CircleElement> with Circle {
-  SvgCircle(PaintTransform transform)
-      : super(
-          transform,
-          svg.CircleElement()..classes.add('no-fill'),
-        );
+  SvgCircle(PaintTransform transform) : super(transform, svg.CircleElement());
 
   @override
   set radius(double r) {
@@ -84,11 +81,7 @@ class SvgCircle extends SvgShape<svg.CircleElement> with Circle {
 }
 
 class SvgRect extends SvgShape<svg.RectElement> with Rect {
-  SvgRect(PaintTransform transform)
-      : super(
-          transform,
-          svg.RectElement()..classes.add('no-fill'),
-        );
+  SvgRect(PaintTransform transform) : super(transform, svg.RectElement());
 
   @override
   set position(Point p) {
@@ -103,5 +96,19 @@ class SvgRect extends SvgShape<svg.RectElement> with Rect {
     final scale = transform.sizing;
     final normalized = Point(s.x * scale.x, s.y * scale.y);
     element.attrPoint('width', 'height', normalized);
+  }
+}
+
+class SvgPolygon extends SvgShape<svg.PolygonElement> with Polygon {
+  SvgPolygon(PaintTransform transform) : super(transform, svg.PolygonElement());
+
+  @override
+  void handlePointsChanged() {
+    final svgPointString = points.map((point) {
+      final p = transform.translate(point);
+      return '${p.x},${p.y}';
+    }).join(' ');
+
+    element.setAttribute('points', svgPointString);
   }
 }
