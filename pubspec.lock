@@ -100,7 +100,7 @@ packages:
       name: build_runner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.2"
+    version: "2.3.3"
   build_runner_core:
     dependency: transitive
     description:
@@ -253,7 +253,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "518258b9b23907fb3c97bd93fc53262ffe906365"
+      resolved-ref: ff26ac1680dcb2b81e18080e4fe99fdd7280d3b5
       url: "https://github.com/doodlezucc/dart_grid.git"
     source: git
     version: "0.1.0"

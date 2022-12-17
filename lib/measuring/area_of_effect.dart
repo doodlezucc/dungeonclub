@@ -193,6 +193,7 @@ class ConeAreaOfEffect<G extends Grid>
     final p1 = origin + v + Point<double>(-v.y / 2, v.x / 2);
     final p2 = origin + v + Point<double>(v.y / 2, -v.x / 2);
 
+    _polygon.points[0] = origin + v * (0.2 / distance);
     _polygon.points[1] = p1;
     _polygon.points[2] = p2;
     _polygon.handlePointsChanged();

@@ -76,7 +76,6 @@ abstract class MeasuringRuleset<T extends Grid> {
           result.add(tile);
         }
       } else {
-        normalizedTile -= Point(0.5, 0.5 * heightRatio);
         for (var point in grid.tileShape.points) {
           final sum = point + normalizedTile;
           if (sum.squaredDistanceTo(center) <= thresholdSqr) {
@@ -92,34 +91,31 @@ abstract class MeasuringRuleset<T extends Grid> {
 
   /// Returns all tiles which are intersecting or contained inside a polygon.
   static Set<Point<int>> getTilesOverlappingPolygon(
-    TiledGrid grid,
-    List<Point<double>> points, {
-    int centerIndex,
-  }) {
+      TiledGrid grid, List<Point<double>> points) {
     final bbox = _pointsToBoundingBox(points);
-    final boundsMin = bbox.topLeft.floor();
-    final boundsMax = bbox.bottomRight.floor() + Point(1, 1);
+    final boundsMin = bbox.topLeft.floor() - Point(1, 1);
+    final boundsMax = bbox.bottomRight.floor() + Point(2, 2);
 
     final tilePoints = grid.tileShape.points;
     final bboxTile = _pointsToBoundingBox(tilePoints);
 
     final result = <Point<int>>{};
-    final centerPoint = centerIndex != null ? points[centerIndex] : null;
 
     for (var tile in getTilesInBounds(boundsMin, boundsMax)) {
-      final tileCast = tile.cast<double>();
+      final tileCenter = grid.tileCenterInGrid(tile);
       final bboxShifted = Rectangle(
-        bbox.left - tileCast.x,
-        bbox.top - tileCast.y,
+        bbox.left - tileCenter.x,
+        bbox.top - tileCenter.y,
         bbox.width,
         bbox.height,
       );
 
       if (!bboxTile.intersects(bboxShifted)) continue;
 
-      final pointsShifted = points.map((p) => p - tileCast).toList();
+      final pointsShifted = points.map((p) => p - tileCenter).toList();
       var contained = false;
 
+      // Check for tile points inside the polygon
       for (var p in tilePoints) {
         if (pointInsidePolygonPoints(p, pointsShifted, allowEdges: false)) {
           result.add(tile);
@@ -129,32 +125,12 @@ abstract class MeasuringRuleset<T extends Grid> {
       }
 
       if (!contained) {
-        // "skip(1)": Don't check if the AoE origin lies inside this tile
-        Iterable<Point<double>> pointsShiftedExcept = pointsShifted;
-
-        if (centerIndex != null) {
-          pointsShiftedExcept = pointsShifted
-              .take(centerIndex)
-              .followedBy(pointsShifted.skip(centerIndex + 1));
-        }
-
-        for (var p in pointsShiftedExcept) {
+        // Check for polygon points inside the tile
+        for (var p in pointsShifted) {
           if (pointInsidePolygonPoints(p, tilePoints, allowEdges: false)) {
             result.add(tile);
             break;
           }
-        }
-      }
-    }
-
-    // Additionally check centers of tiles around center point
-    if (centerPoint != null) {
-      final centerRounded = centerPoint.round();
-      for (var tile in getTilesInBounds(
-          centerRounded - Point(2, 2), centerRounded + Point(2, 2))) {
-        final tileCenter = grid.tileCenterInGrid(tile);
-        if (pointInsidePolygonPoints(tileCenter, points, allowEdges: false)) {
-          result.add(tile);
         }
       }
     }

@@ -35,9 +35,4 @@ class DMGSquareMeasuringRuleset extends SquareMeasuringRuleset
   @override
   Set<Point<int>> getTilesAffectedByPolygon(Polygon polygon, SquareGrid grid) =>
       MeasuringRuleset.getTilesOverlappingPolygon(grid, polygon.points);
-
-  @override
-  Set<Point<int>> getTilesAffectedByCone(Polygon polygon, SquareGrid grid) =>
-      MeasuringRuleset.getTilesOverlappingPolygon(grid, polygon.points,
-          centerIndex: 0);
 }

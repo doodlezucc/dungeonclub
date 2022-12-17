@@ -324,48 +324,47 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
   final _tiles = svg.GElement();
   T _aoe;
 
+  double _tileDistance;
+  double get tileDistance => _tileDistance;
+
   CoveredMeasuring(Point origin, int pc) : super(origin, svg.GElement(), pc) {
     _applyCircleGridToWorld(_center, origin);
-
-    final grid = Measuring.getGrid();
-    final tilesTransform =
-        'translate(-${grid.cellWidth / 2} -${grid.cellHeight / 2})';
-
-    _tiles
-      ..setAttribute('transform', tilesTransform)
-      ..setAttribute('fill', '${color}60');
+    _tiles.setAttribute('fill', '${color}60');
     _e
       ..append(_tiles)
       ..append(_center);
 
     _measuringRoot.append(_e);
 
+    final grid = Measuring.getGrid();
     final transform = PaintTransform(
       grid.offset.cast<double>(),
       grid.cellSize.cast<double>(),
     );
     final painter = SvgShapePainter(_e, transform);
     _aoe = createAoE(grid.measuringRuleset, painter, grid.grid);
+
+    final aoeGrid = _aoe.grid;
+    _tileDistance = _aoe.distanceMultiplier;
+    if (aoeGrid is HexagonalGrid) {
+      _tileDistance *= aoeGrid.tileDistance;
+    }
+
     redraw(origin);
   }
 
   @override
-  void redraw(Point extra) {
+  void redraw(Point extra, {double overrideDistance}) {
     final extraCast = extra.cast<double>();
     final sceneGrid = Measuring.getGrid();
     final grid = sceneGrid.grid;
     final ruleset = sceneGrid.measuringRuleset;
 
-    double distance =
+    double distance = overrideDistance ??
         ruleset.distanceBetweenGridPoints(grid, origin, extraCast);
 
-    var tileDistance = _aoe.distanceMultiplier;
-    if (grid is TiledGrid) {
-      if (grid is HexagonalGrid) {
-        tileDistance *= grid.tileDistance;
-        distance /= tileDistance;
-      }
-      distance = distance.roundToDouble();
+    if (overrideDistance == null && grid is TiledGrid) {
+      distance = (distance / tileDistance).roundToDouble();
     }
 
     updateDistanceText(distance);
@@ -417,20 +416,20 @@ class MeasuringCube extends CoveredMeasuring<CubeAreaOfEffect> {
       ruleset.aoeCube(origin, painter, grid);
 }
 
-class MeasuringCone extends CoveredMeasuring {
+class MeasuringCone extends CoveredMeasuring<ConeAreaOfEffect> {
   double lockedRadius = 0;
   bool lockRadius = false;
 
   MeasuringCone(Point origin, int pc) : super(forceDoublePoint(origin), pc);
 
   @override
-  void redraw(Point extra) {
-    super.redraw(extra);
-    lockedRadius = (_aoe as ConeAreaOfEffect).distance;
+  void redraw(Point extra, {double overrideDistance}) {
+    super.redraw(extra, overrideDistance: lockRadius ? lockedRadius : null);
   }
 
   @override
-  void addPoint(Point<num> point) {
+  void addPoint(Point point) {
+    lockedRadius = _aoe.distance / tileDistance;
     lockRadius = !lockRadius;
   }
 
