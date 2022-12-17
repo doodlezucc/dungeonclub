@@ -28,7 +28,7 @@ class FogOfWar {
     captureInput: false,
     cropMargin: _marginPx,
   )
-    ..toolBrushStroke.shape = shapeSquare
+    ..toolBrushStroke.shape = shapeCircle
     ..movementScale = 2;
 
   String get tooltip => tooltips[canvas.activeTool.runtimeType];
