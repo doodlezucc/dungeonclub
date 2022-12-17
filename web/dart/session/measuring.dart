@@ -21,7 +21,7 @@ const MEASURING_CUBE = 3;
 const MEASURING_LINE = 4;
 
 const measuringPort = 80;
-const _precision = 63;
+const _precision = 255;
 final Map<int, Measuring> _pcMeasurings = {};
 
 final HtmlElement _toolbox = querySelector('#measureTools');
@@ -115,6 +115,7 @@ void handleMeasuringEvent(Uint8List bytes) {
   switch (event) {
     case 0:
       var m = Measuring.create(reader.readUInt8(), _readPrecision(reader), pc);
+      m.isLocalPlayer = false;
       m.alignDistanceText(reader.readPoint());
       user.session.board.transform.applyInvZoom(); // Rescale distance text
       return;
@@ -148,7 +149,7 @@ abstract class Measuring {
   final HtmlElement _distanceText;
   final Point<double> origin;
   final String color;
-  int snapSize;
+  bool isLocalPlayer = true;
 
   Measuring(Point origin, this._e, int pc, [svg.SvgElement root])
       : origin = origin.cast<double>(),
@@ -203,14 +204,16 @@ abstract class Measuring {
   }
 
   void handleUpdateEvent(BinaryReader reader) {
-    var extra = _readPrecision(reader);
-    alignDistanceText(extra * user.session.board.grid.cellWidth);
-    if (handleSpecifics(reader)) return;
+    final extra = _readPrecision(reader);
+    final scale = user.session.board.grid.cellSize;
+    alignDistanceText(Point(extra.x * scale.x, extra.y * scale.y));
+
+    handleSpecifics(reader);
     redraw(extra);
   }
 
   void writeSpecifics(BinaryWriter writer) {}
-  bool handleSpecifics(BinaryReader reader) => false;
+  void handleSpecifics(BinaryReader reader) {}
 }
 
 class MeasuringPath extends Measuring {
@@ -248,12 +251,11 @@ class MeasuringPath extends Measuring {
   }
 
   @override
-  bool handleSpecifics(BinaryReader reader) {
+  void handleSpecifics(BinaryReader reader) {
     var nPoints = reader.readUInt8();
     for (var i = 0; i < nPoints; i++) {
       addPoint(_readPrecision(reader));
     }
-    return false;
   }
 
   Point snapped(Point p) {
@@ -326,6 +328,12 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
   double _tileDistance;
   double get tileDistance => _tileDistance;
 
+  @override
+  set isLocalPlayer(bool v) {
+    super.isLocalPlayer = v;
+    _aoe.isLocal = v;
+  }
+
   CoveredMeasuring(Point origin, int pc) : super(origin, svg.GElement(), pc) {
     _applyCircleGridToWorld(_center, origin);
     _tiles.setAttribute('fill', '${color}60');
@@ -396,7 +404,7 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
 }
 
 class MeasuringCircle extends CoveredMeasuring<SphereAreaOfEffect> {
-  MeasuringCircle(Point<num> origin, int pc) : super(origin, pc);
+  MeasuringCircle(Point origin, int pc) : super(origin, pc);
 
   @override
   SphereAreaOfEffect<Grid> createAoE(
@@ -432,14 +440,13 @@ class MeasuringCone extends CoveredMeasuring<ConeAreaOfEffect> {
 
   @override
   void writeSpecifics(BinaryWriter writer) {
-    writer.writeUInt8(lockedRadius.toInt());
+    writer.writeUInt16((_aoe.distance * _precision).toInt());
   }
 
   @override
-  bool handleSpecifics(BinaryReader reader) {
+  void handleSpecifics(BinaryReader reader) {
     lockRadius = true;
-    lockedRadius = reader.readUInt8().toDouble();
-    return false;
+    lockedRadius = reader.readUInt16() / _precision;
   }
 
   @override
@@ -458,15 +465,16 @@ class MeasuringLine extends CoveredMeasuring<LineAreaOfEffect> {
 
   @override
   void writeSpecifics(BinaryWriter writer) {
+    writer.writeBool(_aoe.changeWidth);
     _writePrecision(writer, _aoe.end);
-    writer.writeUInt8(_aoe.width.round());
+    writer.writeUInt16((_aoe.width * _precision).round());
   }
 
   @override
-  bool handleSpecifics(BinaryReader reader) {
+  void handleSpecifics(BinaryReader reader) {
+    _aoe.changeWidth = reader.readBool();
     _aoe.end = _readPrecision(reader);
-    _aoe.width = reader.readUInt8().toDouble();
-    return true;
+    _aoe.width = reader.readUInt16() / _precision;
   }
 
   @override

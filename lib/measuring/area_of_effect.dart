@@ -16,6 +16,7 @@ abstract class AreaOfEffectTemplate<S extends _Supports> {
   double get distanceMultiplier => 1;
 
   ShapeGroup _group;
+  bool isLocal = true;
 
   void create(
     Point<double> origin,
@@ -238,6 +239,17 @@ class LineAreaOfEffect<G extends Grid>
 
   @override
   bool onMove(Point<double> position, double distance) {
+    if (!isLocal) {
+      if (!changeWidth) {
+        if (distance == 0) {
+          return _setZeroLength();
+        }
+        _length = distance;
+      }
+      _updatePolygon(end);
+      return true;
+    }
+
     if (!changeWidth) {
       return _onMoveEndPoint(position, distance);
     } else {
@@ -245,16 +257,20 @@ class LineAreaOfEffect<G extends Grid>
     }
   }
 
+  bool _setZeroLength() {
+    if (_length != 0) {
+      _length = 0;
+      _polygon.points.fillRange(0, 4, origin);
+      _polygon.handlePointsChanged();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   bool _onMoveEndPoint(Point<double> position, double distance) {
     if (distance == 0) {
-      if (_length != 0) {
-        _length = 0;
-        _polygon.points.fillRange(0, 4, origin);
-        _polygon.handlePointsChanged();
-        return true;
-      } else {
-        return false;
-      }
+      return _setZeroLength();
     }
 
     _exactEnd = position;
