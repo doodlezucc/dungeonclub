@@ -253,7 +253,7 @@ class LineAreaOfEffect<G extends Grid>
     if (!changeWidth) {
       return _onMoveEndPoint(position, distance);
     } else {
-      return _onMoveWidth(position, distance);
+      return _onMoveWidth(position, distance, round: grid is TiledGrid);
     }
   }
 
@@ -323,7 +323,7 @@ class LineAreaOfEffect<G extends Grid>
   @override
   Set<Point<int>> getAffectedTiles() {
     if (length == 0) return const {};
-    if (width == 0) {
+    if (width == 0 && grid is TiledGrid) {
       return MeasuringRuleset.getTilesOverlappingLine(grid, origin, end);
     }
     return ruleset.getTilesAffectedByLine(_polygon, grid, length);

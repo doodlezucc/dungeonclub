@@ -929,10 +929,19 @@ class Board {
     Point measureEnd;
     var hasChanged = false;
 
-    var syncTimer = Timer.periodic(Duration(milliseconds: 100), (_) {
-      if (hasChanged && isPublic) {
+    // ~30 FPS transmission
+    var syncTimer = Timer.periodic(Duration(milliseconds: 33), (_) {
+      if (hasChanged) {
         hasChanged = false;
-        m.sendUpdateEvent(measureEnd);
+
+        measureEnd = worldToGrid(p);
+
+        m.redraw(measureEnd);
+        m.alignDistanceText(p);
+
+        if (isPublic) {
+          m.sendUpdateEvent(measureEnd);
+        }
       }
     });
 
@@ -944,7 +953,6 @@ class Board {
 
     moveStream.listen((ev) {
       p = ev.p * (1 / scaledZoom);
-      measureEnd = worldToGrid(p);
 
       if (ev.button == 2) {
         m.addPoint(measureEnd);
@@ -952,8 +960,6 @@ class Board {
         _measureSticky.classes.toggle('active');
       }
 
-      m.redraw(measureEnd);
-      m.alignDistanceText(p);
       hasChanged = true;
     }, onDone: () {
       keySub.cancel();
