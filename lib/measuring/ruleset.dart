@@ -90,8 +90,14 @@ abstract class MeasuringRuleset<T extends Grid> {
   }
 
   /// Returns all tiles which are intersecting or contained inside a polygon.
+  ///
+  /// If `checkCenter` is true, tile centers are included in the calculation
+  /// (instead of only the outlining points of a tile).
   static Set<Point<int>> getTilesOverlappingPolygon(
-      TiledGrid grid, List<Point<double>> points) {
+    TiledGrid grid,
+    List<Point<double>> points, {
+    bool checkCenter = false,
+  }) {
     final bbox = _pointsToBoundingBox(points);
     final boundsMin = bbox.topLeft.floor() - Point(1, 1);
     final boundsMax = bbox.bottomRight.floor() + Point(2, 2);
@@ -124,13 +130,26 @@ abstract class MeasuringRuleset<T extends Grid> {
         }
       }
 
-      if (!contained) {
-        // Check for polygon points inside the tile
-        for (var p in pointsShifted) {
-          if (pointInsidePolygonPoints(p, tilePoints, allowEdges: false)) {
-            result.add(tile);
-            break;
-          }
+      if (contained) continue;
+
+      if (checkCenter) {
+        final centerInPolygon = pointInsidePolygonPoints(
+          const Point(0, 0),
+          pointsShifted,
+          allowEdges: false,
+        );
+
+        if (centerInPolygon) {
+          result.add(tile);
+          continue;
+        }
+      }
+
+      // Check for polygon points inside the tile
+      for (var p in pointsShifted) {
+        if (pointInsidePolygonPoints(p, tilePoints, allowEdges: false)) {
+          result.add(tile);
+          break;
         }
       }
     }

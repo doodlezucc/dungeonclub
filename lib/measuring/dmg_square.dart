@@ -9,7 +9,8 @@ class DMGSquareMeasuringRuleset extends SquareMeasuringRuleset
     with
         SupportsSphere<SquareGrid>,
         SupportsCube<SquareGrid>,
-        SupportsCone<SquareGrid> {
+        SupportsCone<SquareGrid>,
+        SupportsLine<SquareGrid> {
   @override
   num distanceBetweenGridPoints(Grid grid, Point a, Point b) {
     return MeasuringRuleset.chebyshev(a, b);
@@ -33,6 +34,8 @@ class DMGSquareMeasuringRuleset extends SquareMeasuringRuleset
       SquareCubeAreaOfEffect(useDistance: true);
 
   @override
-  Set<Point<int>> getTilesAffectedByPolygon(Polygon polygon, SquareGrid grid) =>
-      MeasuringRuleset.getTilesOverlappingPolygon(grid, polygon.points);
+  Set<Point<int>> getTilesAffectedByPolygon(Polygon polygon, SquareGrid grid,
+          {bool checkCenter = false}) =>
+      MeasuringRuleset.getTilesOverlappingPolygon(grid, polygon.points,
+          checkCenter: checkCenter);
 }

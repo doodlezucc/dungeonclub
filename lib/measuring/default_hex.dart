@@ -11,7 +11,8 @@ class DefaultHexMeasuringRuleset extends HexMeasuringRuleset
     with
         SupportsSphere<HexagonalGrid>,
         SupportsCube<HexagonalGrid>,
-        SupportsCone<HexagonalGrid> {
+        SupportsCone<HexagonalGrid>,
+        SupportsLine<HexagonalGrid> {
   static const degrees30 = pi / 6;
   static const degrees60 = pi / 3;
 
@@ -80,7 +81,8 @@ class DefaultHexMeasuringRuleset extends HexMeasuringRuleset
   HexCubeAreaOfEffect makeInstance() => HexCubeAreaOfEffect();
 
   @override
-  Set<Point<int>> getTilesAffectedByPolygon(
-          Polygon polygon, HexagonalGrid grid) =>
-      MeasuringRuleset.getTilesOverlappingPolygon(grid, polygon.points);
+  Set<Point<int>> getTilesAffectedByPolygon(Polygon polygon, HexagonalGrid grid,
+          {bool checkCenter = false}) =>
+      MeasuringRuleset.getTilesOverlappingPolygon(grid, polygon.points,
+          checkCenter: checkCenter);
 }

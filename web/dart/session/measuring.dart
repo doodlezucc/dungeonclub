@@ -28,7 +28,6 @@ final HtmlElement _toolbox = querySelector('#measureTools');
 final svg.SvgSvgElement _measuringRoot = querySelector('#measureCanvas');
 final svg.PolygonElement _measuringTile = _measuringRoot.querySelector('#tile');
 final svg.SvgSvgElement _distanceRoot = querySelector('#distanceCanvas');
-double _bufferedLineWidth = 1;
 
 int _measureMode;
 int get measureMode => _measureMode;
@@ -393,9 +392,7 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
     }
   }
 
-  T createAoE(MeasuringRuleset ruleset, ShapePainter painter, Grid grid) {
-    throw UnimplementedError();
-  }
+  T createAoE(MeasuringRuleset ruleset, ShapePainter painter, Grid grid);
 }
 
 class MeasuringCircle extends CoveredMeasuring<SphereAreaOfEffect> {
@@ -420,7 +417,7 @@ class MeasuringCone extends CoveredMeasuring<ConeAreaOfEffect> {
   double lockedRadius = 0;
   bool lockRadius = false;
 
-  MeasuringCone(Point origin, int pc) : super(forceDoublePoint(origin), pc);
+  MeasuringCone(Point origin, int pc) : super(origin, pc);
 
   @override
   void redraw(Point extra, {double overrideDistance}) {
@@ -451,15 +448,18 @@ class MeasuringCone extends CoveredMeasuring<ConeAreaOfEffect> {
       ruleset.aoeCone(origin, painter, grid);
 }
 
-class MeasuringLine extends CoveredMeasuring {
+class MeasuringLine extends CoveredMeasuring<LineAreaOfEffect> {
   Point endBuffered;
-  double width = _bufferedLineWidth;
+  double width = 1;
   bool changeWidth = false;
 
-  MeasuringLine(Point origin, int pc) : super(forceDoublePoint(origin), pc);
+  MeasuringLine(Point origin, int pc) : super(origin, pc) {
+    endBuffered = origin;
+    _aoe.width = width;
+  }
 
   @override
-  void addPoint(Point<num> point) {
+  void addPoint(Point point) {
     changeWidth = !changeWidth;
   }
 
@@ -474,76 +474,13 @@ class MeasuringLine extends CoveredMeasuring {
     endBuffered = _readPrecision(reader);
     width = reader.readUInt8().toDouble();
     changeWidth = false;
-    // _update(endBuffered);
     return true;
   }
 
-  // @override
-  // void redraw(Point extra) {
-  //   if (!changeWidth) {
-  //     _update(extra);
-  //   } else {
-  //     var distance =
-  //         endBuffered.distanceTo(forceDoublePoint(extra)).roundToDouble();
-  //     width = distance;
-  //     _bufferedLineWidth = distance;
-  //     _update(endBuffered);
-  //   }
-  // }
-
-  // void _update(Point extra) {
-  //   extra = forceDoublePoint(extra);
-  //   var distance = origin.distanceTo(extra).roundToDouble();
-  //   distance = max(0, distance - 1);
-
-  //   if (distance > 0) {
-  //     var vec = forceDoublePoint(extra - origin);
-  //     var norm = vec * (1 / vec.distanceTo(Point(0, 0)));
-  //     var end = origin + norm * distance;
-  //     var right = Point(-norm.y, norm.x) * (width / 2);
-
-  //     var p1 = origin + right;
-  //     var p2 = end + right;
-  //     var q1 = origin - right;
-  //     var q2 = end - right;
-
-  //     _e.setAttribute(
-  //         'points', '${_toSvg(p1)} ${_toSvg(p2)} ${_toSvg(q2)} ${_toSvg(q1)}');
-  //     _updateSquares(norm, right, distance);
-  //   } else {
-  //     _e.setAttribute('points', '');
-  //     _squares.children.clear();
-  //   }
-
-  //   endBuffered = extra;
-  //   updateDistanceText(changeWidth ? width : distance);
-  // }
-
-  // static String _toSvg(Point p) => '${p.x},${p.y}';
-
-  // void _updateSquares(Point norm, Point right, double distance) {
-  //   Point<int> fixPoint(Point p) =>
-  //       Point((p.x + 0.5).floor(), (p.y + 0.5).floor());
-
-  //   var affected = <Point<int>>{};
-  //   var lengthStep = 1;
-
-  //   for (var w = -1.0; w <= 1; w += 0.5 / width) {
-  //     var p = origin + right * w;
-
-  //     for (var l = 0; l <= distance; l += lengthStep) {
-  //       affected.add(fixPoint(p));
-  //       p += norm * lengthStep;
-  //     }
-  //   }
-
-  //   _squares.children.clear();
-  //   for (var p in affected) {
-  //     _squares.append(svg.RectElement()
-  //       ..setAttribute('x', '${p.x - 0.5}')
-  //       ..setAttribute('y', '${p.y - 0.5}'));
-  //   }
-  // }
+  @override
+  LineAreaOfEffect createAoE(
+          covariant SupportsLine ruleset, ShapePainter painter, Grid grid) =>
+      ruleset.aoeLine(origin, painter, grid);
 }
 
 void _applyCircle(svg.CircleElement elem, Point p) {

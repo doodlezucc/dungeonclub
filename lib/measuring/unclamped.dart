@@ -9,7 +9,8 @@ class UnclampedMeasuringRuleset extends MeasuringRuleset<UnclampedGrid>
     with
         SupportsSphere<UnclampedGrid>,
         SupportsCube<UnclampedGrid>,
-        SupportsCone<UnclampedGrid> {
+        SupportsCone<UnclampedGrid>,
+        SupportsLine<UnclampedGrid> {
   @override
   num distanceBetweenGridPoints(UnclampedGrid grid, Point a, Point b) {
     return a.distanceTo(b); // Standard euclidean distance
@@ -25,7 +26,7 @@ class UnclampedMeasuringRuleset extends MeasuringRuleset<UnclampedGrid>
   CubeAreaOfEffect makeInstance() => SquareCubeAreaOfEffect(useDistance: false);
 
   @override
-  Set<Point<int>> getTilesAffectedByPolygon(
-          Polygon polygon, UnclampedGrid grid) =>
+  Set<Point<int>> getTilesAffectedByPolygon(Polygon polygon, UnclampedGrid grid,
+          {bool checkCenter = false}) =>
       const {};
 }

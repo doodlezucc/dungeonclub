@@ -177,7 +177,7 @@ class ConeAreaOfEffect<G extends Grid>
     if (distance == 0) {
       if (_distance != 0) {
         _distance = 0;
-        _polygon.points[1] = _polygon.points[2] = origin;
+        _polygon.points.fillRange(0, 3, origin);
         _polygon.handlePointsChanged();
         return true;
       } else {
@@ -188,12 +188,13 @@ class ConeAreaOfEffect<G extends Grid>
     _distance = distance;
 
     final u = position - origin;
-    final v = u * (distance / u.distanceTo(Point(0, 0)));
+    final normal = u * (1 / u.distanceTo(Point(0, 0)));
+    final v = normal * distance;
 
-    final p1 = origin + v + Point<double>(-v.y / 2, v.x / 2);
-    final p2 = origin + v + Point<double>(v.y / 2, -v.x / 2);
+    final p1 = origin + v + Point(-v.y / 2, v.x / 2);
+    final p2 = origin + v + Point(v.y / 2, -v.x / 2);
 
-    _polygon.points[0] = origin + v * (0.2 / distance);
+    _polygon.points[0] = origin + normal * 0.2;
     _polygon.points[1] = p1;
     _polygon.points[2] = p2;
     _polygon.handlePointsChanged();
@@ -204,6 +205,65 @@ class ConeAreaOfEffect<G extends Grid>
   Set<Point<int>> getAffectedTiles() {
     if (distance == 0) return const {};
     return ruleset.getTilesAffectedByCone(_polygon, grid);
+  }
+}
+
+class LineAreaOfEffect<G extends Grid>
+    extends AreaOfEffectTemplate<SupportsLine<G>> {
+  Polygon _polygon;
+
+  Point<double> _origin;
+  Point<double> get origin => _origin;
+
+  double _length;
+  double get length => _length;
+
+  double width;
+
+  @override
+  void initialize(Point<double> origin, ShapeMaker maker) {
+    _origin = origin;
+    _polygon = maker.polygon()..points = [origin, origin, origin, origin];
+    width = 1;
+  }
+
+  @override
+  bool onMove(Point<double> position, double distance) {
+    if (distance == 0) {
+      if (_length != 0) {
+        _length = 0;
+        _polygon.points.fillRange(0, 4, origin);
+        _polygon.handlePointsChanged();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    _length = distance;
+
+    final u = position - origin;
+    final normal = u * (1 / u.distanceTo(Point(0, 0)));
+    final v = normal * width;
+
+    final start = origin + normal * 0.1;
+    final end = origin + normal * length;
+
+    final l = Point(-v.y / 2, v.x / 2);
+    final r = Point(v.y / 2, -v.x / 2);
+
+    _polygon.points[0] = start + l;
+    _polygon.points[1] = start + r;
+    _polygon.points[2] = end + r;
+    _polygon.points[3] = end + l;
+    _polygon.handlePointsChanged();
+    return true;
+  }
+
+  @override
+  Set<Point<int>> getAffectedTiles() {
+    if (length == 0) return const {};
+    return ruleset.getTilesAffectedByLine(_polygon, grid, length);
   }
 }
 
@@ -233,7 +293,8 @@ mixin SupportsCube<G extends Grid> implements _Supports<G> {
 }
 
 mixin SupportsPolygon<G extends Grid> implements _Supports<G> {
-  Set<Point<int>> getTilesAffectedByPolygon(Polygon polygon, G grid);
+  Set<Point<int>> getTilesAffectedByPolygon(Polygon polygon, G grid,
+      {bool checkCenter = false});
 }
 
 mixin SupportsCone<G extends Grid> implements SupportsPolygon<G> {
@@ -246,4 +307,20 @@ mixin SupportsCone<G extends Grid> implements SupportsPolygon<G> {
 
   Set<Point<int>> getTilesAffectedByCone(Polygon polygon, G grid) =>
       getTilesAffectedByPolygon(polygon, grid);
+}
+
+mixin SupportsLine<G extends Grid> implements SupportsPolygon<G> {
+  LineAreaOfEffect aoeLine(
+    Point<double> origin,
+    ShapePainter painter,
+    G grid,
+  ) =>
+      LineAreaOfEffect()..create(origin, painter, this, grid);
+
+  Set<Point<int>> getTilesAffectedByLine(
+    Polygon polygon,
+    G grid,
+    double lineLength,
+  ) =>
+      getTilesAffectedByPolygon(polygon, grid, checkCenter: lineLength < 2);
 }
