@@ -157,6 +157,32 @@ abstract class MeasuringRuleset<T extends Grid> {
     return result;
   }
 
+  /// Returns all tiles which are intersecting a line from `a` to `b`.
+  static Set<Point<int>> getTilesOverlappingLine(
+    TiledGrid grid,
+    Point<double> a,
+    Point<double> b,
+  ) {
+    final bbox = _pointsToBoundingBox([a, b]);
+    final boundsMin = bbox.topLeft.floor() - Point(1, 1);
+    final boundsMax = bbox.bottomRight.floor() + Point(2, 2);
+
+    final tilePoints = grid.tileShape.points;
+    final result = <Point<int>>{};
+
+    for (var tile in getTilesInBounds(boundsMin, boundsMax)) {
+      final tileCenter = grid.tileCenterInGrid(tile);
+
+      final u = a - tileCenter;
+      final v = b - tileCenter;
+      if (_polygonIntersectsLine(tilePoints, u, v)) {
+        result.add(tile);
+      }
+    }
+
+    return result;
+  }
+
   num distanceBetweenGridPoints(T grid, Point a, Point b);
 }
 
@@ -187,4 +213,17 @@ Rectangle _pointsToBoundingBox(List<Point> points) {
   }
 
   return Rectangle(xMin, yMin, xMax - xMin, yMax - yMin);
+}
+
+bool _polygonIntersectsLine(List<Point> points, Point a, Point b) {
+  var u = points.last;
+  for (var i = 0; i < points.length; i++) {
+    var v = points[i];
+
+    if (segmentIntersect(a, b, u, v) != null) return true;
+
+    u = v;
+  }
+
+  return false;
 }

@@ -232,7 +232,7 @@ class LineAreaOfEffect<G extends Grid>
 
   @override
   void initialize(Point<double> origin, ShapeMaker maker) {
-    end = _origin = origin;
+    _exactEnd = end = _origin = origin;
     _polygon = maker.polygon()..points = [origin, origin, origin, origin];
   }
 
@@ -265,6 +265,8 @@ class LineAreaOfEffect<G extends Grid>
 
   void _updatePolygon(Point<double> endPoint) {
     final u = endPoint - origin;
+    if (u == Point(0, 0)) return;
+
     final normal = u * (1 / u.distanceTo(Point(0, 0)));
     final v = normal * width;
 
@@ -305,6 +307,9 @@ class LineAreaOfEffect<G extends Grid>
   @override
   Set<Point<int>> getAffectedTiles() {
     if (length == 0) return const {};
+    if (width == 0) {
+      return MeasuringRuleset.getTilesOverlappingLine(grid, origin, end);
+    }
     return ruleset.getTilesAffectedByLine(_polygon, grid, length);
   }
 }
