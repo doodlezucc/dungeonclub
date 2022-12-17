@@ -39,6 +39,11 @@ abstract class AreaOfEffectTemplate<S extends _Supports> {
     }
   }
 
+  /// Length to be displayed to the user.
+  double getRelevantLength(double distance) {
+    return distance;
+  }
+
   Set<Point<int>> getAffectedTiles();
 
   @protected
@@ -215,20 +220,32 @@ class LineAreaOfEffect<G extends Grid>
   Point<double> _origin;
   Point<double> get origin => _origin;
 
+  Point<double> _start;
+  Point<double> _exactEnd;
+  Point<double> end;
+
   double _length;
   double get length => _length;
 
-  double width;
+  bool changeWidth = false;
+  double width = 1;
 
   @override
   void initialize(Point<double> origin, ShapeMaker maker) {
-    _origin = origin;
+    end = _origin = origin;
     _polygon = maker.polygon()..points = [origin, origin, origin, origin];
-    width = 1;
   }
 
   @override
   bool onMove(Point<double> position, double distance) {
+    if (!changeWidth) {
+      return _onMoveEndPoint(position, distance);
+    } else {
+      return _onMoveWidth(position, distance);
+    }
+  }
+
+  bool _onMoveEndPoint(Point<double> position, double distance) {
     if (distance == 0) {
       if (_length != 0) {
         _length = 0;
@@ -240,24 +257,49 @@ class LineAreaOfEffect<G extends Grid>
       }
     }
 
+    _exactEnd = position;
     _length = distance;
+    _updatePolygon(position);
+    return true;
+  }
 
-    final u = position - origin;
+  void _updatePolygon(Point<double> endPoint) {
+    final u = endPoint - origin;
     final normal = u * (1 / u.distanceTo(Point(0, 0)));
     final v = normal * width;
 
-    final start = origin + normal * 0.1;
-    final end = origin + normal * length;
+    _start = origin + normal * 0.1;
+    end = origin + normal * length;
 
     final l = Point(-v.y / 2, v.x / 2);
     final r = Point(v.y / 2, -v.x / 2);
 
-    _polygon.points[0] = start + l;
-    _polygon.points[1] = start + r;
+    _polygon.points[0] = _start + l;
+    _polygon.points[1] = _start + r;
     _polygon.points[2] = end + r;
     _polygon.points[3] = end + l;
     _polygon.handlePointsChanged();
+  }
+
+  bool _onMoveWidth(
+    Point<double> position,
+    double distance, {
+    bool round = true,
+  }) {
+    final v = position - _exactEnd;
+    var dist = v.magnitude;
+
+    if (round) dist = dist.roundToDouble();
+
+    if (width == dist) return false;
+    width = dist;
+    _updatePolygon(end);
     return true;
+  }
+
+  @override
+  double getRelevantLength(double distance) {
+    return changeWidth ? width : distance;
   }
 
   @override

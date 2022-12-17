@@ -366,12 +366,12 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
       distance = (distance / tileDistance).roundToDouble();
     }
 
-    updateDistanceText(distance);
-
     final areaChanged = _aoe.onMove(extraCast, distance * tileDistance);
     if (areaChanged) {
       _updateTiles();
     }
+
+    updateDistanceText(_aoe.getRelevantLength(distance));
   }
 
   @override
@@ -449,31 +449,23 @@ class MeasuringCone extends CoveredMeasuring<ConeAreaOfEffect> {
 }
 
 class MeasuringLine extends CoveredMeasuring<LineAreaOfEffect> {
-  Point endBuffered;
-  double width = 1;
-  bool changeWidth = false;
-
-  MeasuringLine(Point origin, int pc) : super(origin, pc) {
-    endBuffered = origin;
-    _aoe.width = width;
-  }
+  MeasuringLine(Point origin, int pc) : super(origin, pc);
 
   @override
   void addPoint(Point point) {
-    changeWidth = !changeWidth;
+    _aoe.changeWidth = !_aoe.changeWidth;
   }
 
   @override
   void writeSpecifics(BinaryWriter writer) {
-    _writePrecision(writer, endBuffered);
-    writer.writeUInt8(width.round());
+    _writePrecision(writer, _aoe.end);
+    writer.writeUInt8(_aoe.width.round());
   }
 
   @override
   bool handleSpecifics(BinaryReader reader) {
-    endBuffered = _readPrecision(reader);
-    width = reader.readUInt8().toDouble();
-    changeWidth = false;
+    _aoe.end = _readPrecision(reader);
+    _aoe.width = reader.readUInt8().toDouble();
     return true;
   }
 
