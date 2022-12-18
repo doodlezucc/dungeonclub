@@ -441,7 +441,7 @@ class Board {
   void onMovableSnap(Map<String, dynamic> json) {
     for (var jm in json['movables']) {
       var m = movables.firstWhere((mv) => mv.id == jm['id']);
-      m.position = parsePoint(jm);
+      m.position = parsePoint<double>(jm);
     }
   }
 
@@ -821,7 +821,7 @@ class Board {
       SimpleEvent first, Stream<SimpleEvent> moveStream, Movable clicked) {
     toggleMovableGhostVisible(false);
     var affected = {clicked, ...selected};
-    final origins = {for (var mv in affected) mv: mv.position.cast<double>()};
+    final origins = {for (var mv in affected) mv: mv.position};
 
     var movedOnce = false;
     var lastDelta = Point<double>(0, 0);
@@ -834,7 +834,7 @@ class Board {
     }
 
     void alignText() {
-      var mPos = clicked.position.cast<double>();
+      var mPos = clicked.position;
       var offset = clicked.displaySizePoint.cast<double>() * 0.35;
       var textPos = grid.grid.gridToWorldSpace(mPos + offset);
       measuring.alignDistanceText(textPos);
@@ -850,7 +850,7 @@ class Board {
           .cast<double>();
     }
 
-    final gridOrigin = clicked.position.cast<double>();
+    final gridOrigin = clicked.position;
 
     moveStream.listen((ev) {
       if (!movedOnce) {
@@ -1168,8 +1168,6 @@ class Board {
       board: this,
       prefab: isEmpty ? emptyPrefab : getPrefab(pref),
       id: json['id'],
-      pos: parsePoint(json),
-      conds: List<int>.from(json['conds'] ?? []),
     )..fromJson(json);
     movables.add(m);
     grid.e.append(m.e);
@@ -1200,7 +1198,7 @@ class Board {
   }
 
   void onMovableMove(json) =>
-      _movableEvent(json, (m) => m.onMove(parsePoint(json)));
+      _movableEvent(json, (m) => m.onMove(parsePoint<double>(json)));
 
   void onMovableRemove(json) => _movableEvent(json, (m) {
         if (selected.contains(m)) {

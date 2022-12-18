@@ -101,7 +101,7 @@ void toggleMovableGhostVisible(bool v, {bool translucent = false}) {
   }
 }
 
-void alignMovableGhost(Point point, EntityBase entity) {
+void alignMovableGhost(Point point, LegacyEntityBase entity) {
   final grid = user.session.board.grid;
   final p = grid.centeredWorldPoint(point, entity.size);
 

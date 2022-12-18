@@ -11,7 +11,8 @@ import 'character.dart';
 import 'movable.dart';
 import 'prefab_palette.dart';
 
-abstract class EntityBase {
+@deprecated
+abstract class LegacyEntityBase {
   int _size = 1;
   int get size => _size;
   set size(int size) {
@@ -27,7 +28,7 @@ abstract class EntityBase {
   }
 }
 
-abstract class Prefab extends EntityBase {
+abstract class Prefab extends LegacyEntityBase {
   final HtmlElement e;
   final SpanElement _nameSpan;
   final List<Movable> movables = [];

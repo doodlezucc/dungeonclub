@@ -1,6 +1,8 @@
 import 'dart:html';
 import 'dart:math' as math;
 
+import 'package:dungeonclub/models/entity_base.dart';
+import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:grid/grid.dart';
 import 'package:meta/meta.dart';
@@ -10,14 +12,14 @@ import 'board.dart';
 import 'condition.dart';
 import 'prefab.dart';
 
-class Movable extends EntityBase {
-  final e = DivElement();
-  final _aura = DivElement();
+class Movable extends EntityBase with TokenModel {
+  @override
+  final int id;
   final Board board;
   final Prefab prefab;
-  final int id;
-  final Set<int> _conds = {};
-  Iterable<int> get conds => _conds;
+
+  final e = DivElement();
+  final _aura = DivElement();
 
   String get name => prefab.name;
 
@@ -34,10 +36,9 @@ class Movable extends EntityBase {
     return false;
   }
 
-  String _label = '';
-  String get label => _label;
+  @override
   set label(String label) {
-    _label = label;
+    super.label = label;
     board.initiativeTracker.onNameUpdate(this);
     updateTooltip();
   }
@@ -47,21 +48,22 @@ class Movable extends EntityBase {
     return '${prefab.name} ($label)';
   }
 
-  bool get invisible => e.classes.contains('invisible');
-  set invisible(bool invisible) => e.classes.toggle('invisible', invisible);
+  @override
+  set invisible(bool invisible) {
+    super.invisible = invisible;
+    e.classes.toggle('invisible', invisible);
+  }
 
-  double _auraRadius;
-  double get auraRadius => _auraRadius;
+  @override
   set auraRadius(double auraRadius) {
-    _auraRadius = auraRadius;
+    super.auraRadius = auraRadius;
     _aura.style.display = auraRadius == 0 ? 'none' : '';
     _aura.style.setProperty('--aura', '$auraRadius');
   }
 
-  Point _position;
-  Point get position => _position;
-  set position(Point position) {
-    _position = position.snapDeviation();
+  @override
+  set position(Point<double> position) {
+    super.position = position.snapDeviationAny();
     applyPosition();
   }
 
@@ -75,13 +77,13 @@ class Movable extends EntityBase {
   int get displaySize => size != 0 ? size : prefab.size;
   Point<int> get displaySizePoint => Point(displaySize, displaySize);
   Point<double> get topLeft =>
-      position.cast<double>() - Point(0.5 * displaySize, 0.5 * displaySize);
+      position - Point(0.5 * displaySize, 0.5 * displaySize);
 
   Movable._({
     @required this.board,
     @required this.prefab,
     @required this.id,
-    @required Point pos,
+    @required Point<double> pos,
     @required Iterable<int> conds,
     bool createTooltip = true,
   }) {
@@ -101,19 +103,21 @@ class Movable extends EntityBase {
 
     prefab.movables.add(this);
     onImageChange(prefab.img(cacheBreak: false));
-    applyConditions(conds);
-
     super.size = 0;
-    position = pos ?? Point(0, 0);
-    onPrefabUpdate();
+
+    if (pos != null) {
+      position = pos;
+      onPrefabUpdate();
+    }
+    if (conds != null) applyConditions(conds);
   }
 
   static Movable create({
     @required Board board,
     @required Prefab prefab,
     @required int id,
-    @required Point pos,
-    @required Iterable<int> conds,
+    Iterable<int> conds,
+    Point<double> pos,
   }) {
     if (prefab is EmptyPrefab) {
       return EmptyMovable._(
@@ -124,7 +128,7 @@ class Movable extends EntityBase {
   }
 
   void applyPosition() {
-    var pos = board.grid.grid.gridToWorldSpace(_position);
+    final pos = board.grid.grid.gridToWorldSpace(position);
     board.updateSnapToGrid();
 
     e.style
@@ -137,7 +141,7 @@ class Movable extends EntityBase {
     size = newSize;
 
     if (board.grid.grid is SquareGrid) {
-      position = position.cast<num>() + oldTopLeft - topLeft;
+      position += oldTopLeft - topLeft;
     }
   }
 
@@ -154,8 +158,8 @@ class Movable extends EntityBase {
     updateTooltip();
   }
 
-  void onMove(Point delta) async {
-    position = position.cast<num>() + delta;
+  void onMove(Point<double> delta) async {
+    position += delta;
   }
 
   void onImageChange(String img) {
@@ -164,15 +168,15 @@ class Movable extends EntityBase {
 
   void roundToGrid() {
     position =
-        board.grid.grid.gridSnapCentered(position.cast<double>(), displaySize);
+        board.grid.grid.gridSnapCentered(position, displaySize).cast<double>();
   }
 
   bool toggleCondition(int id, [bool add]) {
     var didAdd = false;
     if (add != null) {
-      didAdd = add ? _conds.add(id) : _conds.remove(id);
-    } else if (!_conds.remove(id)) {
-      _conds.add(id);
+      didAdd = add ? conds.add(id) : conds.remove(id);
+    } else if (!conds.remove(id)) {
+      conds.add(id);
       didAdd = true;
     }
     _applyConds();
@@ -185,7 +189,7 @@ class Movable extends EntityBase {
       child.remove();
     }
 
-    for (var id in _conds) {
+    for (var id in conds) {
       var cond = Condition.items[id];
       container
           .append(icon(cond.icon)..append(SpanElement()..text = cond.name));
@@ -193,8 +197,8 @@ class Movable extends EntityBase {
   }
 
   void applyConditions(Iterable<int> conds) {
-    _conds.clear();
-    _conds.addAll(conds);
+    this.conds.clear();
+    this.conds.addAll(conds);
     _applyConds();
   }
 
@@ -223,7 +227,7 @@ class Movable extends EntityBase {
   Map<String, dynamic> _sharedJson() => {
         ...writePoint(position),
         'label': label,
-        'conds': _conds.toList(),
+        'conds': conds.toList(),
         'aura': auraRadius,
         'invisible': invisible,
         ...super.toJson(),
@@ -232,11 +236,8 @@ class Movable extends EntityBase {
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
-    position = parsePoint(json);
-    label = json['label'] ?? '';
-    auraRadius = json['aura'] ?? 0;
-    invisible = json['invisible'] ?? false;
     applyConditions(List<int>.from(json['conds'] ?? []));
+    onPrefabUpdate();
   }
 }
 
@@ -258,7 +259,7 @@ class EmptyMovable extends Movable {
     @required Board board,
     @required EmptyPrefab prefab,
     @required int id,
-    @required Point pos,
+    @required Point<double> pos,
     @required Iterable<int> conds,
   }) : super._(
           board: board,

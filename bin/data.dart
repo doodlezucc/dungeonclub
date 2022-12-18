@@ -7,6 +7,8 @@ import 'dart:math';
 import 'package:crypt/crypt.dart';
 import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/limits.dart';
+import 'package:dungeonclub/models/entity_base.dart';
+import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/session_util.dart';
 import 'package:path/path.dart' as path;
@@ -757,38 +759,11 @@ class Scene {
       };
 }
 
-abstract class EntityBase {
-  int size = 0;
-
-  EntityBase({this.size});
-
-  void fromJson(Map<String, dynamic> json) {
-    size = json['size'] ?? 1;
-  }
-
-  Map<String, dynamic> toJson() => {
-        'size': size,
-      };
-}
-
-mixin HasInitiativeMod on EntityBase {
-  int mod = 0;
-
-  @override
-  void fromJson(Map<String, dynamic> json) {
-    super.fromJson(json);
-    mod = json['mod'] ?? 0;
-  }
-
-  @override
-  Map<String, dynamic> toJson() => {
-        ...super.toJson(),
-        'mod': mod,
-      };
-}
-
 class CharacterPrefab extends EntityBase with HasInitiativeMod {
-  CharacterPrefab({int size}) : super(size: size);
+  @override
+  int get jsonFallbackSize => 1;
+
+  CharacterPrefab();
   CharacterPrefab.fromJson(Map<String, dynamic> json) {
     fromJson(json);
   }
@@ -798,6 +773,9 @@ class CustomPrefab extends EntityBase with HasInitiativeMod {
   final int id;
   String name;
   List<int> accessIds;
+
+  @override
+  int get jsonFallbackSize => 1;
 
   CustomPrefab(this.id, int size)
       : accessIds = [],
@@ -824,41 +802,22 @@ class CustomPrefab extends EntityBase with HasInitiativeMod {
       };
 }
 
-class Movable extends EntityBase {
-  final int id;
-  final List<int> conds = [];
+class Movable extends EntityBase with TokenModel {
+  final int _id;
   String prefab;
-  String label;
-  Point<double> position;
-  num auraRadius;
-  bool invisible;
+
+  @override
+  int get id => _id;
 
   Movable(int id, Map<String, dynamic> json)
-      : id = id,
+      : _id = id,
         prefab = json['prefab'] {
     fromJson(json);
   }
 
   @override
-  void fromJson(Map<String, dynamic> json) {
-    position = parsePoint(json);
-    label = json['label'] ?? '';
-    size = json['size'] ?? 0;
-    auraRadius = json['aura'] ?? 0.0;
-    invisible = json['invisible'] ?? false;
-    conds.clear();
-    conds.addAll(List.from(json['conds'] ?? []));
-  }
-
-  @override
   Map<String, dynamic> toJson() => {
-        'id': id,
         'prefab': prefab,
-        'label': label,
-        ...writePoint(position),
-        'conds': conds,
-        'aura': auraRadius,
-        'invisible': invisible,
         ...super.toJson(),
       };
 }
