@@ -128,7 +128,7 @@ void run(List<String> args) async {
       print(e.toString());
       print('Failed to extract background music sources.'
           ' If you require the integrated music player,'
-          ' make sure you have youtube-dl and ffmpeg installed.');
+          ' make sure you have yt-dlp and ffmpeg installed.');
     }
   } else {
     print('Music player not enabled');

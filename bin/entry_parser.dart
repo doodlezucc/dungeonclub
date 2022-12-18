@@ -65,7 +65,7 @@ ArgParser _makeParser(
   addFlag(
       Environment.ENV_ENABLE_MUSIC,
       'Whether to enable the integrated music player. '
-      'Server hosts may need to install youtube-dl and ffmpeg to '
+      'Server hosts may need to install yt-dlp and ffmpeg to '
       'download 500 MB of background music.');
 
   if (append != null) append(parser, addFlag);

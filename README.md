@@ -92,7 +92,7 @@ Option | Definition | Default (serve) | Default (build)
 ------ | ---------- | --------------- | ---------------
 `-h, --help` | Prints a list of available flags and options.
 `--[no-]mock-account` | Whether to accept contents of "login.yaml" as a list of registered accounts. | `false` | `true`
-`--[no-]music` | Whether to enable the integrated music player. Server hosts may need to install youtube-dl and ffmpeg to download 500 MB of background music. | `true` | `false`
+`--[no-]music` | Whether to enable the integrated music player. Server hosts may need to install yt-dlp and ffmpeg to download 500 MB of background music. | `true` | `false`
 **Server Only**
 `-p, --port` | Specifies the server port. | `7070` |
 `--bootstrap` | <ul><li>`all` - Enable log files and graceful exits</li><li>`logging` - Enable log files</li><li>`none` - Bypass bootstrapper</li></ul> | `all` |
