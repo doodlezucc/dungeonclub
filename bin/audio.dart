@@ -17,16 +17,25 @@ void _customTrackMeta() {
     var hyphen = title.lastIndexOf(' - ');
 
     if (hyphen >= 0) {
-      if (track.artist == 'D&D Breakfast Club') {
-        track.title = title.substring(0, hyphen);
-        track.artist = title.substring(hyphen + 3);
+      final preHyphen = title.substring(0, hyphen);
+      final postHyphen = title.substring(hyphen + 3);
+
+      if (track.artist == 'Samuel Oliveira') {
+        track.title = preHyphen;
+      } else if (track.artist == 'D&D Breakfast Club') {
+        track.title = preHyphen;
+        track.artist = postHyphen;
       } else if (track.artist == 'Vindsvept, fantasy music') {
         track.artist = 'Vindsvept';
-        track.title = title.substring(hyphen + 3);
+        if (!preHyphen.contains('Music')) {
+          track.title = preHyphen;
+        } else {
+          track.title = postHyphen;
+        }
       } else if (track.artist == 'Adrian von Ziegler') {
-        track.title = title.substring(hyphen + 3);
+        track.title = postHyphen;
       } else if (title.contains('Scott Buckley')) {
-        var regex = RegExp(r"(?<=').+(?=')");
+        var regex = RegExp(r"(?<=').+?(?='(?: |$))");
         var match = regex.firstMatch(title);
         if (match != null) {
           track.title = match[0];
