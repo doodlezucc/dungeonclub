@@ -767,8 +767,8 @@ class Board {
     }
 
     window.onKeyDown
-        .where((ev) => ev.keyCode == 18)
-        .listen((_) => triggerUpdate(true));
+        .where((ev) => !ev.repeat && ev.keyCode == 18)
+        .listen((ev) => triggerUpdate(true));
     window.onKeyUp
         .where((ev) => ev.keyCode == 18)
         .listen((_) => triggerUpdate(false));
@@ -881,8 +881,8 @@ class Board {
       var delta = gridCursor - gridOrigin;
       delta = delta.undeviate();
 
-      if (ev.button == 2 && measuring != null) {
-        measuring.handleRightclick(gridCursor);
+      if (ev.isMouseDown && ev.button == 2 && measuring != null) {
+        measuring.handleRightclick(gridCursor, doSnap: false);
       }
 
       if (delta != lastDelta) {
@@ -891,7 +891,7 @@ class Board {
         }
         lastDelta = delta;
         if (measuring != null) {
-          measuring.handleMove(clicked.position);
+          measuring.handleMove(clicked.position, doSnap: false);
           alignText();
           toggleMovableGhostVisible(delta != Point(0, 0), translucent: true);
         }

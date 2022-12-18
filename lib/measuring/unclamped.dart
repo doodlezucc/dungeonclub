@@ -13,7 +13,7 @@ class UnclampedMeasuringRuleset extends MeasuringRuleset<UnclampedGrid>
         SupportsLine<UnclampedGrid> {
   @override
   num distanceBetweenGridPoints(UnclampedGrid grid, Point a, Point b) {
-    return a.distanceTo(b); // Standard euclidean distance
+    return a.cast<num>().distanceTo(b); // Standard euclidean distance
   }
 
   @override

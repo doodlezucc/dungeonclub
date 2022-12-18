@@ -234,7 +234,7 @@ class MeasuringPath extends Measuring {
     _e
       ..append(path)
       ..append(lastE);
-    handleRightclick(origin);
+    handleRightclick(origin, doSnap: false);
 
     if (background) {
       _distanceText.classes.add('slow');
@@ -263,8 +263,9 @@ class MeasuringPath extends Measuring {
   }
 
   @override
-  void handleRightclick(Point p) {
-    p = snapped(p);
+  void handleRightclick(Point p, {bool doSnap = true}) {
+    if (doSnap) p = snapped(p);
+
     var stop = svg.CircleElement()..classes.add('origin');
     _applyCircleGridToWorld(stop, p);
     _e.append(stop);
@@ -286,9 +287,8 @@ class MeasuringPath extends Measuring {
 
   @override
   void handleMove(Point end, {bool doSnap = true}) {
-    if (doSnap) {
-      end = snapped(end);
-    }
+    if (doSnap) end = snapped(end);
+
     path.setAttribute('d', _toPathData(end));
     _applyCircleGridToWorld(lastE, end);
     _updateDistanceText(end);

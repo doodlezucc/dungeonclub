@@ -104,13 +104,22 @@ class SimpleEvent {
   bool ctrl;
   bool alt;
   int button;
+  bool isMouseDown;
 
   SimpleEvent(
-      this.p, this.movement, this.shift, this.ctrl, this.alt, this.button);
+    this.p,
+    this.movement,
+    this.shift,
+    this.ctrl,
+    this.alt,
+    this.button,
+    this.isMouseDown,
+  );
 
   SimpleEvent.fromJS(Event ev, this.p, this.movement)
       : shift = (ev as dynamic).shiftKey,
         ctrl = (ev as dynamic).ctrlKey,
         alt = (ev as dynamic).altKey,
-        button = ev is MouseEvent ? ev.button : 0;
+        button = ev is MouseEvent ? ev.button : 0,
+        isMouseDown = ev.type == 'mousedown';
 }
