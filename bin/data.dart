@@ -697,8 +697,7 @@ class Scene {
 
   Movable addMovable(Map<String, dynamic> json) {
     var m = Movable(nextMovableId, json);
-    m.label = generateNewLabel<Movable>(
-        m, movables, (e) => MovableStruct(e.prefab, e.label));
+    m.label = generateNewLabel(m, movables);
     movables.add(m);
     return m;
   }
@@ -808,6 +807,9 @@ class Movable extends EntityBase with TokenModel {
 
   @override
   int get id => _id;
+
+  @override
+  String get prefabId => prefab;
 
   Movable(int id, Map<String, dynamic> json)
       : _id = id,

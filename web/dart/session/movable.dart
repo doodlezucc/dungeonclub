@@ -18,6 +18,9 @@ class Movable extends EntityBase with TokenModel {
   final Board board;
   final Prefab prefab;
 
+  @override
+  String get prefabId => prefab.id;
+
   final e = DivElement();
   final _aura = DivElement();
 

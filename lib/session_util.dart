@@ -1,36 +1,24 @@
 import 'dart:math';
 
+import 'models/token.dart';
+
 final _regEndingInt = RegExp(r'(?<= |^)\d+$');
 
-class MovableStruct {
-  final String prefab;
-  final String label;
-
-  MovableStruct(this.prefab, this.label);
-}
-
-String generateNewLabel<T>(
-  T tMovable,
-  Iterable<T> tMovables,
-  MovableStruct Function(T) toStruct,
-) {
-  final movables = tMovables.map(toStruct);
-  final mov = toStruct(tMovable);
-
+String generateNewLabel<T extends TokenModel>(T token, Iterable<T> tokens) {
   // Part before last integer
-  final pre = mov.label
+  final pre = token.label
       .substring(
-          0, _regEndingInt.firstMatch(mov.label)?.start ?? mov.label.length)
+          0, _regEndingInt.firstMatch(token.label)?.start ?? token.label.length)
       .trimRight();
 
   var maximum = 0;
 
-  for (var m in movables) {
-    if (m.prefab == mov.prefab) {
-      final match = _regEndingInt.firstMatch(m.label);
-      final preM = match == null ? m.label : m.label.substring(0, match.start);
+  for (var t in tokens) {
+    if (t.prefabId == token.prefabId) {
+      final match = _regEndingInt.firstMatch(t.label);
+      final preT = match == null ? t.label : t.label.substring(0, match.start);
 
-      if (pre == preM.trimRight()) {
+      if (pre == preT.trimRight()) {
         if (match != null) {
           maximum = max(maximum, int.parse(match[0]));
         } else if (maximum == 0) {
@@ -40,7 +28,7 @@ String generateNewLabel<T>(
     }
   }
 
-  if (maximum == 0) return mov.label;
+  if (maximum == 0) return token.label;
 
   return '$pre ${maximum + 1}'.trimLeft();
 }

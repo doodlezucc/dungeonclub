@@ -6,6 +6,7 @@ import 'entity_base.dart';
 mixin TokenModel on EntityBase {
   final Set<int> conds = {};
   int get id;
+  String get prefabId;
 
   Point<double> position;
   String label = '';

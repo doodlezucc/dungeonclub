@@ -1110,8 +1110,7 @@ class Board {
         conds: src.conds,
       )..fromJson(jsons.elementAt(i));
 
-      m.label = generateNewLabel<Movable>(
-          m, movables, (e) => MovableStruct(e.prefab.id, e.label));
+      m.label = generateNewLabel(m, movables);
 
       dest.add(m);
       movables.add(m);
@@ -1139,8 +1138,7 @@ class Board {
     var m = Movable.create(
         board: this, prefab: prefab, id: id, pos: pos, conds: []);
 
-    m.label = generateNewLabel<Movable>(
-        m, movables, (e) => MovableStruct(e.prefab.id, e.label));
+    m.label = generateNewLabel(m, movables);
 
     movables.add(m);
     grid.e.append(m.e);
