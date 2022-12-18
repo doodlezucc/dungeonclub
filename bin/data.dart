@@ -524,8 +524,7 @@ class Game with Upgradeable {
         for (var scene in _scenes) {
           for (var mv in scene.movables) {
             final off = 0.5 * _getMovableDisplaySize(mv);
-            mv.x = mv.x + off;
-            mv.y = mv.y + off;
+            mv.position += Point(off, off);
           }
         }
         return;
@@ -737,9 +736,7 @@ class Scene {
       var id = mj['id'];
       var m = movables.firstWhere((m) => m.id == id, orElse: () => null);
       if (m != null) {
-        var point = parsePoint(mj);
-        m.x = point.x;
-        m.y = point.y;
+        m.position = parsePoint<double>(mj);
       }
     }
   }
@@ -832,8 +829,7 @@ class Movable extends EntityBase {
   final List<int> conds = [];
   String prefab;
   String label;
-  num x;
-  num y;
+  Point<double> position;
   num auraRadius;
   bool invisible;
 
@@ -845,8 +841,7 @@ class Movable extends EntityBase {
 
   @override
   void fromJson(Map<String, dynamic> json) {
-    x = json['x'];
-    y = json['y'];
+    position = parsePoint(json);
     label = json['label'] ?? '';
     size = json['size'] ?? 0;
     auraRadius = json['aura'] ?? 0.0;
@@ -860,8 +855,7 @@ class Movable extends EntityBase {
         'id': id,
         'prefab': prefab,
         'label': label,
-        'x': x,
-        'y': y,
+        ...writePoint(position),
         'conds': conds,
         'aura': auraRadius,
         'invisible': invisible,

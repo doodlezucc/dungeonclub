@@ -318,9 +318,8 @@ class Connection extends Socket {
           if (m == null) return null;
           notifyOthers(action, {
             'id': m.id,
-            'x': m.x,
-            'y': m.y,
             'prefab': m.prefab,
+            ...writePoint(m.position),
           });
           return m.id;
         }
@@ -340,13 +339,11 @@ class Connection extends Socket {
 
       case a.GAME_MOVABLE_MOVE:
         List ids = params['movables'];
-        var delta = parsePoint(params);
+        var delta = parsePoint<double>(params);
         if (ids == null || delta == null || scene == null) return null;
 
         for (int movableId in ids) {
-          scene.getMovable(movableId)
-            ..x += delta.x
-            ..y += delta.y;
+          scene.getMovable(movableId).position += delta;
         }
 
         return notifyOthers(action, params);
@@ -354,9 +351,7 @@ class Connection extends Socket {
       case a.GAME_MOVABLE_SNAP:
         for (var jm in params['movables']) {
           var m = scene.getMovable(jm['id']);
-          var p = parsePoint(jm);
-          m.x = p.x;
-          m.y = p.y;
+          m.position = parsePoint<double>(jm);
         }
 
         return notifyOthers(action, params);
