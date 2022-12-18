@@ -173,8 +173,8 @@ abstract class Measuring {
     _distanceText.remove();
   }
 
-  void redraw(Point extra);
-  void addPoint(Point point) {}
+  void handleMove(Point extra);
+  void handleRightclick(Point point) {}
 
   void alignDistanceText(Point p) {
     _distanceText.style.left = '${p.x}px';
@@ -209,7 +209,7 @@ abstract class Measuring {
     alignDistanceText(Point(extra.x * scale.x, extra.y * scale.y));
 
     handleSpecifics(reader);
-    redraw(extra);
+    handleMove(extra);
   }
 
   void writeSpecifics(BinaryWriter writer) {}
@@ -234,7 +234,7 @@ class MeasuringPath extends Measuring {
     _e
       ..append(path)
       ..append(lastE);
-    addPoint(origin);
+    handleRightclick(origin);
 
     if (background) {
       _distanceText.classes.add('slow');
@@ -254,7 +254,7 @@ class MeasuringPath extends Measuring {
   void handleSpecifics(BinaryReader reader) {
     var nPoints = reader.readUInt8();
     for (var i = 0; i < nPoints; i++) {
-      addPoint(_readPrecision(reader));
+      handleRightclick(_readPrecision(reader));
     }
   }
 
@@ -263,7 +263,7 @@ class MeasuringPath extends Measuring {
   }
 
   @override
-  void addPoint(Point p) {
+  void handleRightclick(Point p) {
     p = snapped(p);
     var stop = svg.CircleElement()..classes.add('origin');
     _applyCircleGridToWorld(stop, p);
@@ -272,7 +272,7 @@ class MeasuringPath extends Measuring {
     previousDistance += _lastSegmentLength(p);
     points.add(p);
     pointsSinceSync++;
-    redraw(p, doSnap: false);
+    handleMove(p, doSnap: false);
   }
 
   double _lastSegmentLength(Point end) {
@@ -285,7 +285,7 @@ class MeasuringPath extends Measuring {
   }
 
   @override
-  void redraw(Point end, {bool doSnap = true}) {
+  void handleMove(Point end, {bool doSnap = true}) {
     if (doSnap) {
       end = snapped(end);
     }
@@ -357,11 +357,11 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
       _tileDistance *= aoeGrid.tileDistance;
     }
 
-    redraw(origin);
+    handleMove(origin);
   }
 
   @override
-  void redraw(Point extra, {double overrideDistance}) {
+  void handleMove(Point extra, {double overrideDistance}) {
     final extraCast = extra.cast<double>();
     final sceneGrid = Measuring.getGrid();
     final grid = sceneGrid.grid;
@@ -428,12 +428,12 @@ class MeasuringCone extends CoveredMeasuring<ConeAreaOfEffect> {
   MeasuringCone(Point origin, int pc) : super(origin, pc);
 
   @override
-  void redraw(Point extra, {double overrideDistance}) {
-    super.redraw(extra, overrideDistance: lockRadius ? lockedRadius : null);
+  void handleMove(Point extra, {double overrideDistance}) {
+    super.handleMove(extra, overrideDistance: lockRadius ? lockedRadius : null);
   }
 
   @override
-  void addPoint(Point point) {
+  void handleRightclick(Point point) {
     lockedRadius = _aoe.distance / tileDistance;
     lockRadius = !lockRadius;
   }
@@ -459,7 +459,7 @@ class MeasuringLine extends CoveredMeasuring<LineAreaOfEffect> {
   MeasuringLine(Point origin, int pc) : super(origin, pc);
 
   @override
-  void addPoint(Point point) {
+  void handleRightclick(Point point) {
     _aoe.changeWidth = !_aoe.changeWidth;
   }
 

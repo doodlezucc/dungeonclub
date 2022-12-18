@@ -306,7 +306,11 @@ class Board {
 
     _container.onContextMenu.listen((ev) {
       ev.preventDefault();
-      _deselectAll();
+
+      // Only deselect if no other mouse button is currently pressed
+      if (ev.buttons == 0) {
+        _deselectAll();
+      }
     });
 
     // Prevent menu bar dropdown on Alt key
@@ -872,8 +876,14 @@ class Board {
       if (!ev.alt) {
         worldPoint = worldSnapCentered(worldPoint);
       }
-      var delta = grid.grid.worldToGridSpace(worldPoint) - gridOrigin;
+
+      final gridCursor = grid.grid.worldToGridSpace(worldPoint);
+      var delta = gridCursor - gridOrigin;
       delta = delta.undeviate();
+
+      if (ev.button == 2 && measuring != null) {
+        measuring.handleRightclick(gridCursor);
+      }
 
       if (delta != lastDelta) {
         for (var mv in affected) {
@@ -881,7 +891,7 @@ class Board {
         }
         lastDelta = delta;
         if (measuring != null) {
-          measuring.redraw(clicked.position);
+          measuring.handleMove(clicked.position);
           alignText();
           toggleMovableGhostVisible(delta != Point(0, 0), translucent: true);
         }
@@ -937,7 +947,7 @@ class Board {
 
         measureEnd = worldToGrid(p);
 
-        m.redraw(measureEnd);
+        m.handleMove(measureEnd);
         m.alignDistanceText(p);
 
         if (isPublic) {
@@ -948,7 +958,7 @@ class Board {
 
     var keySub = window.onKeyDown.listen((ev) {
       if (ev.keyCode == 32) {
-        m.addPoint(measureEnd); // Trigger with spacebar
+        m.handleRightclick(measureEnd); // Trigger with spacebar
       }
     });
 
@@ -956,7 +966,7 @@ class Board {
       p = ev.p * (1 / scaledZoom);
 
       if (ev.button == 2) {
-        m.addPoint(measureEnd);
+        m.handleRightclick(measureEnd);
       } else if (ev.button == 1) {
         _measureSticky.classes.toggle('active');
       }
