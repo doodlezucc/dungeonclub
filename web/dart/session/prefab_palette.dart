@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/limits.dart';
+import 'package:dungeonclub/models/entity_base.dart';
 import 'package:meta/meta.dart';
 
 import '../../main.dart';
@@ -33,7 +34,7 @@ final ButtonElement _prefabRemove = querySelector('#prefabRemove');
 
 final List<CharacterPrefab> pcPrefabs = [];
 final List<CustomPrefab> prefabs = [];
-final emptyPrefab = EmptyPrefab()..updateImage(cacheBreak: false);
+final emptyPrefab = EmptyPrefab()..applyImage(cacheBreak: false);
 
 Prefab _selectedPrefab;
 Prefab get selectedPrefab => _selectedPrefab;
@@ -101,7 +102,7 @@ void toggleMovableGhostVisible(bool v, {bool translucent = false}) {
   }
 }
 
-void alignMovableGhost(Point point, LegacyEntityBase entity) {
+void alignMovableGhost(Point point, EntityBase entity) {
   final grid = user.session.board.grid;
   final p = grid.centeredWorldPoint(point, entity.size);
 
@@ -169,7 +170,7 @@ void _initPrefabProperties() {
           });
     },
     onSuccess: (_) {
-      var src = selectedPrefab.updateImage();
+      var src = selectedPrefab.applyImage();
       _prefabImageImg.src = src;
       _movableGhost.style.backgroundImage = 'url($src)';
       user.session.board.updatePrefabImage(selectedPrefab, src);
@@ -281,7 +282,7 @@ Future<void> createPrefab(MouseEvent ev) async {
     prefab = onPrefabCreate(result);
   }
 
-  selectedPrefab = prefab..updateImage();
+  selectedPrefab = prefab..applyImage();
   _prefabName.focus();
 }
 
@@ -306,7 +307,7 @@ void onPrefabUpdate(Map<String, dynamic> json) {
   var prefab = getPrefab(json['prefab']);
 
   if (json['size'] == null) {
-    user.session.board.updatePrefabImage(prefab, prefab.updateImage());
+    user.session.board.updatePrefabImage(prefab, prefab.applyImage());
   } else {
     prefab.fromJson(json);
     prefab.movables.forEach((m) => m.onPrefabUpdate());

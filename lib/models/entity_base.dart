@@ -3,7 +3,7 @@ abstract class EntityBase {
 
   int get jsonFallbackSize;
 
-  EntityBase({this.size});
+  EntityBase({this.size = 1});
 
   void fromJson(Map<String, dynamic> json) {
     size = json['size'] ?? jsonFallbackSize;

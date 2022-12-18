@@ -2,6 +2,7 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/models/entity_base.dart';
 import 'package:meta/meta.dart';
 
 import '../../main.dart';
@@ -11,24 +12,19 @@ import 'character.dart';
 import 'movable.dart';
 import 'prefab_palette.dart';
 
-@deprecated
-abstract class LegacyEntityBase {
-  int _size = 1;
-  int get size => _size;
+abstract class ClampedEntityBase extends EntityBase {
+  int get minSize;
+
+  @override
+  int get jsonFallbackSize => minSize;
+
+  @override
   set size(int size) {
-    _size = min(max(size, 0), 25);
-  }
-
-  Map<String, dynamic> toJson() => {
-        'size': size,
-      };
-
-  void fromJson(Map<String, dynamic> json) {
-    size = json['size'] ?? 0;
+    super.size = min(max(size, minSize), 25);
   }
 }
 
-abstract class Prefab extends LegacyEntityBase {
+abstract class Prefab extends ClampedEntityBase {
   final HtmlElement e;
   final SpanElement _nameSpan;
   final List<Movable> movables = [];
@@ -38,8 +34,11 @@ abstract class Prefab extends LegacyEntityBase {
   String get name;
 
   @override
+  int get minSize => 1;
+
+  @override
   set size(int size) {
-    super.size = max(size, 1);
+    super.size = size;
     movables.forEach((m) => m.onPrefabUpdate());
   }
 
@@ -58,7 +57,7 @@ abstract class Prefab extends LegacyEntityBase {
       ..append(_nameSpan);
   }
 
-  String updateImage({bool cacheBreak = true}) {
+  String applyImage({bool cacheBreak = true}) {
     var src = img(cacheBreak: cacheBreak);
     if (user.session.isDM) {
       e.style.backgroundImage = 'url($src)';
@@ -66,7 +65,7 @@ abstract class Prefab extends LegacyEntityBase {
     return src;
   }
 
-  void updateName() {
+  void applyName() {
     _nameSpan.text = name;
   }
 }
@@ -85,7 +84,7 @@ class EmptyPrefab extends Prefab {
 
   EmptyPrefab() {
     this.e.append(icon(iconId));
-    updateName();
+    applyName();
   }
 }
 
@@ -104,8 +103,8 @@ class CharacterPrefab extends Prefab with HasInitiativeMod {
   Character get character => _character;
   set character(Character c) {
     _character = c;
-    updateImage();
-    updateName();
+    applyImage();
+    applyName();
   }
 
   @override
@@ -133,7 +132,7 @@ class CustomPrefab extends Prefab with HasInitiativeMod {
   set name(String name) {
     _name = name;
     user.session.board.initiativeTracker.onPrefabNameUpdate(this);
-    updateName();
+    applyName();
   }
 
   CustomPrefab({@required int id}) : _id = id;
@@ -152,8 +151,7 @@ class CustomPrefab extends Prefab with HasInitiativeMod {
     accessIds.clear();
     accessIds.addAll(Set.from(json['access']));
 
-    updateImage(cacheBreak: false);
-    updateName();
+    applyImage(cacheBreak: false);
   }
 
   @override

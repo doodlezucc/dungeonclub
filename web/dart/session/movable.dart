@@ -1,7 +1,6 @@
 import 'dart:html';
 import 'dart:math' as math;
 
-import 'package:dungeonclub/models/entity_base.dart';
 import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:grid/grid.dart';
@@ -12,7 +11,7 @@ import 'board.dart';
 import 'condition.dart';
 import 'prefab.dart';
 
-class Movable extends EntityBase with TokenModel {
+class Movable extends ClampedEntityBase with TokenModel {
   @override
   final int id;
   final Board board;
@@ -38,6 +37,9 @@ class Movable extends EntityBase with TokenModel {
     }
     return false;
   }
+
+  @override
+  int get minSize => 0;
 
   @override
   set label(String label) {
