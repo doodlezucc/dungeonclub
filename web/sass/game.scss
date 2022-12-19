@@ -943,16 +943,13 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
 
     > .img {
         @include base.center-background;
-        top: 0;
-        left: 0;
-        width: inherit;
-        height: inherit;
         border: 3px solid;
         border-color: inherit;
         border-radius: 50%;
     }
 
     > .rotating {
+        @extend %center;
         rotate: calc(var(--angle) * 1deg);
     }
 
@@ -989,7 +986,7 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
     > .ring {
         width: 100%;
         height: 100%;
-        animation: scale-pulse 2s infinite ease-in-out;
+        animation: scale-pulse 1s infinite alternate ease-in-out;
     }
 
     > .toast {
@@ -1039,7 +1036,7 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
         border-color: white !important;
 
         > .ring {
-            border: 3px solid white;
+            border: 3px solid #eeea;
         }
     }
     &:not(:active):hover {
@@ -1051,9 +1048,8 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
 }
 
 @keyframes scale-pulse {
-    0%   { transform: scale(1.3); }
-    50%  { transform: scale(1.5); }
-    100% { transform: scale(1.3); }
+    0%   { transform: scale(calc(1 + 0.3 / var(--size))); }
+    100%  { transform: scale(calc(1 + 0.5 / var(--size))); }
 }
 
 #conds {
@@ -1330,22 +1326,20 @@ $ping-radius: 100px;
     pointer-events: none;
     opacity: 0;
     animation: none !important;
+    transition: opacity 0.2s;
+    --offset: 20px;
 
     &.show {
         opacity: 1;
     }
 
-    .rotating {
-        @extend %center;
-        background: none !important;
-        border: none !important;
-    }
-    .rotating > * {
-        position: absolute;
-    }
+    * { position: absolute; }
+}
+#angleCurrent {
+    --offset: -16px;
 }
 .arrowEnd {
-    transform: translate(0, calc(var(--length) * $token-unit-size-half-px - 20px));
-    filter: drop-shadow(0 0 3px #000f);
+    transform: translate(0, calc(var(--size) * $token-unit-size-half-px - var(--offset)));
+    text-shadow: 0 0 4px #000c;
     font-size: 1.5rem;
 }

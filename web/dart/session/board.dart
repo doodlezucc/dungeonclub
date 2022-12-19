@@ -523,7 +523,7 @@ class Board {
   void _initMouseControls() {
     SimpleEvent lastEv;
     StreamController<SimpleEvent> moveStreamCtrl;
-    Timer timer;
+    Timer pingTimer;
     Point startP;
     Point previous;
     final lastZooms = Queue<double>();
@@ -589,7 +589,7 @@ class Board {
         if (ev is TouchEvent && ev.touches.length > 1) {
           pinchStart = pinchDistance(ev.touches);
           pinchZoomStart = scaledZoom;
-          return timer?.cancel();
+          return pingTimer?.cancel();
         }
 
         lastZooms.clear();
@@ -621,18 +621,21 @@ class Board {
         }
 
         initialButton = start.button;
-        var isBoardDrag = ev.path.contains(_e);
 
-        if (mode == PAN && isBoardDrag && initialButton == 0) {
-          timer = Timer(Duration(milliseconds: 300), () {
-            var pos = start.p * (1 / scaledZoom);
+        // Start ping timer
+        if (mode == PAN && initialButton == 0 && !angleArrow.visible) {
+          final isBoardDrag = ev.path.contains(_e);
+          if (isBoardDrag) {
+            pingTimer = Timer(Duration(milliseconds: 300), () {
+              var pos = start.p * (1 / scaledZoom);
 
-            socket.sendAction(a.GAME_PING, {
-              ...writePoint(pos),
-              'player': session.charId,
+              socket.sendAction(a.GAME_PING, {
+                ...writePoint(pos),
+                'player': session.charId,
+              });
+              displayPing(pos, session.charId);
             });
-            displayPing(pos, session.charId);
-          });
+          }
         }
 
         moveStreamCtrl = StreamController();
@@ -715,8 +718,8 @@ class Board {
         });
 
         var isClickEvent = false;
-        if (timer != null && timer.isActive) {
-          timer.cancel();
+        if (pingTimer != null && pingTimer.isActive) {
+          pingTimer.cancel();
           isClickEvent = true;
         } else if (pan) {
           // Apply average velocity from last few pinches
@@ -748,9 +751,9 @@ class Board {
         lastEv = sev;
         if (moveStreamCtrl != null) {
           var point = evToPoint(ev);
-          if (timer != null && timer.isActive) {
+          if (pingTimer != null && pingTimer.isActive) {
             if (ev is! TouchEvent || point.squaredDistanceTo(startP) > 64) {
-              timer.cancel();
+              pingTimer.cancel();
             }
           }
 
@@ -817,7 +820,7 @@ class Board {
     var hasChanged = false;
     void onMove(SimpleEvent ev) {
       final point = ev.p;
-      angleArrow.align(this, point * (1 / scaledZoom));
+      angleArrow.align(this, point * (1 / scaledZoom), updateSourceAngle: true);
       final degrees = angleArrow.angle;
 
       for (var mv in selected) {

@@ -284,7 +284,8 @@ class EmptyMovable extends Movable {
 }
 
 class AngleArrow {
-  HtmlElement get container => querySelector('#angleArrow');
+  static final HtmlElement container = querySelector('#angleArrow');
+  static final HtmlElement angleCurrent = querySelector('#angleCurrent');
 
   bool _visible = false;
   bool get visible => _visible;
@@ -309,14 +310,15 @@ class AngleArrow {
     container.style.setProperty('--angle', '$angle');
   }
 
-  int _length;
-  int get length => _length;
-  set length(int length) {
-    _length = length;
-    container.style.setProperty('--length', '$length');
+  set sourceAngle(double sourceAngle) {
+    angleCurrent.style.setProperty('--angle', '$sourceAngle');
   }
 
-  void align(Board board, Point end) {
+  set length(int length) {
+    container.style.setProperty('--size', '$length');
+  }
+
+  void align(Board board, Point end, {bool updateSourceAngle = false}) {
     final activeMovable = board.activeMovable;
 
     origin = board.grid.grid.gridToWorldSpace(activeMovable.position);
@@ -327,6 +329,12 @@ class AngleArrow {
 
     var degrees = angle * 180 / math.pi;
     this.angle = board.grid.measuringRuleset.snapTokenAngle(degrees);
+
+    if (updateSourceAngle) {
+      sourceAngle = this.angle;
+    } else {
+      sourceAngle = activeMovable.angle;
+    }
   }
 }
 
