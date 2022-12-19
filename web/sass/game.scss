@@ -17,6 +17,8 @@
 }
 
 #initiativePanel {
+    width: max-content;
+
     span {
         display: flex;
         justify-content: center;
@@ -27,6 +29,7 @@
 }
 
 #initiativeBar {
+    width: max-content;
     top: 16px;
 
     &.hidden { display: none; }
@@ -163,6 +166,8 @@
         > .panel {
             padding: 8px;
             transition: opacity 0.2s;
+            width: 100%;
+            max-width: 100%;
         }
     }
 
@@ -195,12 +200,13 @@
 
         .prefab-container {
             display: grid;
-            grid-template-columns: min-content min-content min-content min-content min-content min-content;
-            gap: 0;
+            grid-template-columns: min-content min-content min-content min-content min-content min-content min-content;
+            padding: 1px;
+            gap: 1px;
 
             > * {
-                width: 40px;
-                height: 40px;
+                width: 36px;
+                height: 36px;
                 transition-duration: 0.2s;
                 transition-timing-function: cubic-bezier(0.23, 1, 0.320, 1);
 

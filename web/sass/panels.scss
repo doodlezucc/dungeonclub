@@ -42,11 +42,14 @@
     @extend %vertical;
     background-color: var(--color-header);
     box-shadow: var(--shadow-panel);
+    box-sizing: border-box;
     border: 2px solid var(--color-panel-border);
     border-radius: base.$radius;
     padding: 24px 32px 16px 32px;
     gap: 16px;
-    min-width: 250px;
+    min-width: min-content;
+    width: 30rem;
+    max-width: calc(100vw - 2rem);
     pointer-events: all;
 
     h2 {
@@ -60,8 +63,7 @@
 
     > span {
         display: flex;
-        justify-content: center;
-        gap: 4px;
+        justify-content: space-evenly;
     }
 
     > button {
@@ -69,7 +71,6 @@
     }
 
     textarea {
-        width: 400px;
         height: 100px;
     }
 
@@ -82,8 +83,6 @@
 }
 
 #editGamePanel {
-    // min-width: 500px;
-
     &.upload {
         pointer-events: none !important;
         filter: brightness(0.5);
@@ -157,7 +156,7 @@
 }
 
 #joinPanel {
-    width: 32vw;
+    width: 36rem;
     align-items: center;
     text-align: center;
 
@@ -217,8 +216,6 @@
 }
 
 #registerPanel, #resetPanel {
-    min-width: 320px;
-
     form {
         display: inherit;
         gap: inherit;
@@ -228,6 +225,7 @@
 
     table {
         border-collapse: collapse;
+        white-space: nowrap;
 
         tr > td + td {
             padding-left: 16px;
