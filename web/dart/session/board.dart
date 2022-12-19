@@ -795,6 +795,7 @@ class Board {
       origin = activeMovable.position;
     }
 
+    var hasChanged = false;
     moveStream.listen((ev) {
       final point = ev.p;
       final vector = point - origin;
@@ -804,10 +805,15 @@ class Board {
       degrees = grid.measuringRuleset.snapTokenAngle(degrees);
 
       for (var mv in selected) {
-        mv.angle = degrees;
+        if (mv.angle != degrees) {
+          mv.angle = degrees;
+          hasChanged = true;
+        }
       }
     }, onDone: () {
-      _sendSelectedMovablesSnap();
+      if (hasChanged) {
+        _sendSelectedMovablesSnap();
+      }
     });
   }
 
