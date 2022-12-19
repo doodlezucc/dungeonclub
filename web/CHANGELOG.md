@@ -1,3 +1,8 @@
+## 20-12-2022
+- *Hex grids* are here! Movement, measurings, fog of war and even area of effect is supported on both horizontal and vertical hexagons.
+- Similarly, an *unclamped grid* can be used if you don't need any tile-snapping features.
+- You can now *rotate* your tokens. When selected, hold the *Alt* key and click anywhere to rotate tokens towards the pointer position.
+
 ## 04-10-2022
 - The *Fog of War* tool has undergone an overhaul, introducing a paintbrush and the ability to *snap to grid cells*.
 - *Conditions* have been split into categories to make them easier to find.
