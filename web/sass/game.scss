@@ -902,6 +902,7 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
     display: flex;
     justify-content: center;
     border: 0 solid var(--color-background);
+    border-radius: 50%;
     left: calc(var(--size) * $token-unit-size-half-px);
     top: calc(var(--size) * $token-unit-size-half-px);
     width: calc(var(--size) * $token-unit-size-px);
