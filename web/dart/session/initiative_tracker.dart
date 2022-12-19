@@ -194,12 +194,6 @@ class InitiativeTracker {
     if (panel.classes.remove('show')) overlayVisible = false;
   }
 
-  void onPrefabNameUpdate(CustomPrefab p) {
-    for (var m in p.movables) {
-      onNameUpdate(m);
-    }
-  }
-
   void onNameUpdate(Movable m) {
     if (_summary != null) {
       for (var entry in _summary.entries) {

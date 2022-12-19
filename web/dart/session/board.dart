@@ -226,6 +226,12 @@ class Board {
     }
   }
 
+  void onPrefabNameChange(CustomPrefab prefab) {
+    if (activeMovable?.prefab == prefab) {
+      _selectedLabelPrefix.text = prefab.name;
+    }
+  }
+
   void _toggleMeasureSticky() {
     if (!_measureSticky.classes.toggle('active')) {
       removeMeasuring(session.charId, sendEvent: true);

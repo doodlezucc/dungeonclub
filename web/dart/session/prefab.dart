@@ -131,8 +131,13 @@ class CustomPrefab extends Prefab with HasInitiativeMod {
   String get name => _name;
   set name(String name) {
     _name = name;
-    user.session.board.initiativeTracker.onPrefabNameUpdate(this);
     applyName();
+
+    user.session.board.onPrefabNameChange(this);
+    for (var m in movables) {
+      user.session.board.initiativeTracker.onNameUpdate(m);
+      m.updateTooltip();
+    }
   }
 
   CustomPrefab({@required int id}) : _id = id;
