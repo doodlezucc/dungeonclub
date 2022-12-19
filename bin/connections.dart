@@ -351,7 +351,7 @@ class Connection extends Socket {
       case a.GAME_MOVABLE_SNAP:
         for (var jm in params['movables']) {
           var m = scene.getMovable(jm['id']);
-          m.position = parsePoint<double>(jm);
+          m.handleSnapEvent(jm);
         }
 
         return notifyOthers(action, params);

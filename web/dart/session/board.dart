@@ -421,27 +421,20 @@ class Board {
     selected.clear();
   }
 
-  void _snapSelection() async {
+  void _snapSelection() {
     if (mapTab.visible) return;
 
     for (var m in selected) {
       m.roundToGrid();
     }
 
-    await socket.sendAction(a.GAME_MOVABLE_SNAP, {
-      'movables': selected
-          .map((m) => {
-                'id': m.id,
-                ...writePoint(m.position),
-              })
-          .toList(),
-    });
+    _sendSelectedMovablesSnap();
   }
 
   void onMovableSnap(Map<String, dynamic> json) {
     for (var jm in json['movables']) {
       var m = movables.firstWhere((mv) => mv.id == jm['id']);
-      m.position = parsePoint<double>(jm);
+      m.handleSnapEvent(jm);
     }
   }
 
@@ -462,6 +455,19 @@ class Board {
   void _sendSelectedMovablesUpdate() {
     socket.sendAction(a.GAME_MOVABLE_UPDATE, {
       'changes': selected.map((e) => e.toJson()).toList(),
+    });
+  }
+
+  /// Sends the current position and angle of all selected movables.
+  void _sendSelectedMovablesSnap() {
+    Map convertToJson(Movable m) => {
+          'id': m.id,
+          ...writePoint(m.position),
+          'angle': m.angle,
+        };
+
+    socket.sendAction(a.GAME_MOVABLE_SNAP, {
+      'movables': selected.map(convertToJson).toList(),
     });
   }
 
@@ -625,6 +631,7 @@ class Board {
               _handleSelectArea(start, stream);
               pan = false;
             } else {
+              // Figure out clicked token
               var movableElem = ev.path.firstWhere(
                 (e) =>
                     e is Element &&
@@ -634,16 +641,21 @@ class Board {
               );
 
               if (movableElem != null) {
+                // Move clicked/selected token(s)
                 for (var mv in movables) {
                   if (mv.e == movableElem) {
                     clickedMovable = mv;
                     break;
                   }
                 }
-
                 _handleMovableMove(start, stream, clickedMovable);
                 pan = false;
+              } else if (start.alt && selected.isNotEmpty) {
+                // Change token angle
+                _handleMovableRotate(start, stream);
+                pan = false;
               } else if (selectedPrefab != null) {
+                // Create new token at cursor position
                 final worldPos = grid.centeredWorldPoint(
                   start.p * (1 / scaledZoom),
                   selectedPrefab.size,
@@ -657,6 +669,7 @@ class Board {
                   toggleSelect([newMov], state: true);
                   pan = false;
                   if (newMov is EmptyMovable) {
+                    // Focus label input of created labeled token
                     Future.delayed(Duration(milliseconds: 4),
                         () => _selectedLabel.focus());
                   }
@@ -772,6 +785,30 @@ class Board {
     window.onKeyUp
         .where((ev) => ev.keyCode == 18)
         .listen((_) => triggerUpdate(false));
+  }
+
+  void _handleMovableRotate(SimpleEvent first, Stream<SimpleEvent> moveStream) {
+    Point origin;
+    if (activeMovable != null) {
+      origin = grid.grid.gridToWorldSpace(activeMovable.position) * scaledZoom;
+    } else {
+      origin = activeMovable.position;
+    }
+
+    moveStream.listen((ev) {
+      final point = ev.p;
+      final vector = point - origin;
+      final angle = atan2(vector.x, -vector.y);
+
+      var degrees = angle * 180 / pi;
+      degrees = grid.measuringRuleset.snapTokenAngle(degrees);
+
+      for (var mv in selected) {
+        mv.angle = degrees;
+      }
+    }, onDone: () {
+      _sendSelectedMovablesSnap();
+    });
   }
 
   void _handleSelectArea(SimpleEvent first, Stream<SimpleEvent> moveStream) {

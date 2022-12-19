@@ -54,6 +54,12 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   @override
+  set angle(double angle) {
+    super.angle = angle;
+    e.style.setProperty('--angle', '$angle');
+  }
+
+  @override
   set invisible(bool invisible) {
     super.invisible = invisible;
     e.classes.toggle('invisible', invisible);
@@ -220,22 +226,13 @@ class Movable extends ClampedEntityBase with TokenModel {
 
   Map<String, dynamic> toCloneJson() => {
         'prefab': prefab.id,
-        ..._sharedJson(),
+        ...toJsonExcludeID(),
       };
 
   @override
   Map<String, dynamic> toJson() => {
         'movable': id,
-        ..._sharedJson(),
-      };
-
-  Map<String, dynamic> _sharedJson() => {
-        ...writePoint(position),
-        'label': label,
-        'conds': conds.toList(),
-        'aura': auraRadius,
-        'invisible': invisible,
-        ...super.toJson(),
+        ...toJsonExcludeID(),
       };
 
   @override

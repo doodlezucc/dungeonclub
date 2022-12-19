@@ -184,11 +184,23 @@ abstract class MeasuringRuleset<T extends Grid> {
   }
 
   num distanceBetweenGridPoints(T grid, Point a, Point b);
+  double snapTokenAngle(double degrees);
 }
 
-abstract class SquareMeasuringRuleset extends MeasuringRuleset<SquareGrid> {}
+abstract class SquareMeasuringRuleset extends MeasuringRuleset<SquareGrid> {
+  @override
+  double snapTokenAngle(double degrees) => _snapNumber(degrees, 45);
+}
 
-abstract class HexMeasuringRuleset extends MeasuringRuleset<HexagonalGrid> {}
+abstract class HexMeasuringRuleset extends MeasuringRuleset<HexagonalGrid> {
+  @override
+  double snapTokenAngle(double degrees) => _snapNumber(degrees, 30);
+}
+
+/// Rounds `v` to the closest step so that `v % step == 0`.
+double _snapNumber(double v, double step) {
+  return (v / step).roundToDouble() * step;
+}
 
 Rectangle _pointsToBoundingBox(List<Point> points) {
   var p1 = points.first;

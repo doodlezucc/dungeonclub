@@ -914,6 +914,7 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
     --size: 1;
     --x: 0;
     --y: 0;
+    --angle: 0;
 
     &.invisible {
         &:not(.accessible) { display: none; }
@@ -942,6 +943,7 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
 
     > .img {
         @include base.center-background;
+        rotate: calc(var(--angle) * 1deg);
         top: 0;
         left: 0;
         width: inherit;

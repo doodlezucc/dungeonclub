@@ -29,4 +29,7 @@ class UnclampedMeasuringRuleset extends MeasuringRuleset<UnclampedGrid>
   Set<Point<int>> getTilesAffectedByPolygon(Polygon polygon, UnclampedGrid grid,
           {bool checkCenter = false}) =>
       const {};
+
+  @override
+  double snapTokenAngle(double degrees) => degrees; // No angle snapping
 }
