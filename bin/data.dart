@@ -391,7 +391,7 @@ class Game with Upgradeable {
       (id != null && id < _scenes.length) ? _scenes[id] : null;
 
   Scene addScene() {
-    var scene = Scene({});
+    var scene = Scene({})..gridType = playingScene.gridType;
     _scenes.add(scene);
     return scene;
   }
