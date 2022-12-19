@@ -102,7 +102,7 @@ class Movable extends ClampedEntityBase with TokenModel {
       ..className = 'movable'
       ..append(_aura..className = 'aura')
       ..append(DivElement()..className = 'ring')
-      ..append(DivElement()..className = 'img')
+      ..append(DivElement()..className = 'img rotating')
       ..append(DivElement()..className = 'conds');
 
     if (createTooltip) {
@@ -282,3 +282,52 @@ class EmptyMovable extends Movable {
   @override
   void updateTooltip() {}
 }
+
+class AngleArrow {
+  HtmlElement get container => querySelector('#angleArrow');
+
+  bool _visible = false;
+  bool get visible => _visible;
+  set visible(bool visible) {
+    if (_visible == visible) return;
+    _visible = visible;
+    container.classes.toggle('show', visible);
+  }
+
+  Point _origin;
+  Point get origin => _origin;
+  set origin(Point origin) {
+    _origin = origin;
+    container.style.setProperty('--x', '${origin.x}px');
+    container.style.setProperty('--y', '${origin.y}px');
+  }
+
+  double _angle;
+  double get angle => _angle;
+  set angle(double angle) {
+    _angle = angle;
+    container.style.setProperty('--angle', '$angle');
+  }
+
+  int _length;
+  int get length => _length;
+  set length(int length) {
+    _length = length;
+    container.style.setProperty('--length', '$length');
+  }
+
+  void align(Board board, Point end) {
+    final activeMovable = board.activeMovable;
+
+    origin = board.grid.grid.gridToWorldSpace(activeMovable.position);
+    length = activeMovable.displaySize;
+
+    final vector = end - origin;
+    final angle = math.atan2(vector.x, -vector.y);
+
+    var degrees = angle * 180 / math.pi;
+    this.angle = board.grid.measuringRuleset.snapTokenAngle(degrees);
+  }
+}
+
+final angleArrow = AngleArrow();

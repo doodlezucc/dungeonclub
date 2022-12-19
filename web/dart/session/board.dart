@@ -533,6 +533,24 @@ class Board {
     double pinchZoomStart;
     bool pan;
 
+    void _alignAngleArrow() {
+      if (activeMovable == null) return;
+
+      var display = false;
+
+      if (lastEv != null && lastEv.alt) {
+        // Only show angle arrow if no movable is hovered
+        display = !lastEv.path.any(
+          (e) => e is Element && e.classes.contains('movable'),
+        );
+      }
+
+      if (display) {
+        angleArrow.align(this, lastEv.p * (1 / scaledZoom));
+      }
+      angleArrow.visible = display;
+    }
+
     double pinchDistance(Iterable<Touch> touches) {
       return touches.first.page.distanceTo(touches.last.page);
     }
@@ -557,9 +575,10 @@ class Board {
       Stream<T> endEvent,
     ) {
       SimpleEvent toSimple(T ev) {
-        var delta = evToPoint(ev) - previous;
-        previous = evToPoint(ev);
-        var p = previous - _e.getBoundingClientRect().topLeft;
+        final evP = evToPoint(ev);
+        final delta = evP - (previous ?? evP);
+        previous = evP;
+        final p = previous - _e.getBoundingClientRect().topLeft;
         return SimpleEvent.fromJS(ev, p, delta);
       }
 
@@ -650,7 +669,7 @@ class Board {
                 }
                 _handleMovableMove(start, stream, clickedMovable);
                 pan = false;
-              } else if (start.alt && selected.isNotEmpty) {
+              } else if (start.alt && activeMovable != null) {
                 // Change token angle
                 _handleMovableRotate(start, stream);
                 pan = false;
@@ -725,6 +744,8 @@ class Board {
       });
 
       moveEvent.listen((ev) {
+        final sev = toSimple(ev);
+        lastEv = sev;
         if (moveStreamCtrl != null) {
           var point = evToPoint(ev);
           if (timer != null && timer.isActive) {
@@ -733,9 +754,7 @@ class Board {
             }
           }
 
-          var sev = toSimple(ev);
           moveStreamCtrl.add(sev);
-          lastEv = sev;
 
           if (ev is TouchEvent && pan) {
             if (ev.touches.length == 1) {
@@ -762,6 +781,8 @@ class Board {
             var p = evToPoint(ev) - _e.getBoundingClientRect().topLeft;
             alignMovableGhost(p * (1 / scaledZoom), selectedPrefab);
             toggleMovableGhostVisible(true);
+          } else {
+            _alignAngleArrow();
           }
         }
       });
@@ -774,8 +795,13 @@ class Board {
         _container.onTouchStart, window.onTouchMove, window.onTouchEnd);
 
     void triggerUpdate(bool alt) {
-      if (moveStreamCtrl != null && lastEv != null) {
-        moveStreamCtrl.add(lastEv..alt = alt);
+      if (lastEv != null) {
+        lastEv.alt = alt;
+        _alignAngleArrow();
+
+        if (moveStreamCtrl != null) {
+          moveStreamCtrl.add(lastEv);
+        }
       }
     }
 
@@ -788,21 +814,11 @@ class Board {
   }
 
   void _handleMovableRotate(SimpleEvent first, Stream<SimpleEvent> moveStream) {
-    Point origin;
-    if (activeMovable != null) {
-      origin = grid.grid.gridToWorldSpace(activeMovable.position) * scaledZoom;
-    } else {
-      origin = activeMovable.position;
-    }
-
     var hasChanged = false;
-    moveStream.listen((ev) {
+    void onMove(SimpleEvent ev) {
       final point = ev.p;
-      final vector = point - origin;
-      final angle = atan2(vector.x, -vector.y);
-
-      var degrees = angle * 180 / pi;
-      degrees = grid.measuringRuleset.snapTokenAngle(degrees);
+      angleArrow.align(this, point * (1 / scaledZoom));
+      final degrees = angleArrow.angle;
 
       for (var mv in selected) {
         if (mv.angle != degrees) {
@@ -810,7 +826,11 @@ class Board {
           hasChanged = true;
         }
       }
-    }, onDone: () {
+    }
+
+    onMove(first);
+
+    moveStream.listen(onMove, onDone: () {
       if (hasChanged) {
         _sendSelectedMovablesSnap();
       }

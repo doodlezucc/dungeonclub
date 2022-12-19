@@ -98,6 +98,7 @@ class HtmlTransform {
 }
 
 class SimpleEvent {
+  Event sourceEvent;
   Point p;
   Point movement;
   bool shift;
@@ -105,6 +106,8 @@ class SimpleEvent {
   bool alt;
   int button;
   bool isMouseDown;
+
+  List<EventTarget> get path => sourceEvent?.path;
 
   SimpleEvent(
     this.p,
@@ -117,7 +120,8 @@ class SimpleEvent {
   );
 
   SimpleEvent.fromJS(Event ev, this.p, this.movement)
-      : shift = (ev as dynamic).shiftKey,
+      : sourceEvent = ev,
+        shift = (ev as dynamic).shiftKey,
         ctrl = (ev as dynamic).ctrlKey,
         alt = (ev as dynamic).altKey,
         button = ev is MouseEvent ? ev.button : 0,

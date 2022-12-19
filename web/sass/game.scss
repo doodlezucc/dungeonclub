@@ -943,7 +943,6 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
 
     > .img {
         @include base.center-background;
-        rotate: calc(var(--angle) * 1deg);
         top: 0;
         left: 0;
         width: inherit;
@@ -951,6 +950,10 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
         border: 3px solid;
         border-color: inherit;
         border-radius: 50%;
+    }
+
+    > .rotating {
+        rotate: calc(var(--angle) * 1deg);
     }
 
     > .conds {
@@ -1320,4 +1323,29 @@ $ping-radius: 100px;
     #ambience .shrink {
         max-height: 140px;
     }
+}
+
+#angleArrow {
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    animation: none !important;
+
+    &.show {
+        opacity: 1;
+    }
+
+    .rotating {
+        @extend %center;
+        background: none !important;
+        border: none !important;
+    }
+    .rotating > * {
+        position: absolute;
+    }
+}
+.arrowEnd {
+    transform: translate(0, calc(var(--length) * $token-unit-size-half-px - 20px));
+    filter: drop-shadow(0 0 3px #000f);
+    font-size: 1.5rem;
 }
