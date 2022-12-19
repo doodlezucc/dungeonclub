@@ -257,6 +257,11 @@ class EmptyMovable extends Movable {
     _labelSpan.style.setProperty('--length', '${length + 1}');
   }
 
+  @override
+  String get displayName {
+    return label;
+  }
+
   EmptyMovable._({
     @required Board board,
     @required EmptyPrefab prefab,

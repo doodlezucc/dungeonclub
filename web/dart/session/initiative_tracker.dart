@@ -159,12 +159,7 @@ class InitiativeTracker {
       return other.prefab == prefab;
     });
 
-    var name = mv.name;
-    var dupes = _summary.nameDuplicates[name];
-    if (dupes > 1) {
-      var i = dupes - _similar.length + 1;
-      name += ' ($i/$dupes)';
-    }
+    var name = mv.displayName;
     targetText.innerHtml = "<b>$name</b>'s Initiative";
 
     skipTypeButton.text = 'Skip ${_similar.length} Similar Tokens';
@@ -198,7 +193,7 @@ class InitiativeTracker {
     if (_summary != null) {
       for (var entry in _summary.entries) {
         if (entry.movable == m) {
-          entry.nameText.text = m.name;
+          entry.nameText.text = m.displayName;
           return;
         }
       }
@@ -271,7 +266,6 @@ void updateRerollableInitiatives() {
 
 class InitiativeSummary {
   final List<Movable> mine = [];
-  Map<String, int> nameDuplicates;
   List<InitiativeEntry> entries = [];
 
   static int _importance(Movable m) {
@@ -315,9 +309,6 @@ class InitiativeSummary {
       if (cmp == 0) return a.name.compareTo(b.name);
 
       return cmp;
-    });
-    nameDuplicates = mine.fold(<String, int>{}, (map, mv) {
-      return map..update(mv.name, (count) => count + 1, ifAbsent: () => 1);
     });
   }
 
@@ -401,7 +392,7 @@ class InitiativeEntry {
         ..append(totalText)
         ..onLMB.listen(_onClick)
         ..onContextMenu.listen(_onClick))
-      ..append(nameText..text = movable.name)
+      ..append(nameText..text = movable.displayName)
       ..onMouseEnter.listen((_) {
         movable.e.classes.add('hovered');
         _bufferedModifier = modifier;
