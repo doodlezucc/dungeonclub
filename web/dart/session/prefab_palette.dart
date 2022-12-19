@@ -71,8 +71,9 @@ set selectedPrefab(Prefab p) {
     var img = p.img(cacheBreak: false);
     _prefabImageImg.src = img;
     _movableGhost.classes.toggle('empty', isEmpty);
-    _movableGhost.style.backgroundImage = 'url($img)';
+    _setMovableGhostImage(img);
     _movableGhost.style.setProperty('--size', '${p.size}');
+    _movableGhost.style.setProperty('--angle', '0');
 
     if (isCustom) {
       var children = _prefabAccess.children;
@@ -151,9 +152,14 @@ void imitateMovableGhost(Movable m) {
   _copyStyleProp('--x', m.e, _movableGhost);
   _copyStyleProp('--y', m.e, _movableGhost);
   _copyStyleProp('--size', m.e, _movableGhost);
+  _copyStyleProp('--angle', m.e, _movableGhost);
   _movableGhost.classes.toggle('empty', m is EmptyMovable);
   var img = m.prefab.img(cacheBreak: false);
-  _movableGhost.style.backgroundImage = 'url($img)';
+  _setMovableGhostImage(img);
+}
+
+void _setMovableGhostImage(String img) {
+  _movableGhost.querySelector('.img').style.backgroundImage = 'url($img)';
 }
 
 void _initPrefabProperties() {
@@ -172,7 +178,7 @@ void _initPrefabProperties() {
     onSuccess: (_) {
       var src = selectedPrefab.applyImage();
       _prefabImageImg.src = src;
-      _movableGhost.style.backgroundImage = 'url($src)';
+      _setMovableGhostImage(src);
       user.session.board.updatePrefabImage(selectedPrefab, src);
     },
   );
