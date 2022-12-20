@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:dungeonclub/environment.dart';
 import 'package:path/path.dart' as p;
 
 import 'entry_parser.dart';
 
 const BUILD_COPY_MUSIC = 'copy-music';
+const BUILD_ICONS = 'download-icons';
 
 const BUILD_PART = 'part';
 const BUILD_PART_SERVER = 'server';
@@ -17,6 +20,7 @@ final defaultConfig = {
   Environment.ENV_ENABLE_MUSIC: false,
   Environment.ENV_TIMESTAMP: DateTime.now().millisecondsSinceEpoch,
   BUILD_COPY_MUSIC: false,
+  BUILD_ICONS: true,
   BUILD_PART: BUILD_PART_ALL,
 };
 
@@ -38,6 +42,10 @@ Future<void> buildWithArgs(Directory output, List<String> args) async {
           BUILD_COPY_MUSIC,
           'Whether to include locally downloaded music (ambience/tracks/*.mp3) '
           'in the build.');
+      addFlag(
+          BUILD_ICONS,
+          'Whether to download and include the latest release of Font Awesome '
+          '(icons used on the website)');
     },
   );
   var config = parser.tryArgParse(args);
@@ -67,7 +75,9 @@ Future<void> build(Directory output, [Map<String, dynamic> D]) async {
   await output.create(recursive: true);
 
   if (D[BUILD_PART] == BUILD_PART_ALL) {
-    await copySourceWebFiles(output);
+    bool replaceIconKit = D[BUILD_ICONS];
+
+    await copySourceWebFiles(output, replaceIconKit: replaceIconKit);
     await copyAmbience(output, D[BUILD_COPY_MUSIC]);
     await copyMail(output);
 
@@ -79,6 +89,14 @@ Future<void> build(Directory output, [Map<String, dynamic> D]) async {
 # Each line may define an account in a format of "username: password".
 admin: admin
 ''');
+    }
+
+    if (replaceIconKit) {
+      printStep('Downloading Font Awesome icons');
+      await downloadFontAwesome(
+        p.join(output.path, 'web', 'style', 'fontawesome.css'),
+        p.join(output.path, 'web', 'webfonts'),
+      );
     }
 
     printStep('Compiling SCSS');
@@ -109,7 +127,10 @@ Future<void> copyMail(Directory output) {
       'mail', p.join(output.path, 'mail'), (fse) => fse.path.endsWith('.html'));
 }
 
-Future<void> copySourceWebFiles(Directory output) async {
+Future<void> copySourceWebFiles(
+  Directory output, {
+  bool replaceIconKit = false,
+}) async {
   var excludeExt = ['.dart', '.sh', '.deps', '.map'];
   await copyDirectory('web', p.join(output.path, 'web'), (fse) {
     if (fse is Directory) {
@@ -124,14 +145,25 @@ Future<void> copySourceWebFiles(Directory output) async {
     }
 
     return true;
+  }, postProcess: (file) async {
+    if (replaceIconKit && file.path.endsWith('index.html')) {
+      // Replace font awesome's icon kit with a local stylesheet
+      final source = RegExp(r'<script[^>]*fontawesome.*<\/script>');
+      final replace = '<link rel="stylesheet" href="style/fontawesome.css">';
+
+      var contents = await file.readAsString();
+      contents = contents.replaceFirst(source, replace);
+      await file.writeAsString(contents);
+    }
   });
 }
 
 Future<void> copyDirectory(
   String src,
   String dst,
-  bool Function(FileSystemEntity fse) doCopy,
-) async {
+  bool Function(FileSystemEntity fse) doCopy, {
+  Future<void> Function(File file) postProcess,
+}) async {
   await Directory(dst).create(recursive: true);
   await for (final file in Directory(src).list(recursive: true)) {
     if (!doCopy(file)) continue;
@@ -140,7 +172,10 @@ Future<void> copyDirectory(
     if (file is Directory) {
       await Directory(copyTo).create(recursive: true);
     } else if (file is File) {
-      await File(file.path).copy(copyTo);
+      final created = await File(file.path).copy(copyTo);
+      if (postProcess != null) {
+        await postProcess(created);
+      }
     } else if (file is Link) {
       await Link(copyTo).create(await file.target(), recursive: true);
     }
@@ -207,4 +242,70 @@ Future<int> cmdAwait(Future<Process> processCompleter) async {
   });
 
   return process.exitCode;
+}
+
+extension ClientExtension on HttpClient {
+  Future<Stream<List<int>>> download(String url) async {
+    final request = await getUrl(Uri.parse(url));
+    return await request.close();
+  }
+
+  Future<String> downloadString(String url) async {
+    final response = await download(url);
+    return await utf8.decodeStream(response);
+  }
+
+  Future<List> listGitHubReleaseAssets(
+    String repo, {
+    String release = 'latest',
+  }) async {
+    final latestReleaseUrl =
+        'https://api.github.com/repos/$repo/releases/$release';
+    final body = await downloadString(latestReleaseUrl);
+    return jsonDecode(body)['assets'];
+  }
+}
+
+extension ArchiveExtension on ArchiveFile {
+  Future<void> writeToFile(String output) async {
+    final out = OutputFileStream(output);
+    writeContent(out);
+    await out.close();
+  }
+}
+
+Future<void> downloadFontAwesome(
+    String outputCss, String outputWebfonts) async {
+  print('Reading latest release');
+
+  final client = HttpClient();
+  final repo = 'FortAwesome/Font-Awesome';
+  final assets = await client.listGitHubReleaseAssets(repo);
+
+  final webAsset = assets.firstWhere((assetEntry) {
+    String assetName = assetEntry['name'];
+    return assetName.contains('-web');
+  });
+
+  print('Downloading ' + webAsset['name']);
+  String assetUrl = webAsset['browser_download_url'];
+  final downloadStream = await client.download(assetUrl);
+  final zipBytes = await downloadStream.expand((chunk) => chunk).toList();
+
+  final archive = ZipDecoder().decodeBytes(zipBytes);
+  print('Unzipping bundled CSS file');
+
+  final cssArchiveFile =
+      archive.files.firstWhere((file) => file.name.endsWith('all.min.css'));
+  await cssArchiveFile.writeToFile(outputCss);
+
+  final webfontFiles = archive.files.where((file) =>
+      file.name.contains('/webfonts/') && file.name.endsWith('.woff2'));
+
+  for (var file in webfontFiles) {
+    final path = p.join(outputWebfonts, p.basename(file.name));
+    await file.writeToFile(path);
+  }
+
+  client.close();
 }

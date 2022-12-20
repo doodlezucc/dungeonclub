@@ -98,4 +98,5 @@ Option | Definition | Default (serve) | Default (build)
 `--bootstrap` | <ul><li>`all` - Enable log files and graceful exits</li><li>`logging` - Enable log files</li><li>`none` - Bypass bootstrapper</li></ul> | `all` |
 **Build Only**
 `--[no-]copy-music` | Whether to include locally downloaded music (ambience/tracks/*.mp3) in the build. | | `false`
+`--[no-]download-icons` | Whether to download and include the latest release of Font Awesome (icons used on the website) | | `true`
 `--part` | Which parts to compile and include in the build. Can be `server` or `all`. | | `all`
