@@ -53,7 +53,7 @@ class Scene {
 
   set enableRemove(bool enable) => _remove.disabled = !enable;
 
-  Scene(this.id) : e = DivElement() {
+  Scene(this.id) : e = DivElement()..className = 'scene-preview' {
     e
       ..append(_bg = DivElement()
         ..append(iconButton('wrench', label: 'Edit')

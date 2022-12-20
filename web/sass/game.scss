@@ -351,94 +351,6 @@
         pointer-events: none;
     }
 
-    #sceneSelector {
-        @include panels.hooked(172px);
-        width: 100%;
-        border-radius: 0%;
-        padding-bottom: 0;
-        gap: 0;
-
-        &:hover, &.hovered { z-index: 7; }
-
-        #scenes {
-            flex-direction: row;
-            overflow-x: auto;
-            overflow-y: hidden;
-            gap: 8px;
-            padding: 8px 0 48px 0;
-
-            > div {
-                > div {
-                    @include base.center-background;
-                    min-width: 120px;
-                    max-width: 120px;
-                    height: 80px;
-                    border-radius: base.$radius;
-                    overflow: hidden;
-                    box-sizing: border-box;
-                    cursor: pointer;
-                    border: 2px solid transparent;
-                    position: relative;
-
-                    &.editing {
-                        @extend %active;
-                        border-color: var(--color-text-primary);
-                        border-style: dashed;
-                    }
-                    &.playing {
-                        @extend %active;
-                        border-color: var(--color-good) !important;
-                    }
-
-                    button {
-                        border-radius: 0%;
-                        width: 100%;
-                        height: 100%;
-                        opacity: 0;
-                        background-color: var(--color-not-intense);
-                        align-items: center;
-
-                        &:hover {
-                            opacity: 0.8 !important;
-                        }
-                    }
-                }
-
-                > span {
-                    padding: 2px 0;
-                    display: flex;
-                    justify-content: space-between;
-                    opacity: 0;
-                    transition-duration: 0.1s;
-
-                    button.play:hover {
-                        color: var(--color-good);
-                    }
-                }
-                
-                &:hover {
-                    > div {
-                        @extend %active;
-                        border-color: var(--color-text-primary);
-                        border-style: solid;
-                        button {
-                            opacity: 0.75;
-                        }
-                    }
-
-                    > span {
-                        opacity: 1;
-                    }
-                }
-            }
-        }
-
-        #addScene {
-            width: 120px;
-            height: 80px;
-        }
-    }
-
     #playerControls {
         top: 16px;
         left: 16px;
@@ -519,6 +431,98 @@
     }
     &:not([mode="fow"]) {
         #polymaskWrapper { pointer-events: none; opacity: 0.85; }
+    }
+}
+
+$scene-preview-width: 140px;
+
+#sceneSelector {
+    @include panels.hooked(130px);
+    min-width: 100%;
+    width: 100%;
+    border-radius: 0%;
+    padding: 0 !important;
+
+    &:hover, &.hovered { z-index: 7; }
+}
+#scenes {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 4px;
+    padding: 8px;
+}
+#addScene {
+    min-width: $scene-preview-width;
+}
+
+.scene-preview {
+    display: flex;
+    flex-direction: column;
+
+    > div {
+        @include base.center-background;
+        min-width: $scene-preview-width;
+        max-width: $scene-preview-width;
+        height: 100vh;
+        overflow: hidden;
+        border-radius: base.$radius;
+        box-sizing: border-box;
+        cursor: pointer;
+        position: relative;
+
+        &.editing {
+            @extend %active;
+            border: 2px dashed var(--color-text-primary) !important;
+        }
+        &.playing {
+            @extend %active;
+            border: 2px solid var(--color-good) !important;
+        }
+
+        button {
+            border-radius: 0%;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            background-color: var(--color-not-intense);
+            align-items: center;
+
+            &:hover {
+                opacity: 0.8 !important;
+            }
+        }
+    }
+
+    > span {
+        padding: 0;
+        display: flex;
+        justify-content: space-between;
+        opacity: 0.5;
+        transition-duration: 0.1s;
+        height: 0;
+        min-height: 0;
+        overflow: hidden;
+
+        button.play:hover {
+            color: var(--color-good);
+        }
+    }
+    
+    &:hover {
+        > div {
+            @extend %active;
+            border: 2px solid var(--color-text-primary);
+            button {
+                opacity: 0.75;
+            }
+        }
+
+        > span {
+            opacity: 1;
+            padding: 2px 0;
+            min-height: 36px;
+        }
     }
 }
 
