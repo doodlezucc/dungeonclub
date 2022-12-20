@@ -124,17 +124,10 @@ void run(List<String> args) async {
   await createAssetPreview('web/images/assets/scene', zoomIn: true);
 
   if (Environment.enableMusic) {
-    try {
-      await loadAmbience();
-      print('Background music up to date');
-    } on Exception catch (e) {
-      print(e.toString());
-      print('Failed to extract background music sources.'
-          ' If you require the integrated music player,'
-          ' make sure you have yt-dlp and ffmpeg installed.');
-    }
+    await loadAmbience();
+    print('Loaded music playlists');
   } else {
-    print('Music player not enabled');
+    print('Music playlists not enabled');
   }
 
   print('''\nDungeon Club is ready!

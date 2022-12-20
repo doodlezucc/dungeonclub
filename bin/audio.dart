@@ -6,9 +6,15 @@ import 'package:ambience/server/playlists.dart';
 final PlaylistCollection collection = PlaylistCollection(Directory('ambience'));
 
 Future<void> loadAmbience() async {
-  await collection.reload();
-  await collection.sync();
-  _customTrackMeta();
+  await collection.loadMeta();
+  try {
+    await collection.readSource();
+    await collection.sync();
+    _customTrackMeta();
+  } on ProcessException catch (e) {
+    print('Unable to refresh playlists because '
+        '"${e.executable}" is not installed or outdated.');
+  }
 }
 
 void _customTrackMeta() {
