@@ -151,6 +151,7 @@
     #sceneEditor {
         top: 16px;
         left: 16px;
+        width: min-content;
     }
 
     #rightControls {
@@ -490,7 +491,7 @@
             @extend .invisible;
         }
 
-        .movable {
+        .movable:not(#angleArrow) {
             opacity: 0.5;
             pointer-events: none;
         }

@@ -64,6 +64,10 @@
     > span {
         display: flex;
         justify-content: space-evenly;
+
+        &.center {
+            justify-content: center;
+        }
     }
 
     > button {

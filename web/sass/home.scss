@@ -254,6 +254,10 @@
         margin-bottom: 100px;
 
         > div { min-width: 32vw; }
+
+        &:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
     }
 
     img, video {
