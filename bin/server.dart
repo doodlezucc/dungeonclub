@@ -242,6 +242,10 @@ String getMimeType(File f) {
 }
 
 Future<Response> _handleRequest(Request request) async {
+  if (!Bootstrapper.isRunning) {
+    return Response.forbidden('Server is shutting down.');
+  }
+
   var path = request.url.path;
 
   if (path == 'ws') {
