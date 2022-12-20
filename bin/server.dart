@@ -44,17 +44,31 @@ const SERVE_BOOTSTRAP_ALLOWED = [
   SERVE_BOOTSTRAP_ALL,
 ];
 
-void main(List<String> args) {
+void main(List<String> args) async {
   resetCurrentWorkingDir();
-  var logFile = 'logs/latest.log';
 
-  var D = serverParser.tryArgParse(args);
-  var bootstrapMode = D[SERVE_BOOTSTRAP];
+  // Handle "mail" argument
+  final runMailSetup = args.contains('mail');
+  if (runMailSetup) {
+    return await setupMailAuth();
+  }
+
+  // Check for maintenance file
+  if (await maintainer.file.exists()) {
+    print('Server restart blocked by maintenance file!');
+    await Future.delayed(Duration(seconds: 5));
+    return exit(1);
+  }
+
+  // Start server in given bootstrap mode
+  final D = serverParser.tryArgParse(args);
+  final bootstrapMode = D[SERVE_BOOTSTRAP];
 
   if (bootstrapMode == SERVE_BOOTSTRAP_NONE) {
     return run(args);
   }
 
+  final logFile = 'logs/latest.log';
   return bootstrap(
     run,
     args: args,
@@ -70,17 +84,6 @@ void main(List<String> args) {
 void run(List<String> args) async {
   var D = serverParser.tryArgParse(args);
   Environment.applyConfig(D);
-
-  var setupMail = args.contains('mail');
-  if (setupMail) {
-    return await setupMailAuth();
-  }
-
-  if (await maintainer.file.exists()) {
-    print('Server restart blocked by maintenance file!');
-    await Future.delayed(Duration(seconds: 5));
-    return exit(1);
-  }
 
   print('Starting server...');
 
