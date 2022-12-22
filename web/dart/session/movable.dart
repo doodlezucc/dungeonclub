@@ -121,6 +121,8 @@ class Movable extends ClampedEntityBase with TokenModel {
       onPrefabUpdate();
     }
     if (conds != null) applyConditions(conds);
+
+    angle = 0;
   }
 
   static Movable create({
