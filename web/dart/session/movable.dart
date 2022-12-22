@@ -311,8 +311,8 @@ class AngleArrow {
   double _angle;
   double get angle => _angle;
   set angle(double angle) {
-    _angle = angle;
-    container.style.setProperty('--angle', '$angle');
+    _angle = angle.undeviate();
+    container.style.setProperty('--angle', '$_angle');
   }
 
   set sourceAngle(double sourceAngle) {
@@ -323,20 +323,40 @@ class AngleArrow {
     container.style.setProperty('--size', '$length');
   }
 
+  static double _radToDegrees(double rad) {
+    return rad * 180 / math.pi;
+  }
+
+  static double _degBetween(Point a, Point b) {
+    final vector = b - a;
+    final radAngleBetween = math.atan2(vector.x, -vector.y);
+    return _radToDegrees(radAngleBetween);
+  }
+
   void align(Board board, Point end, {bool updateSourceAngle = false}) {
     final activeMovable = board.activeMovable;
 
     origin = board.grid.grid.gridToWorldSpace(activeMovable.position);
     length = activeMovable.displaySize;
 
-    final vector = end - origin;
-    final angle = math.atan2(vector.x, -vector.y);
+    // Snap angle to closest "step" (square: 45°, hex: 30°)
+    final degrees = _degBetween(origin, end);
+    final degSnapStep = board.grid.measuringRuleset.snapTokenAngle(degrees);
 
-    var degrees = angle * 180 / math.pi;
-    this.angle = board.grid.measuringRuleset.snapTokenAngle(degrees);
+    // Snap cursor position to closest cell
+    final endSnapped = board.grid.grid.worldSnapCentered(end, 1);
+    final degSnapCell = _degBetween(origin, endSnapped);
+
+    // Check whether the closest step or the hovered cell center
+    // is closest to the actual angle
+    if ((degrees - degSnapStep).abs() < (degrees - degSnapCell).abs()) {
+      angle = degSnapStep;
+    } else {
+      angle = degSnapCell;
+    }
 
     if (updateSourceAngle) {
-      sourceAngle = this.angle;
+      sourceAngle = angle;
     } else {
       sourceAngle = activeMovable.angle;
     }
