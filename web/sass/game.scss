@@ -1347,6 +1347,10 @@ $ping-radius: 100px;
     }
 
     * { position: absolute; }
+
+    .rotating {
+        rotate: calc(var(--angle) * 1deg + 180deg);
+    }
 }
 #angleCurrent {
     --offset: -16px;

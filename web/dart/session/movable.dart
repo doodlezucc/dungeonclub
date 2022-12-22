@@ -300,9 +300,9 @@ class AngleArrow {
     container.classes.toggle('show', visible);
   }
 
-  Point _origin;
-  Point get origin => _origin;
-  set origin(Point origin) {
+  Point<double> _origin;
+  Point<double> get origin => _origin;
+  set origin(Point<double> origin) {
     _origin = origin;
     container.style.setProperty('--x', '${origin.x}px');
     container.style.setProperty('--y', '${origin.y}px');
@@ -327,8 +327,8 @@ class AngleArrow {
     return rad * 180 / math.pi;
   }
 
-  static double _degBetween(Point a, Point b) {
-    final vector = b - a;
+  static double _degBetween(Point<double> a, Point<double> b) {
+    final vector = a - b;
     final radAngleBetween = math.atan2(vector.x, -vector.y);
     return _radToDegrees(radAngleBetween);
   }
@@ -340,11 +340,11 @@ class AngleArrow {
     length = activeMovable.displaySize;
 
     // Snap angle to closest "step" (square: 45°, hex: 30°)
-    final degrees = _degBetween(origin, end);
+    final degrees = _degBetween(origin, end.cast<double>());
     final degSnapStep = board.grid.measuringRuleset.snapTokenAngle(degrees);
 
     // Snap cursor position to closest cell
-    final endSnapped = board.grid.grid.worldSnapCentered(end, 1);
+    final endSnapped = board.grid.grid.worldSnapCentered(end, 1).cast<double>();
     final degSnapCell = _degBetween(origin, endSnapped);
 
     // Check whether the closest step or the hovered cell center
