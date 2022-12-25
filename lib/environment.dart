@@ -28,4 +28,8 @@ class Environment {
     enableMockAccount = config[ENV_MOCK_ACCOUNT] ?? enableMockAccount;
     enableMusic = config[ENV_ENABLE_MUSIC] ?? enableMusic;
   }
+
+  static Map<String, dynamic> get frontendInjectionEntries => {
+        ENV_ENABLE_MUSIC: enableMusic,
+      };
 }

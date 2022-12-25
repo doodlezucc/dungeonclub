@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dungeonclub/environment.dart';
@@ -290,11 +291,18 @@ Future<Response> _handleRequest(Request request) async {
     }
   }
 
+  // Embed current environment variables in frontend
+  List<int> bodyOverride;
+  if (Environment.isCompiled && file.path == 'web/index.html') {
+    final htmlBody = await injectEnvironmentInFrontend(file);
+    bodyOverride = utf8.encode(htmlBody);
+  }
+
   var type = isDataFile ? 'image/jpeg' : getMimeType(file);
-  var length = await file.length();
+  var length = bodyOverride?.length ?? await file.length();
   return Response(
     200,
-    body: file.openRead(),
+    body: bodyOverride ?? file.openRead(),
     headers: {
       'Content-Type': type,
       'Content-Length': '$length',
@@ -302,6 +310,15 @@ Future<Response> _handleRequest(Request request) async {
       'Accept-Ranges': 'bytes',
     },
   );
+}
+
+Future<String> injectEnvironmentInFrontend(File indexHtml) async {
+  // Matches the inner HTML of a <script> with the "data-environment" attribute.
+  final regex = RegExp(r'(?<=<script data-environment>).*?(?=<\/script>)');
+
+  final contents = await indexHtml.readAsString();
+  final envJson = jsonEncode(Environment.frontendInjectionEntries);
+  return contents.replaceFirst(regex, 'window.ENV = $envJson');
 }
 
 Response _notFound(Request request) {

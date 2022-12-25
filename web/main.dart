@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:html';
+import 'dart:js' as js;
 
 import 'package:dungeonclub/environment.dart';
 import 'package:intl/intl.dart';
@@ -70,13 +71,19 @@ void applyMobileStyling() {
 }
 
 void applyEnvironmentStyling() {
-  document.body.classes.toggle('no-music', !Environment.enableMusic);
   if (Environment.isCompiled) {
+    // Apply environment variables from backend
+    final embeddedConfig = js.context['ENV'];
+    Environment.applyConfig(embeddedConfig);
+
+    // Apply "self-hosted" changes
     querySelector('#privacy').remove();
     var time = DateTime.fromMillisecondsSinceEpoch(Environment.buildTimestamp);
     var buildTime = DateFormat('y-MM-dd').format(time);
     querySelector('#hostInfo').innerHtml = 'Self-Hosted (Build $buildTime)';
   }
+
+  document.body.classes.toggle('no-music', !Environment.enableMusic);
 }
 
 void processUrlPath() {
