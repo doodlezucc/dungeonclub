@@ -3,7 +3,7 @@ import 'dart:html';
 import 'dart:svg' as svg;
 
 import 'package:dungeonclub/actions.dart';
-import 'package:grid/grid.dart';
+import 'package:grid_space/grid_space.dart';
 import 'package:web_polymask/brushes/lasso.dart';
 import 'package:web_polymask/brushes/stroke.dart';
 import 'package:web_polymask/brushes/tool.dart';

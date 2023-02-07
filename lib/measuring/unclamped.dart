@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:dungeonclub/measuring/area_of_effect.dart';
 import 'package:dungeonclub/measuring/ruleset.dart';
 import 'package:dungeonclub/shape_painter/painter.dart';
-import 'package:grid/grid.dart';
+import 'package:grid_space/grid_space.dart';
 
 class UnclampedMeasuringRuleset extends MeasuringRuleset<UnclampedGrid>
     with

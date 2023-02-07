@@ -5,7 +5,7 @@ import 'dart:svg' as svg;
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/measuring/ruleset.dart';
 import 'package:dungeonclub/point_json.dart';
-import 'package:grid/grid.dart';
+import 'package:grid_space/grid_space.dart';
 import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';

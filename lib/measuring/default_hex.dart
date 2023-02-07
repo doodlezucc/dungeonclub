@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:dungeonclub/measuring/area_of_effect.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/shape_painter/painter.dart';
-import 'package:grid/grid.dart';
+import 'package:grid_space/grid_space.dart';
 
 import 'ruleset.dart';
 

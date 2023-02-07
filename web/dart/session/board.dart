@@ -8,7 +8,7 @@ import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/session_util.dart';
-import 'package:grid/grid.dart';
+import 'package:grid_space/grid_space.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';

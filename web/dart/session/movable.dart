@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/point_json.dart';
-import 'package:grid/grid.dart';
+import 'package:grid_space/grid_space.dart';
 import 'package:meta/meta.dart';
 
 import '../font_awesome.dart';

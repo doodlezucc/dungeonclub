@@ -6,7 +6,7 @@ import 'package:dungeonclub/measuring/area_of_effect.dart';
 import 'package:dungeonclub/shape_painter/painter.dart';
 import 'package:dungeonclub/shape_painter/svg_painter.dart';
 import 'package:dungeonclub/measuring/ruleset.dart';
-import 'package:grid/grid.dart';
+import 'package:grid_space/grid_space.dart';
 import 'package:web_whiteboard/binary.dart';
 import 'package:web_whiteboard/util.dart';
 
