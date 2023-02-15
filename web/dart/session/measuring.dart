@@ -3,6 +3,7 @@ import 'dart:svg' as svg;
 import 'dart:typed_data';
 
 import 'package:dungeonclub/measuring/area_of_effect.dart';
+import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/shape_painter/painter.dart';
 import 'package:dungeonclub/shape_painter/svg_painter.dart';
 import 'package:dungeonclub/measuring/ruleset.dart';
@@ -76,12 +77,13 @@ void updateCanvasSvgTile() {
 }
 
 void _writePrecision(BinaryWriter writer, Point p) {
-  var point = p * _precision;
+  final point = p * _precision;
   writer.writePoint(Point(point.x.round(), point.y.round()));
 }
 
 Point _readPrecision(BinaryReader reader) {
-  return forceDoublePoint(reader.readPoint()) * (1 / _precision);
+  final p = forceDoublePoint(reader.readPoint()) * (1 / _precision);
+  return p.undeviate();
 }
 
 void sendCreationEvent(int type, Point origin, Point p) {
