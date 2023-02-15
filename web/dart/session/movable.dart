@@ -112,7 +112,6 @@ class Movable extends ClampedEntityBase with TokenModel {
       ));
     }
 
-    prefab.movables.add(this);
     onImageChange(prefab.img(cacheBreak: false));
     super.size = 0;
 
@@ -216,7 +215,6 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   void onRemove() async {
-    prefab.movables.remove(this);
     board.movables.remove(this);
     board.initiativeTracker.onRemove(this);
 

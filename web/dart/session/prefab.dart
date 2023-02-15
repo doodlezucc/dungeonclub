@@ -27,7 +27,9 @@ abstract class ClampedEntityBase extends EntityBase {
 abstract class Prefab extends ClampedEntityBase {
   final HtmlElement e;
   final SpanElement _nameSpan;
-  final List<Movable> movables = [];
+
+  Iterable<Movable> get movables =>
+      user.session.board.movables.where((movable) => movable.prefab == this);
 
   String get id;
   String img({bool cacheBreak = true});
