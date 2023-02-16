@@ -200,6 +200,16 @@ class InitiativeTracker {
     }
   }
 
+  void onUpdatePrefabImage(Prefab p) {
+    if (_summary != null) {
+      for (var entry in _summary.entries) {
+        if (entry.movable.prefab == p) {
+          entry.applyImage();
+        }
+      }
+    }
+  }
+
   void onRemoveID(int mid) {
     if (_summary != null) {
       for (var entry in _summary.entries.toList()) {
@@ -352,6 +362,7 @@ class InitiativeEntry {
   final modText = SpanElement();
   final totalText = SpanElement();
   final nameText = SpanElement()..className = 'compact';
+  final imageElement = DivElement();
   final Movable movable;
   final int base;
 
@@ -379,8 +390,8 @@ class InitiativeEntry {
 
   InitiativeEntry(this.movable, this.base, bool dmOnly) {
     int _bufferedModifier;
+    applyImage();
 
-    final img = movable.prefab.image?.url ?? '';
     e
       ..className = 'char'
       ..append(SpanElement()
@@ -388,8 +399,7 @@ class InitiativeEntry {
         ..append(icon('minus')..onClick.listen((_) => modifier--))
         ..append(modText)
         ..append(icon('plus')..onClick.listen((_) => modifier++)))
-      ..append(DivElement()
-        ..style.backgroundImage = 'url($img)'
+      ..append(imageElement
         ..append(totalText)
         ..onLMB.listen(_onClick)
         ..onContextMenu.listen(_onClick))
@@ -413,6 +423,11 @@ class InitiativeEntry {
     } else {
       modifier = 0;
     }
+  }
+
+  void applyImage() {
+    final img = movable.prefab.image?.url ?? '';
+    imageElement.style.backgroundImage = 'url($img)';
   }
 
   void _onClick(MouseEvent ev) async {

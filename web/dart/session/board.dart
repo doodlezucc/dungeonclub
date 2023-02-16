@@ -1249,6 +1249,8 @@ class Board {
         movable.applyImage();
       }
     }
+
+    initiativeTracker.onUpdatePrefabImage(p);
   }
 
   void onAllMovablesMove(Iterable jsons) {
