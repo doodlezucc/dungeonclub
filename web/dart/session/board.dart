@@ -1243,10 +1243,10 @@ class Board {
     grid.e.append(m.e);
   }
 
-  void updatePrefabImage(Prefab p, String img) {
+  void onUpdatePrefabImage(Prefab p) {
     for (var movable in movables) {
       if (movable.prefab == p) {
-        movable.onImageChange(img);
+        movable.applyImage();
       }
     }
   }

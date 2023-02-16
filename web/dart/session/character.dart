@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../communication.dart';
 import '../font_awesome.dart';
+import '../resource.dart';
 import 'prefab.dart';
 import 'session.dart';
 
@@ -29,7 +30,7 @@ class Character {
   }
 
   String get name => prefab.name;
-  String get img => getGameFile('$IMAGE_TYPE_PC$id', cacheBreak: false);
+  Resource get image => prefab.image;
 
   Character(
     this.id,
@@ -38,7 +39,7 @@ class Character {
     @required String name,
     Map prefabJson,
     bool joined = false,
-  }) : prefab = CharacterPrefab(name) {
+  }) : prefab = CharacterPrefab(id, name) {
     _onlineIndicator
       ..append(icon('circle')..style.color = color)
       ..append(_onlineIndicatorName);

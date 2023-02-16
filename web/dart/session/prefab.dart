@@ -6,8 +6,8 @@ import 'package:dungeonclub/models/entity_base.dart';
 import 'package:meta/meta.dart';
 
 import '../../main.dart';
-import '../communication.dart';
 import '../font_awesome.dart';
+import '../resource.dart';
 import 'character.dart';
 import 'movable.dart';
 import 'prefab_palette.dart';
@@ -27,12 +27,12 @@ abstract class ClampedEntityBase extends EntityBase {
 abstract class Prefab extends ClampedEntityBase {
   final HtmlElement e;
   final SpanElement _nameSpan;
+  final Resource image;
 
   Iterable<Movable> get movables =>
       user.session.board.movables.where((movable) => movable.prefab == this);
 
   String get id;
-  String img({bool cacheBreak = true});
   String get name;
 
   @override
@@ -44,7 +44,7 @@ abstract class Prefab extends ClampedEntityBase {
     movables.forEach((m) => m.onPrefabUpdate());
   }
 
-  Prefab()
+  Prefab(this.image)
       : e = DivElement(),
         _nameSpan = SpanElement() {
     e
@@ -59,12 +59,11 @@ abstract class Prefab extends ClampedEntityBase {
       ..append(_nameSpan);
   }
 
-  String applyImage({bool cacheBreak = true}) {
-    var src = img(cacheBreak: cacheBreak);
+  void applyImage() {
+    final src = image.url;
     if (user.session.isDM) {
       e.style.backgroundImage = 'url($src)';
     }
-    return src;
   }
 
   void applyName() {
@@ -77,14 +76,11 @@ class EmptyPrefab extends Prefab {
   String get id => 'e';
 
   @override
-  String img({bool cacheBreak = true}) => '';
-
-  @override
   String get name => 'Labeled Token';
 
   String get iconId => 'pen';
 
-  EmptyPrefab() {
+  EmptyPrefab() : super(null) {
     this.e.append(icon(iconId));
     applyName();
   }
@@ -147,29 +143,28 @@ class CharacterPrefab extends Prefab with HasInitiativeMod, ChangeableName {
   String get id => 'c${character.id}';
 
   @override
-  String img({bool cacheBreak = true}) => character.img;
-
-  @override
   set name(String name) {
     super.name = name;
     character.applyNameToOnlineIndicator();
   }
 
-  CharacterPrefab(String name) {
+  CharacterPrefab(int id, String name)
+      : super(GameResource('$IMAGE_TYPE_PC$id')) {
     _name = name;
   }
 }
 
 class CustomPrefab extends Prefab with HasInitiativeMod, ChangeableName {
   final int _id;
-  String _bufferedImg;
   final Set<int> accessIds = {};
 
   @override
   String get id => '$_id';
   int get idNum => _id;
 
-  CustomPrefab({@required int id}) : _id = id;
+  CustomPrefab({@required int id})
+      : _id = id,
+        super(GameResource('$IMAGE_TYPE_ENTITY$id'));
 
   @override
   Map<String, dynamic> toJson() => {
@@ -183,15 +178,6 @@ class CustomPrefab extends Prefab with HasInitiativeMod, ChangeableName {
     accessIds.clear();
     accessIds.addAll(Set.from(json['access']));
 
-    applyImage(cacheBreak: false);
-  }
-
-  @override
-  String img({bool cacheBreak = true}) {
-    if (cacheBreak || _bufferedImg == null) {
-      _bufferedImg =
-          getGameFile('$IMAGE_TYPE_ENTITY$id', cacheBreak: cacheBreak);
-    }
-    return _bufferedImg;
+    applyImage();
   }
 }

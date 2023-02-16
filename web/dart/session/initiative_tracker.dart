@@ -380,7 +380,7 @@ class InitiativeEntry {
   InitiativeEntry(this.movable, this.base, bool dmOnly) {
     int _bufferedModifier;
 
-    var img = movable.prefab.img(cacheBreak: false);
+    final img = movable.prefab.image?.url ?? '';
     e
       ..className = 'char'
       ..append(SpanElement()

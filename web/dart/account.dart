@@ -71,7 +71,7 @@ class Account {
       roster.append(DivElement()
         ..className = 'char'
         ..classes.toggle('reserved', ch.hasJoined)
-        ..append(ImageElement(src: ch.img))
+        ..append(ImageElement(src: ch.image.url))
         ..append(SpanElement()..text = ch.name)
         ..onClick.listen((e) {
           completer.complete(i);

@@ -34,7 +34,7 @@ final ButtonElement _prefabRemove = querySelector('#prefabRemove');
 
 final List<CharacterPrefab> pcPrefabs = [];
 final List<CustomPrefab> prefabs = [];
-final emptyPrefab = EmptyPrefab()..applyImage(cacheBreak: false);
+final emptyPrefab = EmptyPrefab();
 
 Prefab _selectedPrefab;
 Prefab get selectedPrefab => _selectedPrefab;
@@ -68,7 +68,7 @@ set selectedPrefab(Prefab p) {
     _prefabName.value = p.name;
     _prefabSize.valueAsNumber = p.size;
 
-    var img = p.img(cacheBreak: false);
+    final img = p.image.url;
     _prefabImageImg.src = img;
     _movableGhost.classes.toggle('empty', isEmpty);
     _setMovableGhostImage(img);
@@ -154,7 +154,8 @@ void imitateMovableGhost(Movable m) {
   _copyStyleProp('--size', m.e, _movableGhost);
   _copyStyleProp('--angle', m.e, _movableGhost);
   _movableGhost.classes.toggle('empty', m is EmptyMovable);
-  var img = m.prefab.img(cacheBreak: false);
+
+  final img = m.prefab.image.url;
   _setMovableGhostImage(img);
 }
 
@@ -166,20 +167,26 @@ void _initPrefabProperties() {
   registerEditImage(
     _prefabImage,
     upload: (MouseEvent ev, [Blob initialFile]) async {
+      final uploadType = (selectedPrefab is CharacterPrefab)
+          ? IMAGE_TYPE_PC
+          : IMAGE_TYPE_ENTITY;
+
       return await upload.display(
           event: ev,
           action: GAME_PREFAB_UPDATE,
-          type: IMAGE_TYPE_ENTITY,
+          type: uploadType,
           initialImg: initialFile,
           extras: {
             'prefab': selectedPrefab.id,
           });
     },
     onSuccess: (_) {
-      var src = selectedPrefab.applyImage();
+      final src = selectedPrefab.image.reload();
+      selectedPrefab.applyImage();
+
       _prefabImageImg.src = src;
       _setMovableGhostImage(src);
-      user.session.board.updatePrefabImage(selectedPrefab, src);
+      user.session.board.onUpdatePrefabImage(selectedPrefab);
     },
   );
 
@@ -313,7 +320,8 @@ void onPrefabUpdate(Map<String, dynamic> json) {
   var prefab = getPrefab(json['prefab']);
 
   if (json['size'] == null) {
-    user.session.board.updatePrefabImage(prefab, prefab.applyImage());
+    prefab.image.reload();
+    user.session.board.onUpdatePrefabImage(prefab);
   } else {
     prefab.fromJson(json);
     prefab.movables.forEach((m) => m.onPrefabUpdate());

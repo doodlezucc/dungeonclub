@@ -112,7 +112,7 @@ class Movable extends ClampedEntityBase with TokenModel {
       ));
     }
 
-    onImageChange(prefab.img(cacheBreak: false));
+    applyImage();
     super.size = 0;
 
     if (pos != null) {
@@ -174,7 +174,8 @@ class Movable extends ClampedEntityBase with TokenModel {
     position += delta;
   }
 
-  void onImageChange(String img) {
+  void applyImage() {
+    final img = prefab.image.url;
     e.querySelector('.img').style.backgroundImage = 'url($img)';
   }
 
@@ -282,7 +283,7 @@ class EmptyMovable extends Movable {
   }
 
   @override
-  void onImageChange(String img) {}
+  void applyImage() {}
 
   @override
   void updateTooltip() {}
