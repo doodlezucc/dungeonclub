@@ -298,7 +298,13 @@ class Connection extends Socket {
 
         String src;
         if (data != null) {
-          src = await _uploadGameImageJson(params, id: pid);
+          // Trim prefix from ID
+          var imageIndex = pid;
+          if (prefab is CharacterPrefab) {
+            imageIndex = pid.substring(1);
+          }
+
+          src = await _uploadGameImageJson(params, id: imageIndex);
         } else {
           prefab.fromJson(params);
         }
