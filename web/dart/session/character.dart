@@ -12,7 +12,10 @@ class Character {
   final int id;
   final CharacterPrefab prefab;
 
-  final HtmlElement _onlineIndicator;
+  final _onlineIndicator = SpanElement();
+  final _onlineIndicatorName = DivElement();
+  final _onlineIndicatorTooltip = SpanElement();
+
   bool _hasJoined = false;
   bool get hasJoined => _hasJoined;
   set hasJoined(bool hasJoined) {
@@ -35,16 +38,15 @@ class Character {
     @required String name,
     Map prefabJson,
     bool joined = false,
-  })  : prefab = CharacterPrefab(name),
-        _onlineIndicator = SpanElement() {
+  }) : prefab = CharacterPrefab(name) {
     _onlineIndicator
       ..append(icon('circle')..style.color = color)
-      ..appendText(name);
+      ..append(_onlineIndicatorName);
 
     if (session.isDM) {
       _onlineIndicator
         ..className = 'with-tooltip'
-        ..append(SpanElement()..text = 'Kick $name')
+        ..append(_onlineIndicatorTooltip)
         ..onClick.listen((_) {
           socket.sendAction(GAME_KICK, {'pc': id});
         });
@@ -54,6 +56,8 @@ class Character {
     prefab
       ..fromJson(prefabJson ?? {})
       ..character = this;
+
+    applyNameToOnlineIndicator();
   }
 
   Character.fromJson(
@@ -66,4 +70,9 @@ class Character {
           joined: json['connected'] ?? false,
           prefabJson: json['prefab'],
         );
+
+  void applyNameToOnlineIndicator() {
+    _onlineIndicatorTooltip.text = 'Kick $name';
+    _onlineIndicatorName.text = name;
+  }
 }

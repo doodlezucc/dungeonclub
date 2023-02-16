@@ -149,6 +149,12 @@ class CharacterPrefab extends Prefab with HasInitiativeMod, ChangeableName {
   @override
   String img({bool cacheBreak = true}) => character.img;
 
+  @override
+  set name(String name) {
+    super.name = name;
+    character.applyNameToOnlineIndicator();
+  }
+
   CharacterPrefab(String name) {
     _name = name;
   }
