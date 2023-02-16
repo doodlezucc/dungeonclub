@@ -217,6 +217,7 @@ class InitiativeTracker {
           return _summary.removeEntry(entry);
         }
       }
+      updateRerollableInitiatives();
     }
   }
 
