@@ -267,8 +267,8 @@ class Game with Upgradeable {
   int get prefabCount => _prefabs.length;
   int get mapCount => _maps.length;
 
-  int get _nextPrefabId => _prefabs.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
-  int get _nextMapId => _maps.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
+  int get _nextPrefabId => _prefabs.getNextAvailableID((e) => e.id);
+  int get _nextMapId => _maps.getNextAvailableID((e) => e.id);
 
   final _connections = <Connection>[];
   final List<PlayerCharacter> _characters;
@@ -671,7 +671,7 @@ class PlayerCharacter {
 
 class Scene {
   final List<Movable> movables;
-  int get nextMovableId => movables.fold(-1, (v, m) => max<int>(v, m.id)) + 1;
+  int get nextMovableId => movables.getNextAvailableID((e) => e.id);
   int gridType;
   Point gridOffset;
   Point gridSize;

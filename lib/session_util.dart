@@ -32,3 +32,9 @@ String generateNewLabel<T extends TokenModel>(T token, Iterable<T> tokens) {
 
   return '$pre ${maximum + 1}'.trimLeft();
 }
+
+extension IDExtension<T> on Iterable<T> {
+  int getNextAvailableID(int Function(T e) getElementID) {
+    return fold<int>(-1, (v, e) => max(v, getElementID(e))) + 1;
+  }
+}

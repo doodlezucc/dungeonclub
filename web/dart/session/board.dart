@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:html';
-import 'dart:math';
 import 'dart:svg' as svg;
 
 import 'package:dungeonclub/actions.dart' as a;
@@ -86,7 +85,7 @@ class Board {
 
   double get scaledZoom => transform.scaledZoom;
 
-  int get nextMovableId => movables.fold(-1, (i, m) => max<int>(i, m.id)) + 1;
+  int get nextMovableId => movables.getNextAvailableID((e) => e.id);
 
   set showInactiveSceneWarning(bool v) {
     initiativeTracker.disabled = v;

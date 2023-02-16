@@ -1,9 +1,9 @@
 import 'dart:html';
-import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/models/entity_base.dart';
+import 'package:dungeonclub/session_util.dart';
 import 'package:meta/meta.dart';
 
 import '../../main.dart';
@@ -276,7 +276,7 @@ void _displayLimitMsg() {
 Future<void> createPrefab(MouseEvent ev) async {
   if (prefabs.length >= prefabsPerCampaign) return _displayLimitMsg();
 
-  var fallbackID = prefabs.fold(-1, (i, p) => max<int>(i, p.idNum)) + 1;
+  var fallbackID = prefabs.getNextAvailableID((e) => e.idNum);
 
   var result = await upload.display(
     event: ev,
