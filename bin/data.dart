@@ -546,7 +546,7 @@ class Game with Upgradeable {
 
     for (var i = 0; i < pcs.length; i++) {
       if (i < keptCharCount) {
-        _characters[i].name = pcs[i]['name'];
+        _characters[i].prefab.name = pcs[i]['name'];
       } else {
         _characters.add(PlayerCharacter.fromJson(pcs[i]));
       }
@@ -649,14 +649,12 @@ class GameMap {
 }
 
 class PlayerCharacter {
-  Connection connection;
-  String name;
   final CharacterPrefab prefab;
+  Connection connection;
 
-  PlayerCharacter(this.name) : prefab = CharacterPrefab();
+  PlayerCharacter(String name) : prefab = CharacterPrefab(name);
   PlayerCharacter.fromJson(Map<String, dynamic> json)
-      : name = json['name'],
-        prefab = CharacterPrefab()..fromJson(json['prefab'] ?? {}) {
+      : prefab = CharacterPrefab(json['name'])..fromJson(json['prefab'] ?? {}) {
     /// Legacy
     /// Initiative mod was saved in PlayerCharacter instead of mixin
     if (json['mod'] != null) {
@@ -665,7 +663,7 @@ class PlayerCharacter {
   }
 
   Map<String, dynamic> toJson({bool includeStatus = false}) => {
-        'name': name,
+        'name': prefab.name,
         'prefab': prefab.toJson(),
         if (includeStatus) 'connected': connection != null,
       };
@@ -759,12 +757,17 @@ class Scene {
 }
 
 class CharacterPrefab extends EntityBase with HasInitiativeMod {
+  String name;
+
   @override
   int get jsonFallbackSize => 1;
 
-  CharacterPrefab();
-  CharacterPrefab.fromJson(Map<String, dynamic> json) {
-    fromJson(json);
+  CharacterPrefab(this.name);
+
+  @override
+  void fromJson(Map<String, dynamic> json) {
+    super.fromJson(json);
+    if (json['name'] != null) name = json['name'];
   }
 }
 

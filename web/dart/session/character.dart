@@ -9,7 +9,6 @@ import 'prefab.dart';
 import 'session.dart';
 
 class Character {
-  final String name;
   final int id;
   final CharacterPrefab prefab;
 
@@ -26,16 +25,17 @@ class Character {
     }
   }
 
+  String get name => prefab.name;
   String get img => getGameFile('$IMAGE_TYPE_PC$id', cacheBreak: false);
 
   Character(
     this.id,
     Session session, {
     @required String color,
-    @required this.name,
+    @required String name,
     Map prefabJson,
     bool joined = false,
-  })  : prefab = CharacterPrefab(),
+  })  : prefab = CharacterPrefab(name),
         _onlineIndicator = SpanElement() {
     _onlineIndicator
       ..append(icon('circle')..style.color = color)

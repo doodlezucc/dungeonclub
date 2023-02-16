@@ -54,8 +54,8 @@ set selectedPrefab(Prefab p) {
   _updateAccessSpan();
 
   if (p != null) {
-    _prefabImage.classes.toggle('disabled', !isCustom);
-    _prefabName.disabled = !isCustom;
+    _prefabImage.classes.toggle('disabled', isEmpty);
+    _prefabName.disabled = isEmpty;
     _prefabRemove.disabled = !isCustom;
     _prefabSize.disabled = isEmpty;
 
@@ -184,7 +184,7 @@ void _initPrefabProperties() {
   );
 
   _listenLazyUpdate(_prefabName, onChange: (pref, input) {
-    (pref as CustomPrefab).name = input.value;
+    (pref as ChangeableName).name = input.value;
   });
   _listenLazyUpdate(_prefabSize, onChange: (pref, input) {
     pref.size = input.valueAsNumber;

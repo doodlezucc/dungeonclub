@@ -226,7 +226,7 @@ class Board {
     }
   }
 
-  void onPrefabNameChange(CustomPrefab prefab) {
+  void onPrefabNameChange(Prefab prefab) {
     if (activeMovable?.prefab == prefab) {
       _selectedLabelPrefix.text = prefab.name;
     }

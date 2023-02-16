@@ -100,7 +100,41 @@ mixin HasInitiativeMod on Prefab {
   }
 }
 
-class CharacterPrefab extends Prefab with HasInitiativeMod {
+mixin ChangeableName on Prefab {
+  String _name;
+
+  @override
+  String get name => _name;
+  set name(String name) {
+    _name = name;
+    applyName();
+  }
+
+  @override
+  void applyName() {
+    super.applyName();
+
+    user.session.board.onPrefabNameChange(this);
+    for (var m in movables) {
+      user.session.board.initiativeTracker.onNameUpdate(m);
+      m.updateTooltip();
+    }
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        ...super.toJson(),
+        'name': name,
+      };
+
+  @override
+  void fromJson(Map<String, dynamic> json) {
+    super.fromJson(json);
+    if (json['name'] != null) name = json['name'];
+  }
+}
+
+class CharacterPrefab extends Prefab with HasInitiativeMod, ChangeableName {
   Character _character;
   Character get character => _character;
   set character(Character c) {
@@ -113,15 +147,15 @@ class CharacterPrefab extends Prefab with HasInitiativeMod {
   String get id => 'c${character.id}';
 
   @override
-  String get name => character.name;
-
-  @override
   String img({bool cacheBreak = true}) => character.img;
+
+  CharacterPrefab(String name) {
+    _name = name;
+  }
 }
 
-class CustomPrefab extends Prefab with HasInitiativeMod {
+class CustomPrefab extends Prefab with HasInitiativeMod, ChangeableName {
   final int _id;
-  String _name;
   String _bufferedImg;
   final Set<int> accessIds = {};
 
@@ -129,32 +163,17 @@ class CustomPrefab extends Prefab with HasInitiativeMod {
   String get id => '$_id';
   int get idNum => _id;
 
-  @override
-  String get name => _name;
-  set name(String name) {
-    _name = name;
-    applyName();
-
-    user.session.board.onPrefabNameChange(this);
-    for (var m in movables) {
-      user.session.board.initiativeTracker.onNameUpdate(m);
-      m.updateTooltip();
-    }
-  }
-
   CustomPrefab({@required int id}) : _id = id;
 
   @override
   Map<String, dynamic> toJson() => {
         ...super.toJson(),
-        'name': name,
         'access': accessIds.toList(),
       };
 
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
-    name = json['name'];
     accessIds.clear();
     accessIds.addAll(Set.from(json['access']));
 
