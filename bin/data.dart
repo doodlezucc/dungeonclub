@@ -56,20 +56,24 @@ class ServerData {
         'gameMeta': gameMeta.map((e) => e.toJson()).toList(),
       };
 
-  void fromJson(Map<String, dynamic> json) {
+  Future<void> fromJson(Map<String, dynamic> json) async {
     var updateToDynamicLoading = json['games'] != null;
     var owners = <GameMeta, String>{};
 
-    var jGames = updateToDynamicLoading ? json['games'] : json['gameMeta'];
+    Iterable jGames = updateToDynamicLoading ? json['games'] : json['gameMeta'];
     gameMeta.clear();
-    gameMeta.addAll(List.from(jGames).map((j) {
-      var meta = GameMeta(j['id'], name: j['name']);
+
+    for (var j in jGames) {
+      final meta = GameMeta(j['id'], name: j['name']);
       owners[meta] = j['owner'];
 
-      if (updateToDynamicLoading) meta.loadedGame = Game.fromJson(meta, j);
+      if (updateToDynamicLoading) {
+        meta.loadedGame = await Game.fromJson(meta, j);
+      }
 
-      return meta;
-    }));
+      gameMeta.add(meta);
+    }
+
     print('Loaded ${gameMeta.length} game meta entries');
 
     accounts.clear();
@@ -115,7 +119,7 @@ class ServerData {
 
     var s = await file.readAsString();
     var json = jsonDecode(s);
-    fromJson(json);
+    await fromJson(json);
   }
 
   Future<void> manualSave() async {
@@ -154,7 +158,7 @@ class GameMeta {
     if (await dataFile.exists()) {
       print('Opening $id');
       var json = jsonDecode(await dataFile.readAsString());
-      return loadedGame = Game.fromJson(this, json);
+      return loadedGame = await Game.fromJson(this, json);
     }
 
     return null;
@@ -278,6 +282,9 @@ class Game with Upgradeable {
   final ambience = AmbienceState();
   int playingSceneId = 0;
 
+  int _usedDiskSpace = 0;
+  int get usedDiskSpace => _usedDiskSpace;
+
   void notify(String action, Map<String, dynamic> params,
       {Connection exclude, bool allScenes = false}) {
     for (var c in _connections) {
@@ -382,11 +389,6 @@ class Game with Upgradeable {
     await file.delete();
   }
 
-  Future<String> uploadImage(String type, int id, String base64) async {
-    var file = await (await getFile('$type$id')).create();
-    return '$address/${file.path}';
-  }
-
   Scene getScene(int id) =>
       (id != null && id < _scenes.length) ? _scenes[id] : null;
 
@@ -417,6 +419,24 @@ class Game with Upgradeable {
       return true;
     }
     return false;
+  }
+
+  String get readableSizeInMB => (usedDiskSpace / 1000000).toStringAsFixed(2);
+
+  void onResourceAddBytes(int sizeInBytes) {
+    _usedDiskSpace += sizeInBytes;
+    print('Added resource of $sizeInBytes bytes ($readableSizeInMB MB)');
+  }
+
+  Future<void> onResourceAdd(File file) async {
+    final bytes = await file.length();
+    onResourceAddBytes(bytes);
+  }
+
+  Future<void> onResourceRemove(File file) async {
+    final bytes = await file.length();
+    _usedDiskSpace -= bytes;
+    print('Removed resource of $bytes bytes ($readableSizeInMB MB)');
   }
 
   Future<File> getSceneFile(int id) async {
@@ -464,7 +484,30 @@ class Game with Upgradeable {
     }
   }
 
-  Game.fromJson(this.meta, Map<String, dynamic> json)
+  Future<void> refreshUsedDiskSpace() async {
+    _usedDiskSpace = 0;
+
+    if (await resources.exists()) {
+      await for (var file in resources.list()) {
+        // Skip non-media files
+        if (file is File && !file.path.endsWith('.json')) {
+          await onResourceAdd(file);
+        }
+      }
+    }
+  }
+
+  static Future<Game> fromJson(GameMeta meta, Map<String, dynamic> json) async {
+    final game = Game._fromJson(meta, json);
+    await game.refreshUsedDiskSpace();
+
+    int saveVersion = json['version'] ?? 0;
+    await game.upgradeFromTo(saveVersion, CURRENT_FILE_VERSION);
+
+    return game;
+  }
+
+  Game._fromJson(this.meta, Map<String, dynamic> json)
       : playingSceneId = json['scene'] ?? 0,
         _scenes = List.from(json['scenes']).map((e) => Scene(e)).toList(),
         _characters = List.from(json['pcs'])
@@ -479,9 +522,6 @@ class Game with Upgradeable {
     if (json['ambience'] != null) {
       ambience.fromJson(json['ambience']);
     }
-
-    int saveVersion = json['version'] ?? 0;
-    upgradeFromTo(saveVersion, CURRENT_FILE_VERSION);
   }
 
   Map<String, dynamic> toJson() => {

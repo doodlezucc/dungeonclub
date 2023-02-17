@@ -4,3 +4,5 @@ const prefabsPerCampaign = 20;
 const mapsPerCampaign = 10;
 const movablesPerScene = 500;
 const playersPerCampaign = 20;
+
+const mediaBytesPerCampaign = 5 * 1000 * 1000;

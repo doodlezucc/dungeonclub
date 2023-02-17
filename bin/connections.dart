@@ -668,6 +668,53 @@ class Connection extends Socket {
     return completer.future;
   }
 
+  Future<dynamic> _tryUploadGameImage(
+    String data,
+    File destination,
+    Game game,
+  ) async {
+    final result = '$address/${destination.path.replaceAll('\\', '/')}';
+
+    final bytesAvailable = mediaBytesPerCampaign - game.usedDiskSpace;
+
+    /// Throws an error if `bytes` is greater than the given limit.
+    void validateSize(int bytes) {
+      if (bytes > bytesAvailable) {
+        throw UploadError(bytes, bytesAvailable);
+      }
+
+      game.onResourceAddBytes(bytes);
+    }
+
+    if (data.startsWith('images/')) {
+      // [data] is a path to an asset
+      final dataImg = await getAssetFile(data);
+
+      final size = await dataImg.length();
+      validateSize(size);
+
+      await dataImg.copy(destination.path);
+
+      // Check if a grid size is embedded in the file name (e.g. "44x32")
+      final match = RegExp(r'(\d+)x\d').firstMatch(dataImg.path);
+      if (match != null) {
+        final horizontalTiles = match[1];
+        return {
+          'path': result,
+          'tiles': int.parse(horizontalTiles),
+        };
+      }
+    } else {
+      final byteData = base64Decode(data);
+      validateSize(byteData.lengthInBytes);
+
+      await destination.create();
+      await destination.writeAsBytes(byteData);
+    }
+
+    return result;
+  }
+
   Future<dynamic> _uploadGameImage({
     @required String data,
     @required String type,
@@ -682,29 +729,27 @@ class Connection extends Socket {
         : _game.meta;
 
     if (meta.isLoaded && meta != null) {
-      var file = await meta.loadedGame.getFile('$type$id');
-      var result = '$address/${file.path.replaceAll('\\', '/')}';
+      final game = meta.loadedGame;
+      final file = await game.getFile('$type$id');
+      final isReplacement = await file.exists();
 
-      if (data.startsWith('images/')) {
-        // [data] is a path to an asset
-        var dataImg = await getAssetFile(data);
-
-        await File(dataImg.path).copy(file.path);
-
-        var match = RegExp(r'\d+x\d').firstMatch(dataImg.path);
-        if (match != null) {
-          var s = match[0];
-          return {
-            'path': result,
-            'tiles': int.parse(s.substring(0, s.indexOf('x'))),
-          };
-        }
-      } else {
-        await file.create();
-        await file.writeAsBytes(base64Decode(data));
+      // Subtract previous file size
+      if (isReplacement) {
+        await game.onResourceRemove(file);
       }
 
-      return result;
+      try {
+        final result = _tryUploadGameImage(data, file, game);
+
+        // Successful upload
+        return result;
+      } on UploadError catch (err) {
+        // Error while uploading
+        if (isReplacement) {
+          await game.onResourceAdd(file);
+        }
+        return err.message;
+      }
     }
     return 'Missing game info';
   }
@@ -779,4 +824,12 @@ class Connection extends Socket {
       }
     }
   }
+}
+
+class UploadError extends StateError {
+  final int actualBytes;
+  final int bytesAvailable;
+
+  UploadError(this.actualBytes, this.bytesAvailable)
+      : super('Limit of $bytesAvailable bytes surpassed by $actualBytes bytes');
 }
