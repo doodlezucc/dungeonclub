@@ -681,7 +681,7 @@ class Connection extends Socket {
     /// Throws an error if `bytes` is greater than the given limit.
     void validateSize(int bytes) {
       if (bytes > bytesAvailable) {
-        throw UploadError(bytes, bytesAvailable);
+        throw UploadError(bytes, game.usedDiskSpace, mediaBytesPerCampaign);
       }
 
       game.onResourceAddBytes(bytes);
@@ -828,10 +828,18 @@ class Connection extends Socket {
   }
 }
 
-class UploadError extends StateError {
-  final int actualBytes;
-  final int bytesAvailable;
+class UploadError extends ResponseError {
+  final int bytesUpload;
+  final int bytesUsed;
+  final int bytesMaximum;
 
-  UploadError(this.actualBytes, this.bytesAvailable)
-      : super('Limit of $bytesAvailable bytes surpassed by $actualBytes bytes');
+  UploadError(this.bytesUpload, this.bytesUsed, this.bytesMaximum)
+      : super(
+          'Limit of $bytesMaximum bytes surpassed by $bytesUpload bytes',
+          {
+            'bytesUpload': bytesUpload,
+            'bytesUsed': bytesUsed,
+            'bytesMaximum': bytesMaximum,
+          },
+        );
 }

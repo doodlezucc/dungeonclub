@@ -41,19 +41,23 @@ abstract class Socket {
           print(s);
         }
 
-        var json = jsonDecode(s);
+        final json = jsonDecode(s);
         dynamic result;
 
         try {
           // Send normal response on success
           result = await handleAction(json['action'], json['params']);
+        } on ResponseError catch (err) {
+          // Send error response with custom context
+          result = err.toJson();
+          rethrow;
         } catch (err) {
           // Send error response
           result = {'error': '$err'};
           rethrow;
         } finally {
           // Always send a response
-          var id = json['id'];
+          final id = json['id'];
           if (id != null) {
             await send('r' + jsonEncode({'id': id, 'result': result}));
           }
@@ -88,7 +92,7 @@ abstract class Socket {
     final result = jsonDecode(msg.substring(1))['result'];
 
     if (result is Map && result['error'] != null) {
-      throw ResponseError(result['error']);
+      throw ResponseError.fromJson(result);
     }
 
     return result;
@@ -104,9 +108,21 @@ abstract class Socket {
 }
 
 class ResponseError extends Error {
-  final String message;
-  ResponseError(this.message);
+  final String errorMessage;
+  final Map<String, dynamic> context;
+
+  ResponseError(this.errorMessage, this.context);
+  ResponseError.fromJson(json)
+      : this(
+          json['error'],
+          json['context'] ?? const {},
+        );
+
+  Map<String, dynamic> toJson() => {
+        'error': errorMessage,
+        'context': context,
+      };
 
   @override
-  String toString() => message;
+  String toString() => errorMessage;
 }

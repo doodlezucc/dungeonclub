@@ -3,12 +3,14 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/comms.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:meta/meta.dart';
 
 import '../../main.dart';
 import '../communication.dart';
 import 'context_menu.dart';
+import 'dialog.dart';
 import 'panel_overlay.dart';
 
 extension ElementLeftClickDown on Element {
@@ -422,6 +424,26 @@ Future<String> canvasToBase64(
   return (reader.result as String).substring(23);
 }
 
+String _bytesToMB(int bytes) {
+  return (bytes / 1000000).toStringAsFixed(2);
+}
+
+/// Displays an error explaining the campaign storage situation.
+Future<void> _showUploadErrorDialog(
+    int bytesUpload, int bytesUsed, int bytesMaximum) async {
+  final uploadMB = _bytesToMB(bytesUpload);
+  final usedMB = _bytesToMB(bytesUsed);
+  final maxMB = _bytesToMB(bytesMaximum);
+
+  final dialog = Dialog('Unable to upload');
+  dialog.addParagraph(
+    "The image you're trying to upload is too big (<b>$uploadMB MB</b>) "
+    'and exceeds your campaign storage '
+    '(used <b>$usedMB</b> / <b>$maxMB MB</b>)!',
+  );
+  await dialog.display();
+}
+
 Future _upload(String base64, String action, String type,
     Map<String, dynamic> extras, int maxRes, bool upscale) async {
   if (user.isInDemo) {
@@ -434,11 +456,22 @@ Future _upload(String base64, String action, String type,
     return registerRedirect('$type$id', base64);
   }
 
-  var json = <String, dynamic>{'type': type, 'data': base64};
+  final json = <String, dynamic>{'type': type, 'data': base64};
   if (extras != null) json.addAll(Map.from(extras));
 
-  var result = await socket.request(action, json);
-  return result;
+  try {
+    final result = await socket.request(action, json);
+    return result;
+  } on ResponseError catch (err) {
+    // Image can't be uploaded
+    await _showUploadErrorDialog(
+      err.context['bytesUpload'],
+      err.context['bytesUsed'],
+      err.context['bytesMaximum'],
+    );
+  }
+
+  return null;
 }
 
 Future<String> _displayAssetPicker(String type) async {
