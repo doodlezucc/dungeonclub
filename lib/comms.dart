@@ -17,42 +17,52 @@ abstract class Socket {
   String modifyLog(String message) => message;
 
   StreamSubscription listen({void Function() onDone, Function onError}) =>
-      messageStream.listen((data) async {
-        if (data is String) {
-          var s = data;
-          var short =
-              s.length <= msgPrintLength ? s : s.substring(0, msgPrintLength);
+      messageStream.listen(_onMessage, onDone: onDone, onError: onError);
 
-          if (!confidentialRegex.hasMatch(short)) {
-            print(modifyLog(short));
-          }
+  Future<void> _onMessage(data) async {
+    if (data is String) {
+      var s = data;
+      final short =
+          s.length <= msgPrintLength ? s : s.substring(0, msgPrintLength);
 
-          if (s[0] == '{') {
-            if (s.length >= maxMsgLength) {
-              print('Warning: Long websocket message (${s.length} chars)');
+      if (!confidentialRegex.hasMatch(short)) {
+        print(modifyLog(short));
+      }
 
-              if (!short.startsWith('{"id"')) return;
+      if (s[0] == '{') {
+        if (s.length >= maxMsgLength) {
+          print('Warning: Long websocket message (${s.length} chars)');
 
-              print('shortening');
-              // Shorten json string to only contain message id
-              s = short.substring(0, max(1, short.indexOf('"params"') + 10)) +
-                  '}}';
-              print(s);
-            }
+          if (!short.startsWith('{"id"')) return;
 
-            var json = jsonDecode(s);
-
-            var result = await handleAction(json['action'], json['params']);
-
-            var id = json['id'];
-            if (id != null) {
-              await send('r' + jsonEncode({'id': id, 'result': result}));
-            }
-          }
-        } else {
-          handleBinary(data);
+          print('shortening');
+          // Shorten json string to only contain message id
+          s = short.substring(0, max(1, short.indexOf('"params"') + 10)) + '}}';
+          print(s);
         }
-      }, onDone: onDone, onError: onError);
+
+        var json = jsonDecode(s);
+        dynamic result;
+
+        try {
+          // Send normal response on success
+          result = await handleAction(json['action'], json['params']);
+        } catch (err) {
+          // Send error response
+          result = {'error': '$err'};
+          rethrow;
+        } finally {
+          // Always send a response
+          var id = json['id'];
+          if (id != null) {
+            await send('r' + jsonEncode({'id': id, 'result': result}));
+          }
+        }
+      }
+    } else {
+      handleBinary(data);
+    }
+  }
 
   void handleBinary(data);
 
@@ -72,7 +82,16 @@ abstract class Socket {
         orElse: () => null);
 
     _jobs.remove(myId);
-    return msg != null ? jsonDecode(msg.substring(1))['result'] : null;
+
+    if (msg == null) return null;
+
+    final result = jsonDecode(msg.substring(1))['result'];
+
+    if (result is Map && result['error'] != null) {
+      throw ResponseError(result['error']);
+    }
+
+    return result;
   }
 
   Future<void> sendAction(String action, [Map<String, dynamic> params]) async {
@@ -82,4 +101,12 @@ abstract class Socket {
     });
     return send(json);
   }
+}
+
+class ResponseError extends Error {
+  final String message;
+  ResponseError(this.message);
+
+  @override
+  String toString() => message;
 }
