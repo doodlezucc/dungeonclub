@@ -420,10 +420,11 @@ class Connection extends Socket {
         var id = _game.sceneCount;
         if (id >= scenesPerCampaign) return null;
 
+        var result = await _uploadGameImageJson(params, id: id);
+
         var s = _game?.addScene();
         if (s == null) return null;
 
-        var result = await _uploadGameImageJson(params, id: id);
         if (result is Map) {
           s.tiles = result['tiles'];
         }
@@ -739,19 +740,20 @@ class Connection extends Socket {
       }
 
       try {
-        final result = _tryUploadGameImage(data, file, game);
+        final result = await _tryUploadGameImage(data, file, game);
 
         // Successful upload
         return result;
-      } on UploadError catch (err) {
+      } on UploadError {
         // Error while uploading
         if (isReplacement) {
           await game.onResourceAdd(file);
         }
-        return err.message;
+
+        rethrow;
       }
     }
-    return 'Missing game info';
+    throw 'Missing game info';
   }
 
   Future<dynamic> _uploadGameImageJson(Map<String, dynamic> json,
