@@ -385,7 +385,13 @@ class Game with Upgradeable {
     for (var scene in _scenes) {
       scene.removeMovablesOfPrefab(id);
     }
+
     var file = await getPrefabFile(id);
+    await deleteGameFile(file);
+  }
+
+  Future<void> deleteGameFile(File file) async {
+    await onResourceRemove(file);
     await file.delete();
   }
 
@@ -403,7 +409,8 @@ class Game with Upgradeable {
 
     if (id != null && id < _scenes.length) {
       var img = await getSceneFile(id);
-      await img.delete();
+      await deleteGameFile(img);
+
       for (var i = id + 1; i < _scenes.length; i++) {
         var file = await getSceneFile(i);
         await file.rename((await getSceneFile(i - 1)).path);
@@ -425,7 +432,7 @@ class Game with Upgradeable {
 
   void onResourceAddBytes(int sizeInBytes) {
     _usedDiskSpace += sizeInBytes;
-    print('Added resource of $sizeInBytes bytes ($readableSizeInMB MB)');
+    // print('Added resource of $sizeInBytes bytes ($readableSizeInMB MB)');
   }
 
   Future<void> onResourceAdd(File file) async {
@@ -436,7 +443,7 @@ class Game with Upgradeable {
   Future<void> onResourceRemove(File file) async {
     final bytes = await file.length();
     _usedDiskSpace -= bytes;
-    print('Removed resource of $bytes bytes ($readableSizeInMB MB)');
+    // print('Removed resource of $bytes bytes ($readableSizeInMB MB)');
   }
 
   Future<File> getSceneFile(int id) async {
@@ -469,7 +476,7 @@ class Game with Upgradeable {
   void removeMap(int id) async {
     _maps.removeWhere((m) => m.id == id);
     var file = await getFile('${a.IMAGE_TYPE_MAP}$id');
-    await file.delete();
+    await deleteGameFile(file);
   }
 
   void handleMapEvent(List<int> bytes, Connection sender) {
@@ -595,7 +602,7 @@ class Game with Upgradeable {
     // Remove obsolete character files
     for (var i = keptCharCount; i < previousCharCount; i++) {
       var charFile = await getFile('${a.IMAGE_TYPE_PC}$i');
-      if (await charFile.exists()) await charFile.delete();
+      if (await charFile.exists()) await deleteGameFile(charFile);
     }
 
     if (previousCharCount != pcs.length) {
