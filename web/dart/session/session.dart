@@ -22,19 +22,31 @@ class Session extends Game {
   final bool isDM;
   final characters = <Character>[];
   final audioplayer = AudioPlayer();
+
   Board _board;
   Board get board => _board;
+
   int _charId;
   int get charId => _charId;
   Character get myCharacter => _charId != null ? characters[_charId] : null;
+
   String get inviteLink => isDebugging
       ? '${window.location.origin}/index.html?game=$id'
       : window.location.href;
+
   ConstantDialog _dmDisconnectedDialog;
+
   final _connectionCtrl = StreamController<bool>.broadcast();
   Stream<bool> get connectionEvent => _connectionCtrl.stream;
 
   bool get isDemo => this is DemoSession;
+
+  int _usedStorage = 0;
+  int get usedStorage => _usedStorage;
+  set usedStorage(int bytes) {
+    _usedStorage = bytes;
+    print('Used $bytes bytes');
+  }
 
   Session(String id, String name, this.isDM) : super(id, name, null) {
     _board = Board(this);
@@ -138,6 +150,7 @@ class Session extends Game {
     Iterable prefabJsonList = const [],
     Map sceneJson,
     Iterable mapJsonList = const [],
+    int usedStorage = 0,
   }) {
     this.characters.clear();
     this.characters.addAll(characters);
@@ -151,6 +164,8 @@ class Session extends Game {
 
     document.body.classes.add('is-session');
     audioplayer.init(this, ambienceJson);
+
+    this.usedStorage = usedStorage;
 
     // Depends on global session object
     return Future.microtask(() async {
@@ -205,6 +220,7 @@ class Session extends Game {
       mapJsonList: json['maps'] ?? [],
       prefabJsonList: json['prefabs'],
       sceneJson: json['scene'],
+      usedStorage: isDM ? json['dm']['usedStorage'] : null,
     );
   }
 }

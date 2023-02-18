@@ -430,20 +430,28 @@ class Game with Upgradeable {
 
   String get readableSizeInMB => (usedDiskSpace / 1000000).toStringAsFixed(2);
 
-  void onResourceAddBytes(int sizeInBytes) {
+  void onResourceAddBytes(int sizeInBytes, {bool notifyGM = true}) {
     _usedDiskSpace += sizeInBytes;
-    // print('Added resource of $sizeInBytes bytes ($readableSizeInMB MB)');
+
+    if (notifyGM) _sendStorageUpdateToGM();
   }
 
-  Future<void> onResourceAdd(File file) async {
+  Future<void> onResourceAdd(File file, {bool notifyGM = true}) async {
     final bytes = await file.length();
-    onResourceAddBytes(bytes);
+    onResourceAddBytes(bytes, notifyGM: notifyGM);
   }
 
-  Future<void> onResourceRemove(File file) async {
+  Future<void> onResourceRemove(File file, {bool notifyGM = true}) async {
     final bytes = await file.length();
     _usedDiskSpace -= bytes;
-    // print('Removed resource of $bytes bytes ($readableSizeInMB MB)');
+
+    if (notifyGM) _sendStorageUpdateToGM();
+  }
+
+  void _sendStorageUpdateToGM() {
+    if (dmOnline) {
+      dm.sendAction(a.GAME_STORAGE_CHANGED, {'used': _usedDiskSpace});
+    }
   }
 
   Future<File> getSceneFile(int id) async {
@@ -498,7 +506,7 @@ class Game with Upgradeable {
       await for (var file in resources.list()) {
         // Skip non-media files
         if (file is File && !file.path.endsWith('.json')) {
-          await onResourceAdd(file);
+          await onResourceAdd(file, notifyGM: false);
         }
       }
     }
@@ -551,7 +559,11 @@ class Game with Upgradeable {
         if (mine != null) 'mine': mine,
         'prefabs': _prefabs.map((e) => e.toJson()).toList(),
         'ambience': ambience.toJson(),
-        if (meta.owner == c.account) 'dm': {'scenes': _scenes.length},
+        if (meta.owner == c.account)
+          'dm': {
+            'scenes': _scenes.length,
+            'usedStorage': usedDiskSpace,
+          },
       };
 
   Map<String, dynamic> toEditSnippet() => {

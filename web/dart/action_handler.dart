@@ -108,6 +108,9 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
     case GAME_MUSIC_AMBIENCE:
       return user.session?.audioplayer?.ambienceFromJson(params);
 
+    case GAME_STORAGE_CHANGED:
+      return user.session?.usedStorage = params['used'];
+
     case MAINTENANCE:
       return user.onMaintenanceScheduled(params);
   }
