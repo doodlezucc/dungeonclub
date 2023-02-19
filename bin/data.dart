@@ -11,6 +11,7 @@ import 'package:dungeonclub/models/entity_base.dart';
 import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/session_util.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
 import 'package:web_whiteboard/communication/data_socket.dart';
@@ -19,6 +20,7 @@ import 'package:web_whiteboard/whiteboard_data.dart';
 
 import 'audio.dart';
 import 'connections.dart';
+import 'controlled_resource.dart';
 import 'playing_histogram.dart';
 import 'server.dart';
 import 'versioning.dart';
@@ -271,8 +273,10 @@ class Game with Upgradeable {
   int get prefabCount => _prefabs.length;
   int get mapCount => _maps.length;
 
+  int get _nextCharacterId => _characters.getNextAvailableID((e) => e.id);
   int get _nextPrefabId => _prefabs.getNextAvailableID((e) => e.id);
   int get _nextMapId => _maps.getNextAvailableID((e) => e.id);
+  int get _nextSceneId => _scenes.getNextAvailableID((e) => e.id);
 
   final _connections = <Connection>[];
   final List<PlayerCharacter> _characters;
@@ -305,19 +309,13 @@ class Game with Upgradeable {
     }
   }
 
-  @deprecated
-  Future<File> getFile(String filePath) async {
-    if (!await resources.exists()) {
-      await resources.create(recursive: true);
-    }
-    return File(path.join(resources.path, filePath));
-  }
-
-  Game(this.meta)
-      : _scenes = [Scene({})],
+  Game.empty(this.meta)
+      : _scenes = [],
         _characters = [],
         _prefabs = [],
-        _maps = [];
+        _maps = [] {
+    _scenes.add(Scene.empty(this, 0));
+  }
 
   void connect(Connection connection, bool join) {
     var pc = _characters.firstWhere(
@@ -357,7 +355,7 @@ class Game with Upgradeable {
   }
 
   CustomPrefab addPrefab() {
-    var p = CustomPrefab(_nextPrefabId, 1);
+    var p = CustomPrefab.create(this, _nextPrefabId, 1);
     _prefabs.add(p);
     return p;
   }
@@ -370,37 +368,30 @@ class Game with Upgradeable {
       return _characters[int.parse(id.substring(1))].prefab;
     }
 
-    return getCustomPrefab(id);
+    return getCustomPrefab(int.parse(id));
   }
 
-  CustomPrefab getCustomPrefab(String id) {
-    var parsed = int.tryParse(id) ?? -1;
-    return _prefabs.firstWhere((p) => p.id == parsed, orElse: () => null);
+  CustomPrefab getCustomPrefab(int id) {
+    return _prefabs.firstWhere((p) => p.id == id);
   }
 
-  void removePrefab(String id) async {
-    var prefab = getCustomPrefab(id);
+  void removePrefab(int id) async {
+    final prefab = getCustomPrefab(id);
     if (prefab == null) return null;
 
     _prefabs.remove(prefab);
     for (var scene in _scenes) {
-      scene.removeMovablesOfPrefab(id);
+      scene.removeMovablesOfPrefab('c$id');
     }
 
-    var file = await getPrefabFile(id);
-    await deleteGameFile(file);
+    await prefab.image.delete();
   }
 
-  Future<void> deleteGameFile(File file) async {
-    await onResourceRemove(file);
-    await file.delete();
-  }
+  Scene getScene(int id) => _scenes.firstWhere((scene) => scene.id == id);
 
-  Scene getScene(int id) =>
-      (id != null && id < _scenes.length) ? _scenes[id] : null;
-
-  Scene addScene() {
-    var scene = Scene({})..gridType = playingScene.gridType;
+  Scene addScene(ControlledResource resource) {
+    var scene = Scene.empty(this, _nextSceneId)
+      ..gridType = playingScene.gridType;
     _scenes.add(scene);
     return scene;
   }
@@ -408,25 +399,18 @@ class Game with Upgradeable {
   Future<bool> removeScene(int id) async {
     if (_scenes.length <= 1) return false;
 
-    if (id != null && id < _scenes.length) {
-      var img = await getSceneFile(id);
-      await deleteGameFile(img);
+    final scene = getScene(id);
+    scene.image.deleteInBackground();
+    _scenes.remove(scene);
 
-      for (var i = id + 1; i < _scenes.length; i++) {
-        var file = await getSceneFile(i);
-        await file.rename((await getSceneFile(i - 1)).path);
-      }
-      _scenes.removeAt(id);
-
-      // update playing scene id
-      if (id == playingSceneId) {
-        playScene(max(0, id - 1));
-      } else if (playingSceneId > id) {
-        playingSceneId = max(0, playingSceneId - 1);
-      }
-      return true;
+    // Update active scene
+    if (id == playingSceneId) {
+      playScene(max(0, id - 1));
+    } else if (playingSceneId > id) {
+      playingSceneId = max(0, playingSceneId - 1);
     }
-    return false;
+
+    return true;
   }
 
   String get readableSizeInMB => (usedDiskSpace / 1000000).toStringAsFixed(2);
@@ -455,37 +439,27 @@ class Game with Upgradeable {
     }
   }
 
-  Future<File> getSceneFile(int id) async {
-    return await getFile('${a.IMAGE_TYPE_SCENE}$id');
-  }
-
-  Future<File> getPrefabFile(dynamic id) async {
-    return await getFile('${a.IMAGE_TYPE_ENTITY}$id');
-  }
-
   PlayerCharacter assignPC(int index, Connection c) {
     return _characters[index]..connection = c;
   }
 
-  int addMap() {
-    var map = GameMap(_nextMapId, '');
+  GameMap addMap(ControlledResource image) {
+    final map = GameMap(_nextMapId, '', image: image);
     for (var i = 0; i <= _characters.length; i++) {
       map.data.layers.add(DrawingData());
     }
     _maps.add(map);
-    return map.id;
+    return map;
   }
 
-  void updateMap(int id, String name, bool shared) {
-    var map = _maps.firstWhere((m) => m.id == id);
-    if (name != null) map.name = name;
-    if (shared != null) map.shared = shared;
+  GameMap getMap(int id) {
+    return _maps.firstWhere((m) => m.id == id);
   }
 
-  void removeMap(int id) async {
-    _maps.removeWhere((m) => m.id == id);
-    var file = await getFile('${a.IMAGE_TYPE_MAP}$id');
-    await deleteGameFile(file);
+  void removeMap(int id) {
+    final map = getMap(id);
+    _maps.remove(map);
+    map.image.deleteInBackground();
   }
 
   void handleMapEvent(List<int> bytes, Connection sender) {
@@ -525,16 +499,14 @@ class Game with Upgradeable {
 
   Game._fromJson(this.meta, Map<String, dynamic> json)
       : playingSceneId = json['scene'] ?? 0,
-        _scenes = List.from(json['scenes']).map((e) => Scene(e)).toList(),
-        _characters = List.from(json['pcs'])
-            .map((j) => PlayerCharacter.fromJson(j))
-            .toList(),
-        _prefabs = List.from(json['prefabs'] ?? [])
-            .map((j) => CustomPrefab.fromJson(j))
-            .toList(),
-        _maps = List.from(json['maps'] ?? [])
-            .map((j) => GameMap.fromJson(j))
-            .toList() {
+        _scenes = [],
+        _characters = [],
+        _prefabs = [],
+        _maps = [] {
+    _characters.fromJson(json['pcs'], (j) => PlayerCharacter.fromJson(this, j));
+    _prefabs.fromJson(json['prefabs'], (j) => CustomPrefab.fromJson(this, j));
+    _maps.fromJson(json['maps'], (j) => GameMap.fromJson(this, j));
+
     if (json['ambience'] != null) {
       ambience.fromJson(json['ambience']);
     }
@@ -593,29 +565,37 @@ class Game with Upgradeable {
     }
   }
 
-  Future<bool> applyChanges(Map<String, dynamic> data) async {
+  Future<void> applyChanges(Map<String, dynamic> data) async {
     meta.name = data['name'];
 
-    var pcs = List.from(data['pcs']);
-    if (pcs.length >= playersPerCampaign) return false;
+    final Map pcs = data['pcs'];
+    if (pcs.length >= playersPerCampaign) throw 'Exceded player limit';
 
-    var removes = List<int>.from(data['removes']);
-    var previousCharCount = _characters.length;
-    var keptCharCount = previousCharCount - removes.length;
-    await _removeCharacters(removes);
+    final previousCharCount = _characters.length;
 
-    for (var i = 0; i < pcs.length; i++) {
-      if (i < keptCharCount) {
-        _characters[i].prefab.name = pcs[i]['name'];
+    for (var pcEntry in pcs.entries) {
+      final int id = pcEntry.key;
+      final Map properties = pcEntry.value;
+
+      final pc = _characters.find((e) => e.id == id);
+
+      if (properties == null) {
+        _removeCharacter(pc);
       } else {
-        _characters.add(PlayerCharacter.fromJson(pcs[i]));
+        pc.prefab.name = properties['name'];
+
+        if (properties['avatar'] != null) {
+          // TODO upload new avatar
+          // pc.avatar.replace()
+        }
       }
     }
 
-    // Remove obsolete character files
-    for (var i = keptCharCount; i < previousCharCount; i++) {
-      var charFile = await getFile('${a.IMAGE_TYPE_PC}$i');
-      if (await charFile.exists()) await deleteGameFile(charFile);
+    final newPCs = List.from(data['newPCs']);
+
+    for (var properties in newPCs) {
+      final pc = PlayerCharacter(this, _nextCharacterId, properties['name']);
+      _characters.add(pc);
     }
 
     if (previousCharCount != pcs.length) {
@@ -623,73 +603,55 @@ class Game with Upgradeable {
         map.setLayers(pcs.length + 1);
       }
     }
-
-    return true;
   }
 
-  Future<void> _removeCharacters(Iterable<int> indices) async {
-    var charIdMap = <int, int>{};
-    var change = 0;
-    var charCount = _characters.length;
+  void _removeCharacter(PlayerCharacter character) {
+    final charId = character.id;
+    character.avatar.deleteInBackground();
 
-    for (var charId = 0; charId < charCount; charId++) {
-      if (indices.contains(charId)) {
-        _characters.removeAt(charId + change);
-        change--;
-        // Remove obsolete movables
-        _removeCharacterMovables(charId);
-      } else if (change != 0) {
-        charIdMap[charId] = charId + change;
-      }
-    }
-
-    // Change file names for characters that were kept
-    for (var idPrevious in charIdMap.keys) {
-      var idNext = charIdMap[idPrevious];
-
-      var prefabIdPrevious = 'c$idPrevious';
-      var prefabIdNext = 'c$idNext';
-
-      for (var scene in _scenes) {
-        for (var mov in scene.movables) {
-          if (mov.prefab == prefabIdPrevious) {
-            mov.prefab = prefabIdNext;
-          }
-        }
-      }
-
-      var file = await getFile('${a.IMAGE_TYPE_PC}$idPrevious');
-      if (await file.exists()) {
-        var nextFile = await getFile('${a.IMAGE_TYPE_PC}$idNext');
-        print('Renaming ${file.path} to ${nextFile.path}');
-        await file.rename(nextFile.path);
-      }
-    }
-  }
-
-  void _removeCharacterMovables(int charId) {
+    // Remove obsolete movables
     for (var scene in _scenes) {
       scene.removeMovablesOfPrefab('c$charId');
     }
+
+    _characters.remove(character);
   }
 }
 
 class GameMap {
   final int id;
+  final ControlledResource image;
   final dataSocket = WhiteboardDataSocket(WhiteboardData());
   String name;
   bool shared;
 
   WhiteboardData get data => dataSocket.whiteboard;
 
-  GameMap(this.id, this.name, [this.shared = false, String encodedData]) {
+  GameMap(
+    this.id,
+    this.name, {
+    @required this.image,
+    this.shared = false,
+    String encodedData,
+  }) {
     if (encodedData != null) {
       data.fromBytes(base64.decode(encodedData));
     }
   }
 
-  GameMap.fromJson(json)
-      : this(json['map'], json['name'], json['shared'] ?? false, json['data']);
+  GameMap.fromJson(Game game, json)
+      : this(
+          json['map'],
+          json['name'],
+          image: ControlledResource.path(game, json['image']),
+          shared: json['shared'] ?? false,
+          encodedData: json['data'],
+        );
+
+  void update(String name, bool shared) {
+    if (name != null) this.name = name;
+    if (shared != null) this.shared = shared;
+  }
 
   void setLayers(int layerCount) {
     while (data.layers.length > layerCount) {
@@ -702,6 +664,7 @@ class GameMap {
 
   Map<String, dynamic> toJson() => {
         'map': id,
+        'image': image.filePath,
         'name': name,
         'shared': shared,
         'data': base64.encode(data.toBytes()),
@@ -709,12 +672,24 @@ class GameMap {
 }
 
 class PlayerCharacter {
+  final int id;
   final CharacterPrefab prefab;
   Connection connection;
 
-  PlayerCharacter(String name) : prefab = CharacterPrefab(name);
-  PlayerCharacter.fromJson(Map<String, dynamic> json)
-      : prefab = CharacterPrefab(json['name'])..fromJson(json['prefab'] ?? {}) {
+  ControlledResource get avatar => prefab.image;
+
+  PlayerCharacter(Game game, this.id, String name)
+      : prefab = CharacterPrefab(
+          name,
+          ControlledResource.path(game, 'assets/default_pc.png'),
+        );
+
+  PlayerCharacter.fromJson(Game game, Map<String, dynamic> json)
+      : id = json['id'],
+        prefab = CharacterPrefab(
+          json['name'],
+          ControlledResource.path(game, json['avatar']),
+        )..fromJson(json['prefab'] ?? {}) {
     /// Legacy
     /// Initiative mod was saved in PlayerCharacter instead of mixin
     if (json['mod'] != null) {
@@ -723,6 +698,7 @@ class PlayerCharacter {
   }
 
   Map<String, dynamic> toJson({bool includeStatus = false}) => {
+        'id': id,
         'name': prefab.name,
         'prefab': prefab.toJson(),
         if (includeStatus) 'connected': connection != null,
@@ -730,6 +706,8 @@ class PlayerCharacter {
 }
 
 class Scene {
+  final int id;
+  final ControlledResource image;
   final List<Movable> movables;
   int get nextMovableId => movables.getNextAvailableID((e) => e.id);
   int gridType;
@@ -742,10 +720,16 @@ class Scene {
   String fogOfWar;
   InitiativeState initiativeState;
 
-  Scene(Map<String, dynamic> json)
-      : movables = List.from(json['movables'] ?? [])
+  Scene.empty(Game game, this.id, {ControlledResource image})
+      : movables = [],
+        image = image ?? ControlledResource.empty(game);
+
+  Scene(Game game, Map<String, dynamic> json)
+      : id = json['id'],
+        movables = List.from(json['movables'] ?? [])
             .map((j) => Movable(j['id'], j))
-            .toList() {
+            .toList(),
+        image = ControlledResource.path(game, json['image']) {
     applyGrid(json['grid'] ?? {});
     fogOfWar = json['fow'];
     if (json['initiative'] != null) {
@@ -801,6 +785,7 @@ class Scene {
   }
 
   Map<String, dynamic> toJson(bool includeDM) => {
+        'image': image.filePath,
         'grid': {
           'type': gridType,
           'offset': writePoint(gridOffset),
@@ -816,13 +801,21 @@ class Scene {
       };
 }
 
-class CharacterPrefab extends EntityBase with HasInitiativeMod {
+mixin HasImage {
+  ControlledResource get image;
+}
+
+class CharacterPrefab extends EntityBase with HasInitiativeMod, HasImage {
+  final ControlledResource _image;
   String name;
 
   @override
   int get jsonFallbackSize => 1;
 
-  CharacterPrefab(this.name);
+  @override
+  ControlledResource get image => _image;
+
+  CharacterPrefab(this.name, this._image);
 
   @override
   void fromJson(Map<String, dynamic> json) {
@@ -831,20 +824,28 @@ class CharacterPrefab extends EntityBase with HasInitiativeMod {
   }
 }
 
-class CustomPrefab extends EntityBase with HasInitiativeMod {
+class CustomPrefab extends EntityBase with HasInitiativeMod, HasImage {
   final int id;
+  final ControlledResource _image;
   String name;
   List<int> accessIds;
+
+  String get prefabID => '${a.IMAGE_TYPE_ENTITY}$id';
+
+  @override
+  ControlledResource get image => _image;
 
   @override
   int get jsonFallbackSize => 1;
 
-  CustomPrefab(this.id, int size)
+  CustomPrefab.create(Game game, this.id, int size)
       : accessIds = [],
+        _image = ControlledResource.empty(game),
         super(size: size);
-  CustomPrefab.fromJson(Map<String, dynamic> json)
+  CustomPrefab.fromJson(Game game, Map<String, dynamic> json)
       : id = json['id'],
-        accessIds = List.from(json['access'] ?? []) {
+        accessIds = List.from(json['access'] ?? []),
+        _image = ControlledResource.path(game, json['image']) {
     fromJson(json);
   }
 
@@ -858,6 +859,7 @@ class CustomPrefab extends EntityBase with HasInitiativeMod {
   @override
   Map<String, dynamic> toJson() => {
         'id': id,
+        'image': image.filePath,
         'name': name,
         'access': accessIds,
         ...super.toJson(),

@@ -8,15 +8,31 @@ import 'data.dart';
 
 class ControlledResource {
   static const fileNameCharacters = 5;
+  static const defaultFileExension = 'jpg';
 
   final Game game;
   final String fileExtension;
   File _file;
 
   Directory get parentDirectory => game.resources;
+  String get filePath => _file?.path;
 
-  ControlledResource(this.game, File file, {this.fileExtension = 'png'})
-      : _file = file;
+  ControlledResource(
+    this.game,
+    File file, {
+    this.fileExtension = defaultFileExension,
+  }) : _file = file;
+
+  ControlledResource.empty(
+    this.game, {
+    this.fileExtension = defaultFileExension,
+  });
+
+  ControlledResource.path(
+    Game game,
+    String filePath, {
+    String fileExtension = defaultFileExension,
+  }) : this(game, File(filePath), fileExtension: fileExtension);
 
   /// Creates a new file reference and optionally deletes the previous one.
   Future<File> replace({bool deletePrevious = true}) async {
@@ -51,6 +67,12 @@ class ControlledResource {
     }
   }
 
+  /// Deletes the resource's file reference.
+  Future<void> delete() => _deleteObsoleteFile(_file);
+
+  /// Deletes the resource's file reference (unawaited).
+  void deleteInBackground() => delete();
+
   /// Deletes a file which is no longer used.
   Future<void> _deleteObsoleteFile(File file) async {
     if (file != null && await file.exists()) {
@@ -59,12 +81,13 @@ class ControlledResource {
     }
   }
 
-  static Future<ControlledResource> initialized(
+  static Future<ControlledResource> create(
     Game game, {
-    String fileExtension = 'png',
+    String fileExtension = defaultFileExension,
     File file,
   }) async {
     file ??= await newRandomFileName(game.resources, fileExtension);
+    await file.create(recursive: true);
 
     return ControlledResource(game, file, fileExtension: fileExtension);
   }

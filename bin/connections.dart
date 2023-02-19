@@ -8,12 +8,12 @@ import 'package:dungeonclub/comms.dart';
 import 'package:dungeonclub/dice_parser.dart';
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/point_json.dart';
-import 'package:meta/meta.dart';
 import 'package:random_string/random_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'asset_provider.dart';
 import 'audio.dart';
+import 'controlled_resource.dart';
 import 'data.dart';
 import 'mail.dart';
 import 'server.dart';
@@ -163,32 +163,31 @@ class Connection extends Socket {
           return false;
         }
 
-        var createdMeta = GameMeta.create(account);
-        var createdGame = Game(createdMeta);
+        final createdMeta = GameMeta.create(account);
+        final createdGame = Game.empty(createdMeta);
 
-        var couldApplyChanges = await createdGame.applyChanges(params['data']);
-        if (!couldApplyChanges) return false;
+        await createdGame.applyChanges(params['data']);
 
         _game = createdGame..connect(this, true);
         scene = _game.playingScene;
         data.gameMeta.add(createdMeta..loadedGame = createdGame);
         account.enteredGames.add(createdMeta);
 
-        var sceneDir = Directory('web/images/assets/scene');
-        if (await sceneDir.exists()) {
-          var count = await sceneDir.list().length;
-          var index = Random().nextInt(count);
-          var result = await _uploadGameImage(
-            data: 'images/assets/scene/$index',
-            type: a.IMAGE_TYPE_SCENE,
-            id: 0,
+        final sceneAssetDir = Directory('web/images/assets/scene');
+        if (await sceneAssetDir.exists()) {
+          final count = await sceneAssetDir.list().length;
+          final index = Random().nextInt(count);
+
+          final result = await _uploadGameImage(
+            scene.image,
+            'images/assets/scene/$index',
           );
-          if (result is Map) {
-            scene.tiles = result['tiles'];
+
+          if (result.recommendedTiles != null) {
+            scene.tiles = result.recommendedTiles;
           }
         }
 
-        await _uploadGameAvatars(params['data']['pcs']);
         return _game.toSessionSnippet(this);
 
       case a.GAME_EDIT:
@@ -212,10 +211,10 @@ class Connection extends Socket {
             },
             allScenes: true,
           );
-          var result = await game.applyChanges(data);
-          await _uploadGameAvatars(params['data']['pcs'], gameId);
+          await game.applyChanges(data);
+
           await meta.close();
-          return result;
+          return true;
         }
 
         return game.toEditSnippet();
@@ -280,11 +279,12 @@ class Connection extends Socket {
 
       case a.GAME_PREFAB_CREATE:
         if (_game != null || _game.prefabCount < prefabsPerCampaign) {
-          var p = _game.addPrefab();
-          await _uploadGameImageJson(params, id: p.id);
-          var json = p.toJson();
-          notifyOthers(action, json, true);
-          return json;
+          final prefab = _game.addPrefab();
+          await _uploadGameImage(prefab.image, params['data']);
+
+          final response = prefab.toJson();
+          notifyOthers(action, response, true);
+          return response;
         }
         return null;
 
@@ -293,24 +293,25 @@ class Connection extends Socket {
         var data = params['data'];
         if (_game == null || pid == null) return null;
 
-        var prefab = _game.getPrefab(pid);
+        final prefab = _game.getPrefab(pid);
         if (prefab == null) return null;
 
-        String src;
         if (data != null) {
-          // Trim prefix from ID
-          var imageIndex = pid;
-          if (prefab is CharacterPrefab) {
-            imageIndex = pid.substring(1);
-          }
+          // Update prefab image
+          final resource = (prefab as HasImage).image;
+          await _uploadGameImage(resource, data);
 
-          src = await _uploadGameImageJson(params, id: imageIndex);
-        } else {
-          prefab.fromJson(params);
+          final response = {'image': resource.filePath};
+
+          notifyOthers(action, response, true);
+          return response;
         }
 
-        notifyOthers(action, params..remove('data'), true);
-        return src ?? params;
+        // Update prefab properties
+        prefab.fromJson(params);
+
+        notifyOthers(action, params, true);
+        return params;
 
       case a.GAME_PREFAB_REMOVE:
         if (_game == null) return null;
@@ -380,20 +381,20 @@ class Connection extends Socket {
       case a.GAME_SCENE_UPDATE:
         if (_game?.dm != this || scene == null) return;
 
-        var grid = params['grid'];
+        final grid = params['grid'];
         if (grid != null) {
           scene.applyGrid(grid);
           scene.applyMovables(params['movables']);
           return notifyOthers(action, params);
         }
 
-        var img = params['data'];
+        final img = params['data'];
         if (img != null) {
-          var result = await _uploadGameImageJson(params);
-          if (result != null) {
-            _game.notify(a.GAME_SCENE_UPDATE, {}, exclude: this);
-            return result;
-          }
+          // Update scene image
+          await _uploadGameImage(scene.image, params['data']);
+          final response = {'image': scene.image.filePath};
+          _game.notify(a.GAME_SCENE_UPDATE, response, exclude: this);
+          return response;
         }
         return null;
 
@@ -417,19 +418,20 @@ class Connection extends Socket {
         return result;
 
       case a.GAME_SCENE_ADD:
-        var id = _game.sceneCount;
-        if (id >= scenesPerCampaign) return null;
+        if (_game.sceneCount >= scenesPerCampaign) return null;
 
-        var result = await _uploadGameImageJson(params, id: id);
+        final resource = ControlledResource.empty(_game);
+        final imageData = params['data'];
 
-        var s = _game?.addScene();
-        if (s == null) return null;
+        final result = await _uploadGameImage(resource, imageData);
+        final newScene = _game.addScene(resource);
 
-        if (result is Map) {
-          s.tiles = result['tiles'];
+        if (result.recommendedTiles != null) {
+          newScene.tiles = result.recommendedTiles;
         }
-        scene = s;
-        return s.toJson(true);
+
+        scene = newScene;
+        return newScene.toJson(true);
 
       case a.GAME_SCENE_REMOVE:
         int id = params['id'];
@@ -474,8 +476,12 @@ class Connection extends Socket {
       case a.GAME_MAP_CREATE:
         if (_game.mapCount >= mapsPerCampaign) return null;
 
-        var id = _game.addMap();
-        await _uploadGameImageJson(params, id: id);
+        final resource = await ControlledResource.create(_game);
+        await _uploadGameImage(resource, params['data']);
+
+        final map = _game.addMap(resource);
+        final id = map.id;
+
         _game.notify(action, {'map': id}, exclude: this, allScenes: true);
         return id;
 
@@ -484,15 +490,25 @@ class Connection extends Socket {
         String name = params['name'];
         bool shared = params['shared'];
 
+        final map = _game.getMap(id);
+
         if (name != null || shared != null) {
-          _game.updateMap(id, name, shared);
+          // Update map properties
+          map.update(name, shared);
           _game.notify(action, params, exclude: this, allScenes: true);
           return true;
         }
 
-        await _uploadGameImageJson(params, id: id);
-        _game.notify(action, {'map': id}, exclude: this, allScenes: true);
-        return true;
+        final response = {
+          'map': id,
+          'image': map.image.filePath,
+        };
+
+        // Update map image
+        await _uploadGameImage(map.image, params['data']);
+        _game.notify(action, response, exclude: this, allScenes: true);
+
+        return response;
 
       case a.GAME_MAP_REMOVE:
         int id = params['map'];
@@ -647,123 +663,53 @@ class Connection extends Socket {
     return randomMerge(alpha, numeric);
   }
 
-  Future _uploadGameAvatars(Iterable jChars, [String gameId]) {
-    var countdown = 0;
-    var completer = Completer();
-    for (var i = 0; i < jChars.length; i++) {
-      String base64 = jChars.elementAt(i)['pic'];
-      if (base64 != null) {
-        countdown++;
-        _uploadGameImage(
-          data: base64,
-          type: a.IMAGE_TYPE_PC,
-          id: i,
-          gameId: gameId,
-        ).then((_) {
-          countdown--;
-          if (countdown == 0) completer.complete();
-        });
-      }
-    }
-    if (countdown == 0) return Future.value();
-    return completer.future;
-  }
-
-  Future<dynamic> _tryUploadGameImage(
+  Future<UploadSuccess> _tryUploadGameImage(
+    ControlledResource resource,
     String data,
-    File destination,
-    Game game,
   ) async {
-    final result = '$address/${destination.path.replaceAll('\\', '/')}';
-
+    final game = resource.game;
     final bytesAvailable = mediaBytesPerCampaign - game.usedDiskSpace;
-
-    /// Throws an error if `bytes` is greater than the given limit.
-    void validateSize(int bytes) {
-      if (bytes > bytesAvailable) {
-        throw UploadError(bytes, game.usedDiskSpace, mediaBytesPerCampaign);
-      }
-
-      game.onResourceAddBytes(bytes);
-    }
 
     if (data.startsWith('images/')) {
       // [data] is a path to an asset
       final dataImg = await getAssetFile(data);
 
-      final size = await dataImg.length();
-      validateSize(size);
-
-      await dataImg.copy(destination.path);
+      resource.replaceWithFile(dataImg);
 
       // Check if a grid size is embedded in the file name (e.g. "44x32")
       final match = RegExp(r'(\d+)x\d').firstMatch(dataImg.path);
       if (match != null) {
-        final horizontalTiles = match[1];
-        return {
-          'path': result,
-          'tiles': int.parse(horizontalTiles),
-        };
+        final horizontalTilesString = match[1];
+        final tiles = int.parse(horizontalTilesString);
+
+        return UploadSuccess(recommendedTiles: tiles);
       }
     } else {
       final byteData = base64Decode(data);
-      validateSize(byteData.lengthInBytes);
+      final uploadSize = byteData.lengthInBytes;
 
-      await destination.create();
+      if (uploadSize > bytesAvailable) {
+        throw UploadError(
+            uploadSize, game.usedDiskSpace, mediaBytesPerCampaign);
+      }
+
+      final destination = await resource.replace();
       await destination.writeAsBytes(byteData);
+
+      game.onResourceAddBytes(uploadSize);
     }
 
+    return UploadSuccess();
+  }
+
+  Future<UploadSuccess> _uploadGameImage(
+    ControlledResource resource,
+    String data,
+  ) async {
+    if (data == null) throw 'Missing info';
+
+    final result = await _tryUploadGameImage(resource, data);
     return result;
-  }
-
-  Future<dynamic> _uploadGameImage({
-    @required String data,
-    @required String type,
-    @required dynamic id,
-    String gameId,
-  }) async {
-    if (data == null || type == null || id == null) return 'Missing info';
-
-    var meta = gameId != null
-        ? account.ownedGames
-            .firstWhere((g) => g.id == gameId, orElse: () => null)
-        : _game.meta;
-
-    if (meta.isLoaded && meta != null) {
-      final game = meta.loadedGame;
-      final file = await game.getFile('$type$id');
-      final isReplacement = await file.exists();
-
-      // Subtract previous file size
-      if (isReplacement) {
-        await game.onResourceRemove(file);
-      }
-
-      try {
-        final result = await _tryUploadGameImage(data, file, game);
-
-        // Successful upload
-        return result;
-      } on UploadError {
-        // Error while uploading
-        if (isReplacement) {
-          await game.onResourceAdd(file);
-        }
-
-        rethrow;
-      }
-    }
-    throw 'Missing game info';
-  }
-
-  Future<dynamic> _uploadGameImageJson(Map<String, dynamic> json,
-      {dynamic id}) {
-    return _uploadGameImage(
-      data: json['data'],
-      type: json['type'],
-      id: id ?? json['id'],
-      gameId: json['gameId'],
-    );
   }
 
   void notifyOthers(
@@ -826,6 +772,12 @@ class Connection extends Socket {
       }
     }
   }
+}
+
+class UploadSuccess {
+  final int recommendedTiles;
+
+  UploadSuccess({this.recommendedTiles});
 }
 
 class UploadError extends ResponseError {

@@ -235,7 +235,7 @@ String getMimeType(File f) {
     case '.svg':
       return 'image/svg+xml';
   }
-  return 'text/plain';
+  return null;
 }
 
 Future<Response> _handleRequest(Request request) async {
@@ -298,7 +298,9 @@ Future<Response> _handleRequest(Request request) async {
     bodyOverride = utf8.encode(htmlBody);
   }
 
-  var type = isDataFile ? 'image/jpeg' : getMimeType(file);
+  var type = getMimeType(file);
+  type ??= isDataFile ? 'image/jpeg' : 'text/html';
+
   var length = bodyOverride?.length ?? await file.length();
   return Response(
     200,

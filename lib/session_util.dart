@@ -33,8 +33,16 @@ String generateNewLabel<T extends TokenModel>(T token, Iterable<T> tokens) {
   return '$pre ${maximum + 1}'.trimLeft();
 }
 
-extension IDExtension<T> on Iterable<T> {
+extension IterableHelperExtension<T> on Iterable<T> {
   int getNextAvailableID(int Function(T e) getElementID) {
     return fold<int>(-1, (v, e) => max(v, getElementID(e))) + 1;
+  }
+
+  T find(bool Function(T e) condition) => firstWhere(condition);
+}
+
+extension JsonListExtension<T> on List<T> {
+  void fromJson(Iterable jsonList, T Function(dynamic json) constructor) {
+    addAll(jsonList.map((jElem) => constructor(jElem)));
   }
 }
