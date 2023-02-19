@@ -305,6 +305,7 @@ class Game with Upgradeable {
     }
   }
 
+  @deprecated
   Future<File> getFile(String filePath) async {
     if (!await resources.exists()) {
       await resources.create(recursive: true);
