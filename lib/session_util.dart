@@ -39,6 +39,13 @@ extension IterableHelperExtension<T> on Iterable<T> {
   }
 
   T find(bool Function(T e) condition) => firstWhere(condition);
+
+  void forEachIndex(void Function(T e, int index) action) {
+    var i = 0;
+    for (var element in this) {
+      action(element, i++);
+    }
+  }
 }
 
 extension JsonListExtension<T> on List<T> {

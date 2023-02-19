@@ -257,7 +257,7 @@ Directory gameResources(String id) =>
     Directory(path.join(ServerData.directory.path, 'games', id));
 
 class Game with Upgradeable {
-  static const CURRENT_FILE_VERSION = 1;
+  static const CURRENT_FILE_VERSION = 2;
 
   final GameMeta meta;
   Directory get resources => gameResources(meta.id);
@@ -488,10 +488,13 @@ class Game with Upgradeable {
   }
 
   static Future<Game> fromJson(GameMeta meta, Map<String, dynamic> json) async {
+    int saveVersion = json['version'] ?? 0;
+
+    final preprocessor = GameFilePreprocessor(json);
+    await preprocessor.upgradeFromTo(saveVersion, CURRENT_FILE_VERSION);
+
     final game = Game._fromJson(meta, json);
     await game.refreshUsedDiskSpace();
-
-    int saveVersion = json['version'] ?? 0;
     await game.upgradeFromTo(saveVersion, CURRENT_FILE_VERSION);
 
     return game;
@@ -499,11 +502,12 @@ class Game with Upgradeable {
 
   Game._fromJson(this.meta, Map<String, dynamic> json)
       : playingSceneId = json['scene'] ?? 0,
-        _scenes = [],
         _characters = [],
+        _scenes = [],
         _prefabs = [],
         _maps = [] {
     _characters.fromJson(json['pcs'], (j) => PlayerCharacter.fromJson(this, j));
+    _scenes.fromJson(json['scenes'], (j) => Scene.fromJson(this, j));
     _prefabs.fromJson(json['prefabs'], (j) => CustomPrefab.fromJson(this, j));
     _maps.fromJson(json['maps'], (j) => GameMap.fromJson(this, j));
 
@@ -549,20 +553,6 @@ class Game with Upgradeable {
       return getPrefab(m.prefab)?.size ?? 1;
     }
     return m.size;
-  }
-
-  @override
-  Future<void> applyVersion(int targetVersion) async {
-    switch (targetVersion) {
-      case 1: // Tokens are now anchored to their center instead of top left
-        for (var scene in _scenes) {
-          for (var mv in scene.movables) {
-            final off = 0.5 * _getMovableDisplaySize(mv);
-            mv.position += Point(off, off);
-          }
-        }
-        return;
-    }
   }
 
   Future<void> applyChanges(Map<String, dynamic> data) async {
@@ -615,6 +605,56 @@ class Game with Upgradeable {
     }
 
     _characters.remove(character);
+  }
+
+  @override
+  Future<void> applyVersion(int targetVersion) async {
+    switch (targetVersion) {
+      case 1: // Tokens are now anchored to their center instead of top left
+        for (var scene in _scenes) {
+          for (var mv in scene.movables) {
+            final off = 0.5 * _getMovableDisplaySize(mv);
+            mv.position += Point(off, off);
+          }
+        }
+        return;
+      case 2: // Image paths are now referenced directly
+        return;
+    }
+  }
+}
+
+class GameFilePreprocessor with Upgradeable {
+  final Map data;
+
+  GameFilePreprocessor(this.data);
+
+  void _addResourcePaths(
+      Iterable objects, void Function(dynamic obj, int index) modify) {
+    objects.forEachIndex(modify);
+  }
+
+  @override
+  Future<void> applyVersion(int targetVersion) async {
+    switch (targetVersion) {
+      case 2: // Image paths are now referenced directly
+        _addResourcePaths(data['pcs'], (obj, index) {
+          obj['id'] = index;
+          obj['prefab']['image'] = 'pc$index';
+        });
+        _addResourcePaths(data['scenes'], (obj, index) {
+          obj['id'] = index;
+          obj['image'] = 'scene$index';
+        });
+        _addResourcePaths(
+          data['prefabs'],
+          (obj, index) => obj['image'] = 'entity$index',
+        );
+        _addResourcePaths(
+          data['maps'],
+          (obj, index) => obj['image'] = 'map$index',
+        );
+    }
   }
 }
 
@@ -688,7 +728,7 @@ class PlayerCharacter {
       : id = json['id'],
         prefab = CharacterPrefab(
           json['name'],
-          ControlledResource.path(game, json['avatar']),
+          ControlledResource.path(game, json['prefab']['image']),
         )..fromJson(json['prefab'] ?? {}) {
     /// Legacy
     /// Initiative mod was saved in PlayerCharacter instead of mixin
@@ -724,7 +764,7 @@ class Scene {
       : movables = [],
         image = image ?? ControlledResource.empty(game);
 
-  Scene(Game game, Map<String, dynamic> json)
+  Scene.fromJson(Game game, Map<String, dynamic> json)
       : id = json['id'],
         movables = List.from(json['movables'] ?? [])
             .map((j) => Movable(j['id'], j))
@@ -785,6 +825,7 @@ class Scene {
   }
 
   Map<String, dynamic> toJson(bool includeDM) => {
+        'id': id,
         'image': image.filePath,
         'grid': {
           'type': gridType,
@@ -806,22 +847,28 @@ mixin HasImage {
 }
 
 class CharacterPrefab extends EntityBase with HasInitiativeMod, HasImage {
-  final ControlledResource _image;
+  final ControlledResource _avatar;
   String name;
 
   @override
   int get jsonFallbackSize => 1;
 
   @override
-  ControlledResource get image => _image;
+  ControlledResource get image => _avatar;
 
-  CharacterPrefab(this.name, this._image);
+  CharacterPrefab(this.name, ControlledResource avatar) : _avatar = avatar;
 
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
     if (json['name'] != null) name = json['name'];
   }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'image': image.filePath,
+        ...super.toJson(),
+      };
 }
 
 class CustomPrefab extends EntityBase with HasInitiativeMod, HasImage {
