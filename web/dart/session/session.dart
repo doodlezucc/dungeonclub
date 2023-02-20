@@ -9,6 +9,7 @@ import '../communication.dart';
 import '../font_awesome.dart';
 import '../game.dart';
 import '../panels/dialog.dart';
+import '../resource.dart';
 import 'audioplayer.dart';
 import 'board.dart';
 import 'character.dart';
@@ -151,6 +152,7 @@ class Session extends Game {
     Map sceneJson,
     Iterable mapJsonList = const [],
     int usedStorage = 0,
+    String overrideSceneBackground,
   }) {
     this.characters.clear();
     this.characters.addAll(characters);
@@ -173,7 +175,7 @@ class Session extends Game {
       if (sceneJson != null) {
         _board.fromJson(playingId, sceneJson);
       } else {
-        await _board.onSceneChange(playingId);
+        await _board.onSceneChange(playingId, overrideSceneBackground);
         _board.resetTransform();
       }
 
@@ -183,7 +185,7 @@ class Session extends Game {
 
       if (isDM) {
         for (var i = 0; i < sceneCount; i++) {
-          var scene = Scene(i);
+          var scene = Scene(i, Resource.empty());
           if (i == playingId) {
             _board.refScene = scene
               ..editing = true

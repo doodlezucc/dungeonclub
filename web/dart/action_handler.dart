@@ -39,7 +39,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
         user.session?.board?.onAllMovablesMove(params['movables']);
         user.session?.board?.rescaleMeasurings();
       }
-      return user.session?.board?.onImgChange();
+      return user.session?.board?.onImgChange(params['image']);
 
     case GAME_SCENE_FOG_OF_WAR:
       return user.session?.board?.fogOfWar?.load(params['data']);

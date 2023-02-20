@@ -8,6 +8,7 @@ import '../../main.dart';
 import '../communication.dart';
 import '../font_awesome.dart';
 import '../panels/upload.dart' as upload;
+import '../resource.dart';
 
 final HtmlElement _scenesContainer = querySelector('#scenes');
 final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
@@ -23,7 +24,7 @@ final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
       if (_allScenes.length == 1) {
         _allScenes.first.enableRemove = true;
       }
-      return Scene(_allScenes.length).enterEdit(json);
+      return Scene(json['id'], json['image']).enterEdit(json);
     }
   });
 
@@ -39,6 +40,7 @@ void _updateAddSceneButton() {
 
 class Scene {
   final HtmlElement e;
+  final Resource background;
   int id;
   HtmlElement _bg;
   ButtonElement _remove;
@@ -49,11 +51,10 @@ class Scene {
   bool get editing => _bg.classes.contains('editing');
   set editing(bool playing) => _bg.classes.toggle('editing', playing);
 
-  set image(String src) => _bg.style.backgroundImage = 'url($src)';
-
   set enableRemove(bool enable) => _remove.disabled = !enable;
 
-  Scene(this.id) : e = DivElement()..className = 'scene-preview' {
+  Scene(this.id, this.background)
+      : e = DivElement()..className = 'scene-preview' {
     e
       ..append(_bg = DivElement()
         ..append(iconButton('wrench', label: 'Edit')
@@ -63,10 +64,15 @@ class Scene {
           ..onClick.listen((_) => enterPlay()))
         ..append(_remove = iconButton('trash', className: 'bad')
           ..onClick.listen((_) => remove())));
-    image = getSceneImage(id, cacheBreak: true);
+    applyBackground();
     _scenesContainer.insertBefore(e, _addScene);
     _allScenes.add(this);
     _updateAddSceneButton();
+  }
+
+  void applyBackground() {
+    final src = background.url;
+    _bg.style.backgroundImage = 'url($src)';
   }
 
   Future<void> remove() async {
@@ -120,9 +126,5 @@ class Scene {
       ..fromJson(id, json);
     _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
     editing = true;
-  }
-
-  static String getSceneImage(int id, {bool cacheBreak = false}) {
-    return getGameFile('scene$id', cacheBreak: cacheBreak);
   }
 }

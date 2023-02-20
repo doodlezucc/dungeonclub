@@ -37,9 +37,10 @@ class Character {
     Session session, {
     @required String color,
     @required String name,
+    @required String avatarUrl,
     Map prefabJson,
     bool joined = false,
-  }) : prefab = CharacterPrefab(id, name) {
+  }) : prefab = CharacterPrefab(id, name, Resource(avatarUrl)) {
     _onlineIndicator
       ..append(icon('circle')..style.color = color)
       ..append(_onlineIndicatorName);
@@ -68,6 +69,7 @@ class Character {
           session,
           color: color,
           name: json['name'],
+          avatarUrl: json['prefab']['image'],
           joined: json['connected'] ?? false,
           prefabJson: json['prefab'],
         );

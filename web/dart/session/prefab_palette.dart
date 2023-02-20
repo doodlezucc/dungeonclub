@@ -11,6 +11,7 @@ import '../communication.dart';
 import '../edit_image.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
+import '../resource.dart';
 import 'movable.dart';
 import 'prefab.dart';
 
@@ -68,7 +69,7 @@ set selectedPrefab(Prefab p) {
     _prefabName.value = p.name;
     _prefabSize.valueAsNumber = p.size;
 
-    final img = p.image.url;
+    final img = p.image?.url ?? '';
     _prefabImageImg.src = img;
     _movableGhost.classes.toggle('empty', isEmpty);
     _setMovableGhostImage(img);
@@ -180,10 +181,11 @@ void _initPrefabProperties() {
             'prefab': selectedPrefab.id,
           });
     },
-    onSuccess: (_) {
-      final src = selectedPrefab.image.reload();
+    onSuccess: (newImage) {
+      selectedPrefab.image.path = newImage;
       selectedPrefab.applyImage();
 
+      final src = selectedPrefab.image.url;
       _prefabImageImg.src = src;
       _setMovableGhostImage(src);
       user.session.board.onUpdatePrefabImage(selectedPrefab);
@@ -289,7 +291,7 @@ Future<void> createPrefab(MouseEvent ev) async {
 
   CustomPrefab prefab;
   if (user.isInDemo) {
-    prefab = CustomPrefab(id: fallbackID);
+    prefab = CustomPrefab(fallbackID, Resource(result['image']));
     _postPrefabCreate(prefab);
   } else {
     prefab = onPrefabCreate(result);
@@ -300,7 +302,7 @@ Future<void> createPrefab(MouseEvent ev) async {
 }
 
 CustomPrefab onPrefabCreate(Map<String, dynamic> json) {
-  var p = CustomPrefab(id: json['id'])..fromJson(json);
+  var p = CustomPrefab(json['id'], Resource(json['image']))..fromJson(json);
   _postPrefabCreate(p);
   return p;
 }
@@ -320,7 +322,7 @@ void onPrefabUpdate(Map<String, dynamic> json) {
   var prefab = getPrefab(json['prefab']);
 
   if (json['size'] == null) {
-    prefab.image.reload();
+    prefab.image.path = json['image'];
     user.session.board.onUpdatePrefabImage(prefab);
   } else {
     prefab.fromJson(json);

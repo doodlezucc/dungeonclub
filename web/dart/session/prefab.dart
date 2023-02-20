@@ -1,9 +1,7 @@
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/models/entity_base.dart';
-import 'package:meta/meta.dart';
 
 import '../../main.dart';
 import '../font_awesome.dart';
@@ -148,8 +146,7 @@ class CharacterPrefab extends Prefab with HasInitiativeMod, ChangeableName {
     character.applyNameToOnlineIndicator();
   }
 
-  CharacterPrefab(int id, String name)
-      : super(GameResource('$IMAGE_TYPE_PC$id')) {
+  CharacterPrefab(int id, String name, Resource avatar) : super(avatar) {
     _name = name;
   }
 }
@@ -162,9 +159,9 @@ class CustomPrefab extends Prefab with HasInitiativeMod, ChangeableName {
   String get id => '$_id';
   int get idNum => _id;
 
-  CustomPrefab({@required int id})
+  CustomPrefab(int id, Resource image)
       : _id = id,
-        super(GameResource('$IMAGE_TYPE_ENTITY$id'));
+        super(image);
 
   @override
   Map<String, dynamic> toJson() => {

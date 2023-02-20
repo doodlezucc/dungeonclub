@@ -1,28 +1,24 @@
 import '../main.dart';
 import 'communication.dart';
+import 'game.dart';
 
 class Resource {
-  final String _path;
+  final Game _game;
+  String path;
 
-  String _currentPath;
-  String get url => _currentPath;
+  String get _actualPath {
+    if (path == null) return null;
 
-  Resource(String path) : _path = getFile(path, cacheBreak: false) {
-    _currentPath = _path;
+    if (path.startsWith('assets/')) {
+      return 'images/$path';
+    }
+
+    return 'database/games/${_game.id}/$path';
   }
 
-  String reload() {
-    // Add random query parameter to reload the same URL
-    _currentPath = '$_path?${DateTime.now().millisecondsSinceEpoch ~/ 1000}';
-    return _currentPath;
-  }
-}
+  String get url =>
+      _actualPath == null ? '' : getFile(_actualPath, cacheBreak: false);
 
-class GameResource extends Resource {
-  GameResource(String path, {String gameId}) : super(_gameFile(path, gameId));
-
-  static String _gameFile(String path, String gameId) {
-    gameId ??= user?.session?.id;
-    return 'database/games/$gameId/$path';
-  }
+  Resource(this.path, {Game game}) : _game = game ?? user.session;
+  Resource.empty({Game game}) : this(null, game: game);
 }

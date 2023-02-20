@@ -17,6 +17,7 @@ import '../html_transform.dart';
 import '../lazy_input.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
+import '../resource.dart';
 import 'condition.dart';
 import 'fog_of_war.dart';
 import 'grid.dart';
@@ -1111,26 +1112,21 @@ class Board {
 
     if (result != null) {
       if (result is String) {
-        await onImgChange(src: result);
+        await onImgChange(result);
       } else {
-        await onImgChange(src: result['path']);
+        await onImgChange(result['path']);
         grid.tiles = result['tiles'];
         gridTiles.valueAsNumber = grid.tiles;
       }
     }
   }
 
-  Future<void> onImgChange({String src, bool updateRef = true}) async {
-    if (session.isDemo) {
-      src = Scene.getSceneImage(_sceneId);
-    } else {
-      src = src ?? Scene.getSceneImage(_sceneId);
-      src += '?${DateTime.now().millisecondsSinceEpoch ~/ 1000}';
-    }
-
+  Future<void> onImgChange(String path, {bool updateRef = true}) async {
+    final src = Resource(path).url;
     _ground.src = src;
-    if (updateRef) {
-      refScene?.image = src;
+    if (updateRef && refScene != null) {
+      refScene.background.path = src;
+      refScene.applyBackground();
     }
     await _ground.onLoad.first;
     grid.resize(_ground.naturalWidth, _ground.naturalHeight);
@@ -1296,17 +1292,17 @@ class Board {
     position = Point(0, 0);
   }
 
-  Future<void> onSceneChange(int id) async {
+  Future<void> onSceneChange(int id, String path) async {
     clear();
 
     _sceneId = id;
-    await onImgChange(updateRef: false);
+    await onImgChange(path, updateRef: false);
 
     mode = PAN;
   }
 
   void fromJson(int id, Map<String, dynamic> json) async {
-    await onSceneChange(id);
+    await onSceneChange(id, json['image']);
 
     fogOfWar.load(json['fow']);
     grid.fromJson(json['grid']);

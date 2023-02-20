@@ -13,6 +13,7 @@ import '../../main.dart';
 import '../communication.dart';
 import '../html_transform.dart';
 import '../panels/upload.dart' as uploader;
+import '../resource.dart';
 import 'map_tool_info.dart';
 
 final HtmlElement _e = querySelector('#map');
@@ -348,7 +349,8 @@ class MapTab {
 
       if (img != null) {
         clearMap();
-        map.reloadImage();
+        map.image.path = img;
+        map.applyImage();
       }
     });
 
@@ -464,11 +466,13 @@ class MapTab {
   void _updateIndexText() => _indexText.text = '${mapIndex + 1}/${maps.length}';
 
   void addMap(int id, String name, bool shared, [String encodedData]) {
-    var map = GameMap(id,
-        name: name,
-        shared: shared,
-        encodedData: encodedData,
-        onEnterEdit: () => _enterEdit(id));
+    final map = GameMap(
+      id,
+      name: name,
+      shared: shared,
+      encodedData: encodedData,
+      onEnterEdit: () => _enterEdit(id),
+    );
     map.whiteboard.history.onChange.listen((_) => _updateHistoryButtons());
     maps.add(map);
 
@@ -494,7 +498,8 @@ class MapTab {
       map.shared = shared;
       if (maps[mapIndex] == map) this.shared = shared;
     } else {
-      map.reloadImage();
+      map.image.path = json['image'];
+      map.applyImage();
     }
   }
 
@@ -508,6 +513,7 @@ class MapTab {
 
 class GameMap {
   final int id;
+  final Resource image;
   HtmlElement _em;
   HtmlElement _container;
   HtmlElement _minimap;
@@ -525,6 +531,7 @@ class GameMap {
     String name = '',
     this.shared = false,
     String encodedData,
+    this.image,
     void Function() onEnterEdit,
   }) {
     _em = DivElement()
@@ -560,7 +567,7 @@ class GameMap {
 
     // Assign user their own exclusive drawing layer
     whiteboard.layerIndex = 1 + (user.session.charId ?? -1);
-    reloadImage();
+    applyImage();
   }
 
   void _dispose() {
@@ -592,8 +599,8 @@ class GameMap {
     _minimap.style.backgroundImage = "url('$base64')";
   }
 
-  void reloadImage({bool cacheBreak = true}) async {
-    var src = getGameFile('$IMAGE_TYPE_MAP$id', cacheBreak: cacheBreak);
+  void applyImage() async {
+    final src = image.url;
 
     await whiteboard.changeBackground(src);
     await updateMiniImage();

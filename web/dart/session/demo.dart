@@ -2,7 +2,6 @@ import 'dart:html';
 
 import 'package:dungeonclub/actions.dart';
 
-import '../communication.dart';
 import 'character.dart';
 import 'session.dart';
 
@@ -20,13 +19,17 @@ class DemoSession extends Session {
 
     for (var i = 0; i < demoPlayers.length; i++) {
       var color = getPlayerColor(i, demoPlayers.length);
-      registerRedirect('$IMAGE_TYPE_PC$i', 'images/assets/pc/$i');
-      characters.add(Character(i, this, color: color, name: demoPlayers[i]));
+      characters.add(Character(i, this,
+          color: color, name: demoPlayers[i], avatarUrl: 'assets/pc/$i'));
     }
 
-    registerRedirect(IMAGE_TYPE_SCENE + '0', 'images/assets/scene/15');
+    await initialize(
+      characters: characters,
+      playingId: 0,
+      sceneCount: 1,
+      overrideSceneBackground: 'assets/scene/15',
+    );
 
-    await initialize(characters: characters, playingId: 0, sceneCount: 1);
     board.grid.configure(
       gridType: GRID_SQUARE,
       tiles: 23,
