@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:image/image.dart' as image;
 import 'package:path/path.dart' as p;
 
+import 'controlled_resource.dart';
+
 final _dirAssets = <String, List<FileSystemEntity>>{};
 
 Future<void> resizeAll(String dirPath, {int size = 2000}) async {
@@ -80,7 +82,7 @@ Future<void> createAssetPreview(
   print('Wrote ${bytes.length ~/ 1000} KB!');
 }
 
-Future<File> getAssetFile(String assetPath) async {
+Future<AssetFile> getAssetFile(String assetPath) async {
   var type = assetPath.substring(14, assetPath.indexOf('/', 14));
   var dir = 'web/images/assets/$type/';
 
@@ -98,5 +100,5 @@ Future<File> getAssetFile(String assetPath) async {
   if (assetIndex == 15 && _dirAssets[dir].length == 1) {
     assetIndex = 0;
   }
-  return _dirAssets[dir][assetIndex];
+  return AssetFile.fromFile(_dirAssets[dir][assetIndex]);
 }

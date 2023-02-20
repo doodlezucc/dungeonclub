@@ -12,14 +12,15 @@ class ControlledResource {
 
   final Game game;
   final String fileExtension;
-  File _file;
+  ResourceFile _file;
 
   Directory get parentDirectory => game.resources;
   String get filePath => _file?.path;
+  File get referencedFile => _file?.reference;
 
   ControlledResource(
     this.game,
-    File file, {
+    ResourceFile file, {
     this.fileExtension = defaultFileExension,
   }) : _file = file;
 
@@ -32,7 +33,11 @@ class ControlledResource {
     Game game,
     String filePath, {
     String fileExtension = defaultFileExension,
-  }) : this(game, File(filePath), fileExtension: fileExtension);
+  }) : this(
+          game,
+          ResourceFile.parse(game, filePath),
+          fileExtension: fileExtension,
+        );
 
   /// Creates a new file reference and optionally deletes the previous one.
   Future<File> replace({bool deletePrevious = true}) async {
@@ -40,7 +45,7 @@ class ControlledResource {
     await newFile.create(recursive: true);
 
     replaceWithFile(
-      newFile,
+      GameFile.fromFile(game, newFile),
       deletePrevious: deletePrevious,
       registerInGameStorage: false,
     );
@@ -50,25 +55,25 @@ class ControlledResource {
 
   /// Replaces the current file reference with a new one.
   void replaceWithFile(
-    File file, {
+    ResourceFile file, {
     bool deletePrevious = true,
     bool registerInGameStorage = true,
   }) {
     if (file == _file) return;
 
     if (deletePrevious) {
-      _deleteObsoleteFile(_file);
+      _deleteObsoleteFile(referencedFile);
     }
 
     _file = file;
 
     if (registerInGameStorage) {
-      game.onResourceAdd(_file);
+      game.onResourceAdd(referencedFile);
     }
   }
 
   /// Deletes the resource's file reference.
-  Future<void> delete() => _deleteObsoleteFile(_file);
+  Future<void> delete() => _deleteObsoleteFile(referencedFile);
 
   /// Deletes the resource's file reference (unawaited).
   void deleteInBackground() => delete();
@@ -89,7 +94,9 @@ class ControlledResource {
     file ??= await newRandomFileName(game.resources, fileExtension);
     await file.create(recursive: true);
 
-    return ControlledResource(game, file, fileExtension: fileExtension);
+    final resFile = GameFile.fromFile(game, file);
+
+    return ControlledResource(game, resFile, fileExtension: fileExtension);
   }
 
   /// Returns a new (= non-existent) file located in the `parent` directory
@@ -112,4 +119,39 @@ class ControlledResource {
   static String _randomBasename() {
     return randomAlphaNumeric(fileNameCharacters);
   }
+}
+
+abstract class ResourceFile {
+  final String path;
+  final File reference;
+
+  ResourceFile(this.path, this.reference);
+
+  static ResourceFile parse(Game game, String filePath) {
+    if (filePath.startsWith('assets/')) {
+      return AssetFile(filePath);
+    }
+    return GameFile(game, filePath);
+  }
+}
+
+class AssetFile extends ResourceFile {
+  /// `path` should start with "assets/".
+  AssetFile(String path) : super(path, File('web/images/$path'));
+
+  AssetFile.fromFile(File file)
+      : super('assets/' + path.basename(file.path), file);
+}
+
+class GameFile extends ResourceFile {
+  final Game game;
+
+  GameFile(this.game, String fileName)
+      : super(
+          fileName,
+          File(path.join(game.resources.path, fileName)),
+        );
+
+  GameFile.fromFile(this.game, File file)
+      : super(path.basename(file.path), file);
 }

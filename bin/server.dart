@@ -271,7 +271,7 @@ Future<Response> _handleRequest(Request request) async {
   if (path.contains('/assets/')) {
     path = Uri.decodeComponent(path);
     if (!path.contains('-preview')) {
-      file = await getAssetFile(path);
+      file = (await getAssetFile(path)).reference;
     }
   }
 
