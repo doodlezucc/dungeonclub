@@ -63,3 +63,13 @@ const GRID_SQUARE = 0;
 const GRID_NONE = 1;
 const GRID_HEX_H = 2;
 const GRID_HEX_V = 3;
+
+const ASSET_DIRECTORIES = {
+  IMAGE_TYPE_PC: 'images/assets/pc',
+  IMAGE_TYPE_SCENE: 'images/assets/scene',
+};
+
+const ASSET_PREVIEWS = {
+  IMAGE_TYPE_PC: 'images/assets/pc-preview.png',
+  IMAGE_TYPE_SCENE: 'images/assets/scene-preview.jpg',
+};

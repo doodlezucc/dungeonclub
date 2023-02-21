@@ -9,6 +9,7 @@ import 'package:meta/meta.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../resource.dart';
 import 'context_menu.dart';
 import 'dialog.dart';
 import 'panel_overlay.dart';
@@ -479,7 +480,8 @@ Future<String> _displayAssetPicker(String type) async {
   _assetPanel.classes.add('show');
   overlayVisible = true;
 
-  var tmp = ImageElement(src: 'images/assets/$type-preview');
+  final previewImage = ASSET_PREVIEWS[type];
+  final tmp = ImageElement(src: previewImage);
   await tmp.onLoad.first;
 
   var tileSize = tmp.width;
@@ -491,7 +493,7 @@ Future<String> _displayAssetPicker(String type) async {
     var img = DivElement()
       ..style.backgroundImage = 'url(${tmp.src})'
       ..style.backgroundPositionY = '${-i * 100}%'
-      ..onClick.listen((_) => completer.complete('images/assets/$type/$i'));
+      ..onClick.listen((_) => completer.complete('asset/$type/$i'));
     _assetGrid.append(img);
   }
 

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/environment.dart';
 import 'package:graceful/graceful.dart';
 import 'package:http/http.dart' as http;
@@ -121,8 +122,8 @@ void run(List<String> args) async {
   maintainer.autoCheckForFile();
   accountMaintainer.autoCheckForFile();
 
-  await createAssetPreview('web/images/assets/pc', tileSize: 240, usePng: true);
-  await createAssetPreview('web/images/assets/scene', zoomIn: true);
+  await createAssetPreview(IMAGE_TYPE_PC, tileSize: 240);
+  await createAssetPreview(IMAGE_TYPE_SCENE, zoomIn: true);
 
   if (Environment.enableMusic) {
     await loadAmbience();
@@ -243,7 +244,7 @@ Future<Response> _handleRequest(Request request) async {
     return Response.forbidden('Server is shutting down.');
   }
 
-  var path = request.url.path;
+  var path = Uri.decodeComponent(request.url.path);
 
   if (path == 'ws') {
     return await ws.webSocketHandler(onConnect, pingInterval: wsPing)(request);
@@ -264,15 +265,13 @@ Future<Response> _handleRequest(Request request) async {
     return untaint(request, _notFound);
   }
 
-  var isDataFile =
+  final isDataFile =
       path.startsWith('database/games') || path.startsWith('ambience/');
 
   File file;
-  if (path.contains('/assets/')) {
-    path = Uri.decodeComponent(path);
-    if (!path.contains('-preview')) {
-      file = (await getAssetFile(path)).reference;
-    }
+  if (path.startsWith('asset/')) {
+    final redirect = await resolveIndexedAsset(path, fullPath: true);
+    return Response.movedPermanently('/$redirect');
   }
 
   file ??= isDataFile

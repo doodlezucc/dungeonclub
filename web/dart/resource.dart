@@ -9,8 +9,14 @@ class Resource {
   String get _actualPath {
     if (path == null) return null;
 
-    if (path.startsWith('assets/')) {
-      return 'images/$path';
+    if (path.startsWith('asset/')) {
+      // "Unresolved" asset path, will be redirected by server
+      return path;
+    }
+
+    if (path.startsWith('asset:')) {
+      final assetID = path.substring(6);
+      return 'images/assets/$assetID';
     }
 
     return 'database/games/${_game.id}/$path';

@@ -10,13 +10,17 @@ import 'package:random_string/random_string.dart';
 import 'asset_provider.dart';
 import 'data.dart';
 
+const ASSET_PREFIX = 'asset';
+const ASSET_RESOLVED_PREFIX = '$ASSET_PREFIX:';
+const ASSET_UNRESOLVED_PREFIX = '$ASSET_PREFIX/';
+
 class ControlledResource {
   final Game game;
   final String fileExtension;
   ResourceFile _file;
 
   ResourceFile get file => _file;
-  String get filePath => _file?.path;
+  String get filePath => _file?.path?.replaceAll(r'\', '/');
 
   ControlledResource(
     this.game,
@@ -65,7 +69,7 @@ class ControlledResource {
     if (file == _file) return;
 
     if (deletePrevious) {
-      _deleteObsoleteFile(file);
+      _deleteObsoleteFile(_file);
     }
 
     _file = file;
@@ -78,19 +82,10 @@ class ControlledResource {
   Future<ResourceFile> replaceWithData(String data) async {
     final bytesAvailable = mediaBytesPerCampaign - game.usedDiskSpace;
 
-    if (data.startsWith('assets/')) {
+    if (data.startsWith(ASSET_PREFIX)) {
       // [data] is a path to an asset
-      final assetFile = await getAssetFile(data);
+      final assetFile = await AssetFile.parse(data);
       replaceWithFile(assetFile);
-
-      // Check if a grid size is embedded in the file name (e.g. "44x32")
-      final match = RegExp(r'(\d+)x\d').firstMatch(assetFile.path);
-      if (match != null) {
-        final horizontalTilesString = match[1];
-        final tiles = int.parse(horizontalTilesString);
-
-        return SceneAssetFile(assetFile, tiles);
-      }
     } else {
       final byteData = base64Decode(data);
       final uploadSize = byteData.lengthInBytes;
@@ -133,32 +128,27 @@ abstract class ResourceFile {
   ResourceFile(this.path, this.reference);
 
   static ResourceFile parse(Game game, String filePath) {
-    if (filePath.startsWith('assets/')) {
-      return AssetFile(filePath);
+    if (filePath.startsWith(ASSET_PREFIX)) {
+      return AssetFile.fromResolved(filePath);
     }
     return GameFile(game, filePath);
   }
 }
 
 class AssetFile extends ResourceFile {
-  /// `path` should start with "assets/".
-  AssetFile(String path) : super(path, File('web/images/$path'));
+  AssetFile(String path)
+      : super('$ASSET_RESOLVED_PREFIX$path', File('web/images/assets/$path'));
 
-  AssetFile._fromFile(File file)
-      : super(
-          path.join(
-              'assets/', path.dirname(file.path), path.basename(file.path)),
-          file,
-        );
+  AssetFile.fromResolved(String filePath)
+      : this(filePath.substring(ASSET_RESOLVED_PREFIX.length));
 
-  static AssetFile fromFile(File file) {
-    final base = AssetFile._fromFile(file);
-
-    if (base.path.contains('/scene/')) {
-      return SceneAssetFile.parseTiles(base);
+  static Future<AssetFile> parse(String filePath) async {
+    if (filePath.startsWith(ASSET_UNRESOLVED_PREFIX)) {
+      final path = await resolveIndexedAsset(filePath);
+      return AssetFile(path);
     }
 
-    return base;
+    return AssetFile.fromResolved(filePath);
   }
 }
 
@@ -171,6 +161,7 @@ class SceneAssetFile implements AssetFile {
   SceneAssetFile.parseTiles(AssetFile asset)
       : this(asset, _parseHorizontalTiles(asset.path));
 
+  // Grid size is embedded in the file name (e.g. "44x32")
   static int _parseHorizontalTiles(String fileName) {
     final tilesString = _tilesRegex.firstMatch(fileName)[1];
     return int.parse(tilesString);

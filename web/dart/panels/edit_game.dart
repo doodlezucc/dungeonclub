@@ -9,6 +9,7 @@ import '../communication.dart';
 import '../edit_image.dart';
 import '../font_awesome.dart';
 import '../game.dart';
+import '../resource.dart';
 import 'dialog.dart';
 import 'panel_overlay.dart';
 import 'upload.dart' as uploader;
@@ -21,13 +22,10 @@ final ButtonElement _deleteButton = _panel.querySelector('button#delete');
 final ButtonElement _saveButton = _panel.querySelector('button#save');
 
 final _chars = <_EditChar>[];
-final _removes = <int>[];
 
-String _gameId;
-int _idCounter = 0;
 final AnchorElement _addCharButton = _panel.querySelector('#addChar')
   ..onClick.listen((_) {
-    _chars.add(_EditChar(_idCounter++)..focus());
+    _chars.add(_EditChar.empty()..focus());
     _updateAddButton();
   });
 
@@ -40,7 +38,6 @@ set prepareMode(bool v) {
 
 Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   prepareMode = false;
-  _gameId = game.id;
   var result = await socket.request(GAME_EDIT, {'id': game.id});
   if (result is String) return print('Error: $result');
 
@@ -53,15 +50,10 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
     ..focus();
   _chars.forEach((c) => c.e.remove());
   _chars.clear();
-  var charJsons = List<Map>.from(result['pcs']);
-  for (var i = 0; i < charJsons.length; i++) {
-    _chars.add(_EditChar(i,
-        name: charJsons[i]['name'],
-        imgUrl: getGameFile('pc$i', gameId: _gameId),
-        isOG: true));
+
+  for (var jChar in result['pcs']) {
+    _chars.add(_EditChar.fromJson(game, jChar));
   }
-  _idCounter = charJsons.length;
-  _removes.clear();
 
   _updateAddButton();
 
@@ -103,12 +95,10 @@ Future<Game> displayPrepare() async {
   _gameNameInput.focus();
   _chars.forEach((c) => c.e.remove());
   _chars.clear();
-  _removes.clear();
 
   // Add 4 default characters
-  _idCounter = 3;
-  for (var i = 0; i <= _idCounter; i++) {
-    _chars.add(_EditChar(i));
+  for (var i = 0; i < 4; i++) {
+    _chars.add(_EditChar.empty());
   }
 
   _updateAddButton();
@@ -140,23 +130,21 @@ void _updateAddButton() {
 class _EditChar {
   final HtmlElement e;
   final int id;
-  final bool isOG;
+  final Resource avatar;
+  bool isRemoved = false;
   String bufferedImg;
   InputElement _nameInput;
   String get name => _nameInput.value;
 
-  _EditChar(
-    this.id, {
-    String name = '',
-    String imgUrl = 'images/default_pc.jpg',
-    this.isOG = false,
-  }) : e = LIElement() {
+  bool get isOG => id != null;
+
+  _EditChar(this.id, String name, this.avatar) : e = LIElement() {
     e
       ..append(registerEditImage(
         DivElement()
           ..className = 'edit-img responsive'
           ..append(DivElement()..text = 'Change')
-          ..append(ImageElement(src: imgUrl)),
+          ..append(ImageElement(src: avatar.url)),
         upload: _changeIcon,
       ))
       ..append(_nameInput = InputElement()
@@ -169,6 +157,15 @@ class _EditChar {
     _roster.append(e);
   }
 
+  _EditChar.fromJson(Game game, json)
+      : this(
+          json['id'],
+          json['name'],
+          Resource(json['prefab']['image'], game: game),
+        );
+
+  _EditChar.empty() : this(null, '', Resource('assets/default_pc.jpg'));
+
   Future<String> _changeIcon(MouseEvent ev, [Blob initialFile]) async {
     return await uploader.display(
       event: ev,
@@ -176,7 +173,7 @@ class _EditChar {
       initialImg: initialFile,
       processUpload: (data, maxRes, upscale) async {
         bufferedImg = data;
-        if (data.startsWith('images/')) return getFile(data);
+        if (data.startsWith('asset')) return Resource(data).url;
         return 'data:image/jpeg;base64,$data';
       },
       onPanelVisible: (v) => _panel.classes.toggle('upload', v),
@@ -193,11 +190,10 @@ class _EditChar {
           '''This will remove <b>$name</b> from the campaign.''').display();
 
       if (!confirm) return;
-      _removes.add(id);
+      isRemoved = true;
     }
 
     _chars.remove(this);
-    _idCounter--;
     e.remove();
     _updateAddButton();
   }
@@ -206,16 +202,24 @@ class _EditChar {
     _nameInput.focus();
   }
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        if (bufferedImg != null) 'pic': bufferedImg,
-      };
+  Map<String, dynamic> toJson() => isRemoved
+      ? null
+      : {
+          'name': name,
+          if (bufferedImg != null) 'avatar': bufferedImg,
+        };
 }
 
 Map<String, dynamic> _currentDataJson() => {
       'name': _gameNameInput.value,
-      'pcs': _chars.map((e) => e.toJson()).toList(),
-      'removes': _removes,
+      'pcs': Map.of({
+        for (var char in _chars)
+          if (char.isOG) '${char.id}': char.toJson()
+      }),
+      'newPCs': [
+        for (var char in _chars)
+          if (!char.isOG) char.toJson()
+      ],
     };
 
 Future<Game> _createGameAndJoin() async {
@@ -232,8 +236,8 @@ Future<Game> _createGameAndJoin() async {
 }
 
 Future<bool> _saveChanges(String id) async {
-  return await socket
-      .request(GAME_EDIT, {'id': id, 'data': _currentDataJson()});
+  final data = _currentDataJson();
+  return await socket.request(GAME_EDIT, {'id': id, 'data': data});
 }
 
 Future<bool> _delete(Game game) async {

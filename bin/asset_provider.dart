@@ -1,12 +1,17 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:dungeonclub/actions.dart';
 import 'package:image/image.dart' as image;
 import 'package:path/path.dart' as p;
 
-import 'controlled_resource.dart';
+/// Assets are static images stored in "web/images/assets/".
+///
+/// HTTP redirects (301) should be used to access these assets by their index,
+/// for example: "http://localhost:7070/asset/scene/0" redirects to the first
+/// scene asset (sorted by file name from A to Z).
 
-final _pathRegex = RegExp(r'assets\/(\S+)\/(\d+)?');
+final _pathRegex = RegExp(r'asset\/(\S+)\/(\d+)?');
 
 final _dirAssets = <String, List<FileSystemEntity>>{};
 
@@ -35,13 +40,15 @@ Future<void> resizeAll(String dirPath, {int size = 2000}) async {
 }
 
 Future<void> createAssetPreview(
-  String dirPath, {
+  String assetType, {
   int tileSize = 192,
-  bool usePng = false,
   bool zoomIn = false,
 }) async {
-  var file = File(dirPath + '-preview');
-  var directory = Directory(dirPath);
+  final dirPath = ASSET_DIRECTORIES[assetType];
+  final directory = Directory('web/$dirPath');
+
+  final filePath = ASSET_PREVIEWS[assetType];
+  final file = File('web/$filePath');
 
   if (await file.exists() || !await directory.exists()) return;
 
@@ -79,29 +86,47 @@ Future<void> createAssetPreview(
     img = image.copyInto(img, srcImg, dstY: tileSize * i);
   }
 
+  final usePng = filePath.endsWith('.png');
   var bytes = usePng ? image.encodePng(img) : image.encodeJpg(img, quality: 90);
 
   await file.writeAsBytes(bytes);
   print('Wrote ${bytes.length ~/ 1000} KB!');
 }
 
-Future<AssetFile> getAssetFile(
-  String assetPath, {
-  bool pickRandom = false,
-}) async {
-  final match = _pathRegex.firstMatch(assetPath);
+String getAssetDirectoryPath(String assetType) {
+  return 'web/images/assets/$assetType/';
+}
 
-  final assetType = match[1];
-  final dirPath = 'web/images/assets/$assetType/';
-
+Future<List<FileSystemEntity>> _getSortedAssetsIn(String dirPath) async {
   if (_dirAssets[dirPath] == null) {
     _dirAssets[dirPath] = await Directory(dirPath).list().toList()
       ..sort((a, b) => p.basename(a.path).compareTo(p.basename(b.path)));
   }
 
-  final assets = _dirAssets[dirPath];
+  return _dirAssets[dirPath];
+}
+
+Future<String> resolveIndexedAsset(
+  String assetPath, {
+  bool pickRandom = false,
+  bool fullPath = false,
+}) async {
+  final match = _pathRegex.firstMatch(assetPath);
+
+  final assetType = match[1];
+  final dirPath = getAssetDirectoryPath(assetType);
+  final assets = await _getSortedAssetsIn(dirPath);
+
   final assetIndex =
       pickRandom ? Random().nextInt(assets.length) : int.parse(match[2]);
 
-  return AssetFile.fromFile(assets[assetIndex]);
+  final file = assets[assetIndex];
+  final fileName = p.basename(file.path);
+
+  var resultDirectory = assetType;
+  if (fullPath) {
+    resultDirectory = 'images/assets/$resultDirectory';
+  }
+
+  return p.join(resultDirectory, fileName);
 }

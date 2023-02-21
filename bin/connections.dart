@@ -170,9 +170,12 @@ class Connection extends Socket {
         data.gameMeta.add(createdMeta..loadedGame = createdGame);
         account.enteredGames.add(createdMeta);
 
-        final sceneAssets = 'assets/scene/';
-        final asset = await getAssetFile(sceneAssets, pickRandom: true);
+        final assetPath = await resolveIndexedAsset(
+          'asset/scene/',
+          pickRandom: true,
+        );
 
+        final asset = AssetFile(assetPath);
         scene.image.replaceWithFile(asset);
         scene.tryUseTilesFromAsset();
 
