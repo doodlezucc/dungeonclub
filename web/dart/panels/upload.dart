@@ -9,7 +9,6 @@ import 'package:meta/meta.dart';
 
 import '../../main.dart';
 import '../communication.dart';
-import '../resource.dart';
 import 'context_menu.dart';
 import 'dialog.dart';
 import 'panel_overlay.dart';

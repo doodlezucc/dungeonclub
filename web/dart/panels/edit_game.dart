@@ -164,7 +164,7 @@ class _EditChar {
           Resource(json['prefab']['image'], game: game),
         );
 
-  _EditChar.empty() : this(null, '', Resource('assets/default_pc.jpg'));
+  _EditChar.empty() : this(null, '', Resource('asset:default_pc.jpg'));
 
   Future<String> _changeIcon(MouseEvent ev, [Blob initialFile]) async {
     return await uploader.display(

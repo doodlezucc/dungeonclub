@@ -282,7 +282,7 @@ Future<Response> _handleRequest(Request request) async {
 
   if (!await file.exists()) {
     if (isDataFile && path.contains('/pc')) {
-      return Response.seeOther('$address/images/default_pc.jpg');
+      return Response.seeOther('$address/images/assets/default_pc.jpg');
     } else if (!path.startsWith('game/') && path.isNotEmpty) {
       return _notFound(request);
     } else {

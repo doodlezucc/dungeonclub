@@ -720,7 +720,7 @@ class PlayerCharacter {
   PlayerCharacter(Game game, this.id, String name)
       : prefab = CharacterPrefab(
           name,
-          ControlledResource.path(game, 'assets/default_pc.png'),
+          ControlledResource.path(game, 'asset:default_pc.jpg'),
         );
 
   PlayerCharacter.fromJson(Game game, Map<String, dynamic> json)

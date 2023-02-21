@@ -16,8 +16,7 @@ web/main.dart.*
 web/style
 
 # Exclude asset previews but include source images
-web/images/assets/*
-!web/images/assets/**/
+web/images/assets/*-preview.*
 
 # Include only a single battle map in the repo
 web/images/assets/scene/*
