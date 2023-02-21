@@ -25,8 +25,6 @@ class DemoSession extends Session {
 
     await initialize(
       characters: characters,
-      playingId: 0,
-      sceneCount: 1,
       overrideSceneBackground: 'assets/scene/15',
     );
 

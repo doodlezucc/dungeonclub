@@ -207,7 +207,6 @@ class Board {
     _selectionProperties.classes.toggle('hidden', activeMovable == null);
   }
 
-  int _sceneId;
   Scene refScene;
   bool _init = false;
 
@@ -1107,27 +1106,31 @@ class Board {
       event: ev,
       action: a.GAME_SCENE_UPDATE,
       type: a.IMAGE_TYPE_SCENE,
-      extras: {'id': _sceneId},
+      extras: {'id': refScene.id},
     );
 
     if (result != null) {
       if (result is String) {
-        await onImgChange(result);
+        await changeImage(result);
       } else {
-        await onImgChange(result['path']);
+        await changeImage(result['path']);
         grid.tiles = result['tiles'];
         gridTiles.valueAsNumber = grid.tiles;
       }
     }
   }
 
-  Future<void> onImgChange(String path, {bool updateRef = true}) async {
+  Future<void> changeImage(String path) async {
+    refScene.background.path = path;
+    refScene.applyBackground();
+
     final src = Resource(path).url;
+    await _applyImage(src);
+  }
+
+  Future<void> _applyImage(String src) async {
     _ground.src = src;
-    if (updateRef && refScene != null) {
-      refScene.background.path = src;
-      refScene.applyBackground();
-    }
+
     await _ground.onLoad.first;
     grid.resize(_ground.naturalWidth, _ground.naturalHeight);
     fogOfWar.fixSvgInit(_ground.naturalWidth, _ground.naturalHeight);
@@ -1292,17 +1295,18 @@ class Board {
     position = Point(0, 0);
   }
 
-  Future<void> onSceneChange(int id, String path) async {
+  Future<void> _onSceneChange() async {
     clear();
 
-    _sceneId = id;
-    await onImgChange(path, updateRef: false);
-
+    await _applyImage(refScene.background.url);
     mode = PAN;
   }
 
-  void fromJson(int id, Map<String, dynamic> json) async {
-    await onSceneChange(id, json['image']);
+  void fromJson(Map<String, dynamic> json) async {
+    final int sceneID = json['id'];
+    refScene = session.scenes.find((e) => e.id == sceneID);
+
+    await _onSceneChange();
 
     fogOfWar.load(json['fow']);
     grid.fromJson(json['grid']);

@@ -1,5 +1,4 @@
 import 'dart:html';
-import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/limits.dart';
@@ -21,22 +20,16 @@ final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
     );
 
     if (json != null) {
-      if (_allScenes.length == 1) {
-        _allScenes.first.enableRemove = true;
+      final session = user.session;
+      if (session.scenes.length == 1) {
+        session.scenes.first.enableRemove = true;
       }
-      return Scene(json['id'], json['image']).enterEdit(json);
+
+      final scene = Scene(json['id'], json['image']);
+      session.scenes.add(scene);
+      await scene.enterEdit(json);
     }
   });
-
-List<Scene> _allScenes = [];
-
-void _updateAddSceneButton() {
-  var reachedLimit = _allScenes.length >= scenesPerCampaign;
-  _addScene.disabled = reachedLimit;
-  _addScene.title = reachedLimit
-      ? "You can't have more than $scenesPerCampaign scenes at a time."
-      : '';
-}
 
 class Scene {
   final HtmlElement e;
@@ -66,12 +59,14 @@ class Scene {
           ..onClick.listen((_) => remove())));
     applyBackground();
     _scenesContainer.insertBefore(e, _addScene);
-    _allScenes.add(this);
-    _updateAddSceneButton();
   }
+
+  Scene.fromJson(Map<String, dynamic> json)
+      : this(json['id'], Resource(json['image']));
 
   void applyBackground() {
     final src = background.url;
+    print(src);
     _bg.style.backgroundImage = 'url($src)';
   }
 
@@ -80,23 +75,16 @@ class Scene {
 
     if (result == null) return;
 
-    for (var i = id + 1; i < _allScenes.length; i++) {
-      _allScenes[i].id = i - 1;
-    }
-    _allScenes.remove(this);
-    _updateAddSceneButton();
+    user.session.scenes.remove(this);
+    updateAddSceneButton();
 
-    var next = _allScenes[max(0, id - 1)];
-    if (playing) {
-      await next.enterPlay();
-    } else if (editing) {
-      await next.enterEdit();
-    }
+    // var next = _allScenes[max(0, id - 1)];
+    // if (playing) {
+    //   await next.enterPlay();
+    // } else if (editing) {
+    //   await next.enterEdit();
+    // }
     e.remove();
-
-    if (_allScenes.length == 1) {
-      _allScenes.first.enableRemove = false;
-    }
   }
 
   Future<void> enterPlay([Map<String, dynamic> json]) async {
@@ -106,7 +94,7 @@ class Scene {
     if (!editing) {
       user.session.board
         ..refScene = this
-        ..fromJson(id, json);
+        ..fromJson(json);
     }
 
     user.session.board.showInactiveSceneWarning = false;
@@ -123,8 +111,20 @@ class Scene {
     user.session.board
       ..refScene = this
       ..showInactiveSceneWarning = !playing
-      ..fromJson(id, json);
+      ..fromJson(json);
     _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
     editing = true;
+  }
+
+  static void updateAddSceneButton() {
+    final scenes = user.session.scenes;
+    final reachedLimit = scenes.length >= scenesPerCampaign;
+
+    _addScene.disabled = reachedLimit;
+    _addScene.title = reachedLimit
+        ? "You can't have more than $scenesPerCampaign scenes at a time."
+        : '';
+
+    scenes.first.enableRemove = scenes.length == 1;
   }
 }

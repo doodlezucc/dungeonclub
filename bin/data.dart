@@ -538,7 +538,7 @@ class Game with Upgradeable {
         'ambience': ambience.toJson(),
         if (meta.owner == c.account)
           'dm': {
-            'scenes': _scenes.length,
+            'scenes': _scenes.map((e) => e.toSummaryJson()).toList(),
             'usedStorage': usedDiskSpace,
           },
       };
@@ -546,6 +546,7 @@ class Game with Upgradeable {
   Map<String, dynamic> toEditSnippet() => {
         'name': meta.name,
         'pcs': _characters.map((e) => e.toJson(includeStatus: true)).toList(),
+        'usedStorage': usedDiskSpace,
       };
 
   int _getMovableDisplaySize(Movable m) {
@@ -831,9 +832,13 @@ class Scene {
     }
   }
 
-  Map<String, dynamic> toJson(bool includeDM) => {
+  Map<String, dynamic> toSummaryJson() => {
         'id': id,
         'image': image.filePath,
+      };
+
+  Map<String, dynamic> toJson(bool includeDM) => {
+        ...toSummaryJson(),
         'grid': {
           'type': gridType,
           'offset': writePoint(gridOffset),

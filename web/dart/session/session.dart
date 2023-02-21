@@ -9,7 +9,6 @@ import '../communication.dart';
 import '../font_awesome.dart';
 import '../game.dart';
 import '../panels/dialog.dart';
-import '../resource.dart';
 import 'audioplayer.dart';
 import 'board.dart';
 import 'character.dart';
@@ -22,6 +21,7 @@ import 'scene.dart';
 class Session extends Game {
   final bool isDM;
   final characters = <Character>[];
+  final scenes = <Scene>[];
   final audioplayer = AudioPlayer();
 
   Board _board;
@@ -143,13 +143,12 @@ class Session extends Game {
 
   Future<void> initialize({
     @required Iterable<Character> characters,
-    @required int playingId,
-    @required int sceneCount,
     bool instantEdit = false,
     int charId,
     Map ambienceJson = const {},
     Iterable prefabJsonList = const [],
     Map sceneJson,
+    Iterable allScenesJson,
     Iterable mapJsonList = const [],
     int usedStorage = 0,
     String overrideSceneBackground,
@@ -172,26 +171,18 @@ class Session extends Game {
     // Depends on global session object
     return Future.microtask(() async {
       initMovableManager(prefabJsonList);
-      if (sceneJson != null) {
-        _board.fromJson(playingId, sceneJson);
-      } else {
-        await _board.onSceneChange(playingId, overrideSceneBackground);
-        _board.resetTransform();
-      }
-
-      querySelector('#session').classes.toggle('is-dm', isDM);
-
-      _board.mapTab.fromJson(mapJsonList ?? []);
 
       if (isDM) {
-        for (var i = 0; i < sceneCount; i++) {
-          var scene = Scene(i, Resource.empty());
-          if (i == playingId) {
+        for (var json in allScenesJson) {
+          final scene = Scene.fromJson(json);
+          scenes.add(scene);
+
+          if (scene.id == sceneJson['id']) {
             _board.refScene = scene
               ..editing = true
               ..playing = true;
 
-            if (sceneCount == 1) {
+            if (scenes.length == 1) {
               scene.enableRemove = false;
             }
           }
@@ -201,6 +192,12 @@ class Session extends Game {
           _board.editingGrid = true;
         }
       }
+
+      _board.fromJson(sceneJson);
+
+      querySelector('#session').classes.toggle('is-dm', isDM);
+
+      _board.mapTab.fromJson(mapJsonList ?? []);
     });
   }
 
@@ -217,11 +214,10 @@ class Session extends Game {
       charId: json['mine'],
       ambienceJson: json['ambience'],
       instantEdit: instantEdit,
-      playingId: json['sceneId'],
-      sceneCount: isDM ? json['dm']['scenes'] : null,
       mapJsonList: json['maps'] ?? [],
       prefabJsonList: json['prefabs'],
       sceneJson: json['scene'],
+      allScenesJson: isDM ? json['dm']['scenes'] : null,
       usedStorage: isDM ? json['dm']['usedStorage'] : null,
     );
   }

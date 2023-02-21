@@ -29,17 +29,16 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session.board.onMovableRemove(params);
 
     case GAME_SCENE_PLAY:
-      int id = params['id'];
-      return user.session?.board?.fromJson(id, params);
+      return user.session?.board?.fromJson(params);
 
     case GAME_SCENE_UPDATE:
       var grid = params['grid'];
       if (grid != null) {
-        user.session?.board?.grid?.fromJson(grid);
-        user.session?.board?.onAllMovablesMove(params['movables']);
-        user.session?.board?.rescaleMeasurings();
+        user.session.board.grid.fromJson(grid);
+        user.session.board.onAllMovablesMove(params['movables']);
+        user.session.board.rescaleMeasurings();
       }
-      return user.session?.board?.onImgChange(params['image']);
+      return user.session.board.changeImage(params['image']);
 
     case GAME_SCENE_FOG_OF_WAR:
       return user.session?.board?.fogOfWar?.load(params['data']);

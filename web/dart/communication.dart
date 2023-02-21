@@ -35,6 +35,7 @@ String _getServerAddress() {
 }
 
 String getFile(String path, {bool cacheBreak = true}) {
+  path = Uri.encodeFull(path);
   var out = join(_serverAddress, path);
   if (!cacheBreak) return out;
 
