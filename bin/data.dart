@@ -564,7 +564,7 @@ class Game with Upgradeable {
     final previousCharCount = _characters.length;
 
     for (var pcEntry in pcs.entries) {
-      final int id = pcEntry.key;
+      final id = int.parse(pcEntry.key);
       final Map properties = pcEntry.value;
 
       final pc = _characters.find((e) => e.id == id);
@@ -575,8 +575,7 @@ class Game with Upgradeable {
         pc.prefab.name = properties['name'];
 
         if (properties['avatar'] != null) {
-          // TODO upload new avatar
-          // pc.avatar.replace()
+          await pc.avatar.replaceWithData(properties['avatar']);
         }
       }
     }
@@ -777,6 +776,14 @@ class Scene {
     }
   }
 
+  void tryUseTilesFromAsset() {
+    final backgroundFile = image.file;
+
+    if (backgroundFile is SceneAssetFile) {
+      tiles = backgroundFile.recommendedTiles;
+    }
+  }
+
   Movable addMovable(Map<String, dynamic> json) {
     var m = Movable(nextMovableId, json);
     m.label = generateNewLabel(m, movables);
@@ -876,8 +883,6 @@ class CustomPrefab extends EntityBase with HasInitiativeMod, HasImage {
   final ControlledResource _image;
   String name;
   List<int> accessIds;
-
-  String get prefabID => '${a.IMAGE_TYPE_ENTITY}$id';
 
   @override
   ControlledResource get image => _image;

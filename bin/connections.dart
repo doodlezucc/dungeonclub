@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:math';
 
 import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/comms.dart';
@@ -173,20 +170,11 @@ class Connection extends Socket {
         data.gameMeta.add(createdMeta..loadedGame = createdGame);
         account.enteredGames.add(createdMeta);
 
-        final sceneAssetDir = Directory('web/images/assets/scene');
-        if (await sceneAssetDir.exists()) {
-          final count = await sceneAssetDir.list().length;
-          final index = Random().nextInt(count);
+        final sceneAssets = 'assets/scene/';
+        final asset = await getAssetFile(sceneAssets, pickRandom: true);
 
-          final result = await _uploadGameImage(
-            scene.image,
-            'images/assets/scene/$index',
-          );
-
-          if (result.recommendedTiles != null) {
-            scene.tiles = result.recommendedTiles;
-          }
-        }
+        scene.image.replaceWithFile(asset);
+        scene.tryUseTilesFromAsset();
 
         return _game.toSessionSnippet(this);
 
@@ -280,7 +268,7 @@ class Connection extends Socket {
       case a.GAME_PREFAB_CREATE:
         if (_game != null || _game.prefabCount < prefabsPerCampaign) {
           final prefab = _game.addPrefab();
-          await _uploadGameImage(prefab.image, params['data']);
+          await prefab.image.replaceWithData(params['data']);
 
           final response = prefab.toJson();
           notifyOthers(action, response, true);
@@ -299,7 +287,7 @@ class Connection extends Socket {
         if (data != null) {
           // Update prefab image
           final resource = (prefab as HasImage).image;
-          await _uploadGameImage(resource, data);
+          await resource.replaceWithData(data);
 
           final response = {'image': resource.filePath};
 
@@ -391,7 +379,8 @@ class Connection extends Socket {
         final img = params['data'];
         if (img != null) {
           // Update scene image
-          await _uploadGameImage(scene.image, params['data']);
+          await scene.image.replaceWithData(params['data']);
+
           final response = {'image': scene.image.filePath};
           _game.notify(a.GAME_SCENE_UPDATE, response, exclude: this);
           return response;
@@ -420,15 +409,11 @@ class Connection extends Socket {
       case a.GAME_SCENE_ADD:
         if (_game.sceneCount >= scenesPerCampaign) return null;
 
-        final resource = ControlledResource.empty(_game);
-        final imageData = params['data'];
+        final background = params['data'];
+        final resource = await ControlledResource.withData(_game, background);
 
-        final result = await _uploadGameImage(resource, imageData);
         final newScene = _game.addScene(resource);
-
-        if (result.recommendedTiles != null) {
-          newScene.tiles = result.recommendedTiles;
-        }
+        newScene.tryUseTilesFromAsset();
 
         scene = newScene;
         return newScene.toJson(true);
@@ -476,8 +461,8 @@ class Connection extends Socket {
       case a.GAME_MAP_CREATE:
         if (_game.mapCount >= mapsPerCampaign) return null;
 
-        final resource = await ControlledResource.create(_game);
-        await _uploadGameImage(resource, params['data']);
+        final image = params['data'];
+        final resource = await ControlledResource.withData(_game, image);
 
         final map = _game.addMap(resource);
         final id = map.id;
@@ -505,7 +490,7 @@ class Connection extends Socket {
         };
 
         // Update map image
-        await _uploadGameImage(map.image, params['data']);
+        await map.image.replaceWithData(params['data']);
         _game.notify(action, response, exclude: this, allScenes: true);
 
         return response;
@@ -663,55 +648,6 @@ class Connection extends Socket {
     return randomMerge(alpha, numeric);
   }
 
-  Future<UploadSuccess> _tryUploadGameImage(
-    ControlledResource resource,
-    String data,
-  ) async {
-    final game = resource.game;
-    final bytesAvailable = mediaBytesPerCampaign - game.usedDiskSpace;
-
-    if (data.startsWith('images/')) {
-      // [data] is a path to an asset
-      final dataImg = await getAssetFile(data);
-
-      resource.replaceWithFile(dataImg);
-
-      // Check if a grid size is embedded in the file name (e.g. "44x32")
-      final match = RegExp(r'(\d+)x\d').firstMatch(dataImg.path);
-      if (match != null) {
-        final horizontalTilesString = match[1];
-        final tiles = int.parse(horizontalTilesString);
-
-        return UploadSuccess(recommendedTiles: tiles);
-      }
-    } else {
-      final byteData = base64Decode(data);
-      final uploadSize = byteData.lengthInBytes;
-
-      if (uploadSize > bytesAvailable) {
-        throw UploadError(
-            uploadSize, game.usedDiskSpace, mediaBytesPerCampaign);
-      }
-
-      final destination = await resource.replace();
-      await destination.writeAsBytes(byteData);
-
-      game.onResourceAddBytes(uploadSize);
-    }
-
-    return UploadSuccess();
-  }
-
-  Future<UploadSuccess> _uploadGameImage(
-    ControlledResource resource,
-    String data,
-  ) async {
-    if (data == null) throw 'Missing info';
-
-    final result = await _tryUploadGameImage(resource, data);
-    return result;
-  }
-
   void notifyOthers(
     String action, [
     Map<String, dynamic> params,
@@ -772,26 +708,4 @@ class Connection extends Socket {
       }
     }
   }
-}
-
-class UploadSuccess {
-  final int recommendedTiles;
-
-  UploadSuccess({this.recommendedTiles});
-}
-
-class UploadError extends ResponseError {
-  final int bytesUpload;
-  final int bytesUsed;
-  final int bytesMaximum;
-
-  UploadError(this.bytesUpload, this.bytesUsed, this.bytesMaximum)
-      : super(
-          'Limit of $bytesMaximum bytes surpassed by $bytesUpload bytes',
-          {
-            'bytesUpload': bytesUpload,
-            'bytesUsed': bytesUsed,
-            'bytesMaximum': bytesMaximum,
-          },
-        );
 }

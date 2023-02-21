@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:image/image.dart' as image;
 import 'package:path/path.dart' as p;
 
 import 'controlled_resource.dart';
+
+final _pathRegex = RegExp(r'assets\/(\S+)\/(\d+)?');
 
 final _dirAssets = <String, List<FileSystemEntity>>{};
 
@@ -82,23 +85,23 @@ Future<void> createAssetPreview(
   print('Wrote ${bytes.length ~/ 1000} KB!');
 }
 
-Future<AssetFile> getAssetFile(String assetPath) async {
-  var type = assetPath.substring(14, assetPath.indexOf('/', 14));
-  var dir = 'web/images/assets/$type/';
+Future<AssetFile> getAssetFile(
+  String assetPath, {
+  bool pickRandom = false,
+}) async {
+  final match = _pathRegex.firstMatch(assetPath);
 
-  if (_dirAssets[dir] == null) {
-    _dirAssets[dir] = await Directory(dir).list().toList()
+  final assetType = match[1];
+  final dirPath = 'web/images/assets/$assetType/';
+
+  if (_dirAssets[dirPath] == null) {
+    _dirAssets[dirPath] = await Directory(dirPath).list().toList()
       ..sort((a, b) => p.basename(a.path).compareTo(p.basename(b.path)));
   }
 
-  var assetIndex = int.parse(p.basename(assetPath));
+  final assets = _dirAssets[dirPath];
+  final assetIndex =
+      pickRandom ? Random().nextInt(assets.length) : int.parse(match[2]);
 
-  // Only a single battle map asset is included in the repo.
-  // In the demo, asset 15 gets requested by default, which throws an error.
-  // As a workaround, respond with the first map if (and only if)
-  // it's the only available one.
-  if (assetIndex == 15 && _dirAssets[dir].length == 1) {
-    assetIndex = 0;
-  }
-  return AssetFile.fromFile(_dirAssets[dir][assetIndex]);
+  return AssetFile.fromFile(assets[assetIndex]);
 }

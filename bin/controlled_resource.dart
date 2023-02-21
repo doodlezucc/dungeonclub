@@ -1,51 +1,54 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:dungeonclub/comms.dart';
+import 'package:dungeonclub/limits.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
 
+import 'asset_provider.dart';
 import 'data.dart';
 
 class ControlledResource {
-  static const fileNameCharacters = 5;
-  static const defaultFileExension = 'jpg';
-
   final Game game;
   final String fileExtension;
   ResourceFile _file;
 
-  Directory get parentDirectory => game.resources;
+  ResourceFile get file => _file;
   String get filePath => _file?.path;
-  File get referencedFile => _file?.reference;
 
   ControlledResource(
     this.game,
     ResourceFile file, {
-    this.fileExtension = defaultFileExension,
+    this.fileExtension = GameFile.defaultFileExension,
   }) : _file = file;
 
   ControlledResource.empty(
     this.game, {
-    this.fileExtension = defaultFileExension,
+    this.fileExtension = GameFile.defaultFileExension,
   });
 
   ControlledResource.path(
     Game game,
     String filePath, {
-    String fileExtension = defaultFileExension,
-  }) : this(
-          game,
-          ResourceFile.parse(game, filePath),
-          fileExtension: fileExtension,
-        );
+    String fileExtension = GameFile.defaultFileExension,
+  }) : this(game, ResourceFile.parse(game, filePath),
+            fileExtension: fileExtension);
+
+  static Future<ControlledResource> withData(Game game, String data) async {
+    final resource = ControlledResource.empty(game);
+    await resource.replaceWithData(data);
+    return resource;
+  }
 
   /// Creates a new file reference and optionally deletes the previous one.
-  Future<File> replace({bool deletePrevious = true}) async {
-    final newFile = await newRandomFileName(parentDirectory, fileExtension);
-    await newFile.create(recursive: true);
+  Future<GameFile> replaceWithEmptyFile({bool deletePrevious = true}) async {
+    final newFile = await GameFile.make(game, fileExtension: fileExtension);
+    await newFile.reference.create(recursive: true);
 
     replaceWithFile(
-      GameFile.fromFile(game, newFile),
+      newFile,
       deletePrevious: deletePrevious,
       registerInGameStorage: false,
     );
@@ -62,62 +65,64 @@ class ControlledResource {
     if (file == _file) return;
 
     if (deletePrevious) {
-      _deleteObsoleteFile(referencedFile);
+      _deleteObsoleteFile(file);
     }
 
     _file = file;
 
-    if (registerInGameStorage) {
-      game.onResourceAdd(referencedFile);
+    if (registerInGameStorage && file is GameFile) {
+      game.onResourceAdd(file.reference);
     }
   }
 
+  Future<ResourceFile> replaceWithData(String data) async {
+    final bytesAvailable = mediaBytesPerCampaign - game.usedDiskSpace;
+
+    if (data.startsWith('assets/')) {
+      // [data] is a path to an asset
+      final assetFile = await getAssetFile(data);
+      replaceWithFile(assetFile);
+
+      // Check if a grid size is embedded in the file name (e.g. "44x32")
+      final match = RegExp(r'(\d+)x\d').firstMatch(assetFile.path);
+      if (match != null) {
+        final horizontalTilesString = match[1];
+        final tiles = int.parse(horizontalTilesString);
+
+        return SceneAssetFile(assetFile, tiles);
+      }
+    } else {
+      final byteData = base64Decode(data);
+      final uploadSize = byteData.lengthInBytes;
+
+      if (uploadSize > bytesAvailable) {
+        throw UploadError(
+            uploadSize, game.usedDiskSpace, mediaBytesPerCampaign);
+      }
+
+      final destination = await replaceWithEmptyFile();
+      await destination.reference.writeAsBytes(byteData);
+
+      game.onResourceAddBytes(uploadSize);
+    }
+
+    return _file;
+  }
+
   /// Deletes the resource's file reference.
-  Future<void> delete() => _deleteObsoleteFile(referencedFile);
+  Future<void> delete() => _deleteObsoleteFile(_file);
 
   /// Deletes the resource's file reference (unawaited).
   void deleteInBackground() => delete();
 
-  /// Deletes a file which is no longer used.
-  Future<void> _deleteObsoleteFile(File file) async {
-    if (file != null && await file.exists()) {
-      await game.onResourceRemove(file, notifyGM: false);
-      await file.delete();
+  /// Deletes a game file which is no longer used.
+  Future<void> _deleteObsoleteFile(ResourceFile file) async {
+    if (file != null && file is GameFile) {
+      if (await file.reference.exists()) {
+        await game.onResourceRemove(file.reference, notifyGM: false);
+        await file.reference.delete();
+      }
     }
-  }
-
-  static Future<ControlledResource> create(
-    Game game, {
-    String fileExtension = defaultFileExension,
-    File file,
-  }) async {
-    file ??= await newRandomFileName(game.resources, fileExtension);
-    await file.create(recursive: true);
-
-    final resFile = GameFile.fromFile(game, file);
-
-    return ControlledResource(game, resFile, fileExtension: fileExtension);
-  }
-
-  /// Returns a new (= non-existent) file located in the `parent` directory
-  /// with a given `fileExtension`.
-  static Future<File> newRandomFileName(
-      Directory parent, String fileExtension) async {
-    File file;
-    do {
-      final basename = _randomBasename();
-      final fileName = '$basename.$fileExtension';
-
-      final filePath = path.join(parent.path, fileName);
-
-      file = File(filePath);
-    } while (await file.exists());
-
-    return file;
-  }
-
-  static String _randomBasename() {
-    return randomAlphaNumeric(fileNameCharacters);
   }
 }
 
@@ -139,11 +144,49 @@ class AssetFile extends ResourceFile {
   /// `path` should start with "assets/".
   AssetFile(String path) : super(path, File('web/images/$path'));
 
-  AssetFile.fromFile(File file)
-      : super('assets/' + path.basename(file.path), file);
+  AssetFile._fromFile(File file)
+      : super(
+          path.join(
+              'assets/', path.dirname(file.path), path.basename(file.path)),
+          file,
+        );
+
+  static AssetFile fromFile(File file) {
+    final base = AssetFile._fromFile(file);
+
+    if (base.path.contains('/scene/')) {
+      return SceneAssetFile.parseTiles(base);
+    }
+
+    return base;
+  }
+}
+
+class SceneAssetFile implements AssetFile {
+  static final _tilesRegex = RegExp(r'(\d+)x\d');
+  final AssetFile _asset;
+  final int recommendedTiles;
+
+  SceneAssetFile(AssetFile asset, this.recommendedTiles) : _asset = asset;
+  SceneAssetFile.parseTiles(AssetFile asset)
+      : this(asset, _parseHorizontalTiles(asset.path));
+
+  static int _parseHorizontalTiles(String fileName) {
+    final tilesString = _tilesRegex.firstMatch(fileName)[1];
+    return int.parse(tilesString);
+  }
+
+  @override
+  String get path => _asset.path;
+
+  @override
+  File get reference => _asset.reference;
 }
 
 class GameFile extends ResourceFile {
+  static const defaultFileExension = 'jpg';
+  static const fileNameCharacters = 5;
+
   final Game game;
 
   GameFile(this.game, String fileName)
@@ -154,4 +197,43 @@ class GameFile extends ResourceFile {
 
   GameFile.fromFile(this.game, File file)
       : super(path.basename(file.path), file);
+
+  /// Returns a new (= non-existent) file located in the `parent` directory
+  /// with a given `fileExtension`.
+  static Future<GameFile> make(
+    Game game, {
+    String fileExtension = defaultFileExension,
+  }) async {
+    File file;
+    do {
+      final basename = _randomBasename();
+      final fileName = '$basename.$fileExtension';
+
+      final filePath = path.join(game.resources.path, fileName);
+
+      file = File(filePath);
+    } while (await file.exists());
+
+    return GameFile.fromFile(game, file);
+  }
+
+  static String _randomBasename() {
+    return randomAlphaNumeric(fileNameCharacters);
+  }
+}
+
+class UploadError extends ResponseError {
+  final int bytesUpload;
+  final int bytesUsed;
+  final int bytesMaximum;
+
+  UploadError(this.bytesUpload, this.bytesUsed, this.bytesMaximum)
+      : super(
+          'Limit of $bytesMaximum bytes surpassed by $bytesUpload bytes',
+          {
+            'bytesUpload': bytesUpload,
+            'bytesUsed': bytesUsed,
+            'bytesMaximum': bytesMaximum,
+          },
+        );
 }
