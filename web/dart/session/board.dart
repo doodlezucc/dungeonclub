@@ -1102,25 +1102,24 @@ class Board {
   }
 
   void _changeImageDialog(MouseEvent ev) async {
-    var result = await upload.display(
+    final result = await upload.display(
       event: ev,
       action: a.GAME_SCENE_UPDATE,
       type: a.IMAGE_TYPE_SCENE,
       extras: {'id': refScene.id},
     );
 
-    if (result != null) {
-      if (result is String) {
-        await changeImage(result);
-      } else {
-        await changeImage(result['path']);
-        grid.tiles = result['tiles'];
-        gridTiles.valueAsNumber = grid.tiles;
-      }
+    final path = result['image'];
+    final tiles = result['tiles'];
+
+    await changeSceneImage(path);
+    if (tiles != null) {
+      grid.tiles = tiles;
+      gridTiles.valueAsNumber = tiles;
     }
   }
 
-  Future<void> changeImage(String path) async {
+  Future<void> changeSceneImage(String path) async {
     refScene.background.path = path;
     refScene.applyBackground();
 

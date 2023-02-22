@@ -382,9 +382,9 @@ class Connection extends Socket {
         final img = params['data'];
         if (img != null) {
           // Update scene image
-          await scene.image.replaceWithData(params['data']);
+          await scene.image.replaceWithData(img);
 
-          final response = {'image': scene.image.filePath};
+          final response = scene.image.toJsonResponse();
           _game.notify(a.GAME_SCENE_UPDATE, response, exclude: this);
           return response;
         }

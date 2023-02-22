@@ -66,8 +66,7 @@ class Scene {
 
   void applyBackground() {
     final src = background.url;
-    print(src);
-    _bg.style.backgroundImage = 'url($src)';
+    _bg.style.backgroundImage = 'url("$src")';
   }
 
   Future<void> remove() async {

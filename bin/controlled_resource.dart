@@ -104,6 +104,8 @@ class ControlledResource {
     return _file;
   }
 
+  Map toJsonResponse() => _file?.toJsonResponse();
+
   /// Deletes the resource's file reference.
   Future<void> delete() => _deleteObsoleteFile(_file);
 
@@ -133,6 +135,8 @@ abstract class ResourceFile {
     }
     return GameFile(game, filePath);
   }
+
+  Map<String, dynamic> toJsonResponse() => {'image': path};
 }
 
 class AssetFile extends ResourceFile {
@@ -145,7 +149,15 @@ class AssetFile extends ResourceFile {
   static Future<AssetFile> parse(String filePath) async {
     if (filePath.startsWith(ASSET_UNRESOLVED_PREFIX)) {
       final path = await resolveIndexedAsset(filePath);
-      return AssetFile(path);
+      final assetFile = AssetFile(path);
+
+      try {
+        return SceneAssetFile.parseTiles(assetFile);
+      } on RangeError catch (_) {
+        return AssetFile(path);
+      } on FormatException catch (_) {
+        return AssetFile(path);
+      }
     }
 
     return AssetFile.fromResolved(filePath);
@@ -172,6 +184,12 @@ class SceneAssetFile implements AssetFile {
 
   @override
   File get reference => _asset.reference;
+
+  @override
+  Map<String, dynamic> toJsonResponse() => {
+        ..._asset.toJsonResponse(),
+        'tiles': recommendedTiles,
+      };
 }
 
 class GameFile extends ResourceFile {
