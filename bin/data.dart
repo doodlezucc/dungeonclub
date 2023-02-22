@@ -390,7 +390,7 @@ class Game with Upgradeable {
   Scene getScene(int id) => _scenes.firstWhere((scene) => scene.id == id);
 
   Scene addScene(ControlledResource resource) {
-    var scene = Scene.empty(this, _nextSceneId)
+    var scene = Scene.empty(this, _nextSceneId, image: resource)
       ..gridType = playingScene.gridType;
     _scenes.add(scene);
     return scene;
@@ -573,18 +573,16 @@ class Game with Upgradeable {
       if (properties == null) {
         _removeCharacter(pc);
       } else {
-        pc.prefab.name = properties['name'];
-
-        if (properties['avatar'] != null) {
-          await pc.avatar.replaceWithData(properties['avatar']);
-        }
+        await pc.applyCampaignEdits(properties);
       }
     }
 
     final newPCs = List.from(data['newPCs']);
 
     for (var properties in newPCs) {
-      final pc = PlayerCharacter(this, _nextCharacterId, properties['name']);
+      final pc =
+          await PlayerCharacter.create(this, _nextCharacterId, properties);
+
       _characters.add(pc);
     }
 
@@ -718,11 +716,25 @@ class PlayerCharacter {
 
   ControlledResource get avatar => prefab.image;
 
-  PlayerCharacter(Game game, this.id, String name)
-      : prefab = CharacterPrefab(
-          name,
-          ControlledResource.path(game, 'asset:default_pc.jpg'),
-        );
+  PlayerCharacter._(this.id, this.prefab);
+
+  static Future<PlayerCharacter> create(Game game, int id, json) async {
+    final prefab = CharacterPrefab(
+        '', ControlledResource.path(game, 'asset:default_pc.jpg'));
+
+    final pc = PlayerCharacter._(id, prefab);
+    await pc.applyCampaignEdits(json);
+    return pc;
+  }
+
+  Future<void> applyCampaignEdits(json) async {
+    prefab.name = json['name'];
+
+    String avatarData = json['avatar'];
+    if (avatarData != null) {
+      await avatar.replaceWithData(avatarData);
+    }
+  }
 
   PlayerCharacter.fromJson(Game game, Map<String, dynamic> json)
       : id = json['id'],
@@ -762,7 +774,9 @@ class Scene {
 
   Scene.empty(Game game, this.id, {ControlledResource image})
       : movables = [],
-        image = image ?? ControlledResource.empty(game);
+        image = image ?? ControlledResource.empty(game) {
+    applyGrid({});
+  }
 
   Scene.fromJson(Game game, Map<String, dynamic> json)
       : id = json['id'],

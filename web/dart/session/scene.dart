@@ -25,7 +25,8 @@ final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
         session.scenes.first.enableRemove = true;
       }
 
-      final scene = Scene(json['id'], json['image']);
+      final resource = Resource(json['image']);
+      final scene = Scene(json['id'], resource);
       session.scenes.add(scene);
       await scene.enterEdit(json);
     }

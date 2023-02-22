@@ -175,7 +175,7 @@ class Connection extends Socket {
           pickRandom: true,
         );
 
-        final asset = AssetFile(assetPath);
+        final asset = AssetFile.tryAsSceneAsset(assetPath);
         scene.image.replaceWithFile(asset);
         scene.tryUseTilesFromAsset();
 

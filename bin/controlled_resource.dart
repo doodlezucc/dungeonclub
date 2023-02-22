@@ -146,18 +146,21 @@ class AssetFile extends ResourceFile {
   AssetFile.fromResolved(String filePath)
       : this(filePath.substring(ASSET_RESOLVED_PREFIX.length));
 
+  static AssetFile tryAsSceneAsset(String path) {
+    final assetFile = AssetFile(path);
+
+    try {
+      return SceneAssetFile.parseTiles(assetFile);
+    } catch (_) {
+      return AssetFile(path);
+    }
+  }
+
   static Future<AssetFile> parse(String filePath) async {
     if (filePath.startsWith(ASSET_UNRESOLVED_PREFIX)) {
       final path = await resolveIndexedAsset(filePath);
-      final assetFile = AssetFile(path);
 
-      try {
-        return SceneAssetFile.parseTiles(assetFile);
-      } on RangeError catch (_) {
-        return AssetFile(path);
-      } on FormatException catch (_) {
-        return AssetFile(path);
-      }
+      return tryAsSceneAsset(path);
     }
 
     return AssetFile.fromResolved(filePath);
