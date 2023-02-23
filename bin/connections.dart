@@ -307,7 +307,8 @@ class Connection extends Socket {
       case a.GAME_PREFAB_REMOVE:
         if (_game == null) return null;
 
-        _game.removePrefab(params['prefab']);
+        final id = int.parse(params['prefab']);
+        _game.removePrefab(id);
         return notifyOthers(action, params, true);
 
       case a.GAME_MOVABLE_CREATE:

@@ -385,7 +385,7 @@ class Game with Upgradeable {
 
     _prefabs.remove(prefab);
     for (var scene in _scenes) {
-      scene.removeMovablesOfPrefab('c$id');
+      scene.removeMovablesOfPrefab('$id');
     }
 
     await prefab.image.delete();
