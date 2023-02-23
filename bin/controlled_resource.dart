@@ -69,7 +69,7 @@ class ControlledResource {
     if (file == _file) return;
 
     if (deletePrevious) {
-      _deleteObsoleteFile(_file);
+      _deleteObsoleteFile(_file, notifyGM: (file is! GameFile));
     }
 
     _file = file;
@@ -113,10 +113,11 @@ class ControlledResource {
   void deleteInBackground() => delete();
 
   /// Deletes a game file which is no longer used.
-  Future<void> _deleteObsoleteFile(ResourceFile file) async {
+  Future<void> _deleteObsoleteFile(ResourceFile file,
+      {bool notifyGM = true}) async {
     if (file != null && file is GameFile) {
       if (await file.reference.exists()) {
-        await game.onResourceRemove(file.reference, notifyGM: false); // TODO
+        await game.onResourceRemove(file.reference, notifyGM: notifyGM);
         await file.reference.delete();
       }
     }
