@@ -1308,8 +1308,12 @@ class Board {
 
   void fromJson(Map<String, dynamic> json) async {
     final int sceneID = json['id'];
-    _refScene = session.scenes.find((e) => e.id == sceneID);
-    session.applySceneEditPlayStates();
+    if (session.isDM) {
+      _refScene = session.scenes.find((e) => e.id == sceneID);
+      session.applySceneEditPlayStates();
+    } else {
+      _refScene = Scene.fromJson(json);
+    }
 
     await _onSceneChange();
 
