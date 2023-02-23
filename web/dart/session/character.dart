@@ -62,10 +62,9 @@ class Character {
     applyNameToOnlineIndicator();
   }
 
-  Character.fromJson(
-      int id, String color, Session session, Map<String, dynamic> json)
+  Character.fromJson(String color, Session session, Map<String, dynamic> json)
       : this(
-          id,
+          json['id'],
           session,
           color: color,
           name: json['name'],

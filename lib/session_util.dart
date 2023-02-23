@@ -38,7 +38,8 @@ extension IterableHelperExtension<T> on Iterable<T> {
     return fold<int>(-1, (v, e) => max(v, getElementID(e))) + 1;
   }
 
-  T find(bool Function(T e) condition) => firstWhere(condition);
+  T find(bool Function(T e) condition) =>
+      firstWhere(condition, orElse: () => null);
 
   void forEachIndex(void Function(T e, int index) action) {
     var i = 0;

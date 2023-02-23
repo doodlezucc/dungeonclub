@@ -66,15 +66,14 @@ class Account {
 
     parent.querySelector('span').innerHtml = "Pick <b>$name</b>'s Character";
 
-    for (var i = 0; i < chars.length; i++) {
-      var ch = chars[i];
+    for (var ch in chars) {
       roster.append(DivElement()
         ..className = 'char'
         ..classes.toggle('reserved', ch.hasJoined)
         ..append(ImageElement(src: ch.image.url))
         ..append(SpanElement()..text = ch.name)
         ..onClick.listen((e) {
-          completer.complete(i);
+          completer.complete(ch.id);
         }));
     }
 

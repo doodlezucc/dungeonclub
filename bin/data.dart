@@ -318,19 +318,15 @@ class Game with Upgradeable {
   }
 
   void connect(Connection connection, bool join) {
-    var pc = _characters.firstWhere(
-      (e) => e.connection == connection,
-      orElse: () => null,
-    );
+    var pc = _characters.find((e) => e.connection == connection);
 
-    var pcId = _characters.indexOf(pc);
-    var logId = pcId < 0 ? '-' : String.fromCharCode(lowerAlphaStart + pcId);
+    var logId = pc.id < 0 ? '-' : String.fromCharCode(lowerAlphaStart + pc.id);
     var logMsg = '${meta.id} ($logId) ';
     print(logMsg + (join ? 'joined' : 'left'));
 
     notify(a.GAME_CONNECTION, {
       'join': join,
-      'pc': pcId,
+      'pc': pc.id,
     });
 
     if (!join) {
@@ -369,7 +365,8 @@ class Game with Upgradeable {
 
     var isPC = id[0] == 'c';
     if (isPC) {
-      return _characters[int.parse(id.substring(1))].prefab;
+      final charID = int.parse(id.substring(1));
+      return _characters.find((e) => e.id == charID).prefab;
     }
 
     return getCustomPrefab(int.parse(id));
@@ -441,8 +438,8 @@ class Game with Upgradeable {
     }
   }
 
-  PlayerCharacter assignPC(int index, Connection c) {
-    return _characters[index]..connection = c;
+  PlayerCharacter assignPC(int id, Connection c) {
+    return _characters.find((e) => e.id == id)..connection = c;
   }
 
   GameMap addMap(ControlledResource image) {
@@ -455,7 +452,7 @@ class Game with Upgradeable {
   }
 
   GameMap getMap(int id) {
-    return _maps.firstWhere((m) => m.id == id);
+    return _maps.find((m) => m.id == id);
   }
 
   void removeMap(int id) {
@@ -465,8 +462,8 @@ class Game with Upgradeable {
   }
 
   void handleMapEvent(List<int> bytes, Connection sender) {
-    var mapIndex = bytes[0];
-    var map = _maps.firstWhere((m) => m.id == mapIndex);
+    var mapID = bytes[0];
+    var map = getMap(mapID);
     if (map.dataSocket.handleEvent(bytes.sublist(1))) {
       for (var conni in _connections) {
         if (conni != sender) {
@@ -809,7 +806,7 @@ class Scene {
   }
 
   Movable getMovable(int id) {
-    return movables.firstWhere((m) => m.id == id, orElse: () => null);
+    return movables.find((m) => m.id == id);
   }
 
   void removeMovablesOfPrefab(String prefabId) {
@@ -841,7 +838,7 @@ class Scene {
   void applyMovables(Iterable jsons) {
     for (var mj in jsons) {
       var id = mj['id'];
-      var m = movables.firstWhere((m) => m.id == id, orElse: () => null);
+      var m = getMovable(id);
       if (m != null) {
         m.position = parsePoint<double>(mj);
       }

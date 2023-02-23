@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/dice_parser.dart';
+import 'package:dungeonclub/session_util.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -100,11 +101,10 @@ void onDiceRollJson(Map<String, dynamic> json, {bool private = false}) {
 }
 
 void onDiceRoll(RollCombo combo, {int initiator, bool private = false}) {
-  var mine = initiator == user.session.charId;
+  final mine = initiator == user.session.charId;
+  final pc = user.session.characters.find((e) => e.id == initiator);
 
-  var name = mine
-      ? 'You'
-      : (initiator == null ? 'GM' : user.session.characters[initiator].name);
+  var name = mine ? 'You' : (initiator == null ? 'GM' : pc.name);
 
   var allResults = combo.rolls.expand((r) => r.resultsSigned);
 

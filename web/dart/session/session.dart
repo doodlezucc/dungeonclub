@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
 
+import 'package:dungeonclub/session_util.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';
@@ -31,7 +32,7 @@ class Session extends Game {
 
   int _charId;
   int get charId => _charId;
-  Character get myCharacter => _charId != null ? characters[_charId] : null;
+  Character get myCharacter => characters.find((e) => e.id == _charId);
 
   String get inviteLink => isDebugging
       ? '${window.location.origin}/index.html?game=$id'
@@ -114,7 +115,7 @@ class Session extends Game {
     if (join == null) return _connectionCtrl.add(true);
 
     if (id >= 0) {
-      var pc = characters[id];
+      var pc = characters.find((e) => e.id == id);
       var name = pc?.name;
 
       pc.hasJoined = join;
@@ -176,13 +177,13 @@ class Session extends Game {
     document.body.classes.add('is-session');
     audioplayer.init(this, ambienceJson);
 
-    this.usedStorage = usedStorage;
-
     // Depends on global session object
     return Future.microtask(() async {
       initMovableManager(prefabJsonList);
 
       if (isDM) {
+        this.usedStorage = usedStorage;
+
         for (var json in allScenesJson) {
           final scene = Scene.fromJson(json);
           scenes.add(scene);
@@ -206,11 +207,12 @@ class Session extends Game {
   }
 
   void fromJson(Map<String, dynamic> json, {bool instantEdit = false}) {
-    var chars = <Character>[];
-    var pcs = List.from(json['pcs']);
+    final chars = <Character>[];
+    final pcs = List.from(json['pcs']);
+
     for (var i = 0; i < pcs.length; i++) {
-      chars.add(
-          Character.fromJson(i, getPlayerColor(i, pcs.length), this, pcs[i]));
+      chars
+          .add(Character.fromJson(getPlayerColor(i, pcs.length), this, pcs[i]));
     }
 
     initialize(

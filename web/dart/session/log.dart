@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/dice_parser.dart';
+import 'package:dungeonclub/session_util.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -128,9 +129,10 @@ void _submitChat({bool roll = false}) {
   }
 }
 
-void _performChat(int pcId, String msg) {
-  var name = pcId == null ? 'GM' : user.session.characters[pcId].name;
-  var mine = pcId == user.session.charId;
+void _performChat(int pcID, String msg) {
+  final pc = user.session.characters.find((e) => e.id == pcID);
+  var name = pc?.name ?? 'GM';
+  var mine = pcID == user.session.charId;
 
   gameLog(
     (mine ? '' : '<span class="dice">$name</span> ') + msg,

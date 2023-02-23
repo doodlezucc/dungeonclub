@@ -293,7 +293,7 @@ class Connection extends Socket {
           await resource.replaceWithData(data);
 
           final response = {'image': resource.filePath};
-          final responseWithID = {'id': pid, ...response};
+          final responseWithID = {'prefab': pid, ...response};
 
           notifyOthers(action, responseWithID, true);
           return response;
