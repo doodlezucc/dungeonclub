@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:async/async.dart';
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/limits.dart';
+import 'package:dungeonclub/session_util.dart';
 import 'package:web_whiteboard/whiteboard.dart';
 
 import '../../main.dart';
@@ -55,6 +56,10 @@ class MapTab {
   int _mapIndex = 0;
   int get mapIndex => _mapIndex;
   set mapIndex(int currentMap) {
+    if (map != null) {
+      map.whiteboard.captureInput = false;
+    }
+
     transform.reset();
     _mapIndex = currentMap;
     _mapContainer.style.left = '${currentMap * -100}%';
@@ -164,20 +169,18 @@ class MapTab {
   Future<bool> _uploadNewMap(MouseEvent ev) async {
     if (maps.length >= mapsPerCampaign) return false;
 
-    var fallbackID = maps.fold<int>(-1, (id, m) => max(id, m.id)) + 1;
+    final fallbackID = maps.getNextAvailableID((e) => e.id);
 
-    var id = await uploader.display(
+    final response = await uploader.display(
       event: ev,
       action: GAME_MAP_CREATE,
       type: IMAGE_TYPE_MAP,
       demoFallbackID: () => fallbackID,
     );
 
-    if (id != null) {
-      if (user.isInDemo) id = fallbackID;
-
-      addMap(id, '', false);
-      _enterEdit(id);
+    if (response != null) {
+      addMap(response['map'], '', response['image'], false);
+      _enterEdit(response['map']);
       _name.focus();
       return true;
     }
@@ -340,16 +343,16 @@ class MapTab {
     registerAction('redo', (_) => map?.whiteboard?.history?.redo());
     registerAction('clear', (_) => clearMap());
     registerAction('change', (ev) async {
-      var img = await uploader.display(
+      final response = await uploader.display(
         event: ev,
         action: GAME_MAP_UPDATE,
         type: IMAGE_TYPE_MAP,
         extras: {'map': map.id},
       );
 
-      if (img != null) {
+      if (response != null) {
         clearMap();
-        map.image.path = img;
+        map.image.path = response['image'];
         map.applyImage();
       }
     });
@@ -380,7 +383,7 @@ class MapTab {
   }
 
   void onMapRemove(int id) {
-    var map = maps.firstWhere((m) => m.id == id).._dispose();
+    var map = maps.find((m) => m.id == id).._dispose();
     maps.remove(map);
     if (maps.isEmpty) {
       _onAllRemoved();
@@ -445,8 +448,8 @@ class MapTab {
       return true;
     });
 
-    json.forEach((jMap) =>
-        addMap(jMap['map'], jMap['name'], jMap['shared'], jMap['data']));
+    json.forEach((jMap) => addMap(jMap['map'], jMap['name'], jMap['image'],
+        jMap['shared'], jMap['data']));
     if (maps.isNotEmpty) {
       _onFirstUpload();
     }
@@ -465,13 +468,15 @@ class MapTab {
 
   void _updateIndexText() => _indexText.text = '${mapIndex + 1}/${maps.length}';
 
-  void addMap(int id, String name, bool shared, [String encodedData]) {
+  void addMap(int id, String name, String image, bool shared,
+      [String encodedData]) {
     final map = GameMap(
       id,
       name: name,
       shared: shared,
       encodedData: encodedData,
       onEnterEdit: () => _enterEdit(id),
+      image: Resource(image),
     );
     map.whiteboard.history.onChange.listen((_) => _updateHistoryButtons());
     maps.add(map);
@@ -573,6 +578,8 @@ class GameMap {
   void _dispose() {
     _em.remove();
     _minimap.remove();
+    whiteboard.history.erase();
+    whiteboard.captureInput = false;
   }
 
   void _fixScaling() {

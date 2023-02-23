@@ -465,10 +465,13 @@ class Connection extends Socket {
         final resource = await ControlledResource.withData(_game, image);
 
         final map = _game.addMap(resource);
-        final id = map.id;
+        final response = {
+          'map': map.id,
+          'image': resource.filePath,
+        };
 
-        _game.notify(action, {'map': id}, exclude: this, allScenes: true);
-        return id;
+        _game.notify(action, response, exclude: this, allScenes: true);
+        return response;
 
       case a.GAME_MAP_UPDATE:
         int id = params['map'];
@@ -484,15 +487,15 @@ class Connection extends Socket {
           return true;
         }
 
+        // Update map image
+        await map.image.replaceWithData(params['data']);
+
         final response = {
           'map': id,
           'image': map.image.filePath,
         };
 
-        // Update map image
-        await map.image.replaceWithData(params['data']);
         _game.notify(action, response, exclude: this, allScenes: true);
-
         return response;
 
       case a.GAME_MAP_REMOVE:

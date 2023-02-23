@@ -320,13 +320,13 @@ class Game with Upgradeable {
   void connect(Connection connection, bool join) {
     var pc = _characters.find((e) => e.connection == connection);
 
-    var logId = pc.id < 0 ? '-' : String.fromCharCode(lowerAlphaStart + pc.id);
+    var logId = pc == null ? '-' : String.fromCharCode(lowerAlphaStart + pc.id);
     var logMsg = '${meta.id} ($logId) ';
     print(logMsg + (join ? 'joined' : 'left'));
 
     notify(a.GAME_CONNECTION, {
       'join': join,
-      'pc': pc.id,
+      'pc': pc?.id,
     });
 
     if (!join) {

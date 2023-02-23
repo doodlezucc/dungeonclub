@@ -116,7 +116,7 @@ class ControlledResource {
   Future<void> _deleteObsoleteFile(ResourceFile file) async {
     if (file != null && file is GameFile) {
       if (await file.reference.exists()) {
-        await game.onResourceRemove(file.reference, notifyGM: false);
+        await game.onResourceRemove(file.reference, notifyGM: false); // TODO
         await file.reference.delete();
       }
     }

@@ -114,7 +114,7 @@ class Session extends Game {
 
     if (join == null) return _connectionCtrl.add(true);
 
-    if (id >= 0) {
+    if (id != null) {
       var pc = characters.find((e) => e.id == id);
       var name = pc?.name;
 
