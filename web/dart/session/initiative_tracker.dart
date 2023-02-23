@@ -44,7 +44,7 @@ class InitiativeTracker {
         sendRollForInitiative();
       } else {
         outOfCombat();
-        if (!user.session.board.refScene.playing) {
+        if (!user.session.board.refScene.isPlaying) {
           disabled = true;
         }
         socket.sendAction(GAME_CLEAR_INITIATIVE);

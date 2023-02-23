@@ -391,23 +391,20 @@ class Connection extends Socket {
         return null;
 
       case a.GAME_SCENE_GET:
-        var sceneId = params['id'];
-        var s = _game?.getScene(sceneId);
-        if (s == null) return null;
+        if (_game.dm != this) throw 'Access denied';
+
+        int sceneID = params['id'];
+        var s = _game.getScene(sceneID);
 
         scene = s;
-        return s.toJson(_game.meta.owner == account);
+        return s.toJson(true);
 
       case a.GAME_SCENE_PLAY:
-        var sceneId = params['id'];
-        var scene = _game?.getScene(sceneId);
-        if (scene == null) return null;
+        int sceneID = params['id'];
+        final scene = _game.getScene(sceneID);
 
-        _game.playScene(sceneId);
-        var result = scene.toJson(_game.meta.owner == account);
-        _game.notify(action, {'id': sceneId, ...result},
-            exclude: this, allScenes: true);
-        return result;
+        _game.playScene(scene);
+        return;
 
       case a.GAME_SCENE_ADD:
         if (_game.sceneCount >= scenesPerCampaign) return null;
@@ -428,10 +425,8 @@ class Connection extends Socket {
             _game.meta.owner != _account ||
             id == null) return;
 
-        var removed = await _game.removeScene(id);
-        if (!removed) return;
-
-        return _game.playingScene.toJson(true);
+        _game.removeScene(id);
+        return;
 
       case a.GAME_SCENE_FOG_OF_WAR:
         var data = params['data'];

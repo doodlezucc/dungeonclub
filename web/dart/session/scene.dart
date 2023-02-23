@@ -35,15 +35,12 @@ final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
 class Scene {
   final HtmlElement e;
   final Resource background;
-  int id;
+  final int id;
   HtmlElement _bg;
   ButtonElement _remove;
 
-  bool get playing => _bg.classes.contains('playing');
-  set playing(bool playing) => _bg.classes.toggle('playing', playing);
-
-  bool get editing => _bg.classes.contains('editing');
-  set editing(bool playing) => _bg.classes.toggle('editing', playing);
+  bool get isPlaying => user.session.playingScene == this;
+  bool get isEditing => user.session.board.refScene == this;
 
   set enableRemove(bool enable) => _remove.disabled = !enable;
 
@@ -57,7 +54,7 @@ class Scene {
         ..append(iconButton('play', className: 'play', label: 'Play')
           ..onClick.listen((_) => enterPlay()))
         ..append(_remove = iconButton('trash', className: 'bad')
-          ..onClick.listen((_) => remove())));
+          ..onClick.listen((_) => sendRemove())));
     applyBackground();
     _scenesContainer.insertBefore(e, _addScene);
   }
@@ -70,50 +67,33 @@ class Scene {
     _bg.style.backgroundImage = 'url("$src")';
   }
 
-  Future<void> remove() async {
-    var result = await socket.request(GAME_SCENE_REMOVE, {'id': id});
-
-    if (result == null) return;
-
-    user.session.scenes.remove(this);
-    updateAddSceneButton();
-
-    // var next = _allScenes[max(0, id - 1)];
-    // if (playing) {
-    //   await next.enterPlay();
-    // } else if (editing) {
-    //   await next.enterEdit();
-    // }
-    e.remove();
+  void applyEditPlayState() {
+    _bg.classes.toggle('playing', isPlaying);
+    _bg.classes.toggle('editing', isEditing);
   }
 
-  Future<void> enterPlay([Map<String, dynamic> json]) async {
-    if (playing) return;
+  void sendRemove() {
+    socket.sendAction(GAME_SCENE_REMOVE, {'id': id});
 
-    json = json ?? await socket.request(GAME_SCENE_PLAY, {'id': id});
-    if (!editing) {
-      user.session.board
-        ..refScene = this
-        ..fromJson(json);
-    }
+    user.session.scenes.remove(this);
+    e.remove();
 
-    user.session.board.showInactiveSceneWarning = false;
-    _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
-    editing = true;
-    _scenesContainer.querySelectorAll('.playing').classes.remove('playing');
-    playing = true;
+    updateAddSceneButton();
+  }
+
+  void enterPlay() {
+    if (isPlaying) return;
+
+    user.session.playingScene = this;
+    user.session.applySceneEditPlayStates();
+    socket.sendAction(GAME_SCENE_PLAY, {'id': id});
   }
 
   Future<void> enterEdit([Map<String, dynamic> json]) async {
-    if (editing) return;
+    if (isEditing) return;
 
     json = json ?? await socket.request(GAME_SCENE_GET, {'id': id});
-    user.session.board
-      ..refScene = this
-      ..showInactiveSceneWarning = !playing
-      ..fromJson(json);
-    _scenesContainer.querySelectorAll('.editing').classes.remove('editing');
-    editing = true;
+    user.session.board.fromJson(json);
   }
 
   static void updateAddSceneButton() {
@@ -125,6 +105,6 @@ class Scene {
         ? "You can't have more than $scenesPerCampaign scenes at a time."
         : '';
 
-    scenes.first.enableRemove = scenes.length == 1;
+    scenes.first.enableRemove = scenes.length != 1;
   }
 }

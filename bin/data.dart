@@ -267,8 +267,6 @@ class Game with Upgradeable {
   bool get dmOnline => dm != null;
   int get online => _connections.length;
   int get sceneCount => _scenes.length;
-  Scene get playingScene =>
-      playingSceneId < _scenes.length ? _scenes[playingSceneId] : null;
   Iterable<PlayerCharacter> get characters => _characters;
   int get prefabCount => _prefabs.length;
   int get mapCount => _maps.length;
@@ -278,13 +276,15 @@ class Game with Upgradeable {
   int get _nextMapId => _maps.getNextAvailableID((e) => e.id);
   int get _nextSceneId => _scenes.getNextAvailableID((e) => e.id);
 
+  Scene _playingScene;
+  Scene get playingScene => _playingScene;
+
   final _connections = <Connection>[];
   final List<PlayerCharacter> _characters;
   final List<Scene> _scenes;
   final List<CustomPrefab> _prefabs;
   final List<GameMap> _maps;
   final ambience = AmbienceState();
-  int playingSceneId = 0;
 
   int _usedDiskSpace = 0;
   int get usedDiskSpace => _usedDiskSpace;
@@ -346,11 +346,15 @@ class Game with Upgradeable {
     }
   }
 
-  void playScene(int id) {
-    playingSceneId = id;
-    var scene = playingScene;
+  /// Sends GAME_SCENE_PLAY to all connections.
+  void playScene(Scene scene) {
+    _playingScene = scene;
+
     for (var c in _connections) {
-      c.scene = scene;
+      if (c.scene != scene) {
+        c.scene = scene;
+        c.sendAction(a.GAME_SCENE_PLAY, scene.toJson(c == dm));
+      }
     }
   }
 
@@ -387,7 +391,7 @@ class Game with Upgradeable {
     await prefab.image.delete();
   }
 
-  Scene getScene(int id) => _scenes.firstWhere((scene) => scene.id == id);
+  Scene getScene(int id) => _scenes.find((scene) => scene.id == id);
 
   Scene addScene(ControlledResource resource) {
     var scene = Scene.empty(this, _nextSceneId, image: resource)
@@ -396,21 +400,19 @@ class Game with Upgradeable {
     return scene;
   }
 
-  Future<bool> removeScene(int id) async {
-    if (_scenes.length <= 1) return false;
+  void removeScene(int sceneID) {
+    if (_scenes.length <= 1) throw 'Campaigns must contain at least one scene';
 
-    final scene = getScene(id);
+    final scene = getScene(sceneID);
     scene.image.deleteInBackground();
+
+    final sceneIndex = _scenes.indexOf(scene);
     _scenes.remove(scene);
 
-    // Update active scene
-    if (id == playingSceneId) {
-      playScene(max(0, id - 1));
-    } else if (playingSceneId > id) {
-      playingSceneId = max(0, playingSceneId - 1);
+    if (scene == playingScene) {
+      final previousSceneIndex = max(0, sceneIndex - 1);
+      playScene(_scenes[previousSceneIndex]);
     }
-
-    return true;
   }
 
   String get readableSizeInMB => (usedDiskSpace / 1000000).toStringAsFixed(2);
@@ -501,8 +503,7 @@ class Game with Upgradeable {
   }
 
   Game._fromJson(this.meta, Map<String, dynamic> json)
-      : playingSceneId = json['scene'] ?? 0,
-        _characters = [],
+      : _characters = [],
         _scenes = [],
         _prefabs = [],
         _maps = [] {
@@ -511,6 +512,8 @@ class Game with Upgradeable {
     _prefabs.fromJson(json['prefabs'], (j) => CustomPrefab.fromJson(this, j));
     _maps.fromJson(json['maps'], (j) => GameMap.fromJson(this, j));
 
+    _playingScene = getScene(json['scene']);
+
     if (json['ambience'] != null) {
       ambience.fromJson(json['ambience']);
     }
@@ -518,7 +521,7 @@ class Game with Upgradeable {
 
   Map<String, dynamic> toJson() => {
         'version': CURRENT_FILE_VERSION,
-        'scene': playingSceneId,
+        'scene': playingScene.id,
         'pcs': _characters.map((e) => e.toJson()).toList(),
         'scenes': _scenes.map((e) => e.toJson(true)).toList(),
         'prefabs': _prefabs.map((e) => e.toJson()).toList(),
@@ -529,7 +532,6 @@ class Game with Upgradeable {
   Map<String, dynamic> toSessionSnippet(Connection c, [int mine]) => {
         'id': meta.id,
         'name': meta.name,
-        'sceneId': playingSceneId,
         'scene': playingScene.toJson(meta.owner == c.account),
         'pcs': _characters.map((e) => e.toJson(includeStatus: true)).toList(),
         'maps': _maps.map((e) => e.toJson()).toList(),

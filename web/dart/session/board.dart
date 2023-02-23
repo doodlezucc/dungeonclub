@@ -88,14 +88,6 @@ class Board {
 
   int get nextMovableId => movables.getNextAvailableID((e) => e.id);
 
-  set showInactiveSceneWarning(bool v) {
-    initiativeTracker.disabled = v;
-    _container
-        .querySelector('#inactiveSceneWarning')
-        .classes
-        .toggle('hidden', !v);
-  }
-
   bool get editingGrid => _container.classes.contains('edit');
   set editingGrid(bool v) {
     _container.classes.toggle('edit', v);
@@ -207,7 +199,8 @@ class Board {
     _selectionProperties.classes.toggle('hidden', activeMovable == null);
   }
 
-  Scene refScene;
+  Scene _refScene;
+  Scene get refScene => _refScene;
   bool _init = false;
 
   Board(this.session) {
@@ -408,6 +401,16 @@ class Board {
       activeMovable = movables.first;
     }
     updateSnapToGrid();
+  }
+
+  void applyInactiveSceneWarning() {
+    final isActiveScene = refScene.isPlaying;
+
+    initiativeTracker.disabled = !isActiveScene;
+    _container
+        .querySelector('#inactiveSceneWarning')
+        .classes
+        .toggle('hidden', isActiveScene);
   }
 
   void _removeSelectedMovables() async {
@@ -1109,6 +1112,8 @@ class Board {
       extras: {'id': refScene.id},
     );
 
+    if (result == null) return; // Upload was cancelled
+
     final path = result['image'];
     final tiles = result['tiles'];
 
@@ -1303,7 +1308,8 @@ class Board {
 
   void fromJson(Map<String, dynamic> json) async {
     final int sceneID = json['id'];
-    refScene = session.scenes.find((e) => e.id == sceneID);
+    _refScene = session.scenes.find((e) => e.id == sceneID);
+    session.applySceneEditPlayStates();
 
     await _onSceneChange();
 

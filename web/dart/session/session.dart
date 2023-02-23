@@ -24,6 +24,8 @@ class Session extends Game {
   final scenes = <Scene>[];
   final audioplayer = AudioPlayer();
 
+  Scene playingScene;
+
   Board _board;
   Board get board => _board;
 
@@ -141,6 +143,14 @@ class Session extends Game {
     }
   }
 
+  void applySceneEditPlayStates() {
+    for (var scene in scenes) {
+      scene.applyEditPlayState();
+    }
+
+    board.applyInactiveSceneWarning();
+  }
+
   Future<void> initialize({
     @required Iterable<Character> characters,
     bool instantEdit = false,
@@ -176,17 +186,9 @@ class Session extends Game {
         for (var json in allScenesJson) {
           final scene = Scene.fromJson(json);
           scenes.add(scene);
-
-          if (scene.id == sceneJson['id']) {
-            _board.refScene = scene
-              ..editing = true
-              ..playing = true;
-
-            if (scenes.length == 1) {
-              scene.enableRemove = false;
-            }
-          }
         }
+
+        Scene.updateAddSceneButton();
 
         if (instantEdit) {
           _board.editingGrid = true;
@@ -194,6 +196,8 @@ class Session extends Game {
       }
 
       _board.fromJson(sceneJson);
+      playingScene = _board.refScene;
+      applySceneEditPlayStates();
 
       querySelector('#session').classes.toggle('is-dm', isDM);
 

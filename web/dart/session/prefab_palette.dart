@@ -172,7 +172,7 @@ void _initPrefabProperties() {
           ? IMAGE_TYPE_PC
           : IMAGE_TYPE_ENTITY;
 
-      return await upload.display(
+      final response = await upload.display(
           event: ev,
           action: GAME_PREFAB_UPDATE,
           type: uploadType,
@@ -180,6 +180,8 @@ void _initPrefabProperties() {
           extras: {
             'prefab': selectedPrefab.id,
           });
+
+      return response == null ? null : response['image'];
     },
     onSuccess: (newImage) {
       selectedPrefab.image.path = newImage;
