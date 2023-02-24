@@ -8,30 +8,30 @@
     #dragText {
         user-select: none;
     }
+}
 
-    > div {
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-        min-width: 50vh;
-        min-height: 30vh;
-        position: relative;
-        box-shadow: 0 0 4px #0009;
-        box-sizing: border-box;
-        transition-duration: 0.1s;
-        outline: 2px dashed transparent;
-        outline-offset: 4px;
+.canvas-container {
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    min-width: 50vh;
+    min-height: 30vh;
+    position: relative;
+    box-shadow: 0 0 4px #0009;
+    box-sizing: border-box;
+    transition-duration: 0.1s;
+    outline: 2px dashed transparent;
+    outline-offset: 4px;
 
-        &.drag {
-            outline-color: white;
-            outline-offset: 0;
-            background-color: #aaa5;
-            filter: contrast(0.5) brightness(1.5);
-        }
+    &.drag {
+        outline-color: white;
+        outline-offset: 0;
+        background-color: #aaa5;
+        filter: contrast(0.5) brightness(1.5);
+    }
 
-        > *:not(img) {
-            position: absolute;
-        }
+    > *:not(img) {
+        position: absolute;
     }
 }
 

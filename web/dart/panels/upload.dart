@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/comms.dart';
+import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:meta/meta.dart';
 
@@ -60,6 +61,36 @@ Point<double> get size => _size;
 
 bool _square;
 bool _init = false;
+
+const thresholdStorageWarning = 5 * 1000000;
+
+int _usedStorage = 0;
+int get usedStorage => _usedStorage;
+set usedStorage(int bytes) {
+  _usedStorage = bytes;
+  print('Used $bytes bytes');
+
+  final percentage = '${100 * bytes / mediaBytesPerCampaign}%';
+
+  querySelectorAll('.used-storage').forEach(
+    (e) => (e as InputElement)
+      ..style.setProperty('--v', percentage)
+      ..min = '0'
+      ..max = '$mediaBytesPerCampaign'
+      ..valueAsNumber = bytes,
+  );
+
+  final storageLeft = mediaBytesPerCampaign - bytes;
+  final displayWarning = storageLeft <= thresholdStorageWarning;
+
+  querySelector('#storageWarning').classes.toggle('hidden', !displayWarning);
+
+  querySelectorAll('.storage-used').forEach((e) => e.text = bytesToMB(bytes));
+  querySelectorAll('.storage-left')
+      .forEach((e) => e.text = bytesToMB(storageLeft));
+  querySelectorAll('.storage-max')
+      .forEach((e) => e.text = '${mediaBytesPerCampaign ~/ 1000000}');
+}
 
 void _initialize() {
   _init = true;
@@ -413,8 +444,14 @@ Future<String> _imgToBase64(int maxRes, bool upscale) {
 Future<String> canvasToBase64(
   CanvasElement canvas, {
   bool includeHeader = false,
+  int sizeLimitInBytes,
 }) async {
   var blob = await canvas.toBlob('image/jpeg', 0.85);
+
+  if (sizeLimitInBytes != null && blob.size > sizeLimitInBytes) {
+    await _showUploadErrorDialog(blob.size);
+    return null;
+  }
 
   var reader = FileReader()..readAsDataUrl(blob);
   await reader.onLoadEnd.first;
@@ -424,16 +461,19 @@ Future<String> canvasToBase64(
   return (reader.result as String).substring(23);
 }
 
-String _bytesToMB(int bytes) {
+String bytesToMB(int bytes) {
   return (bytes / 1000000).toStringAsFixed(2);
 }
 
 /// Displays an error explaining the campaign storage situation.
-Future<void> _showUploadErrorDialog(
-    int bytesUpload, int bytesUsed, int bytesMaximum) async {
-  final uploadMB = _bytesToMB(bytesUpload);
-  final usedMB = _bytesToMB(bytesUsed);
-  final maxMB = _bytesToMB(bytesMaximum);
+Future<void> _showUploadErrorDialog(int bytesUpload,
+    [int bytesUsed, int bytesMaximum]) async {
+  bytesUsed ??= usedStorage;
+  bytesMaximum ??= mediaBytesPerCampaign;
+
+  final uploadMB = bytesToMB(bytesUpload);
+  final usedMB = bytesToMB(bytesUsed);
+  final maxMB = bytesToMB(bytesMaximum);
 
   final dialog = Dialog('Unable to upload');
   dialog.addParagraph(

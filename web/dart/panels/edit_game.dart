@@ -56,6 +56,7 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   }
 
   _updateAddButton();
+  uploader.usedStorage = result['usedStorage'];
 
   var closer = Completer();
   var subs = [
@@ -123,8 +124,8 @@ Future<Game> displayPrepare() async {
 }
 
 void _updateAddButton() {
-  _addCharButton.classes
-      .toggle('disabled', _chars.length >= playersPerCampaign);
+  _addCharButton.classes.toggle('disabled',
+      _chars.where((char) => !char.isRemoved).length >= playersPerCampaign);
 }
 
 class _EditChar {
@@ -191,9 +192,10 @@ class _EditChar {
 
       if (!confirm) return;
       isRemoved = true;
+    } else {
+      _chars.remove(this);
     }
 
-    _chars.remove(this);
     e.remove();
     _updateAddButton();
   }

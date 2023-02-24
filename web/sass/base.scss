@@ -360,6 +360,17 @@ input {
             border-radius: 50%;
             background: white;
         }
+
+        &.progressbar {
+            cursor: inherit;
+        }
+
+        &.progressbar::-webkit-slider-thumb {
+            background: none;
+        }
+        &.progressbar::-webkit-slider-thumb {
+            background: none;
+        }
     }
 
     &[type=checkbox] {
@@ -704,6 +715,29 @@ footer {
 
 .with-tooltip {
     @extend %with-tooltip;
+}
+.with-tooltip.tooltip-inline {
+    display: inline-flex;
+}
+
+.attach-icon {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    
+    > :last-child {
+        position: absolute;
+        left: 100%;
+        margin: 0 0 4px 4px;
+    }
+}
+
+.no-wrap {
+    white-space: nowrap;
+}
+
+.hideable.hidden {
+    display: none;
 }
 
 .toolbox {

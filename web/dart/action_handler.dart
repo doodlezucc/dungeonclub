@@ -4,6 +4,7 @@ import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/point_json.dart';
 
 import '../main.dart';
+import 'panels/upload.dart';
 import 'session/log.dart';
 import 'session/prefab_palette.dart';
 import 'session/roll_dice.dart';
@@ -109,7 +110,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session?.audioplayer?.ambienceFromJson(params);
 
     case GAME_STORAGE_CHANGED:
-      return user.session?.usedStorage = params['used'];
+      return usedStorage = params['used'];
 
     case MAINTENANCE:
       return user.onMaintenanceScheduled(params);

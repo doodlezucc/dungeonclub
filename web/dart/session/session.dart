@@ -10,6 +10,7 @@ import '../communication.dart';
 import '../font_awesome.dart';
 import '../game.dart';
 import '../panels/dialog.dart';
+import '../panels/upload.dart';
 import 'audioplayer.dart';
 import 'board.dart';
 import 'character.dart';
@@ -44,13 +45,6 @@ class Session extends Game {
   Stream<bool> get connectionEvent => _connectionCtrl.stream;
 
   bool get isDemo => this is DemoSession;
-
-  int _usedStorage = 0;
-  int get usedStorage => _usedStorage;
-  set usedStorage(int bytes) {
-    _usedStorage = bytes;
-    print('Used $bytes bytes');
-  }
 
   Session(String id, String name, this.isDM) : super(id, name, null) {
     _board = Board(this);
@@ -161,7 +155,7 @@ class Session extends Game {
     Map sceneJson,
     Iterable allScenesJson,
     Iterable mapJsonList = const [],
-    int usedStorage = 0,
+    int usedStorageBytes = 0,
     String overrideSceneBackground,
   }) {
     this.characters.clear();
@@ -182,7 +176,7 @@ class Session extends Game {
       initMovableManager(prefabJsonList);
 
       if (isDM) {
-        this.usedStorage = usedStorage;
+        usedStorage = usedStorageBytes;
 
         for (var json in allScenesJson) {
           final scene = Scene.fromJson(json);
@@ -224,7 +218,7 @@ class Session extends Game {
       prefabJsonList: json['prefabs'],
       sceneJson: json['scene'],
       allScenesJson: isDM ? json['dm']['scenes'] : null,
-      usedStorage: isDM ? json['dm']['usedStorage'] : null,
+      usedStorageBytes: isDM ? json['dm']['usedStorage'] : null,
     );
   }
 }

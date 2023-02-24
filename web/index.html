@@ -904,6 +904,13 @@
 				<div id="editChars"></div>
 			</div>
 
+			<span class="with-tooltip">
+				<input class="progressbar smooth-bg used-storage" type="range">
+				<span>Using
+					<b><span class="storage-used"></span> MB</b> / <span class="storage-max"></span> MB
+				</span>
+			</span>
+
 			<button id="save" class="big">Save Changes</button>
 			<button id="delete" class="bad">Delete Campaign</button>
 		</div>
@@ -914,7 +921,7 @@
 				<i class="fas fa-times"></i>
 			</button>
 
-			<div>
+			<div class="canvas-container">
 				<div id="crop" class="crop-container">
 					<div class="width top" style="cursor: n-resize;"></div>
 					<div class="height right" style="cursor: e-resize;"></div>
@@ -937,7 +944,19 @@
 					Open File
 					<input id="imgUpload" type="file" accept="image/*">
 				</label>
-				<button class="big" type="submit">Upload</button>
+				<div class="attach-icon">
+					<button class="big" type="submit">
+						Upload
+					</button>
+					<span id="storageWarning" class="with-tooltip tooltip-inline hideable">
+						<b><i class="fas fa-triangle-exclamation"></i></b>
+						<span>Your campaign storage is almost used up
+							<span class="no-wrap">
+								(<b><span class="storage-left"></span> MB</b> left).
+							</span>
+						</span>
+					</span>
+				</div>
 			</span>
 		</div>
 
