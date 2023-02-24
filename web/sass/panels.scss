@@ -93,7 +93,7 @@
     }
 
     &.prepare {
-        #delete { display: none; }
+        .no-prepare { display: none; }
     }
 
     > div > span {

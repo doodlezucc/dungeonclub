@@ -261,7 +261,7 @@ int _getMaxRes(String type) {
     case IMAGE_TYPE_MAP:
       return 1200;
     case IMAGE_TYPE_SCENE:
-      return 2000;
+      return 8000;
     case IMAGE_TYPE_PC:
     default:
       return 256;
@@ -281,7 +281,6 @@ bool _isSquare(String type) {
 bool _upscale(String type) {
   switch (type) {
     case IMAGE_TYPE_MAP:
-    case IMAGE_TYPE_SCENE:
       return true;
     default:
       return false;
@@ -330,12 +329,15 @@ Future _displayOffline({
   overlayVisible = true;
   _panel.classes.add('show');
 
-  var completer = Completer();
-  var subs = [
+  final completer = Completer();
+  final subs = [
     _uploadButton.onClick.listen((_) async {
       _uploadButton.disabled = true;
-      var base64 = await _imgToBase64(maxRes, upscale);
-      var result = await processUpload(base64, maxRes, upscale);
+      final limit = mediaBytesPerCampaign - usedStorage;
+      final base64 = await _imgToBase64(maxRes, upscale, limit);
+      final result =
+          base64 == null ? null : await processUpload(base64, maxRes, upscale);
+
       if (result != null) {
         completer.complete(result);
       }
@@ -436,9 +438,9 @@ Future<String> _emptyImageBase64(int width, int height) {
   return canvasToBase64(canvas);
 }
 
-Future<String> _imgToBase64(int maxRes, bool upscale) {
+Future<String> _imgToBase64(int maxRes, bool upscale, int sizeLimitInBytes) {
   var canvas = _imgToCanvas(maxRes, upscale);
-  return canvasToBase64(canvas);
+  return canvasToBase64(canvas, sizeLimitInBytes: sizeLimitInBytes);
 }
 
 Future<String> canvasToBase64(

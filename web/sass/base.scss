@@ -732,6 +732,12 @@ footer {
     }
 }
 
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
 .no-wrap {
     white-space: nowrap;
 }

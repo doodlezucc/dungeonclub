@@ -904,15 +904,16 @@
 				<div id="editChars"></div>
 			</div>
 
-			<span class="with-tooltip">
+			<span class="no-wrap row no-prepare">
+				<span>Used Storage:</span>
 				<input class="progressbar smooth-bg used-storage" type="range">
-				<span>Using
+				<span>
 					<b><span class="storage-used"></span> MB</b> / <span class="storage-max"></span> MB
 				</span>
 			</span>
 
 			<button id="save" class="big">Save Changes</button>
-			<button id="delete" class="bad">Delete Campaign</button>
+			<button id="delete" class="bad no-prepare">Delete Campaign</button>
 		</div>
 
 		<div class="panel" id="uploadPanel">
