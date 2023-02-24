@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/point_json.dart';
+import 'package:dungeonclub/session_util.dart';
 
 import '../main.dart';
 import 'panels/upload.dart';
@@ -30,7 +31,19 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session.board.onMovableRemove(params);
 
     case GAME_SCENE_PLAY:
-      return user.session?.board?.fromJson(params);
+      int sceneID = params['sceneID'];
+
+      if (sceneID != null) {
+        // Prevent GM from getting teleported to the playing scene
+        user.session.playingScene =
+            user.session.scenes.find((e) => e.id == sceneID);
+        return user.session.applySceneEditPlayStates();
+      }
+
+      return user.session.board.fromJson(params);
+
+    case GAME_SCENE_GET:
+      return user.session.board.fromJson(params, setAsPlaying: false);
 
     case GAME_SCENE_UPDATE:
       var grid = params['grid'];

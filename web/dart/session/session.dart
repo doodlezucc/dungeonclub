@@ -191,8 +191,6 @@ class Session extends Game {
       }
 
       _board.fromJson(sceneJson);
-      playingScene = _board.refScene;
-      applySceneEditPlayStates();
 
       querySelector('#session').classes.toggle('is-dm', isDM);
 

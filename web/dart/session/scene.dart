@@ -28,6 +28,7 @@ final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
       final resource = Resource(json['image']);
       final scene = Scene(json['id'], resource);
       session.scenes.add(scene);
+      Scene.updateAddSceneButton();
       await scene.enterEdit(json);
     }
   });
@@ -93,7 +94,7 @@ class Scene {
     if (isEditing) return;
 
     json = json ?? await socket.request(GAME_SCENE_GET, {'id': id});
-    user.session.board.fromJson(json);
+    user.session.board.fromJson(json, setAsPlaying: false);
   }
 
   static void updateAddSceneButton() {

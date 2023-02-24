@@ -1306,10 +1306,14 @@ class Board {
     mode = PAN;
   }
 
-  void fromJson(Map<String, dynamic> json) async {
+  void fromJson(Map<String, dynamic> json, {bool setAsPlaying = true}) async {
     final int sceneID = json['id'];
     if (session.isDM) {
       _refScene = session.scenes.find((e) => e.id == sceneID);
+      if (setAsPlaying) {
+        session.playingScene = _refScene;
+      }
+
       session.applySceneEditPlayStates();
     } else {
       _refScene = Scene.fromJson(json);

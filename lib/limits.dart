@@ -5,4 +5,4 @@ const mapsPerCampaign = 10;
 const movablesPerScene = 500;
 const playersPerCampaign = 20;
 
-const mediaBytesPerCampaign = 20 * 1000 * 1000;
+const mediaBytesPerCampaign = 25 * 1000 * 1000;

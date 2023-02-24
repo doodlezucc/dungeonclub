@@ -343,11 +343,13 @@ class Game with Upgradeable {
   }
 
   /// Sends GAME_SCENE_PLAY to all connections.
-  void playScene(Scene scene) {
+  void playScene(Scene scene, {bool teleportGM = true}) {
     _playingScene = scene;
 
     for (var c in _connections) {
-      if (c.scene != scene) {
+      if (!teleportGM && c == dm) {
+        c.sendAction(a.GAME_SCENE_PLAY, {'sceneID': scene.id});
+      } else if (c.scene != scene) {
         c.scene = scene;
         c.sendAction(a.GAME_SCENE_PLAY, scene.toJson(c == dm));
       }
@@ -404,11 +406,17 @@ class Game with Upgradeable {
     scene.image.deleteInBackground();
 
     final sceneIndex = _scenes.indexOf(scene);
+    final previousSceneIndex = max(0, sceneIndex - 1);
+    final previousScene = _scenes[previousSceneIndex];
     _scenes.remove(scene);
 
     if (scene == playingScene) {
-      final previousSceneIndex = max(0, sceneIndex - 1);
-      playScene(_scenes[previousSceneIndex]);
+      // Scene was active playing scene
+      playScene(_scenes[previousSceneIndex], teleportGM: scene == dm.scene);
+    } else if (scene == dm.scene) {
+      // Scene was being edited by GM
+      dm.scene = previousScene;
+      dm.sendAction(a.GAME_SCENE_GET, previousScene.toJson(true));
     }
   }
 
