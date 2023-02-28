@@ -917,20 +917,21 @@ class CustomPrefab extends EntityBase with HasInitiativeMod, HasImage {
   int get jsonFallbackSize => 1;
 
   CustomPrefab.create(Game game, this.id, int size)
-      : accessIds = [],
-        _image = ControlledResource.empty(game),
+      : _image = ControlledResource.empty(game),
+        name = '',
+        accessIds = [],
         super(size: size);
   CustomPrefab.fromJson(Game game, Map<String, dynamic> json)
       : id = json['id'],
-        accessIds = List.from(json['access'] ?? []),
-        _image = ControlledResource.path(game, json['image']) {
+        _image = ControlledResource.path(game, json['image']),
+        accessIds = List.from(json['access'] ?? []) {
     fromJson(json);
   }
 
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
-    name = json['name'];
+    name = json['name'] ?? '';
     accessIds = List.from(json['access'] ?? []);
   }
 
