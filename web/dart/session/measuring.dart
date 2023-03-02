@@ -222,7 +222,6 @@ class MeasuringPath extends Measuring {
   final path = svg.PathElement();
   final lastE = svg.CircleElement()..classes.add('origin');
   final points = <Point>[];
-  final int size;
   int pointsSinceSync = 0;
   double previousDistance = 0;
 
@@ -230,13 +229,12 @@ class MeasuringPath extends Measuring {
     Point origin,
     int pc, {
     bool background = false,
-    this.size = 1,
   }) : super(origin, svg.GElement(), pc,
             background ? _distanceRoot : _measuringRoot) {
     _e
       ..append(path)
       ..append(lastE);
-    handleRightclick(origin, doSnap: false);
+    handleRightclick(origin);
 
     if (background) {
       _distanceText.classes.add('slow');
@@ -260,14 +258,8 @@ class MeasuringPath extends Measuring {
     }
   }
 
-  Point snapped(Point p) {
-    return Measuring.getGrid().grid.gridSnapCentered(p, size);
-  }
-
   @override
-  void handleRightclick(Point p, {bool doSnap = true}) {
-    if (doSnap) p = snapped(p);
-
+  void handleRightclick(Point p) {
     var stop = svg.CircleElement()..classes.add('origin');
     _applyCircleGridToWorld(stop, p);
     _e.append(stop);
@@ -275,7 +267,7 @@ class MeasuringPath extends Measuring {
     previousDistance += _lastSegmentLength(p);
     points.add(p);
     pointsSinceSync++;
-    handleMove(p, doSnap: false);
+    handleMove(p);
   }
 
   double _lastSegmentLength(Point end) {
@@ -288,9 +280,7 @@ class MeasuringPath extends Measuring {
   }
 
   @override
-  void handleMove(Point end, {bool doSnap = true}) {
-    if (doSnap) end = snapped(end);
-
+  void handleMove(Point end) {
     path.setAttribute('d', _toPathData(end));
     _applyCircleGridToWorld(lastE, end);
     _updateDistanceText(end);

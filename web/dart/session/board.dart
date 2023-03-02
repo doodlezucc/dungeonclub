@@ -936,8 +936,7 @@ class Board {
 
         var showDistance = affected.length == 1;
         if (showDistance) {
-          measuring = MeasuringPath(clicked.position, -1,
-              background: true, size: clicked.displaySize);
+          measuring = MeasuringPath(clicked.position, -1, background: true);
           transform.applyInvZoom();
           alignText();
           imitateMovableGhost(clicked);
@@ -956,7 +955,7 @@ class Board {
       delta = delta.undeviate();
 
       if (ev.isMouseDown && ev.button == 2 && measuring != null) {
-        measuring.handleRightclick(gridCursor, doSnap: false);
+        measuring.handleRightclick(gridCursor);
       }
 
       if (delta != lastDelta) {
@@ -965,7 +964,7 @@ class Board {
         }
         lastDelta = delta;
         if (measuring != null) {
-          measuring.handleMove(clicked.position, doSnap: false);
+          measuring.handleMove(clicked.position);
           alignText();
           toggleMovableGhostVisible(delta != Point(0, 0), translucent: true);
         }
@@ -1019,7 +1018,7 @@ class Board {
       if (hasChanged) {
         hasChanged = false;
 
-        measureEnd = worldToGrid(p);
+        measureEnd = snapWorldToGrid(p);
 
         m.handleMove(measureEnd);
         m.alignDistanceText(p);
