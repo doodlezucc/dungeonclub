@@ -286,7 +286,6 @@ Future<void> createPrefab(MouseEvent ev) async {
     event: ev,
     action: GAME_PREFAB_CREATE,
     type: IMAGE_TYPE_ENTITY,
-    demoFallbackID: () => fallbackID,
   );
 
   if (result == null) return null;

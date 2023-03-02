@@ -169,18 +169,18 @@ class MapTab {
   Future<bool> _uploadNewMap(MouseEvent ev) async {
     if (maps.length >= mapsPerCampaign) return false;
 
-    final fallbackID = maps.getNextAvailableID((e) => e.id);
-
     final response = await uploader.display(
       event: ev,
       action: GAME_MAP_CREATE,
       type: IMAGE_TYPE_MAP,
-      demoFallbackID: () => fallbackID,
     );
 
     if (response != null) {
-      addMap(response['map'], '', response['image'], false);
-      _enterEdit(response['map']);
+      // Fallback to next available ID in demo session
+      final mapID = response['map'] ?? maps.getNextAvailableID((e) => e.id);
+
+      addMap(mapID, '', response['image'], false);
+      _enterEdit(mapID);
       _name.focus();
       return true;
     }

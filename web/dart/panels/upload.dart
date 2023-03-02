@@ -489,13 +489,9 @@ Future<void> _showUploadErrorDialog(int bytesUpload,
 Future _upload(String base64, String action, String type,
     Map<String, dynamic> extras, int maxRes, bool upscale) async {
   if (user.isInDemo) {
-    var id = 0;
-    if (extras != null && extras['id'] != null) {
-      id = extras['id'];
-    }
-    print('ID: $id');
-    print(base64);
-    return registerRedirect('$type$id', base64);
+    return {
+      'image': base64,
+    };
   }
 
   final json = <String, dynamic>{'type': type, 'data': base64};
@@ -556,16 +552,10 @@ Future display({
   Blob initialImg,
   Future Function(String base64, int maxRes, bool upscale) processUpload,
   void Function(bool v) onPanelVisible,
-  int Function() demoFallbackID,
   Element simulateHoverClass,
 }) async {
   var visible = (bool v) => onPanelVisible != null ? onPanelVisible(v) : null;
   var openDialog = true;
-
-  if (user.isInDemo && demoFallbackID != null) {
-    extras ??= {};
-    extras['id'] = demoFallbackID();
-  }
 
   if (initialImg == null) {
     var menu = ContextMenu();

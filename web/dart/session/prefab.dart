@@ -95,7 +95,7 @@ mixin HasInitiativeMod on Prefab {
 }
 
 mixin ChangeableName on Prefab {
-  String _name;
+  String _name = '';
 
   @override
   String get name => _name;
