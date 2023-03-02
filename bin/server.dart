@@ -66,18 +66,18 @@ void main(List<String> args) async {
   final D = serverParser.tryArgParse(args);
   final bootstrapMode = D[SERVE_BOOTSTRAP];
 
-  if (bootstrapMode == SERVE_BOOTSTRAP_NONE) {
-    return run(args);
-  }
-
   final logFile = 'logs/latest.log';
+  final enableLogging = bootstrapMode != SERVE_BOOTSTRAP_NONE;
+  final enableChildProcess =
+      bootstrapMode == SERVE_BOOTSTRAP_ALL || Environment.isCompiled;
+
   return bootstrap(
     run,
     args: args,
     fileOut: logFile,
     fileErr: logFile,
-    enableChildProcess:
-        bootstrapMode == SERVE_BOOTSTRAP_ALL || Environment.isCompiled,
+    enableLogFiles: enableLogging,
+    enableChildProcess: enableChildProcess,
     onExit: onExit,
     exitAfterBody: false,
   );
