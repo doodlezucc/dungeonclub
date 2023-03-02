@@ -1313,8 +1313,15 @@ class Board {
     mode = PAN;
   }
 
-  void fromJson(Map<String, dynamic> json, {bool setAsPlaying = true}) async {
-    final int sceneID = json['id'];
+  void load({
+    int sceneID,
+    bool setAsPlaying = true,
+    String fowData,
+    Map refSceneData,
+    void Function(SceneGrid grid) loadGrid,
+    Iterable movablesData,
+    Iterable initiativeData,
+  }) async {
     if (session.isDM) {
       _refScene = session.scenes.find((e) => e.id == sceneID);
       if (setAsPlaying) {
@@ -1323,21 +1330,33 @@ class Board {
 
       session.applySceneEditPlayStates();
     } else {
-      _refScene = Scene.fromJson(json);
+      _refScene = Scene.fromJson(refSceneData);
     }
 
     await _onSceneChange();
 
-    fogOfWar.load(json['fow']);
-    grid.fromJson(json['grid']);
+    fogOfWar.load(fowData);
+    loadGrid(grid);
     rescaleMeasurings();
 
-    for (var m in json['movables']) {
+    for (var m in movablesData) {
       onMovableCreate(m);
     }
 
-    initiativeTracker.fromJson(json['initiative']);
+    initiativeTracker.fromJson(initiativeData);
     resetTransform();
+  }
+
+  void fromJson(Map<String, dynamic> json, {bool setAsPlaying = true}) async {
+    load(
+      sceneID: json['id'],
+      setAsPlaying: setAsPlaying,
+      refSceneData: json,
+      fowData: json['fow'],
+      loadGrid: (grid) => grid.fromJson(json['grid']),
+      movablesData: json['movables'],
+      initiativeData: json['initiative'],
+    );
   }
 }
 

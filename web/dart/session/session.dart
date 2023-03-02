@@ -146,6 +146,10 @@ class Session extends Game {
     board.applyInactiveSceneWarning();
   }
 
+  void initializeBoard(Map sceneJson) {
+    _board.fromJson(sceneJson);
+  }
+
   Future<void> initialize({
     @required Iterable<Character> characters,
     bool instantEdit = false,
@@ -153,10 +157,9 @@ class Session extends Game {
     Map ambienceJson = const {},
     Iterable prefabJsonList = const [],
     Map sceneJson,
-    Iterable allScenesJson,
+    Iterable allScenesJson = const [],
     Iterable mapJsonList = const [],
     int usedStorageBytes = 0,
-    String overrideSceneBackground,
   }) {
     this.characters.clear();
     this.characters.addAll(characters);
@@ -190,7 +193,7 @@ class Session extends Game {
         }
       }
 
-      _board.fromJson(sceneJson);
+      initializeBoard(sceneJson);
 
       querySelector('#session').classes.toggle('is-dm', isDM);
 
