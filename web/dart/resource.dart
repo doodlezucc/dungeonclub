@@ -33,8 +33,7 @@ class Resource {
     return 'database/games/${_game.id}/$path';
   }
 
-  String get url =>
-      _actualPath == null ? '' : getFile(_actualPath, cacheBreak: false);
+  String get url => _actualPath == null ? '' : getFile(_actualPath);
 
   Resource(this.path, {Game game}) : _game = game ?? user.session;
   Resource.empty({Game game}) : this(null, game: game);

@@ -16,7 +16,6 @@ import 'session/measuring.dart';
 final String _serverAddress = _getServerAddress();
 
 final socket = FrontSocket();
-final Map<String, String> localRedirect = {};
 
 bool get isDebugging {
   final webPort = window.location.port;
@@ -34,33 +33,9 @@ String _getServerAddress() {
   return address;
 }
 
-String getFile(String path, {bool cacheBreak = true}) {
+String getFile(String path) {
   path = Uri.encodeFull(path);
-  var out = join(_serverAddress, path);
-  if (!cacheBreak) return out;
-
-  return '$out?${DateTime.now().millisecondsSinceEpoch ~/ 1000}';
-}
-
-String getGameFile(String path, {String gameId, bool cacheBreak = true}) {
-  if (user.isInDemo) {
-    var redirect = localRedirect[path];
-    if (redirect.startsWith('images/assets')) {
-      return getFile(redirect, cacheBreak: false);
-    }
-    return redirect;
-  }
-
-  gameId = gameId ?? user?.session?.id;
-  return getFile('database/games/$gameId/$path', cacheBreak: cacheBreak);
-}
-
-String registerRedirect(String path, String redirect) {
-  return localRedirect[path] = redirect;
-}
-
-String registerRedirectBlob(String path, Blob blob) {
-  return localRedirect[path] = Url.createObjectUrl(blob);
+  return join(_serverAddress, path);
 }
 
 const demoActions = [
@@ -84,17 +59,16 @@ class FrontSocket extends Socket {
 
   void connect({bool goHome = true}) {
     _retryTimer?.cancel();
-    _webSocket =
-        WebSocket(getFile('ws', cacheBreak: false).replaceFirst('http', 'ws'))
-          ..onOpen.listen((e) {
-            if (_errorDialog != null) {
-              window.location.href = goHome ? homeUrl : window.location.href;
-            } else {
-              _waitForOpen.complete();
-            }
-          })
-          ..onClose.listen((e) => _handleConnectionClose())
-          ..onError.listen((e) => _handleConnectionError());
+    _webSocket = WebSocket(getFile('ws').replaceFirst('http', 'ws'))
+      ..onOpen.listen((e) {
+        if (_errorDialog != null) {
+          window.location.href = goHome ? homeUrl : window.location.href;
+        } else {
+          _waitForOpen.complete();
+        }
+      })
+      ..onClose.listen((e) => _handleConnectionClose())
+      ..onError.listen((e) => _handleConnectionError());
 
     listen();
   }

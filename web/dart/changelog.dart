@@ -41,7 +41,7 @@ class Changelog {
   }
 
   Future<void> fetch() async {
-    var uri = Uri.parse(getFile('CHANGELOG.md', cacheBreak: false));
+    var uri = Uri.parse(getFile('CHANGELOG.md'));
     var content = await httpClient.read(uri);
     _applyContent(content);
   }

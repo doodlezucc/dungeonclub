@@ -210,8 +210,8 @@ class AudioPlayer {
     tracklist = (json == null || json['tracks'] == null)
         ? null
         : Tracklist.fromJson(json);
-    _playlist.fromTracklist(tracklist,
-        (t) => getFile('ambience/tracks/${t.id}.mp3', cacheBreak: false));
+    _playlist.fromTracklist(
+        tracklist, (t) => getFile('ambience/tracks/${t.id}.mp3'));
 
     skipButton.disabled = tracklist == null;
     if (tracklist == null) displayTrack(null);

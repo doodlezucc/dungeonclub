@@ -374,7 +374,7 @@ void _loadSrcAsImage(String src) async {
     if (src.startsWith('blob:')) return;
 
     // Use server to download an untainted version of the image
-    _img.src = getFile('untaint', cacheBreak: false) + '?url=$src';
+    _img.src = getFile('untaint') + '?url=$src';
 
     await _img.onLoad.first;
   }
