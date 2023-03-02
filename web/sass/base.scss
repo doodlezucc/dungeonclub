@@ -742,8 +742,12 @@ footer {
     white-space: nowrap;
 }
 
+.hideable {
+    opacity: 1;
+}
 .hideable.hidden {
-    display: none;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .toolbox {

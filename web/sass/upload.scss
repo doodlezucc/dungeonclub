@@ -87,6 +87,10 @@
     }
 }
 
+#storageWarning {
+    transition: opacity 0.2s 1s;
+}
+
 #contextMenu {
     display: flex;
     flex-direction: column;
