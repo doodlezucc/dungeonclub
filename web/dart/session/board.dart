@@ -1140,6 +1140,13 @@ class Board {
     fogOfWar.fixSvgInit(_ground.naturalWidth, _ground.naturalHeight);
   }
 
+  void applyCellSize() {
+    const fowPatternReferenceSize = 120;
+    final tokenSize = grid.tokenSize;
+    _e.style.setProperty('--cell-size', '$tokenSize');
+    fogOfWar.setSvgPatternScaling(tokenSize / fowPatternReferenceSize);
+  }
+
   void clear() {
     _deselectAll();
     movables.forEach((m) => m.e.remove());

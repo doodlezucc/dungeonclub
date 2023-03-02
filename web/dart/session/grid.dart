@@ -290,7 +290,7 @@ class SceneGrid {
   }
 
   void _applyCellSize() {
-    e.style.setProperty('--cell-size', '$tokenSize');
+    user.session.board.applyCellSize();
     if (_grid is UnclampedGrid) {
       (_grid as UnclampedGrid).scale = tokenSize;
     }

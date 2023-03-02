@@ -802,6 +802,9 @@ $scene-preview-width: 140px;
     }
 }
 
+$svg-outline-width: 0.15em;
+$svg-circle-radius: 0.4em;
+
 $blink-on:  #fffd;
 $blink-off: #888d;
 
@@ -820,7 +823,7 @@ $blink-off: #888d;
     fill: #eee7;
 }
 .grid-canvas {
-    stroke-width: 10px;
+    stroke-width: $svg-outline-width;
     stroke-linecap: round;
     stroke-linejoin: round;
 
@@ -832,12 +835,11 @@ $blink-off: #888d;
     }
     circle.origin {
         stroke: none !important;
-        r: 20px;
+        r: $svg-circle-radius;
     }
     g > rect {
         fill: unset;
         stroke: #fff !important;
-        stroke-width: 10px;
     }
 }
 
@@ -887,7 +889,10 @@ $blink-off: #888d;
 #grid {
     position: absolute;
     z-index: 0;
-    --cell-size: 4;
+}
+
+.use-cell-size {
+    font-size: calc(var(--cell-size) * 0.5px);
 }
 
 @keyframes movable-spawn {

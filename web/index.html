@@ -520,7 +520,7 @@
 				</div>
 				<div id="board">
 					<img id="ground">
-					<svg id="gridCanvas" class="fill-board">
+					<svg id="gridCanvas" class="fill-board use-cell-size">
 						<defs>
 							<pattern id="gridPatternSquare" width="1" height="1" patternUnits="userSpaceOnUse">
 								<rect width="1" height="1" />
@@ -560,7 +560,7 @@
 						<div class="corner bottom left" style="cursor: sw-resize;"></div>
 						<div class="corner top left" style="cursor: nw-resize;"></div>
 					</div>
-					<svg id="distanceCanvas" class="fill-board grid-canvas"></svg>
+					<svg id="distanceCanvas" class="fill-board grid-canvas use-cell-size"></svg>
 					<div id="grid">
 						<div id="movableGhost" class="movable no-animate-move">
 							<div class="img rotating"></div>
@@ -575,11 +575,11 @@
 						</div>
 					</div>
 
-					<div id="polymaskWrapper" class="fill-board">
+					<div id="polymaskWrapper" class="fill-board use-cell-size">
 						<svg id="polymask">
 							<defs>
 								<pattern id="barrier" width="61" height="30" patternUnits="userSpaceOnUse"
-									patternTransform="rotate(45 50 50)">
+									patternTransform="rotate(45 50 50) scale(0.5)">
 									<rect fill="#3335" />
 									<line stroke="#fb85" stroke-width="60px" y2="30" />
 									<animateTransform attributeType="xml" attributeName="patternTransform"
@@ -611,7 +611,7 @@
 						</svg>
 					</div>
 
-					<svg id="measureCanvas" class="fill-board grid-canvas">
+					<svg id="measureCanvas" class="fill-board grid-canvas use-cell-size">
 						<defs>
 							<polygon id="tile"></polygon>
 						</defs>

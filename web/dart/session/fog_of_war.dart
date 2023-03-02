@@ -95,6 +95,12 @@ class FogOfWar {
     canvas.grid = canvas.grid = useGrid ? board.grid.grid : Grid.unclamped();
   }
 
+  void setSvgPatternScaling(double scale) {
+    canvas.root
+        .querySelector('#barrier')
+        .setAttribute('patternTransform', 'rotate(45 50 50) scale($scale)');
+  }
+
   void _setTool(PolygonTool tool) {
     canvas.activeTool = tool;
     btnToolStroke.parent.querySelectorAll('.active').classes.remove('active');

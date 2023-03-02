@@ -1,4 +1,6 @@
-$outline: 8px;
+@use "game.scss";
+
+$outline: game.$svg-outline-width;
 $margin: 80px;
 
 .fill-board {
@@ -35,8 +37,8 @@ $margin: 80px;
     #polyprev {
         fill: none;
         stroke: #fff;
-        stroke-width: 4px;
-        stroke-dasharray: 8px;
+        stroke-width: $outline;
+        stroke-dasharray: $outline * 2;
         stroke-linejoin: round;
         stroke-linecap: round;
 
