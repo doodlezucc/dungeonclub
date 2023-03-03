@@ -187,7 +187,7 @@ class Connection extends Socket {
         var gameId = params['id'];
         var meta = account.ownedGames
             .firstWhere((g) => g.id == gameId, orElse: () => null);
-        if (meta == null) return 'Access denied!';
+        if (meta == null) throw 'Access denied!';
 
         var game = await meta.open();
 

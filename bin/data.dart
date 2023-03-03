@@ -314,7 +314,7 @@ class Game with Upgradeable {
         _characters = [],
         _prefabs = [],
         _maps = [] {
-    _scenes.add(Scene.empty(this, 0));
+    _scenes.add(_playingScene = Scene.empty(this, 0));
   }
 
   void connect(Connection connection, bool join) {
@@ -567,7 +567,12 @@ class Game with Upgradeable {
     meta.name = data['name'];
 
     final Map pcs = data['pcs'];
-    if (pcs.length >= playersPerCampaign) throw 'Exceded player limit';
+    final newPCs = List.from(data['newPCs']);
+
+    final countKept = pcs.values.where((props) => props != null).length;
+    final totalCountNew = countKept + newPCs.length;
+
+    if (totalCountNew >= playersPerCampaign) throw 'Exceded player limit';
 
     final previousCharCount = _characters.length;
 
@@ -584,8 +589,6 @@ class Game with Upgradeable {
       }
     }
 
-    final newPCs = List.from(data['newPCs']);
-
     for (var properties in newPCs) {
       final pc =
           await PlayerCharacter.create(this, _nextCharacterId, properties);
@@ -593,9 +596,9 @@ class Game with Upgradeable {
       _characters.add(pc);
     }
 
-    if (previousCharCount != pcs.length) {
+    if (previousCharCount != _characters.length) {
       for (var map in _maps) {
-        map.setLayers(pcs.length + 1);
+        map.setLayers(_characters.length + 1);
       }
     }
   }
