@@ -68,7 +68,6 @@ int _usedStorage = 0;
 int get usedStorage => _usedStorage;
 set usedStorage(int bytes) {
   _usedStorage = bytes;
-  print('Used $bytes bytes');
 
   final percentage = '${100 * bytes / mediaBytesPerCampaign}%';
 

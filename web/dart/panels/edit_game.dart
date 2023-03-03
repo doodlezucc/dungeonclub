@@ -39,7 +39,6 @@ set prepareMode(bool v) {
 Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   prepareMode = false;
   var result = await socket.request(GAME_EDIT, {'id': game.id});
-  if (result is String) return print('Error: $result');
 
   overlayVisible = true;
   _saveButton.text = 'Save Changes';
@@ -103,6 +102,7 @@ Future<Game> displayPrepare() async {
   }
 
   _updateAddButton();
+  uploader.usedStorage = 0;
 
   var closer = Completer();
   var subs = [
