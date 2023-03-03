@@ -12,6 +12,7 @@ import '../edit_image.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
 import '../resource.dart';
+import 'character.dart';
 import 'movable.dart';
 import 'prefab.dart';
 
@@ -36,6 +37,8 @@ final ButtonElement _prefabRemove = querySelector('#prefabRemove');
 final List<CharacterPrefab> pcPrefabs = [];
 final List<CustomPrefab> prefabs = [];
 final emptyPrefab = EmptyPrefab();
+
+final Map<Character, LIElement> _accessEntries = {};
 
 Prefab _selectedPrefab;
 Prefab get selectedPrefab => _selectedPrefab;
@@ -164,6 +167,10 @@ void _setMovableGhostImage(String img) {
   _movableGhost.querySelector('.img').style.backgroundImage = 'url($img)';
 }
 
+void applyCharacterNameToAccessEntry(Character character) {
+  _accessEntries[character]?.text = character.name;
+}
+
 void _initPrefabProperties() {
   registerEditImage(
     _prefabImage,
@@ -203,22 +210,22 @@ void _initPrefabProperties() {
   });
 
   for (var ch in user.session.characters) {
-    var li = LIElement();
-    li
-      ..text = ch.name
-      ..onClick.listen((_) {
-        var active = li.classes.toggle('active');
-        var ids = (selectedPrefab as CustomPrefab).accessIds;
-        if (active) {
-          ids.add(ch.id);
-        } else {
-          ids.remove(ch.id);
-        }
-        _updateAccessSpan();
-        _sendUpdate();
-      });
+    final li = LIElement();
+    li.text = ch.name;
+    li.onClick.listen((_) {
+      var active = li.classes.toggle('active');
+      var ids = (selectedPrefab as CustomPrefab).accessIds;
+      if (active) {
+        ids.add(ch.id);
+      } else {
+        ids.remove(ch.id);
+      }
+      _updateAccessSpan();
+      _sendUpdate();
+    });
 
     _prefabAccess.append(li);
+    _accessEntries[ch] = li;
   }
 
   _prefabRemove.onClick.listen((_) async {

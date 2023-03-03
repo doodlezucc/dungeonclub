@@ -222,6 +222,10 @@ class Board {
     if (activeMovable?.prefab == prefab) {
       _selectedLabelPrefix.text = prefab.name;
     }
+
+    if (prefab is CharacterPrefab) {
+      applyCharacterNameToAccessEntry(prefab.character);
+    }
   }
 
   void _toggleMeasureSticky() {
