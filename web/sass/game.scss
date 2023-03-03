@@ -676,9 +676,10 @@ $scene-preview-width: 140px;
         @extend %with-tooltip;
         cursor: pointer;
         display: block;
-        user-select: none;
         
         &:hover { background-color: var(--color-button-hover); }
+
+        &.no-select { user-select: none; }
 
         > span {
             bottom: calc(50% - 16px);

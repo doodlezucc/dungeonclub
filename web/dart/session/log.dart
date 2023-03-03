@@ -255,19 +255,51 @@ void logInviteLink(Session session) async {
     return;
   }
 
-  var tooltip = SpanElement()..text = 'Copied to Clipboard!';
+  final clipboard = window.navigator.clipboard;
+  final isClipboardSupported = clipboard != null;
 
-  var line = gameLog('''Hello, GM!<br>Players can join at
-    <b>${session.inviteLink}</b>.''', msgType: msgBig)
-    ..classes.add('clickable');
+  final line = gameLog(
+    'Hello, GM!<br>Players can join at <b>${session.inviteLink}</b>.',
+    msgType: msgBig,
+  )..classes.add('clickable');
+
+  final tooltip = SpanElement()
+    ..text = isClipboardSupported
+        ? 'Copied to Clipboard!'
+        : 'Copy this link with Ctrl+C';
 
   line
     ..onMouseDown.listen((_) {
-      window.navigator.clipboard.writeText(session.inviteLink);
+      if (isClipboardSupported) {
+        // Copy invite link to clipboard
+        clipboard.writeText(session.inviteLink);
+      }
+
       line.append(tooltip);
     })
     ..onMouseLeave.listen((_) async {
       await Future.delayed(Duration(milliseconds: 500));
+
       tooltip.remove();
     });
+
+  if (isClipboardSupported) {
+    line.classes.add('no-select');
+  } else {
+    // Select invite link on click
+    line.onMouseUp.listen((_) async {
+      await Future.delayed(Duration(milliseconds: 100));
+
+      final inviteTextNode = line.querySelector('b');
+      window.getSelection().selectAllChildren(inviteTextNode);
+
+      await Future.any([
+        window.onMouseDown.first,
+        window.onKeyDown.firstWhere((ev) => ev.ctrlKey && ev.key == 'c'),
+      ]);
+
+      await Future.delayed(Duration(milliseconds: 100));
+      window.getSelection().empty();
+    });
+  }
 }
