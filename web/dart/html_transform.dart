@@ -11,6 +11,7 @@ final _scaledMin = exp(_zoomMin);
 final _scaledMax = exp(_zoomMax);
 
 class HtmlTransform {
+  bool _isAnimating = false;
   double zoomAmount;
   Element element;
   Point Function() getMaxPosition;
@@ -20,6 +21,8 @@ class HtmlTransform {
   Point _position;
   Point get position => _position;
   set position(Point pos) {
+    if (_isAnimating) return;
+
     clampPosition(pos);
   }
 
@@ -27,6 +30,8 @@ class HtmlTransform {
   double _scaledZoom = 1;
   double get zoom => _zoom;
   set zoom(double zoom) {
+    if (_isAnimating) return;
+
     _zoom = min(max(zoom, _zoomMin), _zoomMax);
     _scaledZoom = exp(_zoom);
     _transform();
@@ -34,6 +39,8 @@ class HtmlTransform {
 
   double get scaledZoom => _scaledZoom;
   set scaledZoom(double scaled) {
+    if (_isAnimating) return;
+
     _scaledZoom = min(max(scaled, _scaledMin), _scaledMax);
     _zoom = log(_scaledZoom);
     _transform();
@@ -77,6 +84,23 @@ class HtmlTransform {
 
   void applyForce(Point velocity) {
     _animate(velocity.magnitude / 50, (t) => position += velocity * t);
+  }
+
+  Future<void> animateTo(Point end, Duration duration) async {
+    if (_isAnimating) return;
+
+    final durationMs = '${duration.inMilliseconds}';
+
+    element.style.setProperty('--anim-duration', durationMs);
+    element.classes.add('animate-transform');
+
+    position = end;
+
+    _isAnimating = true;
+    await Future.delayed(duration);
+
+    _isAnimating = false;
+    element.classes.remove('animate-transform');
   }
 
   void handlePanning(SimpleEvent first, Stream<SimpleEvent> moveStream) {

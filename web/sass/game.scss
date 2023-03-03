@@ -560,10 +560,6 @@ $scene-preview-width: 140px;
             display: none !important;
         }
 
-        #initiativeBar .char > div {
-            pointer-events: none;
-        }
-
         #initiativeReroll {
             pointer-events: none;
         }
@@ -756,6 +752,12 @@ $scene-preview-width: 140px;
         background-color: var(--color-not-intense);
         text-align: start;
     }
+}
+
+.animate-transform {
+    transition-property: transform, scale !important;
+    transition-duration: calc(var(--anim-duration) * 1ms) !important;
+    transition-timing-function: ease !important;
 }
 
 #board {

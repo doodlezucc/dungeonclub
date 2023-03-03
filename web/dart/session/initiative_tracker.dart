@@ -432,28 +432,35 @@ class InitiativeEntry {
 
   void _onClick(MouseEvent ev) async {
     ev.preventDefault();
-    if (!user.session.isDM) return;
 
-    if (e.classes.contains('hide')) {
-      e.classes.remove('hide');
-      return;
+    final menu = ContextMenu();
+
+    final btnGoTo = menu.addButton('Go To', 'location-crosshairs');
+    var btnShowHide = -1;
+    var btnRemove = -1;
+
+    if (user.session.isDM) {
+      btnShowHide = menu.addButton(
+        dmOnly ? 'Show' : 'Hide',
+        dmOnly ? 'eye' : 'eye-slash',
+      );
+
+      btnRemove = menu.addButton('Remove', 'trash');
     }
 
-    var menu = ContextMenu()
-      ..addButton(dmOnly ? 'Show' : 'Hide', dmOnly ? 'eye' : 'eye-slash')
-      ..addButton('Remove', 'trash');
+    final result = await menu.display(ev, e.querySelector('div'));
 
-    var result = await menu.display(ev, e.querySelector('div'));
-    if (result == null) return;
-
-    switch (result) {
-      case 0:
-        dmOnly = !dmOnly;
-        sendUpdate();
-        return;
-      case 1:
-        await socket.sendAction(GAME_REMOVE_INITIATIVE, {'id': movable.id});
-        return _summary.removeEntry(this);
+    if (result == btnGoTo) {
+      // Animate transform to token position
+      await user.session.board.animateTransformToToken(movable);
+    } else if (result == btnShowHide) {
+      // Change visibility of initiative entry
+      dmOnly = !dmOnly;
+      sendUpdate();
+    } else if (result == btnRemove) {
+      // Remove initiative entry
+      await socket.sendAction(GAME_REMOVE_INITIATIVE, {'id': movable.id});
+      _summary.removeEntry(this);
     }
   }
 

@@ -1152,6 +1152,24 @@ class Board {
     movables.clear();
   }
 
+  Point<double> gridToHtmlSpace(Point p) {
+    final world = grid.grid.gridToWorldSpace(p);
+
+    final groundHalfSize =
+        Point(_ground.naturalWidth / -2, _ground.naturalHeight / -2);
+
+    return groundHalfSize + world;
+  }
+
+  Future<void> animateTransformToToken(Movable m) async {
+    final pos = gridToHtmlSpace(m.position);
+    final inverse = pos * -1;
+
+    final duration = Duration(milliseconds: 800);
+
+    await transform.animateTo(inverse, duration);
+  }
+
   void _syncMovableAnim() async {
     var elems = _e.querySelectorAll('.movable .ring');
     for (var m in elems) {
