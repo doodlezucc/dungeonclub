@@ -1022,7 +1022,11 @@ class Board {
       if (hasChanged) {
         hasChanged = false;
 
-        measureEnd = snapWorldToGrid(p);
+        if (m.snapPoints()) {
+          measureEnd = snapWorldToGrid(p);
+        } else {
+          measureEnd = worldToGrid(p);
+        }
 
         m.handleMove(measureEnd);
         m.alignDistanceText(p);

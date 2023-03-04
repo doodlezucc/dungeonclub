@@ -177,6 +177,7 @@ abstract class Measuring {
 
   void handleMove(Point extra);
   void handleRightclick(Point point) {}
+  bool snapPoints();
 
   void alignDistanceText(Point p) {
     _distanceText.style.left = '${p.x}px';
@@ -240,6 +241,9 @@ class MeasuringPath extends Measuring {
       _distanceText.classes.add('slow');
     }
   }
+
+  @override
+  bool snapPoints() => true;
 
   @override
   void writeSpecifics(BinaryWriter writer) {
@@ -351,6 +355,9 @@ abstract class CoveredMeasuring<T extends AreaOfEffectTemplate>
 
     handleMove(origin);
   }
+
+  @override
+  bool snapPoints() => false;
 
   @override
   void handleMove(Point extra, {double overrideDistance}) {
