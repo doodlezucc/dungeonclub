@@ -6,7 +6,6 @@ import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/measuring/ruleset.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:grid_space/grid_space.dart';
-import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';
 import 'measuring.dart';
@@ -178,11 +177,11 @@ class SceneGrid {
             width -= v;
           }
 
-          _setPosAndSize(Point(x, y), Point(width, height));
+          setPosAndSize(Point(x, y), Point(width, height));
         };
       } else {
         action = (diff) {
-          _setPosAndSize(pos1 + diff, forceDoublePoint(size));
+          setPosAndSize(pos1 + diff, size.cast<double>());
         };
       }
 
@@ -274,13 +273,14 @@ class SceneGrid {
     _crop.style.height = '${size.y}px';
   }
 
-  void _setPosAndSize(Point p, Point<double> s) {
-    p = forceDoublePoint(p);
+  void setPosAndSize(Point p, Point s) {
+    p = p.cast<double>();
+    s = s.cast<double>();
     final oldZero = _grid.zero;
     final oldSize = _grid.size;
-    _grid.zero = clamp(p, Point(0, 0), _imgSize - forceDoublePoint(size));
-    _grid.size = clamp(s, minSize, _imgSize - forceDoublePoint(offset));
-    _grid.zero = clamp(p, Point(0, 0), _imgSize - forceDoublePoint(size));
+    _grid.zero = clamp(p, Point(0, 0), _imgSize - size.cast<double>());
+    _grid.size = clamp(s, minSize, _imgSize - offset.cast<double>());
+    _grid.zero = clamp(p, Point(0, 0), _imgSize - size.cast<double>());
 
     if (_grid.zero != oldZero) _applyZero();
     if (_grid.size != oldSize) _applySize();
@@ -311,9 +311,13 @@ class SceneGrid {
     return grid.worldSnapCentered(center, size);
   }
 
-  void resize(int width, int height) {
+  void resetPosAndSize(int width, int height) {
+    setPosAndSize(Point(0, 0), Point(width.toDouble(), height.toDouble()));
+  }
+
+  void constrainSize(int width, int height) {
     if (offset.x + size.x > width || offset.y + size.y > height) {
-      _setPosAndSize(Point(0, 0), Point(width.toDouble(), height.toDouble()));
+      resetPosAndSize(width, height);
     }
   }
 

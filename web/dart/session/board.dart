@@ -1112,6 +1112,10 @@ class Board {
   }
 
   void _changeImageDialog(MouseEvent ev) async {
+    final previousSize = Point(_ground.naturalWidth, _ground.naturalHeight);
+    final previousGridPos = grid.offset;
+    final previousGridSize = grid.size;
+
     final result = await upload.display(
       event: ev,
       action: a.GAME_SCENE_UPDATE,
@@ -1125,9 +1129,23 @@ class Board {
     final tiles = result['tiles'];
 
     await changeSceneImage(path);
+
+    final w = _ground.naturalWidth;
+    final h = _ground.naturalHeight;
+
     if (tiles != null) {
       grid.tiles = tiles;
       gridTiles.valueAsNumber = tiles;
+      grid.resetPosAndSize(w, h);
+    } else {
+      // Stretch grid
+      final wRatio = w / previousSize.x;
+      final hRatio = h / previousSize.y;
+
+      final pos = Point(previousGridPos.x * wRatio, previousGridPos.y * hRatio);
+      final size =
+          Point(previousGridSize.x * wRatio, previousGridSize.y * hRatio);
+      grid.setPosAndSize(pos, size);
     }
   }
 
@@ -1143,7 +1161,7 @@ class Board {
     _ground.src = src;
 
     await _ground.onLoad.first;
-    grid.resize(_ground.naturalWidth, _ground.naturalHeight);
+    grid.constrainSize(_ground.naturalWidth, _ground.naturalHeight);
     fogOfWar.fixSvgInit(_ground.naturalWidth, _ground.naturalHeight);
   }
 
