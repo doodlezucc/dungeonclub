@@ -888,7 +888,7 @@ class Board {
     var validMovables = movables.where((m) {
       if (!m.accessible) return false;
       var mRect =
-          Rectangle(m.position.x, m.position.y, m.displaySize, m.displaySize);
+          Rectangle(m.topLeft.x, m.topLeft.y, m.displaySize, m.displaySize);
       return rect.intersects(mRect);
     }).toList();
 
