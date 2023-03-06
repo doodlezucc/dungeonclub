@@ -599,6 +599,10 @@ $scene-preview-width: 140px;
     border-radius: 4px;
     padding: 2px 4px 2px 3px;
     margin: 0 2px;
+
+    &.ignored {
+        opacity: 0.5;
+    }
 }
 .dice {
     color: var(--color-primary) !important;

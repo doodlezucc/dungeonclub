@@ -1,6 +1,8 @@
 import 'dart:math';
 
 const DEFAULT_DICE_SIDES = 20;
+const MAX_DICE_REPEATS = 100;
+const MAX_DICE_SIDES = 1000000;
 
 class DiceParser {
   static final cmdRegex =
@@ -18,7 +20,7 @@ class DiceParser {
     var rolls = <SingleRoll>[];
     var mod = 0;
 
-    var matches = SingleRoll.regex.allMatches(s);
+    var matches = SingleRoll.regex.allMatches(s.toLowerCase());
 
     for (var match in matches) {
       if (match[6] != null) {
@@ -68,13 +70,40 @@ class SingleRoll {
   final int repeat;
   final int sides;
   final bool advantage; // null <=> no advantage or disadvantage
-
   Iterable<int> results;
-  String get name => '${repeat}d$sides';
-  String get nameAbs => '${repeat.abs()}d$sides';
-  Iterable<int> get resultsSigned {
-    if (!repeat.isNegative) return results;
-    return results.map((x) => -x);
+
+  String get _prefix => advantage == null ? '$repeat' : '';
+  String get _prefixAbs => advantage == null ? '${repeat.abs()}' : '';
+  String get _advantageSuffix =>
+      advantage == null ? '' : (advantage ? 'adv' : 'dis');
+
+  String get name => '${_prefix}d$sides$_advantageSuffix';
+  String get nameAbs => '${_prefixAbs}d$sides$_advantageSuffix';
+
+  String get openingBracket =>
+      advantage == null ? '(' : (advantage ? '⌈' : '⌊');
+
+  String get closingBracket =>
+      advantage == null ? ')' : (advantage ? '⌉' : '⌋');
+
+  int get _resultAbs {
+    if (advantage == null) {
+      return results.fold(0, (x, result) => x + result);
+    }
+
+    if (advantage) {
+      return results.fold(0, (x, result) => max(x, result));
+    } else {
+      return results.fold(sides, (x, result) => min(x, result));
+    }
+  }
+
+  int get result {
+    if (repeat.isNegative) {
+      return -_resultAbs;
+    } else {
+      return _resultAbs;
+    }
   }
 
   SingleRoll(this.repeat, this.sides, {this.results, this.advantage});
@@ -100,7 +129,7 @@ class SingleRoll {
 
     final repeat = match[4].isNotEmpty ? int.parse(match[4]) : 1;
 
-    if (sides > 0 && repeat <= 100 && sides <= 1000000) {
+    if (sides > 0 && repeat <= MAX_DICE_REPEATS && sides <= MAX_DICE_SIDES) {
       return SingleRoll(sign * repeat, sides);
     }
 
@@ -118,11 +147,8 @@ class SingleRoll {
     return false;
   }
 
-  String get _advantageSuffix =>
-      advantage == null ? '' : (advantage ? 'adv' : 'dis');
-
   @override
-  String toString() => '${repeat}d$sides$_advantageSuffix';
+  String toString() => name;
 
   SingleRoll.fromJson(Map<String, dynamic> json)
       : repeat = json['repeat'],
@@ -146,17 +172,30 @@ class RollCombo {
 
   final List<SingleRoll> rolls;
   final int modifier;
+
+  int get rollsResult => rolls.fold(0, (x, roll) => x + roll.result);
+  int get totalResult => rollsResult + modifier;
+
   bool get hasResults => rolls.isEmpty ? false : rolls.first.results != null;
   bool get hasMod => modifier != 0;
 
   RollCombo(this.rolls, [this.modifier = 0]);
 
-  List<int> _roll(int sides, int repeat) {
+  static List<int> _roll(int sides, int repeat) {
     return List.generate(repeat.abs(), (i) => rng.nextInt(sides) + 1);
   }
 
+  static void _computeRoll(SingleRoll roll) {
+    var repeat = roll.repeat;
+    if (roll.advantage != null) {
+      repeat = 2;
+    }
+
+    roll.results = _roll(roll.sides, repeat);
+  }
+
   void rollAll() {
-    rolls.forEach((r) => r.results = _roll(r.sides, r.repeat));
+    rolls.forEach((roll) => _computeRoll(roll));
   }
 
   String toCommandString() {

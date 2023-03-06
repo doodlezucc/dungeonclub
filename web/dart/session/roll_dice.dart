@@ -104,20 +104,27 @@ void onDiceRoll(RollCombo combo, {int initiator, bool private = false}) {
   final mine = initiator == user.session.charId;
   final pc = user.session.characters.find((e) => e.id == initiator);
 
-  var name = mine ? 'You' : (initiator == null ? 'GM' : pc.name);
+  final name = mine ? 'You' : (initiator == null ? 'GM' : pc.name);
 
-  var allResults = combo.rolls.expand((r) => r.resultsSigned);
+  final resultsExpanded = combo.rolls.expand((r) => r.results);
+  final hasMultipleResults = resultsExpanded.length > 1;
 
-  var sum = allResults.fold(0, (x, roll) => x + roll) + combo.modifier;
-  var showSum = allResults.length > 1 || combo.hasMod;
-  var sumString = !showSum ? '.</span>' : '</span><br>= $sum.';
+  final showSum = hasMultipleResults || combo.hasMod;
 
-  var comboString = _comboToHtml(combo);
-  var resultString = _comboResultString(combo);
+  String suffix;
+  if (showSum) {
+    final sum = combo.totalResult;
+    suffix = '</span><br>= $sum.';
+  } else {
+    suffix = '.</span>';
+  }
+
+  final comboString = _comboToHtml(combo);
+  final resultString = _comboResultString(combo);
 
   gameLog(
     '''$name rolled $comboString
-    and got <span>$resultString$sumString''',
+    and got <span>$resultString$suffix''',
     msgType: mine ? msgMine : msgOthers,
     private: private,
   );
@@ -133,9 +140,10 @@ String _singleRollString(SingleRoll roll,
   var results = _rollStrings(roll);
 
   String loose() => results.join(' + ');
-  String brackets() => '(' + results.join(',') + ')';
+  String brackets() =>
+      roll.openingBracket + results.join(',') + roll.closingBracket;
 
-  var s = (isOnly && !neg) ? loose() : brackets();
+  var s = (isOnly && !neg && roll.advantage == null) ? loose() : brackets();
   if (neg) {
     var sign = '-';
     if (!isFirst) sign += ' ';
@@ -168,6 +176,16 @@ String _comboResultString(RollCombo combo) {
 }
 
 Iterable<String> _rollStrings(SingleRoll roll) {
+  if (roll.advantage != null) {
+    final picked = roll.result.abs();
+    return roll.results.map((r) {
+      final isPicked = r == picked;
+      final className = isPicked ? '' : ' ignored';
+
+      return _rollWrap(r, className);
+    });
+  }
+
   return roll.results.map((r) => _resultString(roll.sides, r));
 }
 
