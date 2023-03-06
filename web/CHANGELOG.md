@@ -1,3 +1,8 @@
+## 06-03-2023
+- The *maximum size* of battle maps has been *quadrupled* in both width and height. This allows you to upload mega dungeons in *full quality*!
+- Rolling with *advantage/disadvantage* can now be done by typing "d20adv", "d20a" or simply "adv" into the chat.
+- An option to *move your view* to a token has been added to the initiative tracker.
+
 ## 20-12-2022
 - *Hex grids are here!* Movement, measurings and even spellcasting areas are supported on both horizontal and vertical hexagons.
 - Similarly, an *unclamped grid* can be used if you don't need any tile-snapping features.
