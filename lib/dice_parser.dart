@@ -1,6 +1,6 @@
 import 'dart:math';
 
-const ADVANTAGE_DICE_SIDES = 20;
+const DEFAULT_DICE_SIDES = 20;
 
 class DiceParser {
   static final cmdRegex =
@@ -33,7 +33,10 @@ class DiceParser {
         }
       } else {
         // Match is dice roll
-        rolls.add(SingleRoll.parse(match));
+        final parsed = SingleRoll.parse(match);
+        if (parsed != null) {
+          rolls.add(parsed);
+        }
       }
     }
 
@@ -84,7 +87,7 @@ class SingleRoll {
 
     if (defAdvantage != null) {
       final isAdvPositive = defAdvantage.startsWith('a');
-      return SingleRoll(sign, ADVANTAGE_DICE_SIDES, advantage: isAdvPositive);
+      return SingleRoll(sign, DEFAULT_DICE_SIDES, advantage: isAdvPositive);
     }
 
     final sides = int.parse(match[2] ?? match[5]);
@@ -92,13 +95,13 @@ class SingleRoll {
 
     if (advantageMatch != null) {
       final isAdvPositive = advantageMatch.startsWith('a');
-      return SingleRoll(1, sides, advantage: isAdvPositive);
+      return SingleRoll(sign, sides, advantage: isAdvPositive);
     }
 
     final repeat = match[4].isNotEmpty ? int.parse(match[4]) : 1;
 
-    if (sides > 0 && repeat <= 1000 && sides <= 1000000) {
-      return SingleRoll(repeat, sides);
+    if (sides > 0 && repeat <= 100 && sides <= 1000000) {
+      return SingleRoll(sign * repeat, sides);
     }
 
     return null;
