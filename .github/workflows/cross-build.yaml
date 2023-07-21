@@ -35,8 +35,8 @@ jobs:
     name: Build All (Linux)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: dart-lang/setup-dart@v1.3
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1.5
 
       - name: Install dependencies
         run: dart pub get
