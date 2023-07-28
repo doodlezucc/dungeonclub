@@ -8,8 +8,8 @@ mixin TokenModel on EntityBase {
   int get id;
   String get prefabId;
 
-  Point<double> position;
-  double angle;
+  late Point<double> position;
+  late double angle;
   String label = '';
   double auraRadius = 0;
   bool invisible = false;
@@ -18,8 +18,10 @@ mixin TokenModel on EntityBase {
   int get jsonFallbackSize => 0;
 
   void handleSnapEvent(Map json) {
-    position = parsePoint<double>(json);
-    angle = (json['angle'] as num ?? 0).toDouble();
+    position = parsePoint<double>(json)!;
+
+    num? angleValue = json['angle'];
+    angle = angleValue?.toDouble() ?? 0;
   }
 
   @override
@@ -27,7 +29,10 @@ mixin TokenModel on EntityBase {
     handleSnapEvent(json);
     super.fromJson(json);
     label = json['label'] ?? '';
-    auraRadius = (json['aura'] as num ?? 0).toDouble();
+
+    num? auraRadiusValue = json['aura'];
+    auraRadius = auraRadiusValue?.toDouble() ?? 0;
+
     invisible = json['invisible'] ?? false;
     conds.clear();
     conds.addAll(List.from(json['conds'] ?? []));
