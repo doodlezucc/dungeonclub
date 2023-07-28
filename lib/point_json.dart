@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:grid_space/grid_space.dart';
 
-Point<T> parsePoint<T extends num>(dynamic json) {
+Point<T>? parsePoint<T extends num>(dynamic json) {
   if (json == null) return null;
 
   num x = json['x'];
@@ -10,7 +10,7 @@ Point<T> parsePoint<T extends num>(dynamic json) {
   return Point(x.cast<T>(), y.cast<T>());
 }
 
-Map<String, dynamic> writePoint(Point point) => point != null
+Map<String, dynamic>? writePoint(Point? point) => point != null
     ? {
         'x': point.x.undeviateAny(),
         'y': point.y.undeviateAny(),
@@ -25,8 +25,8 @@ Point roundPoint(Point p) => scalePoint(p, (v) => v.round());
 
 Point<T> clamp<T extends num>(Point<T> point, Point<T> pMin, Point<T> pMax,
     [num inset = 0]) {
-  return Point<T>(min(max(point.x, pMin.x), pMax.x + inset),
-      min(max(point.y, pMin.y), pMax.y + inset));
+  return Point<T>(min(max(point.x, pMin.x), (pMax.x + inset) as T),
+      min(max(point.y, pMin.y), (pMax.y + inset) as T));
 }
 
 Point<T> clampMin<T extends num>(Point<T> point, Point<T> pMin) {

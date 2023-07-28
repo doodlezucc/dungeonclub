@@ -12,7 +12,6 @@ import 'package:dungeonclub/models/entity_base.dart';
 import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/session_util.dart';
-import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
 import 'package:web_whiteboard/communication/data_socket.dart';
@@ -68,7 +67,7 @@ class ServerData {
     gameMeta.clear();
 
     for (var j in jGames) {
-      final meta = GameMeta(j['id'], name: j['name']);
+      final meta = GameMeta._late(j['id'], name: j['name']);
       owners[meta] = j['owner'];
 
       if (updateToDynamicLoading) {
@@ -86,7 +85,7 @@ class ServerData {
     print('Loaded ${accounts.length} accounts');
 
     owners.forEach((game, ownerEmail) {
-      game.owner = data.getAccount(ownerEmail, alreadyEncrypted: true);
+      game.owner = data.getAccount(ownerEmail, alreadyEncrypted: true)!;
     });
 
     if (updateToDynamicLoading) {
@@ -106,7 +105,7 @@ class ServerData {
       if (meta.isLoaded) {
         print('Saving ' + meta.id);
         await meta._save();
-        if (meta.loadedGame._connections.isEmpty) {
+        if (meta.loadedGame!._connections.isEmpty) {
           print('Closing unused ' + meta.id);
           meta.loadedGame = null;
         }
@@ -118,7 +117,8 @@ class ServerData {
   Future<void> load() async {
     if (!await file.exists()) {
       await file.create(recursive: true);
-      return file.writeAsString('{}');
+      await file.writeAsString('{}');
+      return;
     }
 
     var s = await file.readAsString();
@@ -138,14 +138,22 @@ class ServerData {
 
 class GameMeta {
   final String id;
-  Account owner;
-  String name;
-  Game loadedGame;
+  late Account owner;
+  late String name;
+  Game? loadedGame;
 
   File get dataFile => File(path.join(gameResources(id).path, 'data.json'));
   bool get isLoaded => loadedGame != null;
 
-  GameMeta(this.id, {this.owner, this.name});
+  GameMeta._late(this.id, {Account? owner, String? name}) {
+    if (owner != null) {
+      this.owner = owner;
+    }
+    if (name != null) {
+      this.name = name;
+    }
+  }
+
   GameMeta.create(this.owner) : id = _generateId();
 
   static String _generateId() {
@@ -156,8 +164,8 @@ class GameMeta {
     return id;
   }
 
-  Future<Game> open() async {
-    if (loadedGame != null) return loadedGame;
+  Future<Game?> open() async {
+    if (loadedGame != null) return loadedGame!;
 
     if (await dataFile.exists()) {
       print('Opening $id');
@@ -170,7 +178,7 @@ class GameMeta {
 
   Future<void> _save({bool close = false}) async {
     if (loadedGame != null) {
-      var json = jsonEncode(loadedGame.toJson());
+      var json = jsonEncode(loadedGame!.toJson());
       if (close) loadedGame = null;
       await dataFile.create(recursive: true);
       await dataFile.writeAsString(json);
@@ -230,11 +238,8 @@ class Account {
       : encryptedEmail = Crypt(json['email']),
         encryptedPassword = Crypt(json['password']),
         enteredGames = List.from(json['games'])
-            .map((id) => data.gameMeta.firstWhere(
-                  (g) => g.id == id,
-                  orElse: () => null,
-                ))
-            .where((g) => g != null)
+            .map((id) => data.gameMeta.find((g) => g.id == id))
+            .withoutNulls
             .toList();
 
   Future<void> delete() async {
@@ -264,8 +269,7 @@ class Game with Upgradeable {
   final GameMeta meta;
   Directory get resources => gameResources(meta.id);
 
-  Connection get dm => _connections.firstWhere((c) => meta.owner == c.account,
-      orElse: () => null);
+  Connection? get dm => _connections.find((c) => meta.owner == c.account);
   bool get dmOnline => dm != null;
   int get online => _connections.length;
   int get sceneCount => _scenes.length;
@@ -278,7 +282,7 @@ class Game with Upgradeable {
   int get _nextMapId => _maps.getNextAvailableID((e) => e.id);
   int get _nextSceneId => _scenes.getNextAvailableID((e) => e.id);
 
-  Scene _playingScene;
+  late Scene _playingScene;
   Scene get playingScene => _playingScene;
 
   final _connections = <Connection>[];
@@ -302,7 +306,7 @@ class Game with Upgradeable {
   }
 
   void notifyBinary(List<int> data,
-      {Connection exclude, bool allScenes = false}) {
+      {Connection? exclude, bool allScenes = false}) {
     for (var c in _connections) {
       if (exclude == null ||
           (c != exclude && (allScenes || c.scene == exclude.scene))) {
@@ -364,20 +368,20 @@ class Game with Upgradeable {
     return p;
   }
 
-  HasInitiativeMod getPrefab(String id) {
+  HasInitiativeMod? getPrefab(String id) {
     if (id == 'e') return null;
 
     var isPC = id[0] == 'c';
     if (isPC) {
       final charID = int.parse(id.substring(1));
-      return _characters.find((e) => e.id == charID).prefab;
+      return _characters.find((e) => e.id == charID)!.prefab;
     }
 
     return getCustomPrefab(int.parse(id));
   }
 
-  CustomPrefab getCustomPrefab(int id) {
-    return _prefabs.firstWhere((p) => p.id == id);
+  CustomPrefab? getCustomPrefab(int id) {
+    return _prefabs.find((p) => p.id == id);
   }
 
   void removePrefab(int id) async {
@@ -392,7 +396,7 @@ class Game with Upgradeable {
     await prefab.image.delete();
   }
 
-  Scene getScene(int id) => _scenes.find((scene) => scene.id == id);
+  Scene? getScene(int id) => _scenes.find((scene) => scene.id == id);
 
   Scene addScene(ControlledResource resource) {
     var scene = Scene.empty(this, _nextSceneId, image: resource)
@@ -405,6 +409,11 @@ class Game with Upgradeable {
     if (_scenes.length <= 1) throw 'Campaigns must contain at least one scene';
 
     final scene = getScene(sceneID);
+
+    if (scene == null) {
+      throw "Scene ${sceneID} doesn't exist";
+    }
+
     scene.image.deleteInBackground();
 
     final sceneIndex = _scenes.indexOf(scene);
@@ -414,11 +423,11 @@ class Game with Upgradeable {
 
     if (scene == playingScene) {
       // Scene was active playing scene
-      playScene(_scenes[previousSceneIndex], teleportGM: scene == dm.scene);
-    } else if (scene == dm.scene) {
+      playScene(_scenes[previousSceneIndex], teleportGM: scene == dm!.scene);
+    } else if (scene == dm!.scene) {
       // Scene was being edited by GM
-      dm.scene = previousScene;
-      dm.sendAction(a.GAME_SCENE_GET, previousScene.toJson(true));
+      dm!.scene = previousScene;
+      dm!.sendAction(a.GAME_SCENE_GET, previousScene.toJson(true));
     }
   }
 
@@ -444,12 +453,18 @@ class Game with Upgradeable {
 
   void _sendStorageUpdateToGM() {
     if (dmOnline) {
-      dm.sendAction(a.GAME_STORAGE_CHANGED, {'used': _usedDiskSpace});
+      dm!.sendAction(a.GAME_STORAGE_CHANGED, {'used': _usedDiskSpace});
     }
   }
 
   PlayerCharacter assignPC(int id, Connection c) {
-    return _characters.find((e) => e.id == id)..connection = c;
+    final pc = _characters.find((e) => e.id == id);
+
+    if (pc == null) {
+      throw 'Invalid character ID ${id}';
+    }
+
+    return pc..connection = c;
   }
 
   GameMap addMap(ControlledResource image) {
@@ -461,12 +476,17 @@ class Game with Upgradeable {
     return map;
   }
 
-  GameMap getMap(int id) {
+  GameMap? getMap(int id) {
     return _maps.find((m) => m.id == id);
   }
 
   void removeMap(int id) {
     final map = getMap(id);
+
+    if (map == null) {
+      throw 'Invalid map ID ${id}';
+    }
+
     _maps.remove(map);
     map.image.deleteInBackground();
   }
@@ -474,6 +494,11 @@ class Game with Upgradeable {
   void handleMapEvent(List<int> bytes, Connection sender) {
     var mapID = bytes[0];
     var map = getMap(mapID);
+
+    if (map == null) {
+      throw 'Invalid map ID ${mapID}';
+    }
+
     if (map.dataSocket.handleEvent(bytes.sublist(1))) {
       for (var conni in _connections) {
         if (conni != sender) {
@@ -519,7 +544,7 @@ class Game with Upgradeable {
     _prefabs.fromJson(json['prefabs'], (j) => CustomPrefab.fromJson(this, j));
     _maps.fromJson(json['maps'], (j) => GameMap.fromJson(this, j));
 
-    _playingScene = getScene(json['scene']);
+    _playingScene = getScene(json['scene'])!;
 
     if (json['ambience'] != null) {
       ambience.fromJson(json['ambience']);
@@ -536,7 +561,7 @@ class Game with Upgradeable {
         'ambience': ambience.toJson(includeTracklist: false),
       };
 
-  Map<String, dynamic> toSessionSnippet(Connection c, [int mine]) => {
+  Map<String, dynamic> toSessionSnippet(Connection c, [int? mine]) => {
         'id': meta.id,
         'name': meta.name,
         'scene': playingScene.toJson(meta.owner == c.account),
@@ -580,9 +605,9 @@ class Game with Upgradeable {
 
     for (var pcEntry in pcs.entries) {
       final id = int.parse(pcEntry.key);
-      final Map properties = pcEntry.value;
+      final Map? properties = pcEntry.value;
 
-      final pc = _characters.find((e) => e.id == id);
+      final pc = _characters.firstWhere((e) => e.id == id);
 
       if (properties == null) {
         _removeCharacter(pc);
@@ -680,9 +705,9 @@ class GameMap {
   GameMap(
     this.id,
     this.name, {
-    @required this.image,
+    required this.image,
     this.shared = false,
-    String encodedData,
+    String? encodedData,
   }) {
     if (encodedData != null) {
       data.fromBytes(base64.decode(encodedData));
@@ -698,7 +723,7 @@ class GameMap {
           encodedData: json['data'],
         );
 
-  void update(String name, bool shared) {
+  void update(String? name, bool? shared) {
     if (name != null) this.name = name;
     if (shared != null) this.shared = shared;
   }
@@ -724,7 +749,7 @@ class GameMap {
 class PlayerCharacter {
   final int id;
   final CharacterPrefab prefab;
-  Connection connection;
+  Connection? connection;
 
   ControlledResource get avatar => prefab.image;
 
@@ -742,7 +767,7 @@ class PlayerCharacter {
   Future<void> applyCampaignEdits(json) async {
     prefab.name = json['name'];
 
-    String avatarData = json['avatar'];
+    String? avatarData = json['avatar'];
     if (avatarData != null) {
       await avatar.replaceWithData(avatarData);
     }
@@ -774,17 +799,18 @@ class Scene {
   final ControlledResource image;
   final List<Movable> movables;
   int get nextMovableId => movables.getNextAvailableID((e) => e.id);
-  int gridType;
-  Point gridOffset;
-  Point gridSize;
-  int tiles;
-  String tileUnit;
-  String gridColor;
-  num gridAlpha;
-  String fogOfWar;
-  InitiativeState initiativeState;
 
-  Scene.empty(Game game, this.id, {ControlledResource image})
+  late int gridType;
+  late Point gridOffset;
+  late Point? gridSize;
+  late int tiles;
+  late String tileUnit;
+  late String gridColor;
+  late num gridAlpha;
+  late String? fogOfWar;
+  late InitiativeState? initiativeState;
+
+  Scene.empty(Game game, this.id, {ControlledResource? image})
       : movables = [],
         image = image ?? ControlledResource.empty(game) {
     applyGrid({});
@@ -818,7 +844,7 @@ class Scene {
     return m;
   }
 
-  Movable getMovable(int id) {
+  Movable? getMovable(int id) {
     return movables.find((m) => m.id == id);
   }
 
@@ -835,7 +861,7 @@ class Scene {
   /// Removes initiatives of movables that don't exist anymore.
   void cleanInitiativeState() {
     initiativeState?.initiatives
-        ?.retainWhere((ini) => movables.any((m) => m.id == ini.movableId));
+        .retainWhere((ini) => movables.any((m) => m.id == ini.movableId));
   }
 
   void applyGrid(Map<String, dynamic> json) {
@@ -853,7 +879,7 @@ class Scene {
       var id = mj['id'];
       var m = getMovable(id);
       if (m != null) {
-        m.position = parsePoint<double>(mj);
+        m.position = parsePoint<double>(mj)!;
       }
     }
   }
@@ -912,7 +938,7 @@ class CharacterPrefab extends EntityBase with HasInitiativeMod, HasImage {
 class CustomPrefab extends EntityBase with HasInitiativeMod, HasImage {
   final int id;
   final ControlledResource _image;
-  String name;
+  late String name;
   List<int> accessIds;
 
   @override

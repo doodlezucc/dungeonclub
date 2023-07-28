@@ -20,7 +20,7 @@ String generateNewLabel<T extends TokenModel>(T token, Iterable<T> tokens) {
 
       if (pre == preT.trimRight()) {
         if (match != null) {
-          maximum = max(maximum, int.parse(match[0]));
+          maximum = max(maximum, int.parse(match[0]!));
         } else if (maximum == 0) {
           maximum = 1;
         }
@@ -36,16 +36,6 @@ String generateNewLabel<T extends TokenModel>(T token, Iterable<T> tokens) {
 extension IterableHelperExtension<T> on Iterable<T> {
   int getNextAvailableID(int Function(T e) getElementID) {
     return fold<int>(-1, (v, e) => max(v, getElementID(e))) + 1;
-  }
-
-  T find(bool Function(T e) condition) =>
-      firstWhere(condition, orElse: () => null);
-
-  void forEachIndex(void Function(T e, int index) action) {
-    var i = 0;
-    for (var element in this) {
-      action(element, i++);
-    }
   }
 }
 
