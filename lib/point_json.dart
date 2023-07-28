@@ -10,7 +10,12 @@ Point<T>? parsePoint<T extends num>(dynamic json) {
   return Point(x.cast<T>(), y.cast<T>());
 }
 
-Map<String, dynamic>? writePoint(Point? point) => point != null
+Map<String, dynamic> writePoint(Point point) => {
+      'x': point.x.undeviateAny(),
+      'y': point.y.undeviateAny(),
+    };
+
+Map<String, dynamic>? writePointOrNull(Point? point) => point != null
     ? {
         'x': point.x.undeviateAny(),
         'y': point.y.undeviateAny(),

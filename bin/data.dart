@@ -44,9 +44,7 @@ class ServerData {
     _isInitialized = true;
   }
 
-  Account? getAccount(String? email, {bool alreadyEncrypted = false}) {
-    if (email == null) return null;
-
+  Account? getAccount(String email, {bool alreadyEncrypted = false}) {
     return accounts.firstWhereOrNull(
       (p) => alreadyEncrypted
           ? p.encryptedEmail.toString() == email
@@ -164,7 +162,7 @@ class GameMeta {
     return id;
   }
 
-  Future<Game?> open() async {
+  Future<Game> open() async {
     if (loadedGame != null) return loadedGame!;
 
     if (await dataFile.exists()) {
@@ -173,7 +171,7 @@ class GameMeta {
       return loadedGame = await Game.fromJson(this, json);
     }
 
-    return null;
+    throw 'Unable to open session because the game data file missing';
   }
 
   Future<void> _save({bool close = false}) async {
@@ -838,7 +836,7 @@ class Scene {
   }
 
   Movable addMovable(Map<String, dynamic> json) {
-    var m = Movable(nextMovableId, json);
+    final m = Movable(nextMovableId, json);
     m.label = generateNewLabel(m, movables);
     movables.add(m);
     return m;
@@ -894,7 +892,7 @@ class Scene {
         'grid': {
           'type': gridType,
           'offset': writePoint(gridOffset),
-          'size': writePoint(gridSize),
+          'size': writePointOrNull(gridSize),
           'tiles': tiles,
           'tileUnit': tileUnit,
           'color': gridColor,

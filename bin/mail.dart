@@ -17,6 +17,8 @@ final pendingFeedback = <Feedback>[];
 final credFile = File('mail/gmail_credentials');
 
 class Feedback {
+  static const validTypes = ['feature', 'bug', 'account', 'other'];
+
   final String type;
   final String content;
   final String? account;

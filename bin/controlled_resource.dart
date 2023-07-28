@@ -104,7 +104,7 @@ class ControlledResource {
     return _file;
   }
 
-  Map? toJsonResponse() => _file?.toJsonResponse();
+  Map<String, dynamic>? toJsonResponse() => _file?.toJsonResponse();
 
   /// Deletes the resource's file reference.
   Future<void> delete() => _deleteObsoleteFile(_file);
