@@ -4,7 +4,7 @@ import 'dart:html';
 import 'font_awesome.dart';
 
 class HtmlNotification {
-  static final HtmlElement _parent = querySelector('#notifications');
+  static final _parent = querySelector('#notifications') as HtmlElement;
   final HtmlElement e;
 
   HtmlNotification(String msg)
