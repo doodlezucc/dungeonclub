@@ -7,15 +7,15 @@ import 'package:meta/meta.dart';
 import '../shape_painter/painter.dart';
 
 abstract class AreaOfEffectTemplate<S extends _Supports> {
-  S _ruleset;
+  late S _ruleset;
   S get ruleset => _ruleset;
 
-  Grid _grid;
+  late Grid _grid;
   Grid get grid => _grid;
 
   double get distanceMultiplier => 1;
 
-  ShapeGroup _group;
+  late ShapeGroup _group;
   bool isLocal = true;
 
   void create(
@@ -55,8 +55,8 @@ abstract class AreaOfEffectTemplate<S extends _Supports> {
 class SphereAreaOfEffect<G extends Grid>
     extends AreaOfEffectTemplate<SupportsSphere<G>> {
   @override
-  G get grid => _grid;
-  Circle _outline;
+  G get grid => _grid as G;
+  late Circle _outline;
 
   Point<double> get center => _outline.center;
   double get radius => _outline.radius;
@@ -81,7 +81,7 @@ class SphereAreaOfEffect<G extends Grid>
 abstract class CubeAreaOfEffect<G extends Grid>
     extends AreaOfEffectTemplate<SupportsCube<G>> {
   @override
-  G get grid => _grid;
+  G get grid => _grid as G;
 
   @override
   Set<Point<int>> getAffectedTiles() => ruleset.getTilesAffectedByCube(this);
@@ -89,17 +89,17 @@ abstract class CubeAreaOfEffect<G extends Grid>
 
 class SquareCubeAreaOfEffect extends CubeAreaOfEffect {
   final bool useDistance;
-  Rect _rect;
+  late Rect _rect;
 
-  Point<double> _from;
-  Point<double> _to;
+  late Point<double> _from;
+  late Point<double> _to;
 
   Point<double> get boundsMin =>
       Point(min(_from.x, _to.x), min(_from.y, _to.y));
   Point<double> get boundsMax =>
       Point(max(_from.x, _to.x), max(_from.y, _to.y));
 
-  SquareCubeAreaOfEffect({@required this.useDistance});
+  SquareCubeAreaOfEffect({required this.useDistance});
 
   void _updateRect() {
     final bMin = boundsMin;
@@ -131,12 +131,12 @@ class SquareCubeAreaOfEffect extends CubeAreaOfEffect {
 }
 
 class HexCubeAreaOfEffect extends CubeAreaOfEffect<HexagonalGrid> {
-  Rect _rect;
+  late Rect _rect;
 
-  Point<double> _origin;
+  late Point<double> _origin;
   Point<double> get origin => _origin;
 
-  double _distance;
+  late double _distance;
   double get distance => _distance;
 
   @override
@@ -146,6 +146,7 @@ class HexCubeAreaOfEffect extends CubeAreaOfEffect<HexagonalGrid> {
   void initialize(Point<double> origin, ShapeMaker maker) {
     _origin = origin;
     _rect = maker.rect();
+    _distance = 0;
   }
 
   @override
@@ -164,18 +165,22 @@ class HexCubeAreaOfEffect extends CubeAreaOfEffect<HexagonalGrid> {
 
 class ConeAreaOfEffect<G extends Grid>
     extends AreaOfEffectTemplate<SupportsCone<G>> {
-  Polygon _polygon;
+  @override
+  G get grid => _grid as G;
 
-  Point<double> _origin;
+  late Polygon _polygon;
+
+  late Point<double> _origin;
   Point<double> get origin => _origin;
 
-  double _distance;
+  late double _distance;
   double get distance => _distance;
 
   @override
   void initialize(Point<double> origin, ShapeMaker maker) {
     _origin = origin;
     _polygon = maker.polygon()..points = [origin, origin, origin];
+    _distance = 0;
   }
 
   @override
@@ -216,16 +221,19 @@ class ConeAreaOfEffect<G extends Grid>
 
 class LineAreaOfEffect<G extends Grid>
     extends AreaOfEffectTemplate<SupportsLine<G>> {
-  Polygon _polygon;
+  @override
+  G get grid => _grid as G;
 
-  Point<double> _origin;
+  late Polygon _polygon;
+
+  late Point<double> _origin;
   Point<double> get origin => _origin;
 
-  Point<double> _start;
-  Point<double> _exactEnd;
-  Point<double> end;
+  late Point<double> _start;
+  late Point<double> _exactEnd;
+  late Point<double> end;
 
-  double _length;
+  late double _length;
   double get length => _length;
 
   bool changeWidth = false;
@@ -233,8 +241,9 @@ class LineAreaOfEffect<G extends Grid>
 
   @override
   void initialize(Point<double> origin, ShapeMaker maker) {
-    _exactEnd = end = _origin = origin;
+    _start = _exactEnd = end = _origin = origin;
     _polygon = maker.polygon()..points = [origin, origin, origin, origin];
+    _length = 0;
   }
 
   @override
@@ -324,7 +333,11 @@ class LineAreaOfEffect<G extends Grid>
   Set<Point<int>> getAffectedTiles() {
     if (length == 0) return const {};
     if (width == 0 && grid is TiledGrid) {
-      return MeasuringRuleset.getTilesOverlappingLine(grid, origin, end);
+      return MeasuringRuleset.getTilesOverlappingLine(
+        grid as TiledGrid,
+        origin,
+        end,
+      );
     }
     return ruleset.getTilesAffectedByLine(_polygon, grid, length);
   }

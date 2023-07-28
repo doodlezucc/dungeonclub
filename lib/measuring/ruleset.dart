@@ -28,7 +28,7 @@ abstract class MeasuringRuleset<T extends Grid> {
   /// Chebyshev distance. Returns either the horizontal or the vertical
   /// difference, whichever is greater.
   static U chebyshev<U extends num>(Point<U> a, Point<U> b) {
-    return max((a.x - b.x).abs(), (a.y - b.y).abs());
+    return max((a.x - b.x).abs() as U, (a.y - b.y).abs() as U);
   }
 
   /// Returns all tiles in bounds `from` (inclusive) - `to` (exclusive).

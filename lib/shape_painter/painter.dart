@@ -17,7 +17,7 @@ class ShapeGroup with ShapeMaker {
 
   ShapeGroup(ShapeMaker maker) : _maker = maker;
 
-  Shape _wrap(Shape shape) {
+  S _wrap<S extends Shape>(S shape) {
     shapes.add(shape);
     return shape;
   }
@@ -33,17 +33,17 @@ class ShapeGroup with ShapeMaker {
 mixin Shape {}
 
 mixin Circle implements Shape {
-  Point<double> center;
-  double radius;
+  late Point<double> center;
+  late double radius;
 }
 
 mixin Rect implements Shape {
-  Point position;
-  Point size;
+  late Point position;
+  late Point size;
 }
 
 mixin Polygon implements Shape {
-  List<Point<double>> _points;
+  late List<Point<double>> _points;
   List<Point<double>> get points => _points;
   set points(List<Point<double>> points) {
     _points = points;

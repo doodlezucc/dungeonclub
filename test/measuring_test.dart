@@ -82,7 +82,7 @@ List<List<double>> getDistances<T extends TiledGrid>(
       final pos = grid.tileCenterInGrid(tile);
       final actual = ruleset.distanceBetweenGridPoints(grid, centerGrid, pos);
 
-      out[y][x] = actual;
+      out[y][x] = actual.toDouble();
     }
   }
 
