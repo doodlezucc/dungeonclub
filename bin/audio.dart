@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:ambience/metadata.dart';
 import 'package:ambience/server/playlists.dart';
-import 'package:web_whiteboard/util.dart';
+import 'package:dungeonclub/iterable_extension.dart';
 
 final PlaylistCollection collection = PlaylistCollection(Directory('ambience'));
 

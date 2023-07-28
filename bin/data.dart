@@ -6,6 +6,7 @@ import 'dart:math';
 
 import 'package:crypt/crypt.dart';
 import 'package:dungeonclub/actions.dart' as a;
+import 'package:dungeonclub/iterable_extension.dart';
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/models/entity_base.dart';
 import 'package:dungeonclub/models/token.dart';
@@ -44,13 +45,14 @@ class ServerData {
     _isInitialized = true;
   }
 
-  Account getAccount(String email, {bool alreadyEncrypted = false}) {
+  Account? getAccount(String? email, {bool alreadyEncrypted = false}) {
     if (email == null) return null;
-    return accounts.firstWhere(
-        (p) => alreadyEncrypted
-            ? p.encryptedEmail.toString() == email
-            : p.encryptedEmail.match(email),
-        orElse: () => null);
+
+    return accounts.firstWhereOrNull(
+      (p) => alreadyEncrypted
+          ? p.encryptedEmail.toString() == email
+          : p.encryptedEmail.match(email),
+    );
   }
 
   Map<String, dynamic> toJson() => {
@@ -290,7 +292,7 @@ class Game with Upgradeable {
   int get usedDiskSpace => _usedDiskSpace;
 
   void notify(String action, Map<String, dynamic> params,
-      {Connection exclude, bool allScenes = false}) {
+      {Connection? exclude, bool allScenes = false}) {
     for (var c in _connections) {
       if (exclude == null ||
           (c != exclude && (allScenes || c.scene == exclude.scene))) {
