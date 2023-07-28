@@ -67,9 +67,9 @@ class AutoSaver {
 }
 
 void _isolateZip(List<Object> args) async {
-  SendPort port = args[0];
-  String path = args[1];
-  bool includeImages = args[2];
+  final port = args[0] as SendPort;
+  final path = args[1] as String;
+  final includeImages = args[2] as bool;
 
   var encoder = ZipFileEncoder();
   encoder.create(path);

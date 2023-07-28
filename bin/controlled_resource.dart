@@ -17,10 +17,10 @@ const ASSET_UNRESOLVED_PREFIX = '$ASSET_PREFIX/';
 class ControlledResource {
   final Game game;
   final String fileExtension;
-  ResourceFile _file;
+  ResourceFile? _file;
 
-  ResourceFile get file => _file;
-  String get filePath => _file?.path?.replaceAll(r'\', '/');
+  ResourceFile? get file => _file;
+  String? get filePath => _file?.path.replaceAll(r'\', '/');
 
   ControlledResource(
     this.game,
@@ -79,7 +79,7 @@ class ControlledResource {
     }
   }
 
-  Future<ResourceFile> replaceWithData(String data) async {
+  Future<ResourceFile?> replaceWithData(String data) async {
     final bytesAvailable = mediaBytesPerCampaign - game.usedDiskSpace;
 
     if (data.startsWith(ASSET_PREFIX)) {
@@ -104,7 +104,7 @@ class ControlledResource {
     return _file;
   }
 
-  Map toJsonResponse() => _file?.toJsonResponse();
+  Map? toJsonResponse() => _file?.toJsonResponse();
 
   /// Deletes the resource's file reference.
   Future<void> delete() => _deleteObsoleteFile(_file);
@@ -113,7 +113,7 @@ class ControlledResource {
   void deleteInBackground() => delete();
 
   /// Deletes a game file which is no longer used.
-  Future<void> _deleteObsoleteFile(ResourceFile file,
+  Future<void> _deleteObsoleteFile(ResourceFile? file,
       {bool notifyGM = true}) async {
     if (file != null && file is GameFile) {
       if (await file.reference.exists()) {
@@ -179,8 +179,8 @@ class SceneAssetFile implements AssetFile {
 
   // Grid size is embedded in the file name (e.g. "44x32")
   static int _parseHorizontalTiles(String fileName) {
-    final tilesString = _tilesRegex.firstMatch(fileName)[1];
-    return int.parse(tilesString);
+    final tilesString = _tilesRegex.firstMatch(fileName)![1];
+    return int.parse(tilesString!);
   }
 
   @override

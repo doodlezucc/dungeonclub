@@ -30,7 +30,7 @@ abstract class FileChecker {
 }
 
 class Maintainer extends FileChecker {
-  int shutdownTime;
+  int? shutdownTime;
 
   Maintainer(String timestampFile) : super(timestampFile);
 
@@ -53,7 +53,7 @@ class Maintainer extends FileChecker {
 
   void _waitForShutdown() async {
     var now = DateTime.now().millisecondsSinceEpoch;
-    await Future.delayed(Duration(milliseconds: shutdownTime - now));
+    await Future.delayed(Duration(milliseconds: shutdownTime! - now));
     exitGracefully();
   }
 
