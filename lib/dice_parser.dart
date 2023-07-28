@@ -16,16 +16,16 @@ class DiceParser {
         matches.first.end == msg.length;
   }
 
-  static RollCombo parse(String s) {
-    var rolls = <SingleRoll>[];
+  static RollCombo? parse(String s) {
+    final rolls = <SingleRoll>[];
     var mod = 0;
 
-    var matches = SingleRoll.regex.allMatches(s.toLowerCase());
+    final matches = SingleRoll.regex.allMatches(s.toLowerCase());
 
     for (var match in matches) {
       if (match[6] != null) {
         // Match is number/modifier
-        final number = int.parse(match[6]);
+        final number = int.parse(match[6]!);
 
         // match[1] means negation
         if (match[1] != null) {
@@ -69,32 +69,32 @@ class SingleRoll {
 
   final int repeat;
   final int sides;
-  final bool advantage; // null <=> no advantage or disadvantage
-  Iterable<int> results;
+  final bool? advantage; // null <=> no advantage or disadvantage
+  Iterable<int>? results;
 
   String get _prefix => advantage == null ? '$repeat' : '';
   String get _prefixAbs => advantage == null ? '${repeat.abs()}' : '';
   String get _advantageSuffix =>
-      advantage == null ? '' : (advantage ? 'adv' : 'dis');
+      advantage == null ? '' : (advantage! ? 'adv' : 'dis');
 
   String get name => '${_prefix}d$sides$_advantageSuffix';
   String get nameAbs => '${_prefixAbs}d$sides$_advantageSuffix';
 
   String get openingBracket =>
-      advantage == null ? '(' : (advantage ? '⌈' : '⌊');
+      advantage == null ? '(' : (advantage! ? '⌈' : '⌊');
 
   String get closingBracket =>
-      advantage == null ? ')' : (advantage ? '⌉' : '⌋');
+      advantage == null ? ')' : (advantage! ? '⌉' : '⌋');
 
   int get _resultAbs {
     if (advantage == null) {
-      return results.fold(0, (x, result) => x + result);
+      return results!.fold(0, (x, result) => x + result);
     }
 
-    if (advantage) {
-      return results.fold(0, (x, result) => max(x, result));
+    if (advantage!) {
+      return results!.fold(0, (x, result) => max(x, result));
     } else {
-      return results.fold(sides, (x, result) => min(x, result));
+      return results!.fold(sides, (x, result) => min(x, result));
     }
   }
 
@@ -108,7 +108,7 @@ class SingleRoll {
 
   SingleRoll(this.repeat, this.sides, {this.results, this.advantage});
 
-  static SingleRoll parse(RegExpMatch match) {
+  static SingleRoll? parse(RegExpMatch match) {
     final isNegated = match[1] != null;
     final sign = isNegated ? -1 : 1;
 
@@ -119,7 +119,7 @@ class SingleRoll {
       return SingleRoll(sign, DEFAULT_DICE_SIDES, advantage: isAdvPositive);
     }
 
-    final sides = int.parse(match[2] ?? match[5]);
+    final sides = int.parse(match[2] ?? match[5]!);
     final advantageMatch = match[3];
 
     if (advantageMatch != null) {
@@ -127,7 +127,7 @@ class SingleRoll {
       return SingleRoll(sign, sides, advantage: isAdvPositive);
     }
 
-    final repeat = match[4].isNotEmpty ? int.parse(match[4]) : 1;
+    final repeat = match[4]!.isNotEmpty ? int.parse(match[4]!) : 1;
 
     if (sides > 0 && repeat <= MAX_DICE_REPEATS && sides <= MAX_DICE_SIDES) {
       return SingleRoll(sign * repeat, sides);
@@ -163,7 +163,7 @@ class SingleRoll {
         'repeat': repeat,
         'sides': sides,
         'advantage': advantage,
-        if (results != null) 'results': results.toList()
+        if (results != null) 'results': results!.toList()
       };
 }
 
