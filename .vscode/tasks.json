@@ -39,13 +39,9 @@
         },
         {
             "label": "Style",
-            "command": "dart",
+            "command": "sass",
             "type": "shell",
             "args": [
-                "pub",
-                "global",
-                "run",
-                "sass",
                 "web/sass/style.scss",
                 "web/style/style.css",
                 "--style",
