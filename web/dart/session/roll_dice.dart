@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/dice_parser.dart';
+import 'package:dungeonclub/iterable_extension.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -16,7 +17,7 @@ ButtonElement get _button => queryDom('#diceTab');
 final TableElement _table = _button.queryDom('table#dice');
 final ElementList _visButtons = querySelectorAll('.roll-visibility');
 
-Timer _rollTimer;
+Timer? _rollTimer;
 
 bool _visible = true;
 bool get rollPublic => _visible;
@@ -74,8 +75,10 @@ void _initScrollControls() {
   });
 }
 
-Future<void> sendRollDice(RollCombo combo) async {
-  if (combo?.rolls?.isEmpty ?? true) return;
+Future<void> sendRollDice(RollCombo? combo) async {
+  if (combo == null || combo.rolls.isEmpty) {
+    return;
+  }
 
   if (user.isInDemo) {
     combo.rollAll();
@@ -88,24 +91,24 @@ Future<void> sendRollDice(RollCombo combo) async {
 
   var results = await socket.request(GAME_ROLL_DICE, {
     ...combo.toJson(),
-    'id': user.session.charId,
-    if (user.session.isDM) 'public': rollPublic,
+    'id': user.session!.charId,
+    if (user.session!.isDM) 'public': rollPublic,
   });
 
-  onDiceRollJson(results, private: user.session.isDM && !rollPublic);
+  onDiceRollJson(results, private: user.session!.isDM && !rollPublic);
 }
 
 void onDiceRollJson(Map<String, dynamic> json, {bool private = false}) {
   onDiceRoll(RollCombo.fromJson(json), initiator: json['id'], private: private);
 }
 
-void onDiceRoll(RollCombo combo, {int initiator, bool private = false}) {
-  final mine = initiator == user.session.charId;
-  final pc = user.session.characters.find((e) => e.id == initiator);
+void onDiceRoll(RollCombo combo, {int? initiator, bool private = false}) {
+  final mine = initiator == user.session!.charId;
+  final pc = user.session!.characters.find((e) => e.id == initiator);
 
-  final name = mine ? 'You' : (initiator == null ? 'GM' : pc.name);
+  final name = mine ? 'You' : (initiator == null ? 'GM' : pc!.name);
 
-  final resultsExpanded = combo.rolls.expand((r) => r.results);
+  final resultsExpanded = combo.rolls.expand((r) => r.results!);
   final hasMultipleResults = resultsExpanded.length > 1;
 
   final showSum = hasMultipleResults || combo.hasMod;
@@ -177,7 +180,7 @@ String _comboResultString(RollCombo combo) {
 Iterable<String> _rollStrings(SingleRoll roll) {
   if (roll.advantage != null) {
     final picked = roll.result.abs();
-    return roll.results.map((r) {
+    return roll.results!.map((r) {
       final isPicked = r == picked;
       final className = isPicked ? '' : ' ignored';
 
@@ -185,7 +188,7 @@ Iterable<String> _rollStrings(SingleRoll roll) {
     });
   }
 
-  return roll.results.map((r) => _resultString(roll.sides, r));
+  return roll.results!.map((r) => _resultString(roll.sides, r));
 }
 
 String _resultString(int sides, int result) {

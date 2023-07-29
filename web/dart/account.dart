@@ -23,8 +23,8 @@ class Account {
     }
   }
 
-  Future<Game> createNewGame() async {
-    var game = await edit_game.displayPrepare();
+  Future<Game?> createNewGame() async {
+    final game = await edit_game.displayPrepare();
     if (game != null) games.add(game);
     return game;
   }
@@ -45,7 +45,7 @@ class Account {
     }
 
     var completer = Completer<int>();
-    var chars = user.session.characters;
+    var chars = user.session!.characters;
 
     var available = chars.where((c) => !c.hasJoined);
 
@@ -85,7 +85,8 @@ class Account {
     overlayVisible = false;
     parent.classes.remove('show');
 
-    unawaited(user.session.connectionEvent.firstWhere((join) => join).then((_) {
+    unawaited(
+        user.session!.connectionEvent.firstWhere((join) => join).then((_) {
       _lockJoin--;
       _joinStream.add(true);
     }));

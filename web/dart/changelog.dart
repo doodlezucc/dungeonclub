@@ -11,8 +11,8 @@ final changelog = Changelog().._init();
 class Changelog {
   HtmlElement get button => queryDom('#changelogButton');
   HtmlElement get root => queryDom('#changelog');
-  int lastChangeCount;
-  int currentChangeCount;
+  late int? lastChangeCount;
+  late int currentChangeCount;
 
   void _init() {
     button
@@ -29,7 +29,7 @@ class Changelog {
 
     var saved = window.localStorage['changelog'];
     if (saved != null) {
-      lastChangeCount = int.tryParse(saved);
+      lastChangeCount = int.parse(saved);
     } else {
       lastChangeCount = null;
     }
@@ -51,12 +51,12 @@ class Changelog {
   }
 
   void _applyLog(List<LoggedChange> changes) {
-    root.queryDomAll('li').forEach((element) => element.remove());
+    root.querySelectorAll('li').forEach((element) => element.remove());
 
     currentChangeCount = changes.length;
     if (lastChangeCount == null) _updateLastKnown();
 
-    var diff = currentChangeCount - lastChangeCount;
+    var diff = currentChangeCount - lastChangeCount!;
     if (diff > 0) button.classes.add('new');
 
     for (var change in changes) {
@@ -98,7 +98,7 @@ class Changelog {
 class LoggedChange {
   final DateTime date;
   final Iterable<String> changes;
-  String title;
+  late String title;
 
   LoggedChange(String header, this.changes) : date = parseDate(header) {
     var outputFormat = DateFormat('MMM d, yyyy');

@@ -41,14 +41,14 @@ final emptyPrefab = EmptyPrefab();
 
 final Map<Character, LIElement> _accessEntries = {};
 
-Prefab _selectedPrefab;
-Prefab get selectedPrefab => _selectedPrefab;
-set selectedPrefab(Prefab p) {
-  if (!user.session.isDM) return;
+Prefab? _selectedPrefab;
+Prefab? get selectedPrefab => _selectedPrefab;
+set selectedPrefab(Prefab? p) {
+  if (!(user.session!.isDM)) return;
 
   _selectedPrefab = p;
-  _palette.queryDomAll('.prefab.selected').classes.remove('selected');
-  p?.e?.classes?.add('selected');
+  _palette.querySelectorAll('.prefab.selected').classes.remove('selected');
+  p?.e.classes.add('selected');
 
   _prefabProperties.classes.toggle('disabled', p == null);
 

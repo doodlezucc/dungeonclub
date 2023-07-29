@@ -43,9 +43,11 @@ Future<void> init() {
           .display();
     }
 
-    var game = await user.account.createNewGame();
+    final game = await user.account!.createNewGame();
 
-    if (game != null) _addEnteredGame(game);
+    if (game != null) {
+      _addEnteredGame(game);
+    }
   });
 
   _displayLocalEnteredGames();
@@ -69,15 +71,15 @@ Future<bool> _initLogInTab() async {
     loginButton.disabled = true;
     loginError.text = null;
 
-    var doRemember = rememberMe.checked;
+    final doRemember = rememberMe.checked!;
     if (!doRemember) window.localStorage.remove('token');
 
     window.localStorage['rememberMe'] = '$doRemember';
 
     var loggedIn = await user.login(
-      loginEmail.value,
-      loginPassword.value,
-      rememberMe: rememberMe.checked,
+      loginEmail.value!,
+      loginPassword.value!,
+      rememberMe: doRemember,
     );
 
     if (!loggedIn) {
@@ -108,9 +110,9 @@ void onLogin() {
 }
 
 Future<void> _displayAccountEnteredGames() async {
-  for (var g in user.account.games) {
+  for (var g in user.account!.games) {
     // Remove saved game if you're actually the owner
-    var saved = _gamesContainer.queryDom('[id="${g.id}"]');
+    var saved = _gamesContainer.querySelector('[id="${g.id}"]');
     if (saved != null) saved.remove();
 
     _addEnteredGame(g);

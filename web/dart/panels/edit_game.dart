@@ -89,7 +89,7 @@ Future<void> display(
   overlayVisible = false;
 }
 
-Future<Game> displayPrepare() async {
+Future<Game?> displayPrepare() async {
   prepareMode = true;
   overlayVisible = true;
   _saveButton.text = 'Create Campaign';

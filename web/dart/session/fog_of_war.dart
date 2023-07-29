@@ -33,7 +33,7 @@ class FogOfWar {
     ..toolBrushStroke.shape = shapeCircle
     ..movementScale = 2;
 
-  String get tooltip => tooltips[canvas.activeTool.runtimeType];
+  String get tooltip => tooltips[canvas.activeTool.runtimeType]!;
   Element get wrapper => queryDom('#polymaskWrapper');
 
   Element? _toolbox;
@@ -44,7 +44,7 @@ class FogOfWar {
   Element get btnFill => toolbox.queryDom('#fowFill');
   Element get btnGrid => toolbox.queryDom('#fowGrid');
 
-  String _currentData;
+  String _currentData = '';
   bool _useGrid = true;
   bool get useGrid => _useGrid;
 
@@ -60,7 +60,7 @@ class FogOfWar {
     canvas
       ..onChange = _onPolymaskChange
       ..acceptStartEvent = (ev) {
-        return (ev is! MouseEvent) || (ev as MouseEvent).button == 0;
+        return (ev is! MouseEvent) || ev.button == 0;
       }
       ..modifyPoint = (p) => p * (1 / board.scaledZoom);
     _updateFillClearButtonDisplay();
@@ -104,7 +104,7 @@ class FogOfWar {
 
   void _setTool(PolygonTool tool) {
     canvas.activeTool = tool;
-    btnToolStroke.parent.queryDomAll('.active').classes.remove('active');
+    btnToolStroke.parent!.querySelectorAll('.active').classes.remove('active');
     toolbox.queryDom('[tool=${tool.id}]').classes.add('active');
   }
 
@@ -115,7 +115,7 @@ class FogOfWar {
     });
   }
 
-  void load(String data) {
+  void load(String? data) {
     _currentData = data ?? '';
     if (data != null) {
       canvas.fromData(data);
@@ -149,8 +149,8 @@ class FogOfWar {
     svg.RectElement maskRect = canvas.root.queryDom('mask rect');
 
     var unit = svg.Length.SVG_LENGTHTYPE_PX;
-    maskRect.width.baseVal.newValueSpecifiedUnits(unit, width + _marginPx);
-    maskRect.height.baseVal.newValueSpecifiedUnits(unit, height + _marginPx);
+    maskRect.width!.baseVal!.newValueSpecifiedUnits(unit, width + _marginPx);
+    maskRect.height!.baseVal!.newValueSpecifiedUnits(unit, height + _marginPx);
   }
 
   void _updateFillClearButtonDisplay() {

@@ -1,14 +1,12 @@
 import 'dart:html';
 
-import 'package:meta/meta.dart';
-
 import 'html_helpers.dart';
 import 'panels/upload.dart';
 
 HtmlElement registerEditImage(
   HtmlElement editImg, {
-  @required Future<String> Function(MouseEvent ev, [Blob initialFile]) upload,
-  void Function(String src) onSuccess,
+  required Future<String?> Function(MouseEvent ev, [Blob? initialFile]) upload,
+  void Function(String src)? onSuccess,
 }) {
   ImageElement img = editImg.queryDom('img');
 
@@ -18,7 +16,7 @@ HtmlElement registerEditImage(
   });
   editImg.onDragLeave.listen((_) => editImg.classes.remove('drag'));
 
-  void uploadAndUpdate(MouseEvent ev, [Blob initialFile]) async {
+  void uploadAndUpdate(MouseEvent ev, [Blob? initialFile]) async {
     editImg.classes.remove('drag');
     var src = await upload(ev, initialFile);
     if (src != null) {
@@ -33,8 +31,10 @@ HtmlElement registerEditImage(
     ..onLMB.listen((ev) => uploadAndUpdate(ev))
     ..onDrop.listen((ev) {
       ev.preventDefault();
-      if (ev.dataTransfer.files != null && ev.dataTransfer.files.isNotEmpty) {
-        uploadAndUpdate(ev, ev.dataTransfer.files[0]);
+
+      final droppedFiles = ev.dataTransfer.files;
+      if (droppedFiles != null && droppedFiles.isNotEmpty) {
+        uploadAndUpdate(ev, droppedFiles[0]);
       }
     });
 }

@@ -99,7 +99,7 @@ void sendCreationEvent(int type, Point origin, Point p) {
   socket.send(writer.takeBytes());
 }
 
-void removeMeasuring(int pc, {bool sendEvent = false}) {
+void removeMeasuring(int? pc, {bool sendEvent = false}) {
   var m = _pcMeasurings.remove(pc);
   if (m != null) {
     m.dispose();

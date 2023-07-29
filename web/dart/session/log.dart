@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/dice_parser.dart';
+import 'package:dungeonclub/iterable_extension.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -13,8 +14,8 @@ import 'session.dart';
 
 const _historyLimit = 50;
 
-RollCombo _command;
-List<String> _history;
+RollCombo? _command;
+late List<String> _history;
 int _historyIndex = 0;
 HtmlElement get logElem => queryDom('#log');
 ButtonElement get _chatOpenButton => queryDom('#chatOpen');
@@ -62,7 +63,7 @@ final TextAreaElement _chat = queryDom('#chat textarea')
 void _navigateHistory(int step) {
   var lastIndex = _history.length - 1;
   if (_historyIndex == lastIndex) {
-    _history[lastIndex] = _chat.value;
+    _history[lastIndex] = _chat.value!;
   }
   _historyIndex = min(max(_historyIndex + step, 0), _history.length - 1);
   _chat.value = _history[_historyIndex];
@@ -85,13 +86,13 @@ void _cleanupHistory() {
 }
 
 void _updateSendButton() {
-  var msg = _chat.value.trim();
+  var msg = _chat.value!.trim();
   _sendButton.disabled = msg.isEmpty;
 
   if (DiceParser.isCommand(msg)) {
     _command = DiceParser.parse(msg);
     if (_command != null) {
-      var cmdHtml = wrapAround(_command.toCommandString(), 'b');
+      var cmdHtml = wrapAround(_command!.toCommandString(), 'b');
       _rollButton.queryDom('span').innerHtml = 'Roll $cmdHtml';
     }
   } else {
@@ -101,12 +102,12 @@ void _updateSendButton() {
 }
 
 void _submitChat({bool roll = false}) {
-  var msg = _chat.value.trimRight();
+  var msg = _chat.value!.trimRight();
   if (msg.isNotEmpty) {
-    var pc = user.session.charId;
+    var pc = user.session!.charId;
 
     if (roll) {
-      sendRollDice(_command);
+      sendRollDice(_command!);
     } else {
       _performChat(pc, msg);
       socket.sendAction(GAME_CHAT, {'msg': msg, 'pc': pc});
@@ -126,10 +127,10 @@ void _submitChat({bool roll = false}) {
   }
 }
 
-void _performChat(int pcID, String msg) {
-  final pc = user.session.characters.find((e) => e.id == pcID);
+void _performChat(int? pcID, String msg) {
+  final pc = user.session!.characters.find((e) => e.id == pcID);
   var name = pc?.name ?? 'GM';
-  var mine = pcID == user.session.charId;
+  var mine = pcID == user.session!.charId;
 
   gameLog(
     (mine ? '' : '<span class="dice">$name</span> ') + msg,
@@ -288,7 +289,7 @@ void logInviteLink(Session session) async {
       await Future.delayed(Duration(milliseconds: 100));
 
       final inviteTextNode = line.queryDom('b');
-      window.getSelection().selectAllChildren(inviteTextNode);
+      window.getSelection()!.selectAllChildren(inviteTextNode);
 
       await Future.any([
         window.onMouseDown.first,
@@ -296,7 +297,7 @@ void logInviteLink(Session session) async {
       ]);
 
       await Future.delayed(Duration(milliseconds: 100));
-      window.getSelection().empty();
+      window.getSelection()!.empty();
     });
   }
 }
