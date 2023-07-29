@@ -334,7 +334,7 @@ class AngleArrow {
   }
 
   void align(Board board, Point end, {bool updateSourceAngle = false}) {
-    final activeMovable = board.activeMovable;
+    final activeMovable = board.activeMovable!;
 
     origin = board.grid.grid.gridToWorldSpace(activeMovable.position);
     length = activeMovable.displaySize;
