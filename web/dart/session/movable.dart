@@ -220,7 +220,12 @@ class Movable extends ClampedEntityBase with TokenModel {
 
     e.classes.add('animate-remove');
     await Future.delayed(Duration(milliseconds: 500));
-    board.transform.unregisterInvZoom(e.queryDom('.toast'));
+
+    final toast = e.querySelector('.toast');
+    if (toast != null) {
+      board.transform.unregisterInvZoom(toast);
+    }
+
     e.remove();
   }
 
