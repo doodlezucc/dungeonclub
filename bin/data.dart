@@ -806,7 +806,7 @@ class Scene {
   late String gridColor;
   late num gridAlpha;
   late String? fogOfWar;
-  late InitiativeState? initiativeState;
+  InitiativeState? initiativeState;
 
   Scene.empty(Game game, this.id, {ControlledResource? image})
       : movables = [],
