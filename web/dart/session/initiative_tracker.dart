@@ -109,7 +109,7 @@ class InitiativeTracker {
   void addToInBar(Map<String, dynamic> json) {
     int id = json['id'];
     int total = json['roll'];
-    int mod = json['mod'];
+    int? mod = json['mod'];
     bool dm = json['dm'] ?? false;
     for (var movable in user.session!.board.movables) {
       if (id == movable.id) {

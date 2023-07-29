@@ -144,9 +144,9 @@ class FrontSocket extends Socket {
   @override
   Future handleAction(
     String action, [
-    Map<String, dynamic> params = const {},
+    Map<String, dynamic>? params,
   ]) =>
-      handler.handleAction(action, params);
+      handler.handleAction(action, params ?? {});
 
   @override
   void handleBinary(data) async {

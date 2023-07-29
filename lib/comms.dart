@@ -12,7 +12,7 @@ abstract class Socket {
 
   Stream get messageStream;
   Future<void> send(dynamic data);
-  Future handleAction(String action, [Map<String, dynamic> params]);
+  Future handleAction(String action, [Map<String, dynamic>? params]);
 
   String modifyLog(String message) => message;
 

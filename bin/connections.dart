@@ -92,8 +92,10 @@ class Connection extends Socket {
   @override
   Future handleAction(
     String action, [
-    Map<String, dynamic> params = const {},
+    Map<String, dynamic>? params,
   ]) async {
+    params ??= {};
+
     switch (action) {
       case a.ACCOUNT_REGISTER:
         String email = params['email'];
