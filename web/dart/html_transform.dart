@@ -14,11 +14,11 @@ class HtmlTransform {
   bool _isAnimating = false;
   double zoomAmount;
   final Element element;
-  Point Function() getMaxPosition;
+  Point Function()? getMaxPosition;
 
   HtmlTransform(
     this.element, {
-    required this.getMaxPosition,
+    this.getMaxPosition,
     this.zoomAmount = 0.33,
   });
 
@@ -57,13 +57,15 @@ class HtmlTransform {
   }
 
   void clampPosition([Point? pos]) {
-    pos ??= position;
+    if (getMaxPosition != null) {
+      pos ??= position;
 
-    var max = getMaxPosition() * 0.5;
-    var min = Point(-max.x, -max.y);
+      var max = getMaxPosition!() * 0.5;
+      var min = Point(-max.x, -max.y);
 
-    _position = clamp(pos, min, max);
-    _transform();
+      _position = clamp(pos, min, max);
+      _transform();
+    }
   }
 
   void reset() {
