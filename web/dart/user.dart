@@ -13,16 +13,16 @@ import 'session/demo.dart';
 import 'session/session.dart';
 
 class User {
-  Account _account;
-  Account get account => _account;
+  Account? _account;
+  Account? get account => _account;
 
   bool get registered => account != null;
   bool get isInDemo => _session?.isDemo ?? false;
 
-  Session _session;
-  Session get session => _session;
+  Session? _session;
+  Session? get session => _session;
 
-  Future<StateError> joinSession(String id, [String name]) async {
+  Future<StateError?> joinSession(String id, [String? name]) async {
     var s = await socket.request(GAME_JOIN, {
       'id': id,
       if (name != null) 'name': name,
@@ -45,8 +45,8 @@ class User {
     _onSessionJoin(false);
   }
 
-  void _onSessionJoin(bool instantEdit, [Map<String, dynamic> s]) {
-    if (s != null) _session.fromJson(s, instantEdit: instantEdit);
+  void _onSessionJoin(bool instantEdit, [Map<String, dynamic>? s]) {
+    if (s != null) _session!.fromJson(s, instantEdit: instantEdit);
 
     showPage('session');
     home.iconWall.stop();
@@ -59,7 +59,7 @@ class User {
   }
 
   void onMaintenanceScheduled(Map<String, dynamic> params) async {
-    int timestamp = params['shutdown'];
+    int? timestamp = params['shutdown'];
     if (timestamp == null) return;
 
     var d = DateTime.fromMillisecondsSinceEpoch(timestamp);

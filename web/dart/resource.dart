@@ -4,7 +4,7 @@ import 'game.dart';
 
 class Resource {
   final Game _game;
-  String path;
+  String? path;
 
   bool get isAsset => path?.startsWith('asset') ?? false;
   bool get isUnresolvedAsset => path?.startsWith('asset/') ?? false;
@@ -12,7 +12,7 @@ class Resource {
 
   bool get isBlob => path?.startsWith('data:') ?? false;
 
-  String get _actualPath {
+  String? get _actualPath {
     if (path == null) return null;
 
     if (isUnresolvedAsset) {
@@ -21,7 +21,7 @@ class Resource {
     }
 
     if (isResolvedAsset) {
-      final assetID = path.substring(6);
+      final assetID = path!.substring(6);
       return 'images/assets/$assetID';
     }
 
@@ -33,8 +33,8 @@ class Resource {
     return 'database/games/${_game.id}/$path';
   }
 
-  String get url => _actualPath == null ? '' : getFile(_actualPath);
+  String get url => _actualPath == null ? '' : getFile(_actualPath!);
 
-  Resource(this.path, {Game game}) : _game = game ?? user.session;
-  Resource.empty({Game game}) : this(null, game: game);
+  Resource(this.path, {Game? game}) : _game = game ?? user.session!;
+  Resource.empty({Game? game}) : this(null, game: game);
 }
