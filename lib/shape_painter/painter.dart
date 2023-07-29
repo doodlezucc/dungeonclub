@@ -33,13 +33,13 @@ class ShapeGroup with ShapeMaker {
 mixin Shape {}
 
 mixin Circle implements Shape {
-  late Point<double> center;
-  late double radius;
+  Point<double> center = Point(0.0, 0.0);
+  double radius = 0;
 }
 
 mixin Rect implements Shape {
-  late Point position;
-  late Point size;
+  Point position = Point(0.0, 0.0);
+  Point size = Point(0.0, 0.0);
 }
 
 mixin Polygon implements Shape {
