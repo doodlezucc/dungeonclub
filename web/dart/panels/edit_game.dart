@@ -135,7 +135,7 @@ void _updateAddButton() {
 class _EditChar {
   final HtmlElement e;
   final int? id;
-  final Resource avatar;
+  final BaseResource avatar;
   bool isRemoved = false;
   String? bufferedImg;
   late InputElement _nameInput;
@@ -169,7 +169,7 @@ class _EditChar {
           Resource(json['prefab']['image'], game: game),
         );
 
-  _EditChar.empty() : this(null, '', Resource('asset:default_pc.jpg'));
+  _EditChar.empty() : this(null, '', BaseResource('asset:default_pc.jpg'));
 
   Future<String> _changeIcon(MouseEvent ev, [Blob? initialFile]) async {
     return await uploader.display(
