@@ -805,7 +805,7 @@ class Scene {
   late String tileUnit;
   late String gridColor;
   late num gridAlpha;
-  late String? fogOfWar;
+  String? fogOfWar;
   InitiativeState? initiativeState;
 
   Scene.empty(Game game, this.id, {ControlledResource? image})
