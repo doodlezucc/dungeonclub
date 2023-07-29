@@ -17,10 +17,16 @@ git clone https://github.com/doodlezucc/dungeonclub.git
 cd dungeonclub
 
 dart pub get                     # Download all required packages
-dart pub global activate sass    # Download SCSS->CSS transpiler
 dart pub global activate webdev  # Download Dart->JavaScript transpiler
 ```
-<sup>More info on [sass](https://pub.dev/packages/sass) and [webdev](https://dart.dev/tools/webdev).</sup>
+
+The stylesheet is written in Sass and has to be transpiled into CSS. You can either install Sass as a [standalone executable](https://github.com/sass/dart-sass/releases/latest) or by using the Node.js package manager [npm](https://www.npmjs.com/package/sass).
+
+```bash
+npm install -g sass              # Download SCSS->CSS transpiler
+```
+
+<sup>More info on [sass](https://sass-lang.com/install/) and [webdev](https://dart.dev/tools/webdev).</sup>
 
 You're now ready to start a debuggable local Dungeon Club server!
 
@@ -39,13 +45,16 @@ dart bin/server.dart
 ```bash
 # Convert from Dart to browser-readable JavaScript (file watching)
 webdev serve
+
+# Alternatively, if "webdev" isn't found on your path
+dart pub global run webdev serve
 ```
+
 ```bash
 # Convert from SCSS to CSS (-w enables file watching) 
 sass web/sass/style.scss web/style/style.css -s compressed -w
 ```
 
-If `webdev` and `sass` commands aren't available on your PATH, you can use `dart pub global run [command from above]`.
 
 After initializing backend and web serving, you can go to [_`localhost:8080`_](http://localhost:8080) and view your freshly delivered, live-compiled version of Dungeon Club.
 
