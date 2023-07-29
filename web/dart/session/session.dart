@@ -156,9 +156,9 @@ class Session extends Game {
     Map ambienceJson = const {},
     Iterable prefabJsonList = const [],
     Map<String, dynamic> sceneJson = const {},
-    Iterable allScenesJson = const [],
     Iterable mapJsonList = const [],
-    int usedStorageBytes = 0,
+    Iterable? allScenesJson,
+    int? usedStorageBytes,
   }) {
     this.characters.clear();
     this.characters.addAll(characters);
@@ -178,9 +178,9 @@ class Session extends Game {
       initMovableManager(prefabJsonList);
 
       if (isDM) {
-        usedStorage = usedStorageBytes;
+        usedStorage = usedStorageBytes ?? 0;
 
-        for (var json in allScenesJson) {
+        for (var json in allScenesJson!) {
           final scene = Scene.fromJson(json);
           scenes.add(scene);
         }
