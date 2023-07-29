@@ -75,7 +75,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return onPrefabUpdate(params);
 
     case GAME_PREFAB_REMOVE:
-      return onPrefabRemove(getPrefab(params['prefab']));
+      return onPrefabRemove(getPrefab(params['prefab'])!);
 
     case GAME_MAP_CREATE:
       return user.session?.board.mapTab
