@@ -131,7 +131,7 @@ class MapTab {
     final useTools = (user.session!.isDM || currentMap.shared) &&
         !currentMap.transform.isOffCenter;
 
-    map!.whiteboard.captureInput = useTools;
+    currentMap.whiteboard.captureInput = useTools;
     _tools.classes.toggle('hidden', !useTools);
   }
 
@@ -166,8 +166,10 @@ class MapTab {
   }
 
   void _setToolInfo(String id) {
-    final info = getToolInfo(id, user.session!.isDM);
-    _toolInfo.innerHtml = info;
+    try {
+      final info = getToolInfo(id, user.session!.isDM);
+      _toolInfo.innerHtml = info;
+    } on ArgumentError catch (_) {}
   }
 
   Future<bool> _uploadNewMap(MouseEvent ev) async {
@@ -278,7 +280,11 @@ class MapTab {
       }
 
       startEvent.listen((ev) async {
-        final focusedMap = map!;
+        final focusedMap = map;
+
+        if (focusedMap == null) {
+          return;
+        }
 
         previous = evToPoint(ev);
         var start = toSimple(ev);
@@ -652,6 +658,7 @@ class MapTransform extends HtmlTransform {
 
   void _setOffCenter(bool v) {
     if (isOffCenter != v) {
+      isOffCenter = v;
       map.mapTab._updateToolsVisibility();
     }
   }
