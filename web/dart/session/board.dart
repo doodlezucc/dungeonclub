@@ -694,7 +694,10 @@ class Board {
                     break;
                   }
                 }
-                _handleMovableMove(start, stream, clickedMovable!);
+
+                if (clickedMovable != null) {
+                  _handleMovableMove(start, stream, clickedMovable);
+                }
                 pan = false;
               } else if (start.alt && activeMovable != null) {
                 // Change token angle
