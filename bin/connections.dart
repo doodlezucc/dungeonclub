@@ -130,7 +130,7 @@ class Connection extends Socket {
 
         if (email == null || password == null) {
           if (token == null || tokenAccounts[token] == null) {
-            throw ArgumentError.notNull();
+            return null;
           }
 
           return loginAccount(tokenAccounts[token]!);
@@ -239,7 +239,6 @@ class Connection extends Socket {
 
       case a.GAME_JOIN:
         String id = params['id'];
-        String name = params['name'];
 
         final meta = data.gameMeta.find((g) => g.id == id);
 
@@ -252,6 +251,7 @@ class Connection extends Socket {
               return 'Your GM is not online!';
             }
 
+            String name = params['name'];
             myId = await game.dm!.request(a.GAME_JOIN_REQUEST, {'name': name});
 
             if (myId == null) {
