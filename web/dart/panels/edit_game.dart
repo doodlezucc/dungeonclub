@@ -178,7 +178,7 @@ class _EditChar {
       initialImg: initialFile,
       processUpload: (data, maxRes, upscale) async {
         bufferedImg = data;
-        if (data.startsWith('asset')) return Resource(data).url;
+        if (data.startsWith('asset')) return BaseResource(data).url;
         return 'data:image/jpeg;base64,$data';
       },
       onPanelVisible: (v) => _panel.classes.toggle('upload', v),
