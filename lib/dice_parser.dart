@@ -148,6 +148,9 @@ class SingleRoll {
   }
 
   @override
+  int get hashCode => Object.hashAll([repeat, sides, advantage]);
+
+  @override
   String toString() => name;
 
   SingleRoll.fromJson(Map<String, dynamic> json)
