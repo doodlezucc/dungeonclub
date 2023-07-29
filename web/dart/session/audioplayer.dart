@@ -142,7 +142,7 @@ class AudioPlayer {
     onNewTracklist(json);
   }
 
-  InputElement _input(String id, num init, void Function(num value) onChange,
+  InputElement _input(String id, num? init, void Function(num value) onChange,
       [bool sendAmbience = false]) {
     InputElement input = _root.queryDom('#$id');
 

@@ -118,7 +118,7 @@ class Board {
     removeMeasuring(session.charId, sendEvent: true);
   }
 
-  late String _mode;
+  String _mode = '';
   String get mode => _mode;
   set mode(String mode) {
     if (mode == _mode) mode = PAN;
@@ -548,7 +548,7 @@ class Board {
     final lastZooms = Queue<double>();
     final lastPoints = Queue<Point>();
 
-    late int initialButton;
+    int? initialButton;
     late double pinchStart;
     late double pinchZoomStart;
     bool pan = false;

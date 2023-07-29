@@ -1,16 +1,12 @@
 import 'dart:html';
 
-E _genericQuerySelector<E extends Element>(String selectors) {
-  return document.querySelector(selectors) as E;
-}
-
 E queryDom<E extends Element>(String selectors) {
-  return _genericQuerySelector(selectors);
+  return document.querySelector(selectors) as E;
 }
 
 extension ElementExtension on Element {
   E queryDom<E extends Element>(String selectors) {
-    return _genericQuerySelector(selectors);
+    return this.querySelector(selectors) as E;
   }
 }
 
