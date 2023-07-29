@@ -61,5 +61,5 @@ Future<bool> _trySend() async {
 }
 
 void _updateSendButton() {
-  _sendButton.disabled = _content.value.length < 20;
+  _sendButton.disabled = _content.value!.length < 20;
 }

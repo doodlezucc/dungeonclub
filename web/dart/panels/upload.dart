@@ -6,7 +6,7 @@ import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/comms.dart';
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/point_json.dart';
-import 'package:meta/meta.dart';
+import 'package:grid_space/grid_space.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -36,7 +36,7 @@ final DivElement _assetPanel = queryDom('#assetPanel');
 final DivElement _assetGrid = queryDom('#assetGrid');
 
 Point<double> get _imgSize =>
-    Point(_img.width.toDouble(), _img.height.toDouble());
+    Point(_img.width!.toDouble(), _img.height!.toDouble());
 
 Point<double> _position = Point(0, 0);
 Point<double> get position => _position;
@@ -60,7 +60,7 @@ Point<double> minSize = Point<double>(50, 50);
 Point<double> _size = Point(400, 400);
 Point<double> get size => _size;
 
-bool _square;
+bool _square = false;
 bool _init = false;
 
 const thresholdStorageWarning = 5 * 1000000;
@@ -72,7 +72,7 @@ set usedStorage(int bytes) {
 
   final percentage = '${100 * bytes / mediaBytesPerCampaign}%';
 
-  queryDomAll('.used-storage').forEach(
+  querySelectorAll('.used-storage').forEach(
     (e) => (e as InputElement)
       ..style.setProperty('--v', percentage)
       ..min = '0'
@@ -85,9 +85,10 @@ set usedStorage(int bytes) {
 
   queryDom('#storageWarning').classes.toggle('hidden', !displayWarning);
 
-  queryDomAll('.storage-used').forEach((e) => e.text = bytesToMB(bytes));
-  queryDomAll('.storage-left').forEach((e) => e.text = bytesToMB(storageLeft));
-  queryDomAll('.storage-max')
+  querySelectorAll('.storage-used').forEach((e) => e.text = bytesToMB(bytes));
+  querySelectorAll('.storage-left')
+      .forEach((e) => e.text = bytesToMB(storageLeft));
+  querySelectorAll('.storage-max')
       .forEach((e) => e.text = '${mediaBytesPerCampaign ~/ 1000000}');
 }
 
@@ -95,8 +96,10 @@ void _initialize() {
   _init = true;
 
   _uploadInput.onInput.listen((event) {
-    if (_uploadInput.files.isNotEmpty) {
-      _loadFileAsImage(_uploadInput.files[0]);
+    final files = _uploadInput.files!;
+
+    if (files.isNotEmpty) {
+      _loadFileAsImage(files[0]);
       _uploadInput.value = null;
     }
   });
@@ -111,15 +114,18 @@ void _initialize() {
   _imgBox.onDrop.listen((e) {
     _imgBox.classes.remove('drag');
     e.preventDefault();
-    if (e.dataTransfer.files != null && e.dataTransfer.files.isNotEmpty) {
-      _loadFileAsImage(e.dataTransfer.files[0]);
+
+    final droppedFiles = e.dataTransfer.files;
+
+    if (droppedFiles != null && droppedFiles.isNotEmpty) {
+      _loadFileAsImage(droppedFiles[0]);
     } else {
       var regex = RegExp(r'https?:\S+(?=")');
-      String preferred;
+      String? preferred;
 
-      var matches = e.dataTransfer.types.expand((t) {
+      var matches = e.dataTransfer.types!.expand((t) {
         var data = e.dataTransfer.getData(t);
-        var parts = regex.allMatches(data).map((s) => s[0]);
+        var parts = regex.allMatches(data).map((s) => s[0]!);
 
         if (parts.isNotEmpty && t == 'text/html') preferred = parts.first;
 
@@ -139,14 +145,14 @@ void _initialize() {
 
   _crop.onMouseDown.listen((e) async {
     e.preventDefault();
-    HtmlElement clicked = e.target;
+    final clicked = e.target as HtmlElement;
     var pos1 = position;
     var size1 = size;
 
     void Function(Point<double>) action;
     if (clicked != _crop) {
       var cursorCss = clicked.style.cursor + ' !important';
-      document.body.style.cursor = cursorCss;
+      document.body!.style.cursor = cursorCss;
       _crop.style.cursor = cursorCss;
 
       var classes = clicked.classes;
@@ -229,30 +235,34 @@ void _initialize() {
       };
     }
 
-    var mouse1 = Point<double>(e.client.x, e.client.y);
-    var subMove = window.onMouseMove.listen((e) {
+    final mouse1 = Point(e.client.x, e.client.y).cast<double>();
+    final subMove = window.onMouseMove.listen((e) {
       if (e.movement.magnitude == 0) return;
-      var diff = Point<double>(e.client.x, e.client.y) - mouse1;
+
+      final diff = Point(e.client.x, e.client.y).cast<double>() - mouse1;
 
       action(diff);
     });
 
     await window.onMouseUp.first;
 
-    document.body.style.cursor = '';
+    document.body!.style.cursor = '';
     _crop.style.cursor = '';
     await subMove.cancel();
   });
 }
 
 void _resizeOutside() {
+  final canvasWidth = _canvas.width!;
+  final canvasHeight = _canvas.height!;
+
   var ctx = _canvas.context2D;
-  ctx.clearRect(0, 0, _canvas.width, _canvas.height);
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   ctx.fillStyle = '#000c';
-  ctx.fillRect(0, 0, _canvas.width, position.y); // top
+  ctx.fillRect(0, 0, canvasWidth, position.y); // top
   ctx.fillRect(0, position.y, position.x, size.y); // left
-  ctx.fillRect(position.x + size.x, position.y, _canvas.width, size.y); // right
-  ctx.fillRect(0, position.y + size.y, _canvas.width, _canvas.height); // bottom
+  ctx.fillRect(position.x + size.x, position.y, canvasWidth, size.y); // right
+  ctx.fillRect(0, position.y + size.y, canvasWidth, canvasHeight); // bottom
 }
 
 int _getMaxRes(String type) {
@@ -289,9 +299,10 @@ bool _upscale(String type) {
 final _displayCtrl = StreamController<int>.broadcast(sync: true);
 
 Future _displayOffline({
-  @required String type,
-  Blob initialImg,
-  Future Function(String base64, int maxRes, bool upscale) processUpload,
+  required String type,
+  Blob? initialImg,
+  required Future Function(String base64, int maxRes, bool upscale)
+      processUpload,
   bool openDialog = true,
 }) async {
   _displayCtrl.sink.add(0);
@@ -333,9 +344,16 @@ Future _displayOffline({
     _uploadButton.onClick.listen((_) async {
       _uploadButton.disabled = true;
       final limit = mediaBytesPerCampaign - usedStorage;
-      final base64 = await _imgToBase64(maxRes, upscale, limit);
-      final result =
-          base64 == null ? null : await processUpload(base64, maxRes, upscale);
+
+      dynamic result;
+
+      try {
+        final base64 = await _imgToBase64(maxRes, upscale, limit);
+
+        result = await processUpload(base64, maxRes, upscale);
+      } on RangeError catch (_) {
+        result = null;
+      }
 
       if (result != null) {
         completer.complete(result);
@@ -347,8 +365,13 @@ Future _displayOffline({
     }),
     document.onPaste.listen((e) {
       e.preventDefault();
-      for (var file in e.clipboardData.files) {
-        return _loadFileAsImage(file);
+
+      final clipboardFiles = e.clipboardData?.files;
+
+      if (clipboardFiles != null) {
+        for (var file in clipboardFiles) {
+          return _loadFileAsImage(file);
+        }
       }
     })
   ];
@@ -380,7 +403,7 @@ void _loadSrcAsImage(String src) async {
 
   var width = _img.naturalWidth;
   var height = _img.naturalHeight;
-  var max = window.innerHeight ~/ 2;
+  var max = window.innerHeight! ~/ 2;
 
   if (width > height) {
     width = width * max ~/ height;
@@ -397,8 +420,8 @@ void _loadSrcAsImage(String src) async {
   setPosAndSize(
       Point(0, 0),
       Point(
-        _square ? max.toDouble() : width,
-        _square ? max.toDouble() : height,
+        (_square ? max : width).toDouble(),
+        (_square ? max : height).toDouble(),
       ));
   _dragText.classes.add('hide');
   _crop.classes.remove('hide');
@@ -445,21 +468,23 @@ Future<String> _imgToBase64(int maxRes, bool upscale, int sizeLimitInBytes) {
 Future<String> canvasToBase64(
   CanvasElement canvas, {
   bool includeHeader = false,
-  int sizeLimitInBytes,
+  int? sizeLimitInBytes,
 }) async {
   var blob = await canvas.toBlob('image/jpeg', 0.85);
 
   if (sizeLimitInBytes != null && blob.size > sizeLimitInBytes) {
     await _showUploadErrorDialog(blob.size);
-    return null;
+    throw RangeError('Upload limit reached');
   }
 
   var reader = FileReader()..readAsDataUrl(blob);
   await reader.onLoadEnd.first;
 
-  if (includeHeader || user.isInDemo) return reader.result;
+  final dataUrl = reader.result as String;
 
-  return (reader.result as String).substring(23);
+  if (includeHeader || user.isInDemo) return dataUrl;
+
+  return dataUrl.substring(23);
 }
 
 String bytesToMB(int bytes) {
@@ -467,8 +492,11 @@ String bytesToMB(int bytes) {
 }
 
 /// Displays an error explaining the campaign storage situation.
-Future<void> _showUploadErrorDialog(int bytesUpload,
-    [int bytesUsed, int bytesMaximum]) async {
+Future<void> _showUploadErrorDialog(
+  int bytesUpload, [
+  int? bytesUsed,
+  int? bytesMaximum,
+]) async {
   bytesUsed ??= usedStorage;
   bytesMaximum ??= mediaBytesPerCampaign;
 
@@ -486,7 +514,7 @@ Future<void> _showUploadErrorDialog(int bytesUpload,
 }
 
 Future _upload(String base64, String action, String type,
-    Map<String, dynamic> extras, int maxRes, bool upscale) async {
+    Map<String, dynamic>? extras, int maxRes, bool upscale) async {
   if (user.isInDemo) {
     return {
       'image': base64,
@@ -511,7 +539,7 @@ Future _upload(String base64, String action, String type,
   return null;
 }
 
-Future<String> _displayAssetPicker(String type) async {
+Future<String?> _displayAssetPicker(String type) async {
   _assetGrid.children.clear();
   _assetPanel.classes.add('show');
   overlayVisible = true;
@@ -520,10 +548,10 @@ Future<String> _displayAssetPicker(String type) async {
   final tmp = ImageElement(src: previewImage);
   await tmp.onLoad.first;
 
-  var tileSize = tmp.width;
-  var tiles = tmp.height ~/ tileSize;
+  final tileSize = tmp.width!;
+  final tiles = tmp.height! ~/ tileSize;
 
-  var completer = Completer<String>();
+  final completer = Completer<String>();
 
   for (var i = 0; i < tiles; i++) {
     var img = DivElement()
@@ -544,14 +572,14 @@ Future<String> _displayAssetPicker(String type) async {
 }
 
 Future display({
-  @required MouseEvent event,
-  @required String type,
-  String action,
-  Map<String, dynamic> extras,
-  Blob initialImg,
-  Future Function(String base64, int maxRes, bool upscale) processUpload,
-  void Function(bool v) onPanelVisible,
-  Element simulateHoverClass,
+  required MouseEvent event,
+  required String type,
+  String? action,
+  Map<String, dynamic>? extras,
+  Blob? initialImg,
+  Future Function(String base64, int maxRes, bool upscale)? processUpload,
+  void Function(bool v)? onPanelVisible,
+  Element? simulateHoverClass,
 }) async {
   var visible = (bool v) => onPanelVisible != null ? onPanelVisible(v) : null;
   var openDialog = true;
@@ -588,12 +616,12 @@ Future display({
         return await processUpload(asset, maxRes, upscale);
       }
 
-      return await _upload(asset, action, type, extras, maxRes, upscale);
+      return await _upload(asset, action!, type, extras, maxRes, upscale);
     } else if (result == empty) {
       var width = maxRes;
       var height = (width * 0.6).round();
       var base64 = await _emptyImageBase64(width, height);
-      return await _upload(base64, action, type, extras, maxRes, upscale);
+      return await _upload(base64, action!, type, extras, maxRes, upscale);
     } else if (result == dragDrop) {
       openDialog = false;
     }
@@ -607,7 +635,7 @@ Future display({
     openDialog: openDialog,
     processUpload: processUpload ??
         (base64, maxRes, upscale) =>
-            _upload(base64, action, type, extras, maxRes, upscale),
+            _upload(base64, action!, type, extras, maxRes, upscale),
   );
 
   visible(false);

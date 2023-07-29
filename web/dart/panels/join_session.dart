@@ -50,7 +50,7 @@ Future<void> display(String gameId) async {
 }
 
 Future<bool> _tryJoin(String gameId) async {
-  window.localStorage['name'] = _sessionNameInput.value;
+  window.localStorage['name'] = _sessionNameInput.value!;
   _joinButton.disabled = true;
   _error
     ..className = ''
@@ -68,5 +68,5 @@ Future<bool> _tryJoin(String gameId) async {
 }
 
 void _updateJoinButton() {
-  _joinButton.disabled = _sessionNameInput.value.isEmpty;
+  _joinButton.disabled = _sessionNameInput.value!.isEmpty;
 }

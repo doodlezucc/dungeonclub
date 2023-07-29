@@ -29,14 +29,18 @@ final AnchorElement _addCharButton = _panel.queryDom('#addChar')
     _updateAddButton();
   });
 
-bool _prepareMode;
+bool _prepareMode = false;
 bool get prepareMode => _prepareMode;
 set prepareMode(bool v) {
   _prepareMode = v;
   _panel.classes.toggle('prepare', v);
 }
 
-Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
+Future<void> display(
+  Game game, [
+  HtmlElement? title,
+  HtmlElement? refEl,
+]) async {
   prepareMode = false;
   var result = await socket.request(GAME_EDIT, {'id': game.id});
 
@@ -63,14 +67,14 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
       _saveButton.disabled = true;
       if (await _saveChanges(game.id)) {
         title?.text = _gameNameInput.value;
-        game.name = _gameNameInput.value;
+        game.name = _gameNameInput.value!;
         closer.complete();
       }
     }),
     _cancelButton.onClick.listen((event) => closer.complete()),
     _deleteButton.onClick.listen((event) async {
       if (await _delete(game)) {
-        refEl.remove();
+        refEl?.remove();
         closer.complete();
       }
     })
@@ -130,12 +134,12 @@ void _updateAddButton() {
 
 class _EditChar {
   final HtmlElement e;
-  final int id;
+  final int? id;
   final Resource avatar;
   bool isRemoved = false;
-  String bufferedImg;
-  InputElement _nameInput;
-  String get name => _nameInput.value;
+  String? bufferedImg;
+  late InputElement _nameInput;
+  String get name => _nameInput.value!;
 
   bool get isOG => id != null;
 
@@ -167,7 +171,7 @@ class _EditChar {
 
   _EditChar.empty() : this(null, '', Resource('asset:default_pc.jpg'));
 
-  Future<String> _changeIcon(MouseEvent ev, [Blob initialFile]) async {
+  Future<String> _changeIcon(MouseEvent ev, [Blob? initialFile]) async {
     return await uploader.display(
       event: ev,
       type: IMAGE_TYPE_PC,
@@ -204,7 +208,7 @@ class _EditChar {
     _nameInput.focus();
   }
 
-  Map<String, dynamic> toJson() => isRemoved
+  Map<String, dynamic>? toJson() => isRemoved
       ? null
       : {
           'name': name,
@@ -225,12 +229,15 @@ Map<String, dynamic> _currentDataJson() => {
     };
 
 Future<Game> _createGameAndJoin() async {
-  var name = _gameNameInput.value;
+  var name = _gameNameInput.value!;
 
   var session = await socket.request(GAME_CREATE_NEW, {
     'data': _currentDataJson(),
   });
-  if (session == null) return null;
+
+  if (session == null) {
+    throw 'Unable to create game';
+  }
 
   var game = Game(session['id'], name, true);
   user.joinFromJson(session, false);

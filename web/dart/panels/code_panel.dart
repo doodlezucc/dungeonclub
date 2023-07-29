@@ -19,25 +19,25 @@ final CodePanel resetPanel = CodePanel(
 class CodePanel {
   final HtmlElement _panel;
 
-  HtmlElement _sectionRegister;
-  HtmlElement _sectionActivate;
+  late HtmlElement _sectionRegister;
+  late HtmlElement _sectionActivate;
 
-  InputElement _emailInput;
+  late InputElement _emailInput;
 
-  InputElement _passwordInput;
+  late InputElement _passwordInput;
 
-  InputElement _confirmInput;
+  late InputElement _confirmInput;
 
-  InputElement _codeInput;
-  SpanElement _emailReader;
+  late InputElement _codeInput;
+  late SpanElement _emailReader;
 
-  ButtonElement _registerButton;
-  ButtonElement _activateButton;
+  late ButtonElement _registerButton;
+  late ButtonElement _activateButton;
 
-  HtmlElement _errorText1;
-  HtmlElement _errorText2;
+  late HtmlElement _errorText1;
+  late HtmlElement _errorText2;
 
-  ButtonElement _cancelButton;
+  late ButtonElement _cancelButton;
   final ButtonElement _loginButton = queryDom('button#login');
 
   final String actionSend;
@@ -59,7 +59,7 @@ class CodePanel {
 
     _codeInput = _panel.queryDom('.code')
       ..onInput.listen((_) {
-        _activateButton.disabled = _codeInput.value.length != 5;
+        _activateButton.disabled = _codeInput.value!.length != 5;
       });
     _emailReader = _panel.queryDom('.email-reader');
 
@@ -113,7 +113,8 @@ class CodePanel {
           'code': _codeInput.value,
         });
         if (account == null) {
-          return _errorText2.text = 'Invalid code!';
+          _errorText2.text = 'Invalid code!';
+          return;
         }
 
         user.onActivate(account);
@@ -135,15 +136,15 @@ class CodePanel {
   }
 
   void _setSection(HtmlElement section) {
-    _panel.queryDomAll('section.show').classes.remove('show');
+    _panel.querySelectorAll('section.show').classes.remove('show');
     section.classes.add('show');
   }
 
   bool isValidPassword(InputElement pw, InputElement confirm) =>
-      pw.value.length >= pwLengthMin && pw.value == confirm.value;
+      pw.value!.length >= pwLengthMin && pw.value == confirm.value;
 
   void _updateCreateButton() {
-    _registerButton.disabled = !_emailInput.value.contains('@') ||
+    _registerButton.disabled = !_emailInput.value!.contains('@') ||
         !isValidPassword(_passwordInput, _confirmInput);
   }
 }

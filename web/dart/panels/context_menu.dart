@@ -11,7 +11,7 @@ class ContextMenu {
     _e.children.clear();
   }
 
-  int addButton(String label, String icon, [String className]) {
+  int addButton(String label, String icon, [String? className]) {
     _e.append(iconButton(icon, label: label, className: className));
     return _e.children.length - 1;
   }
@@ -21,12 +21,13 @@ class ContextMenu {
         (e is Element && e.classes.contains('with-tooltip'));
   }
 
-  Future<int> display(MouseEvent event, [Element hovered]) async {
-    hovered ??= event.path.firstWhere(_prefer, orElse: () => event.target);
+  Future<int?> display(MouseEvent event, [Element? hovered]) async {
+    hovered ??=
+        event.path.firstWhere(_prefer, orElse: () => event.target!) as Element;
     var p = event.page;
 
     var startsHovered = true;
-    var bottom = window.innerHeight - p.y;
+    var bottom = window.innerHeight! - p.y;
     if (bottom > 120) {
       _e.style
         ..top = '${p.y - 12}px'
@@ -37,7 +38,7 @@ class ContextMenu {
         ..top = 'auto';
     }
 
-    var right = window.innerWidth - p.x;
+    var right = window.innerWidth! - p.x;
     if (right > 180) {
       _e.style
         ..left = '${p.x}px'
