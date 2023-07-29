@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:dungeonclub/models/entity_base.dart';
 
 import '../../main.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../resource.dart';
 import 'character.dart';
 import 'movable.dart';

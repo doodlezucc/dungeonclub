@@ -12,27 +12,28 @@ import 'package:web_whiteboard/whiteboard.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../html_helpers.dart';
 import '../html_transform.dart';
 import '../panels/upload.dart' as uploader;
 import '../resource.dart';
 import 'map_tool_info.dart';
 
-final HtmlElement _e = querySelector('#map');
-final HtmlElement _mapContainer = _e.querySelector('#maps');
-final HtmlElement _minimapContainer = _e.querySelector('#mapSelect');
-final ButtonElement _backButton = _e.querySelector('button[type=reset]');
-final ButtonElement _imgButton = _e.querySelector('#addMap');
-final InputElement _name = _e.querySelector('#mapName');
-final ButtonElement _shared = _e.querySelector('#mapShared');
-final HtmlElement _tools = _e.querySelector('#mapTools');
-final HtmlElement _toolInfo = _e.querySelector('#toolInfo');
-final InputElement _color = _e.querySelector('#activeColor');
+final HtmlElement _e = queryDom('#map');
+final HtmlElement _mapContainer = _e.queryDom('#maps');
+final HtmlElement _minimapContainer = _e.queryDom('#mapSelect');
+final ButtonElement _backButton = _e.queryDom('button[type=reset]');
+final ButtonElement _imgButton = _e.queryDom('#addMap');
+final InputElement _name = _e.queryDom('#mapName');
+final ButtonElement _shared = _e.queryDom('#mapShared');
+final HtmlElement _tools = _e.queryDom('#mapTools');
+final HtmlElement _toolInfo = _e.queryDom('#toolInfo');
+final InputElement _color = _e.queryDom('#activeColor');
 
-final HtmlElement _indexText = _e.querySelector('#mapIndex');
+final HtmlElement _indexText = _e.queryDom('#mapIndex');
 final ButtonElement _navLeft = _name.previousElementSibling;
 final ButtonElement _navRight = _name.parent.children.last;
 
-ButtonElement get _deleteButton => _e.querySelector('#mapDelete');
+ButtonElement get _deleteButton => _e.queryDom('#mapDelete');
 
 class MapTab {
   final maps = <GameMap>[];
@@ -87,8 +88,8 @@ class MapTab {
   String get mode => _mode;
   set mode(String mode) {
     _mode = mode;
-    _tools.querySelectorAll('.active:not(#mapShared)').classes.remove('active');
-    _tools.querySelector('[mode=$mode]').classes.add('active');
+    _tools.queryDomAll('.active:not(#mapShared)').classes.remove('active');
+    _tools.queryDom('[mode=$mode]').classes.add('active');
     _setToolInfo(mode);
 
     _color.disabled = mode != 'draw';
@@ -139,18 +140,18 @@ class MapTab {
 
       if (showAdd && maps.length >= mapsPerCampaign) {
         _navRight.disabled = true;
-        _navRight.querySelector('span').text =
+        _navRight.queryDom('span').text =
             'Limit of $mapsPerCampaign Maps Reached!';
       } else {
         _navRight.disabled = maps.isEmpty;
-        _navRight.querySelector('span').text = 'Create New Map';
+        _navRight.queryDom('span').text = 'Create New Map';
       }
     } else {
       _navRight.disabled = mapIndex >= maps.length - 1;
     }
   }
 
-  ButtonElement _toolBtn(String name) => _tools.querySelector('[action=$name]');
+  ButtonElement _toolBtn(String name) => _tools.queryDom('[action=$name]');
 
   void _updateHistoryButtons() {
     _toolBtn('clear').disabled = map.whiteboard.isClear;
@@ -313,7 +314,7 @@ class MapTab {
 
   void _initTools() {
     void registerAction(String name, void Function(MouseEvent ev) action) {
-      ButtonElement button = _tools.querySelector('[action=$name]')
+      ButtonElement button = _tools.queryDom('[action=$name]')
         ..onClick.listen(action);
 
       button.onMouseEnter.listen((_) => _setToolInfo(name));
@@ -358,7 +359,7 @@ class MapTab {
     });
 
     _toolInfo.onClick.listen((_) => _setInfoVisible(false));
-    _e.querySelector('#infoShow').onClick.listen((_) => _setInfoVisible(true));
+    _e.queryDom('#infoShow').onClick.listen((_) => _setInfoVisible(true));
     _tools.classes
         .toggle('collapsed', window.localStorage['mapToolInfo'] == 'false');
   }
@@ -394,7 +395,7 @@ class MapTab {
 
   void _initMapName() {
     HtmlElement parent = _name.parent;
-    ButtonElement confirmBtn = parent.querySelector('.dm');
+    ButtonElement confirmBtn = parent.queryDom('.dm');
     var nameConfirm = StreamGroup.merge(<Stream>[
       _name.onKeyDown.where((ev) => ev.keyCode == 13),
       confirmBtn.onMouseDown,
@@ -585,7 +586,7 @@ class GameMap {
   void _fixScaling() {
     _container.style.width = '100%';
     whiteboard.updateScaling();
-    var img = _container.querySelector('image');
+    var img = _container.queryDom('image');
 
     var bestWidth = img.getBoundingClientRect().width;
     if (bestWidth > 0) {

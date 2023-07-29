@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'package:meta/meta.dart';
 
+import 'html_helpers.dart';
 import 'panels/upload.dart';
 
 HtmlElement registerEditImage(
@@ -9,7 +10,7 @@ HtmlElement registerEditImage(
   @required Future<String> Function(MouseEvent ev, [Blob initialFile]) upload,
   void Function(String src) onSuccess,
 }) {
-  ImageElement img = editImg.querySelector('img');
+  ImageElement img = editImg.queryDom('img');
 
   editImg.onDragEnter.listen((_) async {
     await Future.delayed(Duration(milliseconds: 1));

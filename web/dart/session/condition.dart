@@ -5,7 +5,7 @@ class ConditionCategory {
   final LinkedHashMap<int, Condition> conditions;
 
   ConditionCategory(this.name, Map<int, Condition> conditions)
-      : conditions = conditions;
+      : conditions = LinkedHashMap.from(conditions);
 }
 
 class Condition {

@@ -10,6 +10,7 @@ import 'package:web_polymask/brushes/tool.dart';
 import 'package:web_polymask/polygon_canvas.dart';
 
 import '../communication.dart';
+import '../html_helpers.dart';
 import '../panels/dialog.dart';
 import 'board.dart';
 
@@ -25,7 +26,7 @@ class FogOfWar {
   };
 
   final canvas = PolygonCanvas(
-    querySelector('#polymask'),
+    queryDom('#polymask'),
     captureInput: false,
     cropMargin: _marginPx,
   )
@@ -33,15 +34,15 @@ class FogOfWar {
     ..movementScale = 2;
 
   String get tooltip => tooltips[canvas.activeTool.runtimeType];
-  Element get wrapper => querySelector('#polymaskWrapper');
+  Element get wrapper => queryDom('#polymaskWrapper');
 
-  Element _toolbox;
-  Element get toolbox => _toolbox ??= querySelector('#fogOfWar');
-  Element get btnToolStroke => toolbox.querySelector('#fowStroke');
-  Element get btnToolLasso => toolbox.querySelector('#fowLasso');
-  Element get btnVisible => toolbox.querySelector('#fowPreview');
-  Element get btnFill => toolbox.querySelector('#fowFill');
-  Element get btnGrid => toolbox.querySelector('#fowGrid');
+  Element? _toolbox;
+  Element get toolbox => _toolbox ??= queryDom('#fogOfWar');
+  Element get btnToolStroke => toolbox.queryDom('#fowStroke');
+  Element get btnToolLasso => toolbox.queryDom('#fowLasso');
+  Element get btnVisible => toolbox.queryDom('#fowPreview');
+  Element get btnFill => toolbox.queryDom('#fowFill');
+  Element get btnGrid => toolbox.queryDom('#fowGrid');
 
   String _currentData;
   bool _useGrid = true;
@@ -97,14 +98,14 @@ class FogOfWar {
 
   void setSvgPatternScaling(double scale) {
     canvas.root
-        .querySelector('#barrier')
+        .queryDom('#barrier')
         .setAttribute('patternTransform', 'rotate(45 50 50) scale($scale)');
   }
 
   void _setTool(PolygonTool tool) {
     canvas.activeTool = tool;
-    btnToolStroke.parent.querySelectorAll('.active').classes.remove('active');
-    toolbox.querySelector('[tool=${tool.id}]').classes.add('active');
+    btnToolStroke.parent.queryDomAll('.active').classes.remove('active');
+    toolbox.queryDom('[tool=${tool.id}]').classes.add('active');
   }
 
   void _registerToolButton(Board board, Element btn, PolygonTool tool) {
@@ -145,7 +146,7 @@ class FogOfWar {
 
   // Force browsers to redraw SVG
   void fixSvgInit(int width, int height) {
-    svg.RectElement maskRect = canvas.root.querySelector('mask rect');
+    svg.RectElement maskRect = canvas.root.queryDom('mask rect');
 
     var unit = svg.Length.SVG_LENGTHTYPE_PX;
     maskRect.width.baseVal.newValueSpecifiedUnits(unit, width + _marginPx);
@@ -156,8 +157,7 @@ class FogOfWar {
     var icon = canvas.isEmpty ? 'paint-roller' : 'xmark';
     btnFill
       ..className = 'fas fa-$icon'
-      ..querySelector('span').text =
-          canvas.isEmpty ? 'Fill Scene' : 'Clear Scene';
+      ..queryDom('span').text = canvas.isEmpty ? 'Fill Scene' : 'Clear Scene';
   }
 
   void _onPolymaskChange() {

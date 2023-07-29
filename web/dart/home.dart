@@ -5,7 +5,7 @@ import 'package:dungeonclub/limits.dart';
 
 import '../main.dart';
 import 'changelog.dart';
-import 'font_awesome.dart';
+import 'html_helpers.dart';
 import 'game.dart';
 import 'icon_wall.dart';
 import 'notif.dart';
@@ -14,17 +14,17 @@ import 'panels/edit_game.dart' as edit_game;
 import 'panels/join_session.dart' as join_session;
 import 'section_page.dart';
 
-final HtmlElement _gamesContainer = querySelector('#gamesContainer');
-final ButtonElement _createGameButton = querySelector('#create');
-final HtmlElement _loginTab = querySelector('#loginTab');
-final ButtonElement _logout = querySelector('#logOut')
+final HtmlElement _gamesContainer = queryDom('#gamesContainer');
+final ButtonElement _createGameButton = queryDom('#create');
+final HtmlElement _loginTab = queryDom('#loginTab');
+final ButtonElement _logout = queryDom('#logOut')
   ..onClick.listen((_) {
     window.localStorage.remove('token');
     window.location.reload();
   });
-HtmlElement get _enterDemoButton => querySelector('#enterDemo');
+HtmlElement get _enterDemoButton => queryDom('#enterDemo');
 
-final iconWall = IconWall(querySelector('#iconWall'));
+final iconWall = IconWall(queryDom('#iconWall'));
 
 Future<void> init() {
   iconWall.spawnParticles();
@@ -55,12 +55,12 @@ Future<void> init() {
 }
 
 Future<bool> _initLogInTab() async {
-  InputElement loginEmail = querySelector('#loginEmail');
-  InputElement loginPassword = querySelector('#loginPassword');
-  ButtonElement loginButton = querySelector('button#login');
-  HtmlElement loginError = querySelector('#loginError');
-  AnchorElement resetPassword = querySelector('#resetPassword');
-  CheckboxInputElement rememberMe = querySelector('#rememberMe input');
+  InputElement loginEmail = queryDom('#loginEmail');
+  InputElement loginPassword = queryDom('#loginPassword');
+  ButtonElement loginButton = queryDom('button#login');
+  HtmlElement loginError = queryDom('#loginError');
+  AnchorElement resetPassword = queryDom('#resetPassword');
+  CheckboxInputElement rememberMe = queryDom('#rememberMe input');
   rememberMe.checked = window.localStorage['rememberMe'] == 'true';
 
   resetPassword.onClick.listen((_) => resetPanel.display());
@@ -97,7 +97,7 @@ Future<bool> _initLogInTab() async {
 }
 
 void onLogin() {
-  querySelector('#loginText').style.animationPlayState = 'running';
+  queryDom('#loginText').style.animationPlayState = 'running';
   _loginTab.classes.add('hidden');
   _logout.classes.remove('hidden');
   _showGamesContainer();
@@ -110,7 +110,7 @@ void onLogin() {
 Future<void> _displayAccountEnteredGames() async {
   for (var g in user.account.games) {
     // Remove saved game if you're actually the owner
-    var saved = _gamesContainer.querySelector('[id="${g.id}"]');
+    var saved = _gamesContainer.queryDom('[id="${g.id}"]');
     if (saved != null) saved.remove();
 
     _addEnteredGame(g);
@@ -127,7 +127,7 @@ Future<void> _displayLocalEnteredGames() async {
 }
 
 void _showGamesContainer() {
-  querySelector('#savedGames').style.display = 'flex';
+  queryDom('#savedGames').style.display = 'flex';
 }
 
 void _addEnteredGame(Game game) {

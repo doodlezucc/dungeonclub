@@ -4,12 +4,10 @@ import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/dice_parser.dart';
-import 'package:dungeonclub/session_util.dart';
 
 import '../../main.dart';
 import '../communication.dart';
-import '../font_awesome.dart';
-import '../formatting.dart';
+import '../html_helpers.dart';
 import 'roll_dice.dart';
 import 'session.dart';
 
@@ -18,25 +16,24 @@ const _historyLimit = 50;
 RollCombo _command;
 List<String> _history;
 int _historyIndex = 0;
-HtmlElement get logElem => querySelector('#log');
-ButtonElement get _chatOpenButton => querySelector('#chatOpen');
-HtmlElement get _miniChat => querySelector('#miniChat');
+HtmlElement get logElem => queryDom('#log');
+ButtonElement get _chatOpenButton => queryDom('#chatOpen');
+HtmlElement get _miniChat => queryDom('#miniChat');
 
 bool get mobileShowLog => !logElem.classes.contains('hidden');
 set mobileShowLog(bool v) => logElem.classes.toggle('hidden', !v);
 
-final HtmlElement _messages = querySelector('#messages');
-final ButtonElement _sendButton = querySelector('#chatSend')
+final HtmlElement _messages = queryDom('#messages');
+final ButtonElement _sendButton = queryDom('#chatSend')
   ..onClick.listen((_) {
     _submitChat();
   });
-HtmlElement get _rollButtonContainer => querySelector('#chatRoller');
-final ButtonElement _rollButton =
-    _rollButtonContainer.querySelector('#chatRoll')
-      ..onClick.listen((_) {
-        _submitChat(roll: true);
-      });
-final TextAreaElement _chat = querySelector('#chat textarea')
+HtmlElement get _rollButtonContainer => queryDom('#chatRoller');
+final ButtonElement _rollButton = _rollButtonContainer.queryDom('#chatRoll')
+  ..onClick.listen((_) {
+    _submitChat(roll: true);
+  });
+final TextAreaElement _chat = queryDom('#chat textarea')
   ..onKeyDown.listen((ev) {
     switch (ev.keyCode) {
       // Enter
@@ -95,7 +92,7 @@ void _updateSendButton() {
     _command = DiceParser.parse(msg);
     if (_command != null) {
       var cmdHtml = wrapAround(_command.toCommandString(), 'b');
-      _rollButton.querySelector('span').innerHtml = 'Roll $cmdHtml';
+      _rollButton.queryDom('span').innerHtml = 'Roll $cmdHtml';
     }
   } else {
     _command = null;
@@ -290,7 +287,7 @@ void logInviteLink(Session session) async {
     line.onMouseUp.listen((_) async {
       await Future.delayed(Duration(milliseconds: 100));
 
-      final inviteTextNode = line.querySelector('b');
+      final inviteTextNode = line.queryDom('b');
       window.getSelection().selectAllChildren(inviteTextNode);
 
       await Future.any([

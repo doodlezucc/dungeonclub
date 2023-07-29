@@ -4,13 +4,13 @@ import 'package:ambience/ambience.dart';
 import 'package:intl/intl.dart';
 
 import 'communication.dart';
-import 'formatting.dart';
+import 'html_helpers.dart';
 
 final changelog = Changelog().._init();
 
 class Changelog {
-  HtmlElement get button => querySelector('#changelogButton');
-  HtmlElement get root => querySelector('#changelog');
+  HtmlElement get button => queryDom('#changelogButton');
+  HtmlElement get root => queryDom('#changelog');
   int lastChangeCount;
   int currentChangeCount;
 
@@ -51,7 +51,7 @@ class Changelog {
   }
 
   void _applyLog(List<LoggedChange> changes) {
-    root.querySelectorAll('li').forEach((element) => element.remove());
+    root.queryDomAll('li').forEach((element) => element.remove());
 
     currentChangeCount = changes.length;
     if (lastChangeCount == null) _updateLastKnown();

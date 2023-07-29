@@ -13,6 +13,7 @@ import 'package:web_whiteboard/util.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../html_helpers.dart';
 import 'grid.dart';
 
 const MEASURING_PATH = 0;
@@ -25,17 +26,17 @@ const measuringPort = 80;
 const _precision = 255;
 final Map<int, Measuring> _pcMeasurings = {};
 
-final HtmlElement _toolbox = querySelector('#measureTools');
-final svg.SvgSvgElement _measuringRoot = querySelector('#measureCanvas');
-final svg.PolygonElement _measuringTile = _measuringRoot.querySelector('#tile');
-final svg.SvgSvgElement _distanceRoot = querySelector('#distanceCanvas');
+final HtmlElement _toolbox = queryDom('#measureTools');
+final svg.SvgSvgElement _measuringRoot = queryDom('#measureCanvas');
+final svg.PolygonElement _measuringTile = _measuringRoot.queryDom('#tile');
+final svg.SvgSvgElement _distanceRoot = queryDom('#distanceCanvas');
 
 int _measureMode;
 int get measureMode => _measureMode;
 set measureMode(int measureMode) {
   _measureMode = measureMode;
-  _toolbox.querySelectorAll('.active').classes.remove('active');
-  _toolbox.querySelector('[mode="$measureMode"]').classes.add('active');
+  _toolbox.queryDomAll('.active').classes.remove('active');
+  _toolbox.queryDom('[mode="$measureMode"]').classes.add('active');
 }
 
 String getMeasureTooltip() {
@@ -162,7 +163,7 @@ abstract class Measuring {
     root ??= _measuringRoot;
     root.append(_e);
     user.session.board.transform.registerInvZoom(_distanceText);
-    querySelector('#board').append(_distanceText..className = 'distance-text');
+    queryDom('#board').append(_distanceText..className = 'distance-text');
   }
 
   static SceneGrid getGrid() {

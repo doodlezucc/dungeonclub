@@ -6,16 +6,16 @@ import 'package:dungeonclub/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../panels/context_menu.dart';
 import '../panels/panel_overlay.dart';
 import '../panels/upload.dart';
 import 'movable.dart';
 import 'prefab.dart';
 
-HtmlElement get initiativeBar => querySelector('#initiativeBar');
-HtmlElement get charContainer => initiativeBar.querySelector('.roster');
-ButtonElement get rerollButton => querySelector('#initiativeReroll');
+HtmlElement get initiativeBar => queryDom('#initiativeBar');
+HtmlElement get charContainer => initiativeBar.queryDom('.roster');
+ButtonElement get rerollButton => queryDom('#initiativeReroll');
 InitiativeSummary _summary;
 
 class InitiativeTracker {
@@ -24,13 +24,13 @@ class InitiativeTracker {
   Timer diceAnim;
   Iterable<Movable> _similar;
 
-  ButtonElement get callRollsButton => querySelector('#initiativeTracker');
-  SpanElement get initiativeDice => querySelector('#initiativeDice');
-  SpanElement get targetText => querySelector('#initiativeTarget');
-  ButtonElement get userRollButton => querySelector('#initiativeRoll');
-  ButtonElement get skipButton => querySelector('#initiativeSkip');
-  ButtonElement get skipTypeButton => querySelector('#initiativeSkipType');
-  HtmlElement get panel => querySelector('#initiativePanel');
+  ButtonElement get callRollsButton => queryDom('#initiativeTracker');
+  SpanElement get initiativeDice => queryDom('#initiativeDice');
+  SpanElement get targetText => queryDom('#initiativeTarget');
+  ButtonElement get userRollButton => queryDom('#initiativeRoll');
+  ButtonElement get skipButton => queryDom('#initiativeSkip');
+  ButtonElement get skipTypeButton => queryDom('#initiativeSkipType');
+  HtmlElement get panel => queryDom('#initiativePanel');
 
   bool get rollerPanelVisible => panel.classes.contains('show');
   set showBar(bool v) => initiativeBar.classes.toggle('hidden', !v);
@@ -60,7 +60,7 @@ class InitiativeTracker {
         nextRoll();
       });
       rerollButton.onClick.listen((_) => sendReroll());
-      panel.querySelector('.close').onClick.listen((_) {
+      panel.queryDom('.close').onClick.listen((_) {
         _summary.mine.clear();
         nextRoll();
       });
@@ -448,7 +448,7 @@ class InitiativeEntry {
       btnRemove = menu.addButton('Remove', 'trash');
     }
 
-    final result = await menu.display(ev, e.querySelector('div'));
+    final result = await menu.display(ev, e.queryDom('div'));
 
     if (result == btnGoTo) {
       // Animate transform to token position

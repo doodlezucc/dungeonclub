@@ -9,6 +9,7 @@ import 'package:meta/meta.dart';
 import '../../main.dart';
 import '../communication.dart';
 import '../edit_image.dart';
+import '../html_helpers.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
 import '../resource.dart';
@@ -16,23 +17,23 @@ import 'character.dart';
 import 'movable.dart';
 import 'prefab.dart';
 
-final HtmlElement _palette = querySelector('#prefabPalette');
-final HtmlElement _pcPrefs = _palette.querySelector('#pcPrefabs');
-final HtmlElement _otherPrefs = _palette.querySelector('#otherPrefabs');
-final ButtonElement _addPref = _palette.querySelector('#addPrefab');
+final HtmlElement _palette = queryDom('#prefabPalette');
+final HtmlElement _pcPrefs = _palette.queryDom('#pcPrefabs');
+final HtmlElement _otherPrefs = _palette.queryDom('#otherPrefabs');
+final ButtonElement _addPref = _palette.queryDom('#addPrefab');
 
-final HtmlElement _movableGhost = querySelector('#movableGhost');
+final HtmlElement _movableGhost = queryDom('#movableGhost');
 
-final HtmlElement _prefabProperties = querySelector('#prefabProperties');
+final HtmlElement _prefabProperties = queryDom('#prefabProperties');
 
-final HtmlElement _prefabImage = querySelector('#prefabImage');
-final ImageElement _prefabImageImg = _prefabImage.querySelector('img');
-final HtmlElement _prefabEmptyIcon = querySelector('#emptyIcon');
-final InputElement _prefabName = querySelector('#prefabName');
-final InputElement _prefabSize = querySelector('#prefabSize');
-final UListElement _prefabAccess = querySelector('#prefabAccess');
-final HtmlElement _prefabAccessSpan = querySelector('#prefabAccessSpan');
-final ButtonElement _prefabRemove = querySelector('#prefabRemove');
+final HtmlElement _prefabImage = queryDom('#prefabImage');
+final ImageElement _prefabImageImg = _prefabImage.queryDom('img');
+final HtmlElement _prefabEmptyIcon = queryDom('#emptyIcon');
+final InputElement _prefabName = queryDom('#prefabName');
+final InputElement _prefabSize = queryDom('#prefabSize');
+final UListElement _prefabAccess = queryDom('#prefabAccess');
+final HtmlElement _prefabAccessSpan = queryDom('#prefabAccessSpan');
+final ButtonElement _prefabRemove = queryDom('#prefabRemove');
 
 final List<CharacterPrefab> pcPrefabs = [];
 final List<CustomPrefab> prefabs = [];
@@ -46,7 +47,7 @@ set selectedPrefab(Prefab p) {
   if (!user.session.isDM) return;
 
   _selectedPrefab = p;
-  _palette.querySelectorAll('.prefab.selected').classes.remove('selected');
+  _palette.queryDomAll('.prefab.selected').classes.remove('selected');
   p?.e?.classes?.add('selected');
 
   _prefabProperties.classes.toggle('disabled', p == null);
@@ -93,7 +94,7 @@ set selectedPrefab(Prefab p) {
 bool get collapsed => _palette.classes.contains('collapsed');
 set collapsed(bool collapsed) {
   _palette.classes.toggle('collapsed', collapsed);
-  querySelector('#paletteCollapse > i').className =
+  queryDom('#paletteCollapse > i').className =
       'fas fa-chevron-' + (collapsed ? 'down' : 'up');
 }
 
@@ -143,7 +144,7 @@ void _initPrefabPalette() {
   _otherPrefs.nodes.insert(0, emptyPrefab.e);
 
   _addPref.onLMB.listen(createPrefab);
-  _palette.querySelector('#paletteCollapse').onClick.listen((_) {
+  _palette.queryDom('#paletteCollapse').onClick.listen((_) {
     collapsed = !collapsed;
   });
 }
@@ -164,7 +165,7 @@ void imitateMovableGhost(Movable m) {
 }
 
 void _setMovableGhostImage(String img) {
-  _movableGhost.querySelector('.img').style.backgroundImage = 'url($img)';
+  _movableGhost.queryDom('.img').style.backgroundImage = 'url($img)';
 }
 
 void applyCharacterNameToAccessEntry(Character character) {
@@ -275,8 +276,7 @@ void _sendUpdate() {
 void _updateAddButton() {
   var limitReached = prefabs.length >= prefabsPerCampaign;
   _addPref.disabled = limitReached;
-  _addPref.querySelector('span').text =
-      limitReached ? 'Limit Reached' : 'Add Token';
+  _addPref.queryDom('span').text = limitReached ? 'Limit Reached' : 'Add Token';
 }
 
 void _displayLimitMsg() {

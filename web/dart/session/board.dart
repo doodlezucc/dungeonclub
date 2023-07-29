@@ -11,8 +11,7 @@ import 'package:grid_space/grid_space.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';
-import '../font_awesome.dart';
-import '../formatting.dart';
+import '../html_helpers.dart';
 import '../html_transform.dart';
 import '../lazy_input.dart';
 import '../notif.dart';
@@ -32,32 +31,33 @@ import 'roll_dice.dart';
 import 'scene.dart';
 import 'session.dart';
 
-final HtmlElement _container = querySelector('#boardContainer');
-final HtmlElement _e = querySelector('#board');
-final ImageElement _ground = _e.querySelector('#ground');
+final HtmlElement _container = queryDom('#boardContainer');
+final HtmlElement _e = queryDom('#board');
+final ImageElement _ground = _e.queryDom('#ground');
 
-final ButtonElement _editScene = _container.querySelector('#editScene');
-final ButtonElement _exitEdit = _container.querySelector('#exitEdit');
+final ButtonElement _editScene = _container.queryDom('#editScene');
+final ButtonElement _exitEdit = _container.queryDom('#exitEdit');
 
-final HtmlElement _controls = _container.querySelector('#sceneEditor');
-final ButtonElement _changeImage = _controls.querySelector('#changeImage');
+final HtmlElement _controls = _container.queryDom('#sceneEditor');
+final ButtonElement _changeImage = _controls.queryDom('#changeImage');
 
-final svg.RectElement _selectionArea = _e.querySelector('#selectionArea');
-final HtmlElement _selectionProperties = querySelector('#selectionProperties');
-final HtmlElement _selectedLabelWrapper = querySelector('#movableLabel');
-final HtmlElement _selectedLabelPrefix = _selectedLabelWrapper.children.first;
-final InputElement _selectedLabel = _selectedLabelWrapper.children.last;
-final InputElement _selectedSize = querySelector('#movableSize');
-final InputElement _selectedAura = querySelector('#movableAura');
-final ButtonElement _selectedInvisible = querySelector('#movableInvisible');
-final ButtonElement _selectedRemove = querySelector('#movableRemove');
-final ButtonElement _selectedSnap = querySelector('#movableSnap');
-final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
+final svg.RectElement _selectionArea = _e.queryDom('#selectionArea');
+final HtmlElement _selectionProperties = queryDom('#selectionProperties');
+final HtmlElement _selectedLabelWrapper = queryDom('#movableLabel');
+final _selectedLabelPrefix =
+    _selectedLabelWrapper.children.first as HtmlElement;
+final _selectedLabel = _selectedLabelWrapper.children.last as HtmlElement;
+final InputElement _selectedSize = queryDom('#movableSize');
+final InputElement _selectedAura = queryDom('#movableAura');
+final ButtonElement _selectedInvisible = queryDom('#movableInvisible');
+final ButtonElement _selectedRemove = queryDom('#movableRemove');
+final ButtonElement _selectedSnap = queryDom('#movableSnap');
+final HtmlElement _selectedConds = _selectionProperties.queryDom('#conds');
 
-final ButtonElement _fowToggle = querySelector('#fogOfWar');
-final ButtonElement _measureToggle = querySelector('#measureDistance');
-HtmlElement get _measureSticky => querySelector('#measureSticky');
-HtmlElement get _measureVisible => querySelector('#measureVisible');
+final ButtonElement _fowToggle = queryDom('#fogOfWar');
+final ButtonElement _measureToggle = queryDom('#measureDistance');
+HtmlElement get _measureSticky => queryDom('#measureSticky');
+HtmlElement get _measureVisible => queryDom('#measureVisible');
 
 class Board {
   final Session session;
@@ -113,7 +113,7 @@ class Board {
   set measureVisible(bool v) {
     _measureVisible
       ..className = 'fas fa-' + (v ? 'eye active' : 'eye-slash')
-      ..querySelector('span').text = v ? 'Public' : 'Private';
+      ..queryDom('span').text = v ? 'Public' : 'Private';
 
     removeMeasuring(session.charId, sendEvent: true);
   }
@@ -182,7 +182,7 @@ class Board {
       _updateSelectedInvisible(activeMovable.invisible);
       _selectedSize.valueAsNumber = activeMovable.size;
       _updateSelectionSizeInherit();
-      _selectedConds.querySelectorAll('.active').classes.remove('active');
+      _selectedConds.queryDomAll('.active').classes.remove('active');
       for (var c = 0; c < Condition.categories.length; c++) {
         final category = Condition.categories[c];
         final row = _selectedConds.children[c].children.first;
@@ -298,11 +298,11 @@ class Board {
     _editScene.onClick.listen((_) => editingGrid = true);
     _exitEdit.onClick.listen((_) => editingGrid = false);
 
-    _container.querySelector('#inactiveSceneWarning').onClick.listen((_) {
+    _container.queryDom('#inactiveSceneWarning').onClick.listen((_) {
       refScene.enterPlay();
     });
 
-    _container.querySelector('#openMap').onClick.listen((_) {
+    _container.queryDom('#openMap').onClick.listen((_) {
       mapTab.visible = true;
     });
 
@@ -412,7 +412,7 @@ class Board {
 
     initiativeTracker.disabled = !isActiveScene;
     _container
-        .querySelector('#inactiveSceneWarning')
+        .queryDom('#inactiveSceneWarning')
         .classes
         .toggle('hidden', isActiveScene);
   }
@@ -485,8 +485,8 @@ class Board {
 
   void _updateSelectedInvisible(bool v) {
     _selectedInvisible.classes.toggle('active', v);
-    _selectedInvisible.querySelector('span').text = v ? 'Invisible' : 'Visible';
-    _selectedInvisible.querySelector('i').className =
+    _selectedInvisible.queryDom('span').text = v ? 'Invisible' : 'Visible';
+    _selectedInvisible.queryDom('i').className =
         'fas fa-' + (v ? 'eye-slash' : 'eye');
   }
 
@@ -1087,17 +1087,17 @@ class Board {
       _selectedConds.append(div);
     }
 
-    _selectionProperties.querySelector('a').onClick.listen((_) {
+    _selectionProperties.queryDom('a').onClick.listen((_) {
       if (_activeMovable.conds.isNotEmpty) {
         selected.forEach((m) => m.applyConditions([]));
-        _selectedConds.querySelectorAll('.active').classes.remove('active');
+        _selectedConds.queryDomAll('.active').classes.remove('active');
         _sendSelectedMovablesUpdate();
       }
     });
   }
 
   void displayTooltip(String text) {
-    _container.querySelector('#tooltip').innerHtml = formatToHtml(text);
+    _container.queryDom('#tooltip').innerHtml = formatToHtml(text);
   }
 
   void displayPing(Point p, int player) async {
@@ -1197,7 +1197,7 @@ class Board {
   }
 
   void _syncMovableAnim() async {
-    var elems = _e.querySelectorAll('.movable .ring');
+    var elems = _e.queryDomAll('.movable .ring');
     for (var m in elems) {
       m.style.animation = 'none';
       m.innerText; // Trigger reflow

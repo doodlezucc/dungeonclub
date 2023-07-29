@@ -2,15 +2,16 @@ import 'dart:async';
 import 'dart:html';
 
 import '../../main.dart';
+import '../html_helpers.dart';
 import 'panel_overlay.dart';
 
-final HtmlElement _panel = querySelector('#joinPanel');
-final InputElement _sessionNameInput = _panel.querySelector('#sessionName')
+final HtmlElement _panel = queryDom('#joinPanel');
+final InputElement _sessionNameInput = _panel.queryDom('#sessionName')
   ..onInput.listen((_) => _updateJoinButton());
 
-final ButtonElement _cancelButton = _panel.querySelector('button.close');
-final ButtonElement _joinButton = _panel.querySelector('button#join');
-final HtmlElement _error = _panel.querySelector('#joinError');
+final ButtonElement _cancelButton = _panel.queryDom('button.close');
+final ButtonElement _joinButton = _panel.queryDom('button#join');
+final HtmlElement _error = _panel.queryDom('#joinError');
 
 Future<void> display(String gameId) async {
   overlayVisible = true;

@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'package:dungeonclub/actions.dart';
 
+import '../html_helpers.dart';
 import '../resource.dart';
 import 'character.dart';
 import 'scene.dart';
@@ -14,7 +15,7 @@ class DemoSession extends Session {
   DemoSession() : super(demoId, demoName, true);
 
   void initializeDemo() async {
-    querySelector('#session').classes.add('demo');
+    queryDom('#session').classes.add('demo');
 
     var demoPlayers = ['Nathaniel', 'Luke', 'Teo'];
     var characters = <Character>[];

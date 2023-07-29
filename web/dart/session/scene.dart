@@ -5,18 +5,18 @@ import 'package:dungeonclub/limits.dart';
 
 import '../../main.dart';
 import '../communication.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../panels/upload.dart' as upload;
 import '../resource.dart';
 
-final HtmlElement _scenesContainer = querySelector('#scenes');
-final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
+final HtmlElement _scenesContainer = queryDom('#scenes');
+final ButtonElement _addScene = _scenesContainer.queryDom('#addScene')
   ..onLMB.listen((ev) async {
     var json = await upload.display(
       event: ev,
       action: GAME_SCENE_ADD,
       type: IMAGE_TYPE_SCENE,
-      simulateHoverClass: querySelector('#sceneSelector'),
+      simulateHoverClass: queryDom('#sceneSelector'),
     );
 
     if (json != null) {

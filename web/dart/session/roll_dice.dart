@@ -4,17 +4,16 @@ import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/dice_parser.dart';
-import 'package:dungeonclub/session_util.dart';
 
 import '../../main.dart';
 import '../communication.dart';
-import '../formatting.dart';
+import '../html_helpers.dart';
 import 'log.dart';
 
 const maxRolls = 5;
 
-ButtonElement get _button => querySelector('#diceTab');
-final TableElement _table = _button.querySelector('table#dice');
+ButtonElement get _button => queryDom('#diceTab');
+final TableElement _table = _button.queryDom('table#dice');
 final ElementList _visButtons = querySelectorAll('.roll-visibility');
 
 Timer _rollTimer;
@@ -27,8 +26,8 @@ set rollPublic(bool public) {
 
   var icon = public ? 'user-group' : 'user-lock';
   for (var btn in _visButtons) {
-    btn.querySelector('i').className = 'fas fa-$icon';
-    btn.querySelector('span').text = public ? 'Public' : 'Private';
+    btn.queryDom('i').className = 'fas fa-$icon';
+    btn.queryDom('span').text = public ? 'Public' : 'Private';
   }
 }
 

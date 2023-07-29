@@ -10,6 +10,7 @@ import 'package:meta/meta.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../html_helpers.dart';
 import 'context_menu.dart';
 import 'dialog.dart';
 import 'panel_overlay.dart';
@@ -18,21 +19,21 @@ extension ElementLeftClickDown on Element {
   Stream<MouseEvent> get onLMB => onMouseDown.where((ev) => ev.button == 0);
 }
 
-final HtmlElement _panel = querySelector('#uploadPanel');
-final ButtonElement _cancelButton = _panel.querySelector('button.close');
+final HtmlElement _panel = queryDom('#uploadPanel');
+final ButtonElement _cancelButton = _panel.queryDom('button.close');
 
-final HtmlElement _imgBox = _panel.querySelector('div');
+final HtmlElement _imgBox = _panel.queryDom('div');
 
-final FileUploadInputElement _uploadInput = _panel.querySelector('#imgUpload');
+final FileUploadInputElement _uploadInput = _panel.queryDom('#imgUpload');
 
-final ImageElement _img = _panel.querySelector('img');
-final CanvasElement _canvas = _panel.querySelector('canvas');
-final ButtonElement _uploadButton = _panel.querySelector('button[type=submit]');
-final DivElement _crop = _panel.querySelector('#crop');
-final SpanElement _dragText = _panel.querySelector('#dragText');
+final ImageElement _img = _panel.queryDom('img');
+final CanvasElement _canvas = _panel.queryDom('canvas');
+final ButtonElement _uploadButton = _panel.queryDom('button[type=submit]');
+final DivElement _crop = _panel.queryDom('#crop');
+final SpanElement _dragText = _panel.queryDom('#dragText');
 
-final DivElement _assetPanel = querySelector('#assetPanel');
-final DivElement _assetGrid = querySelector('#assetGrid');
+final DivElement _assetPanel = queryDom('#assetPanel');
+final DivElement _assetGrid = queryDom('#assetGrid');
 
 Point<double> get _imgSize =>
     Point(_img.width.toDouble(), _img.height.toDouble());
@@ -71,7 +72,7 @@ set usedStorage(int bytes) {
 
   final percentage = '${100 * bytes / mediaBytesPerCampaign}%';
 
-  querySelectorAll('.used-storage').forEach(
+  queryDomAll('.used-storage').forEach(
     (e) => (e as InputElement)
       ..style.setProperty('--v', percentage)
       ..min = '0'
@@ -82,12 +83,11 @@ set usedStorage(int bytes) {
   final storageLeft = mediaBytesPerCampaign - bytes;
   final displayWarning = storageLeft <= thresholdStorageWarning;
 
-  querySelector('#storageWarning').classes.toggle('hidden', !displayWarning);
+  queryDom('#storageWarning').classes.toggle('hidden', !displayWarning);
 
-  querySelectorAll('.storage-used').forEach((e) => e.text = bytesToMB(bytes));
-  querySelectorAll('.storage-left')
-      .forEach((e) => e.text = bytesToMB(storageLeft));
-  querySelectorAll('.storage-max')
+  queryDomAll('.storage-used').forEach((e) => e.text = bytesToMB(bytes));
+  queryDomAll('.storage-left').forEach((e) => e.text = bytesToMB(storageLeft));
+  queryDomAll('.storage-max')
       .forEach((e) => e.text = '${mediaBytesPerCampaign ~/ 1000000}');
 }
 
@@ -535,7 +535,7 @@ Future<String> _displayAssetPicker(String type) async {
 
   var result = await Future.any([
     completer.future,
-    _assetPanel.querySelector('.close').onClick.map((_) => null).first,
+    _assetPanel.queryDom('.close').onClick.map((_) => null).first,
   ]);
 
   _assetPanel.classes.remove('show');

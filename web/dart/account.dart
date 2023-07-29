@@ -3,6 +3,7 @@ import 'dart:html';
 
 import '../main.dart';
 import 'game.dart';
+import 'html_helpers.dart';
 import 'notif.dart';
 import 'panels/edit_game.dart' as edit_game;
 import 'panels/panel_overlay.dart';
@@ -60,11 +61,11 @@ class Account {
       return available.first.id;
     }
 
-    HtmlElement parent = querySelector('#charPick');
-    HtmlElement roster = parent.querySelector('.roster');
+    HtmlElement parent = queryDom('#charPick');
+    HtmlElement roster = parent.queryDom('.roster');
     List.from(roster.children).forEach((e) => e.remove());
 
-    parent.querySelector('span').innerHtml = "Pick <b>$name</b>'s Character";
+    parent.queryDom('span').innerHtml = "Pick <b>$name</b>'s Character";
 
     for (var ch in chars) {
       roster.append(DivElement()

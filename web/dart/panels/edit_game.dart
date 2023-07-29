@@ -7,23 +7,23 @@ import 'package:dungeonclub/limits.dart';
 import '../../main.dart';
 import '../communication.dart';
 import '../edit_image.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../game.dart';
 import '../resource.dart';
 import 'dialog.dart';
 import 'panel_overlay.dart';
 import 'upload.dart' as uploader;
 
-final HtmlElement _panel = querySelector('#editGamePanel');
-final InputElement _gameNameInput = _panel.querySelector('#gameName');
-final HtmlElement _roster = _panel.querySelector('#editChars');
-final ButtonElement _cancelButton = _panel.querySelector('button.close');
-final ButtonElement _deleteButton = _panel.querySelector('button#delete');
-final ButtonElement _saveButton = _panel.querySelector('button#save');
+final HtmlElement _panel = queryDom('#editGamePanel');
+final InputElement _gameNameInput = _panel.queryDom('#gameName');
+final HtmlElement _roster = _panel.queryDom('#editChars');
+final ButtonElement _cancelButton = _panel.queryDom('button.close');
+final ButtonElement _deleteButton = _panel.queryDom('button#delete');
+final ButtonElement _saveButton = _panel.queryDom('button#save');
 
 final _chars = <_EditChar>[];
 
-final AnchorElement _addCharButton = _panel.querySelector('#addChar')
+final AnchorElement _addCharButton = _panel.queryDom('#addChar')
   ..onClick.listen((_) {
     _chars.add(_EditChar.empty()..focus());
     _updateAddButton();

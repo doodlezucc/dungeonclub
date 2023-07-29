@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dungeonclub/session_util.dart';
 import 'package:meta/meta.dart';
 
 import '../communication.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../game.dart';
 import '../panels/dialog.dart';
 import '../panels/upload.dart';
@@ -195,7 +194,7 @@ class Session extends Game {
 
       initializeBoard(sceneJson);
 
-      querySelector('#session').classes.toggle('is-dm', isDM);
+      queryDom('#session').classes.toggle('is-dm', isDM);
 
       _board.mapTab.fromJson(mapJsonList ?? []);
     });

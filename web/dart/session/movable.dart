@@ -6,7 +6,7 @@ import 'package:dungeonclub/point_json.dart';
 import 'package:grid_space/grid_space.dart';
 import 'package:meta/meta.dart';
 
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import 'board.dart';
 import 'condition.dart';
 import 'prefab.dart';
@@ -158,7 +158,7 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   void updateTooltip() {
-    e.querySelector('.toast').text = displayName;
+    e.queryDom('.toast').text = displayName;
   }
 
   void onPrefabUpdate() {
@@ -176,7 +176,7 @@ class Movable extends ClampedEntityBase with TokenModel {
 
   void applyImage() {
     final img = prefab.image.url;
-    e.querySelector('.img').style.backgroundImage = 'url($img)';
+    e.queryDom('.img').style.backgroundImage = 'url($img)';
   }
 
   void roundToGrid() {
@@ -197,7 +197,7 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   void _applyConds() {
-    var container = e.querySelector('.conds');
+    var container = e.queryDom('.conds');
     for (var child in List<Element>.from(container.children)) {
       child.remove();
     }
@@ -221,7 +221,7 @@ class Movable extends ClampedEntityBase with TokenModel {
 
     e.classes.add('animate-remove');
     await Future.delayed(Duration(milliseconds: 500));
-    board.transform.unregisterInvZoom(e.querySelector('.toast'));
+    board.transform.unregisterInvZoom(e.queryDom('.toast'));
     e.remove();
   }
 
@@ -290,8 +290,8 @@ class EmptyMovable extends Movable {
 }
 
 class AngleArrow {
-  static final HtmlElement container = querySelector('#angleArrow');
-  static final HtmlElement angleCurrent = querySelector('#angleCurrent');
+  static final HtmlElement container = queryDom('#angleArrow');
+  static final HtmlElement angleCurrent = queryDom('#angleCurrent');
 
   bool _visible = false;
   bool get visible => _visible;

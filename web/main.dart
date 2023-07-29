@@ -8,6 +8,7 @@ import 'package:path/path.dart';
 
 import 'dart/communication.dart';
 import 'dart/home.dart' as home;
+import 'dart/html_helpers.dart';
 import 'dart/panels/code_panel.dart';
 import 'dart/panels/join_session.dart' as join_session;
 import 'dart/panels/feedback.dart' as feedback;
@@ -29,14 +30,14 @@ void main() async {
   applyEnvironmentStyling();
   applyMobileStyling();
 
-  querySelector('#signup').onClick.listen((_) {
+  queryDom('#signup').onClick.listen((_) {
     registerPanel.display();
   });
-  querySelector('#feedback').onClick.listen((_) => !Environment.isCompiled
+  queryDom('#feedback').onClick.listen((_) => !Environment.isCompiled
       ? feedback.display()
-      : querySelector('#discordLink').click());
+      : queryDom('#discordLink').click());
 
-  querySelector('button#save').onClick.listen((_) {
+  queryDom('button#save').onClick.listen((_) {
     socket.send('{"action":"manualSave"}');
   });
 
@@ -77,10 +78,10 @@ void applyEnvironmentStyling() {
     Environment.applyConfig(embeddedConfig);
 
     // Apply "self-hosted" changes
-    querySelector('#privacy').remove();
+    queryDom('#privacy').remove();
     var time = DateTime.fromMillisecondsSinceEpoch(Environment.buildTimestamp);
     var buildTime = DateFormat('y-MM-dd').format(time);
-    querySelector('#hostInfo').innerHtml = 'Self-Hosted (Build $buildTime)';
+    queryDom('#hostInfo').innerHtml = 'Self-Hosted (Build $buildTime)';
   }
 
   document.body.classes.toggle('no-music', !Environment.enableMusic);

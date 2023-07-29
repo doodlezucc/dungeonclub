@@ -9,7 +9,7 @@ import 'package:web_whiteboard/communication/web_socket.dart';
 
 import '../main.dart';
 import 'action_handler.dart' as handler;
-import 'font_awesome.dart';
+import 'html_helpers.dart';
 import 'panels/dialog.dart';
 import 'session/measuring.dart';
 

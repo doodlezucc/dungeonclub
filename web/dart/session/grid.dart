@@ -8,27 +8,28 @@ import 'package:dungeonclub/point_json.dart';
 import 'package:grid_space/grid_space.dart';
 
 import '../../main.dart';
+import '../html_helpers.dart';
 import 'measuring.dart';
 
-final HtmlElement _controls = querySelector('#sceneEditor');
-final InputElement gridTiles = _controls.querySelector('#gridTiles');
-final InputElement _gridTileUnit = _controls.querySelector('#gridTileUnit');
-final InputElement _gridColor = _controls.querySelector('#gridColor');
-final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
-final DivElement _crop = querySelector('#gridPadding');
+final HtmlElement _controls = queryDom('#sceneEditor');
+final InputElement gridTiles = _controls.queryDom('#gridTiles');
+final InputElement _gridTileUnit = _controls.queryDom('#gridTileUnit');
+final InputElement _gridColor = _controls.queryDom('#gridColor');
+final InputElement _gridAlpha = _controls.queryDom('#gridAlpha');
+final DivElement _crop = queryDom('#gridPadding');
 final _typeButtons = <ButtonElement, int>{
-  querySelector('#gridTSquare'): GRID_SQUARE,
-  querySelector('#gridTHexH'): GRID_HEX_H,
-  querySelector('#gridTHexV'): GRID_HEX_V,
-  querySelector('#gridTNone'): GRID_NONE,
+  queryDom('#gridTSquare'): GRID_SQUARE,
+  queryDom('#gridTHexH'): GRID_HEX_H,
+  queryDom('#gridTHexV'): GRID_HEX_V,
+  queryDom('#gridTNone'): GRID_NONE,
 };
 
 const minSize = Point<double>(200, 200);
 
 class SceneGrid {
-  final HtmlElement e = querySelector('#grid');
-  final svg.SvgSvgElement _canvas = querySelector('#gridCanvas');
-  final svg.RectElement _rect = querySelector('#gridCanvasMask');
+  final HtmlElement e = queryDom('#grid');
+  final svg.SvgSvgElement _canvas = queryDom('#gridCanvas');
+  final svg.RectElement _rect = queryDom('#gridCanvasMask');
 
   Grid _grid = Grid.square(1);
   Grid get grid => _grid;
@@ -340,7 +341,7 @@ class SceneGrid {
 
     if (gridType == GRID_NONE) return;
 
-    var pattern = querySelector(patternId);
+    var pattern = queryDom(patternId);
     var scale = cellWidth;
     pattern.setAttribute(
       'patternTransform',

@@ -5,6 +5,7 @@ import 'package:dungeonclub/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../html_helpers.dart';
 import 'panel_overlay.dart';
 
 const pwLengthMin = 7;
@@ -37,38 +38,38 @@ class CodePanel {
   HtmlElement _errorText2;
 
   ButtonElement _cancelButton;
-  final ButtonElement _loginButton = querySelector('button#login');
+  final ButtonElement _loginButton = queryDom('button#login');
 
   final String actionSend;
   final String actionVerify;
 
   CodePanel(String panelId, this.actionSend, this.actionVerify)
-      : _panel = querySelector(panelId) {
-    _sectionRegister = _panel.querySelector('.credentials');
-    _sectionActivate = _panel.querySelector('.activate');
+      : _panel = queryDom(panelId) {
+    _sectionRegister = _panel.queryDom('.credentials');
+    _sectionActivate = _panel.queryDom('.activate');
 
-    _emailInput = _panel.querySelector('.email')
+    _emailInput = _panel.queryDom('.email')
       ..onInput.listen((event) => _updateCreateButton());
 
-    _passwordInput = _panel.querySelector('.password')
+    _passwordInput = _panel.queryDom('.password')
       ..onInput.listen((event) => _updateCreateButton());
 
-    _confirmInput = _panel.querySelector('.confirm')
+    _confirmInput = _panel.queryDom('.confirm')
       ..onInput.listen((event) => _updateCreateButton());
 
-    _codeInput = _panel.querySelector('.code')
+    _codeInput = _panel.queryDom('.code')
       ..onInput.listen((_) {
         _activateButton.disabled = _codeInput.value.length != 5;
       });
-    _emailReader = _panel.querySelector('.email-reader');
+    _emailReader = _panel.queryDom('.email-reader');
 
-    _registerButton = _panel.querySelector('.send');
-    _activateButton = _panel.querySelector('.activate-code');
+    _registerButton = _panel.queryDom('.send');
+    _activateButton = _panel.queryDom('.activate-code');
 
-    _errorText1 = _sectionRegister.querySelector('p.bad');
-    _errorText2 = _sectionActivate.querySelector('p.bad');
+    _errorText1 = _sectionRegister.queryDom('p.bad');
+    _errorText2 = _sectionActivate.queryDom('p.bad');
 
-    _cancelButton = _panel.querySelector('button.close');
+    _cancelButton = _panel.queryDom('button.close');
   }
 
   Future<void> display() async {
@@ -134,7 +135,7 @@ class CodePanel {
   }
 
   void _setSection(HtmlElement section) {
-    _panel.querySelectorAll('section.show').classes.remove('show');
+    _panel.queryDomAll('section.show').classes.remove('show');
     section.classes.add('show');
   }
 

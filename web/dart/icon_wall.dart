@@ -1,7 +1,7 @@
 import 'dart:html';
 import 'dart:math';
 
-import 'font_awesome.dart';
+import 'html_helpers.dart';
 
 const icons = [
   'hat-wizard',

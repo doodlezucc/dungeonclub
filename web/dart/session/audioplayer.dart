@@ -10,10 +10,11 @@ import 'package:dungeonclub/environment.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../html_helpers.dart';
 import '../smooth_slider.dart';
 import 'session.dart';
 
-final _root = querySelector('#ambience');
+final _root = queryDom('#ambience');
 
 class AudioPlayer {
   Ambience _ambience;
@@ -25,7 +26,7 @@ class AudioPlayer {
   SmoothSlider _sFilter;
   SmoothSlider _sCrowd;
 
-  ButtonElement get skipButton => _root.querySelector('#audioSkip');
+  ButtonElement get skipButton => _root.queryDom('#audioSkip');
 
   num _volumeSfx = 0;
   num get volumeSfx => _volumeSfx;
@@ -41,14 +42,14 @@ class AudioPlayer {
   num get filter => _sFilter.goal;
   set filter(num v) {
     _sFilter.goal = v;
-    _sFilter.input.parent.querySelector('span').text = _getTooltip(1, v);
+    _sFilter.input.parent.queryDom('span').text = _getTooltip(1, v);
   }
 
   int get weatherIntensity => _sWeather.goal;
   set weatherIntensity(int v) {
     _sWeather.goal = v;
     _weather.cueClip(v >= 0 ? v.toInt() : null);
-    _sWeather.input.parent.querySelector('span').text =
+    _sWeather.input.parent.queryDom('span').text =
         'Weather: ${_getTooltip(0, v)}';
   }
 
@@ -56,8 +57,7 @@ class AudioPlayer {
   set crowdedness(int v) {
     _sCrowd.goal = v;
     _crowd.cueClip(v >= 0 ? v.toInt() : null);
-    _sCrowd.input.parent.querySelector('span').text =
-        'Crowd: ${_getTooltip(2, v)}';
+    _sCrowd.input.parent.queryDom('span').text = 'Crowd: ${_getTooltip(2, v)}';
   }
 
   String _toUrl(String s) => getFile('ambience/sounds/$s.mp3');
@@ -104,14 +104,14 @@ class AudioPlayer {
     _root.classes.toggle(
         'keep-open', Environment.enableMusic ? pin != 'false' : pin == 'true');
 
-    _root.querySelector('button').onClick.listen((_) {
+    _root.queryDom('button').onClick.listen((_) {
       window.localStorage['audioPin'] = '${_root.classes.toggle('keep-open')}';
     });
 
     if (session.isDM) {
       skipButton.onClick.listen((_) => _sendSkip());
 
-      for (var pl in _root.querySelector('#playlists').children) {
+      for (var pl in _root.queryDom('#playlists').children) {
         var id = pl.attributes['value'];
 
         if (json != null && json['playlist'] == id) {
@@ -121,10 +121,7 @@ class AudioPlayer {
         pl.onClick.listen((_) {
           var doSend = !pl.classes.contains('active');
           if (doSend) {
-            _root
-                .querySelectorAll('#playlists > .active')
-                .classes
-                .remove('active');
+            _root.queryDomAll('#playlists > .active').classes.remove('active');
           }
 
           pl.classes.toggle('active', doSend);
@@ -140,7 +137,7 @@ class AudioPlayer {
 
   InputElement _input(String id, num init, void Function(num value) onChange,
       [bool sendAmbience = false]) {
-    InputElement input = _root.querySelector('#$id');
+    InputElement input = _root.queryDom('#$id');
 
     var stored = window.localStorage[id] ?? '$init';
     var initial = num.tryParse(stored) ?? input.valueAsNumber;
@@ -223,7 +220,7 @@ class AudioPlayer {
   }
 
   void displayTrack(Track t) {
-    var player = _root.querySelector('#player');
+    var player = _root.queryDom('#player');
 
     var children = player.children;
     var title = children[0];

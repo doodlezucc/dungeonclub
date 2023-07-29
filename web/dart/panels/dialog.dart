@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:pedantic/pedantic.dart';
-
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import 'panel_overlay.dart';
 
-final HtmlElement _overlay = querySelector('#overlay');
+final HtmlElement _overlay = queryDom('#overlay');
 
 class Dialog<T> {
   final HtmlElement _e;

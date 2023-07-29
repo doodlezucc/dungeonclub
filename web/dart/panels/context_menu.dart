@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:html';
 
 import '../../main.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 
-final _e = querySelector('#contextMenu');
+final _e = queryDom('#contextMenu');
 
 class ContextMenu {
   ContextMenu() {
