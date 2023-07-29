@@ -668,8 +668,13 @@ class Connection extends Socket {
         return notifyOthers(action, params);
 
       case a.GAME_MUSIC_PLAYLIST:
-        _requireOwnerOfSession();
         String? playlistName = params['playlist'];
+
+        if (_game == null && playlistName == null) {
+          // User is in a demo session and stops the audio player,
+          // no backend handling needed.
+          return null;
+        }
 
         if (playlistName == null) {
           _game!.ambience.playlistName = null;
