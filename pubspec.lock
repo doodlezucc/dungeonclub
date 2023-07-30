@@ -162,6 +162,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  cli_repl:
+    dependency: transitive
+    description:
+      name: cli_repl
+      sha256: a2ee06d98f211cb960c777519cb3d14e882acd90fe5e078668e3ab4baab0ddd4
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.3"
   clock:
     dependency: transitive
     description:
@@ -419,6 +427,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  node_interop:
+    dependency: transitive
+    description:
+      name: node_interop
+      sha256: "3af2420c728173806f4378cf89c53ba9f27f7f67792b898561bff9d390deb98e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   node_preamble:
     dependency: transitive
     description:
@@ -515,6 +531,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.1"
+  sass:
+    dependency: "direct main"
+    description:
+      name: sass
+      sha256: "741959c876e180c3c6a29e9186ca147ac2a9b6d890957e6024ad5d3aaac095c6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.64.1"
   scratch_space:
     dependency: transitive
     description:
@@ -659,6 +683,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   typed_data:
     dependency: transitive
     description:
