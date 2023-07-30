@@ -716,6 +716,7 @@ class Connection extends Socket {
         return notifyOthers(action, params);
 
       case 'manualSave':
+        _requireLogin();
         return data.manualSave();
     }
   }
