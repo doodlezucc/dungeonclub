@@ -68,11 +68,17 @@ class Session extends Game {
     window.localStorage['joined'] = jsonEncode(idNames);
   }
 
-  String getPlayerColor(int? player, [int? charCount]) {
-    if (player == null || player < 0) return '#ffffff'; // GM color
+  String getPlayerColor(int? playerId) {
+    if (playerId == null || playerId < 0) return '#ffffff'; // GM color
 
-    var h = 330 * player / (charCount ?? characters.length);
-    var l = 0.7 - 0.05 * cos(player * pi);
+    final playerIndex = characters.indexWhere((char) => char.id == playerId);
+
+    return getUniqueColorForPlayer(playerIndex, characters.length);
+  }
+
+  static String getUniqueColorForPlayer(int index, int maxIndex) {
+    var h = 330 * index / maxIndex;
+    var l = 0.7 - 0.05 * cos(index * pi);
 
     // Convert from HSL to RGB
     var c = 1 - (2 * l - 1).abs();
@@ -157,7 +163,7 @@ class Session extends Game {
     Iterable prefabJsonList = const [],
     Map<String, dynamic> sceneJson = const {},
     Iterable mapJsonList = const [],
-    Iterable? allScenesJson,
+    Iterable? allScenesJson = const [],
     int? usedStorageBytes,
   }) {
     this.characters.clear();
@@ -205,8 +211,8 @@ class Session extends Game {
     final pcs = List.from(json['pcs']);
 
     for (var i = 0; i < pcs.length; i++) {
-      chars
-          .add(Character.fromJson(getPlayerColor(i, pcs.length), this, pcs[i]));
+      chars.add(Character.fromJson(
+          getUniqueColorForPlayer(i, pcs.length), this, pcs[i]));
     }
 
     initialize(

@@ -21,7 +21,7 @@ class DemoSession extends Session {
     var characters = <Character>[];
 
     for (var i = 0; i < demoPlayers.length; i++) {
-      var color = getPlayerColor(i, demoPlayers.length);
+      var color = Session.getUniqueColorForPlayer(i, demoPlayers.length);
       characters.add(Character(i, this,
           color: color, name: demoPlayers[i], avatarUrl: 'asset/pc/$i'));
     }
