@@ -597,7 +597,14 @@ class GameMap {
     }
 
     // Assign user their own exclusive drawing layer
-    whiteboard.layerIndex = 1 + (user.session!.charId ?? -1);
+    if (user.session!.isDM) {
+      whiteboard.layerIndex = 0;
+    } else {
+      final myChar = user.session!.myCharacter!;
+      final pcIndex = user.session!.characters.indexOf(myChar);
+
+      whiteboard.layerIndex = 1 + pcIndex;
+    }
     applyImage();
 
     transform = new MapTransform(this);
