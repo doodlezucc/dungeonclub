@@ -12,11 +12,11 @@ abstract class Socket {
 
   Stream get messageStream;
   Future<void> send(dynamic data);
-  Future handleAction(String action, [Map<String, dynamic> params]);
+  Future handleAction(String action, [Map<String, dynamic>? params]);
 
   String modifyLog(String message) => message;
 
-  StreamSubscription listen({void Function() onDone, Function onError}) =>
+  StreamSubscription listen({void Function()? onDone, Function? onError}) =>
       messageStream.listen(_onMessage, onDone: onDone, onError: onError);
 
   Future<void> _onMessage(data) async {
@@ -70,7 +70,7 @@ abstract class Socket {
 
   void handleBinary(data);
 
-  Future request(String action, [Map<String, dynamic> params]) async {
+  Future request(String action, [Map<String, dynamic>? params]) async {
     var myId = _jobs.isEmpty ? 0 : _jobs.last + 1;
     _jobs.add(myId);
 
@@ -81,7 +81,7 @@ abstract class Socket {
     });
     await send(json);
 
-    String msg = await messageStream.firstWhere(
+    String? msg = await messageStream.firstWhere(
         (data) => data is String && data.startsWith('r{"id":$myId,'),
         orElse: () => null);
 
@@ -98,7 +98,7 @@ abstract class Socket {
     return result;
   }
 
-  Future<void> sendAction(String action, [Map<String, dynamic> params]) async {
+  Future<void> sendAction(String action, [Map<String, dynamic>? params]) async {
     var json = jsonEncode({
       'action': action,
       if (params != null) 'params': params,

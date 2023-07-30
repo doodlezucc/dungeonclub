@@ -23,5 +23,6 @@ String getToolInfo(String tool, bool dm) {
     case 'clear':
       return 'Removes every text and drawn line from this map. (No undo)';
   }
-  return null;
+
+  throw ArgumentError('Invalid tool type "$tool"');
 }

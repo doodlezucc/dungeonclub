@@ -5,14 +5,15 @@ import 'package:dungeonclub/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../html_helpers.dart';
 import 'panel_overlay.dart';
 
-final HtmlElement _panel = querySelector('#feedbackPanel');
-final SelectElement _select = _panel.querySelector('select');
-final TextAreaElement _content = _panel.querySelector('textarea')
+final HtmlElement _panel = queryDom('#feedbackPanel');
+final SelectElement _select = _panel.queryDom('select');
+final TextAreaElement _content = _panel.queryDom('textarea')
   ..onInput.listen((_) => _updateSendButton());
-final ButtonElement _cancelButton = _panel.querySelector('button.close');
-final ButtonElement _sendButton = _panel.querySelector('#sendFeedback');
+final ButtonElement _cancelButton = _panel.queryDom('button.close');
+final ButtonElement _sendButton = _panel.queryDom('#sendFeedback');
 
 Future<void> display() async {
   overlayVisible = true;
@@ -60,5 +61,5 @@ Future<bool> _trySend() async {
 }
 
 void _updateSendButton() {
-  _sendButton.disabled = _content.value.length < 20;
+  _sendButton.disabled = _content.value!.length < 20;
 }

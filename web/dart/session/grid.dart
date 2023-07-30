@@ -8,27 +8,28 @@ import 'package:dungeonclub/point_json.dart';
 import 'package:grid_space/grid_space.dart';
 
 import '../../main.dart';
+import '../html_helpers.dart';
 import 'measuring.dart';
 
-final HtmlElement _controls = querySelector('#sceneEditor');
-final InputElement gridTiles = _controls.querySelector('#gridTiles');
-final InputElement _gridTileUnit = _controls.querySelector('#gridTileUnit');
-final InputElement _gridColor = _controls.querySelector('#gridColor');
-final InputElement _gridAlpha = _controls.querySelector('#gridAlpha');
-final DivElement _crop = querySelector('#gridPadding');
+final HtmlElement _controls = queryDom('#sceneEditor');
+final InputElement gridTiles = _controls.queryDom('#gridTiles');
+final InputElement _gridTileUnit = _controls.queryDom('#gridTileUnit');
+final InputElement _gridColor = _controls.queryDom('#gridColor');
+final InputElement _gridAlpha = _controls.queryDom('#gridAlpha');
+final DivElement _crop = queryDom('#gridPadding');
 final _typeButtons = <ButtonElement, int>{
-  querySelector('#gridTSquare'): GRID_SQUARE,
-  querySelector('#gridTHexH'): GRID_HEX_H,
-  querySelector('#gridTHexV'): GRID_HEX_V,
-  querySelector('#gridTNone'): GRID_NONE,
+  queryDom('#gridTSquare'): GRID_SQUARE,
+  queryDom('#gridTHexH'): GRID_HEX_H,
+  queryDom('#gridTHexV'): GRID_HEX_V,
+  queryDom('#gridTNone'): GRID_NONE,
 };
 
 const minSize = Point<double>(200, 200);
 
 class SceneGrid {
-  final HtmlElement e = querySelector('#grid');
-  final svg.SvgSvgElement _canvas = querySelector('#gridCanvas');
-  final svg.RectElement _rect = querySelector('#gridCanvasMask');
+  final HtmlElement e = queryDom('#grid');
+  final svg.SvgSvgElement _canvas = queryDom('#gridCanvas');
+  final svg.RectElement _rect = queryDom('#gridCanvasMask');
 
   Grid _grid = Grid.square(1);
   Grid get grid => _grid;
@@ -39,7 +40,7 @@ class SceneGrid {
   int _gridType = GRID_SQUARE;
   int get gridType => _gridType;
 
-  MeasuringRuleset _measuringRuleset;
+  MeasuringRuleset _measuringRuleset = MeasuringRuleset.squareDmg;
   MeasuringRuleset get measuringRuleset => _measuringRuleset;
 
   int _tiles = 16;
@@ -60,18 +61,18 @@ class SceneGrid {
   Point get offset => _grid.zero;
   Point get size => _grid.size;
 
-  num get cellWidth => size.x / tiles;
-  num get cellHeight =>
+  double get cellWidth => size.x / tiles;
+  double get cellHeight =>
       grid is TiledGrid ? (grid as TiledGrid).tileHeight : cellWidth;
   Point get cellSize => Point(cellWidth, cellHeight);
 
-  num get tokenSize => cellWidth;
+  double get tokenSize => cellWidth;
 
   Point<double> get _imgSize =>
       Point(_canvas.clientWidth.toDouble(), _canvas.clientHeight.toDouble());
 
-  num _tileMultiply;
-  String _tileUnit;
+  num _tileMultiply = 5;
+  String _tileUnit = ' ft';
 
   SceneGrid() {
     _initGridEditor();
@@ -84,14 +85,14 @@ class SceneGrid {
   }
 
   void _validateTileUnit() {
-    var s = _gridTileUnit.value.replaceFirst(',', '.');
+    var s = _gridTileUnit.value!.replaceFirst(',', '.');
 
     // Regex for real numbers (e.g. 0.125 | 10 | 420.69)
     var regex = RegExp(r'\d+(\.\d*)?');
     var match = regex.matchAsPrefix(s);
 
     if (match != null) {
-      _tileMultiply = num.parse(match.group(0));
+      _tileMultiply = num.parse(match[0]!);
 
       if (s.length == match.end) {
         // No unit given
@@ -118,7 +119,7 @@ class SceneGrid {
 
     gridTiles
       ..onInput.listen((event) {
-        tiles = gridTiles.valueAsNumber;
+        tiles = gridTiles.valueAsNumber!.toInt();
       })
       ..onMouseEnter.listen((_) {
         blink = true;
@@ -139,21 +140,21 @@ class SceneGrid {
     _crop.onMouseDown.listen((e) async {
       if (e.button != 0) return;
       e.preventDefault();
-      HtmlElement clicked = e.target;
-      var pos1 = offset;
-      var size1 = size;
+      final clicked = e.target as HtmlElement;
+      final pos1 = offset;
+      final size1 = size;
 
       void Function(Point<double>) action;
       if (clicked != _crop) {
         var cursorCss = clicked.style.cursor + ' !important';
-        document.body.style.cursor = cursorCss;
+        document.body!.style.cursor = cursorCss;
         _crop.style.cursor = cursorCss;
 
-        var classes = clicked.classes;
-        var t = classes.contains('top');
-        var r = classes.contains('right');
-        var l = classes.contains('left');
-        var b = classes.contains('bottom');
+        final classes = clicked.classes;
+        final t = classes.contains('top');
+        final r = classes.contains('right');
+        final l = classes.contains('left');
+        final b = classes.contains('bottom');
 
         action = (diff) {
           var x = pos1.x;
@@ -185,24 +186,24 @@ class SceneGrid {
         };
       }
 
-      var mouse1 = Point<double>(e.client.x, e.client.y);
-      var subMove = window.onMouseMove.listen((e) {
+      final mouse1 = Point(e.client.x, e.client.y).cast<double>();
+      final subMove = window.onMouseMove.listen((e) {
         if (e.movement.magnitude == 0) return;
-        var diff = Point<double>(e.client.x, e.client.y) - mouse1;
+        var diff = Point(e.client.x, e.client.y).cast<double>() - mouse1;
 
-        action(diff * (1 / user.session.board.scaledZoom));
+        action(diff * (1 / user.session!.board.scaledZoom));
       });
 
       await window.onMouseUp.first;
 
-      document.body.style.cursor = '';
+      document.body!.style.cursor = '';
       _crop.style.cursor = '';
       await subMove.cancel();
     });
   }
 
   void _repositionMovables() {
-    user.session.board.movables.forEach((m) => m.applyPosition());
+    user.session!.board.movables.forEach((m) => m.applyPosition());
   }
 
   static Grid _createGrid(int type, int tilesInRow, Point zero, Point size) {
@@ -219,7 +220,7 @@ class SceneGrid {
         return Grid.unclamped(scale: size.x / tilesInRow, zero: zero)
           ..size = size;
     }
-    return null;
+    throw ArgumentError('Invalid grid type $type');
   }
 
   void changeGridType(int type) {
@@ -290,11 +291,11 @@ class SceneGrid {
   }
 
   void _applyCellSize() {
-    user.session.board.applyCellSize();
+    user.session!.board.applyCellSize();
     if (_grid is UnclampedGrid) {
       (_grid as UnclampedGrid).scale = tokenSize;
     }
-    user.session.board.transform.applyInvZoom();
+    user.session!.board.transform.applyInvZoom();
     updateCanvasSvgTile();
   }
 
@@ -302,8 +303,8 @@ class SceneGrid {
     Point point, {
     Point offset = const Point(0.5, 0.5),
   }) {
-    Point cOffset = offset.cast<double>();
-    var p = _grid.worldToGridSpace(point.cast<double>() - cOffset) - cOffset;
+    final cOffset = offset.cast<double>();
+    final p = _grid.worldToGridSpace(point.cast<double>() - cOffset) - cOffset;
     return p;
   }
 
@@ -340,7 +341,7 @@ class SceneGrid {
 
     if (gridType == GRID_NONE) return;
 
-    var pattern = querySelector(patternId);
+    var pattern = queryDom(patternId);
     var scale = cellWidth;
     pattern.setAttribute(
       'patternTransform',
@@ -348,18 +349,18 @@ class SceneGrid {
     );
 
     var patternG = pattern.children.first;
-    patternG.setAttribute('stroke', _gridColor.value);
-    patternG.setAttribute('opacity', _gridAlpha.value);
+    patternG.setAttribute('stroke', _gridColor.value!);
+    patternG.setAttribute('opacity', _gridAlpha.value!);
   }
 
   void configure({
-    int gridType,
-    int tiles,
-    String tileUnit,
-    String color,
-    double alpha,
-    Point position,
-    Point size,
+    required int gridType,
+    required int tiles,
+    required String tileUnit,
+    required String color,
+    required double alpha,
+    required Point position,
+    Point? size,
   }) {
     _gridType = gridType;
     _grid = _createGrid(
@@ -389,7 +390,7 @@ class SceneGrid {
       tileUnit: json['tileUnit'],
       color: json['color'],
       alpha: json['alpha'],
-      position: parsePoint(json['offset']),
+      position: parsePoint(json['offset'])!,
       size: parsePoint(json['size']),
     );
   }

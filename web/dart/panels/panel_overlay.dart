@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:html';
 
-HtmlElement _overlay = querySelector('#overlay');
+import '../html_helpers.dart';
+
+HtmlElement _overlay = queryDom('#overlay');
 int _stack = 0;
 
 set overlayVisible(bool visible) {

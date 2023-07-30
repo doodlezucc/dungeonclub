@@ -1,10 +1,9 @@
 import 'dart:html';
 
 import 'package:dungeonclub/actions.dart';
-import 'package:meta/meta.dart';
 
 import '../communication.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../resource.dart';
 import 'prefab.dart';
 import 'session.dart';
@@ -23,22 +22,22 @@ class Character {
     _hasJoined = hasJoined;
 
     if (hasJoined) {
-      querySelector('#online').append(_onlineIndicator);
+      queryDom('#online').append(_onlineIndicator);
     } else {
       _onlineIndicator.remove();
     }
   }
 
   String get name => prefab.name;
-  Resource get image => prefab.image;
+  Resource get image => prefab.image!;
 
   Character(
     this.id,
     Session session, {
-    @required String color,
-    @required String name,
-    @required String avatarUrl,
-    Map prefabJson,
+    required String color,
+    required String name,
+    required String avatarUrl,
+    Map<String, dynamic>? prefabJson,
     bool joined = false,
   }) : prefab = CharacterPrefab(id, name, Resource(avatarUrl)) {
     _onlineIndicator

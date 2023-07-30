@@ -56,7 +56,7 @@ void printStep(String msg) {
   print('\n\n--- $msg\n');
 }
 
-Future<void> build(Directory output, [Map<String, dynamic> D]) async {
+Future<void> build(Directory output, [Map<String, dynamic>? D]) async {
   D ??= defaultConfig;
   var hide = ['help', Environment.ENV_TIMESTAMP];
   var env = declareArgs(D);
@@ -162,7 +162,7 @@ Future<void> copyDirectory(
   String src,
   String dst,
   bool Function(FileSystemEntity fse) doCopy, {
-  Future<void> Function(File file) postProcess,
+  Future<void> Function(File file)? postProcess,
 }) async {
   await Directory(dst).create(recursive: true);
   await for (final file in Directory(src).list(recursive: true)) {

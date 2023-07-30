@@ -19,10 +19,13 @@ Future<void> resizeAll(String dirPath, {int size = 2000}) async {
   var directory = Directory(dirPath);
 
   for (var f in await directory.list().toList()) {
-    var ext = p.extension(f.path).toLowerCase();
+    final ext = p.extension(f.path).toLowerCase();
+
     if (ext == '.png' || ext == '.jpg') {
-      File file = f;
-      var img = image.decodeImage(await file.readAsBytes());
+      final file = f as File;
+
+      var img = image.decodeImage(await file.readAsBytes())!;
+
       if (img.width != size && img.height != size) {
         print('Resizing ${f.path}');
         var useWidth = img.width >= img.height;
@@ -47,7 +50,7 @@ Future<void> createAssetPreview(
   final dirPath = ASSET_DIRECTORIES[assetType];
   final directory = Directory('web/$dirPath');
 
-  final filePath = ASSET_PREVIEWS[assetType];
+  final filePath = ASSET_PREVIEWS[assetType]!;
   final file = File('web/$filePath');
 
   if (await file.exists() || !await directory.exists()) return;
@@ -62,11 +65,14 @@ Future<void> createAssetPreview(
 
   if (sources.isEmpty) return null;
 
-  var img = image.Image(tileSize, sources.length * tileSize);
+  var img = image.Image(
+    width: tileSize,
+    height: sources.length * tileSize,
+  );
 
   for (var i = 0; i < sources.length; i++) {
-    File src = sources[i];
-    var srcImg = image.decodeImage(await src.readAsBytes());
+    final src = sources[i] as File;
+    var srcImg = image.decodeImage(await src.readAsBytes())!;
 
     if (zoomIn) {
       var cx = srcImg.width ~/ 2;
@@ -74,16 +80,25 @@ Future<void> createAssetPreview(
       var size = (srcImg.height * 0.6).round();
       var inset = size ~/ 2;
 
-      srcImg = image.copyCrop(srcImg, cx - inset, cy - inset, size, size);
-      srcImg = image.copyResize(srcImg,
-          width: tileSize,
-          height: tileSize,
-          interpolation: image.Interpolation.average);
+      srcImg = image.copyCrop(
+        srcImg,
+        x: cx - inset,
+        y: cy - inset,
+        width: size,
+        height: size,
+      );
+
+      srcImg = image.copyResize(
+        srcImg,
+        width: tileSize,
+        height: tileSize,
+        interpolation: image.Interpolation.average,
+      );
     } else {
-      srcImg = image.copyResizeCropSquare(srcImg, tileSize);
+      srcImg = image.copyResizeCropSquare(srcImg, size: tileSize);
     }
 
-    img = image.copyInto(img, srcImg, dstY: tileSize * i);
+    img = image.compositeImage(img, srcImg, dstY: tileSize * i);
   }
 
   final usePng = filePath.endsWith('.png');
@@ -103,7 +118,7 @@ Future<List<FileSystemEntity>> _getSortedAssetsIn(String dirPath) async {
       ..sort((a, b) => p.basename(a.path).compareTo(p.basename(b.path)));
   }
 
-  return _dirAssets[dirPath];
+  return _dirAssets[dirPath]!;
 }
 
 Future<String> resolveIndexedAsset(
@@ -113,12 +128,16 @@ Future<String> resolveIndexedAsset(
 }) async {
   final match = _pathRegex.firstMatch(assetPath);
 
-  final assetType = match[1];
+  if (match == null) {
+    throw 'Invalid asset path';
+  }
+
+  final assetType = match[1]!;
   final dirPath = getAssetDirectoryPath(assetType);
   final assets = await _getSortedAssetsIn(dirPath);
 
   final assetIndex =
-      pickRandom ? Random().nextInt(assets.length) : int.parse(match[2]);
+      pickRandom ? Random().nextInt(assets.length) : int.parse(match[2]!);
 
   final file = assets[assetIndex];
   final fileName = p.basename(file.path);

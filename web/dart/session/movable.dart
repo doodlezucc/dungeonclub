@@ -4,9 +4,8 @@ import 'dart:math' as math;
 import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:grid_space/grid_space.dart';
-import 'package:meta/meta.dart';
 
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import 'board.dart';
 import 'condition.dart';
 import 'prefab.dart';
@@ -91,11 +90,11 @@ class Movable extends ClampedEntityBase with TokenModel {
       position - Point(0.5 * displaySize, 0.5 * displaySize);
 
   Movable._({
-    @required this.board,
-    @required this.prefab,
-    @required this.id,
-    @required Point<double> pos,
-    @required Iterable<int> conds,
+    required this.board,
+    required this.prefab,
+    required this.id,
+    required Point<double>? pos,
+    required Iterable<int>? conds,
     bool createTooltip = true,
   }) {
     e
@@ -125,11 +124,11 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   static Movable create({
-    @required Board board,
-    @required Prefab prefab,
-    @required int id,
-    Iterable<int> conds,
-    Point<double> pos,
+    required Board board,
+    required Prefab prefab,
+    required int id,
+    Iterable<int>? conds,
+    Point<double>? pos,
   }) {
     if (prefab is EmptyPrefab) {
       return EmptyMovable._(
@@ -158,7 +157,7 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   void updateTooltip() {
-    e.querySelector('.toast').text = displayName;
+    e.queryDom('.toast').text = displayName;
   }
 
   void onPrefabUpdate() {
@@ -175,8 +174,8 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   void applyImage() {
-    final img = prefab.image.url;
-    e.querySelector('.img').style.backgroundImage = 'url($img)';
+    final img = prefab.image!.url;
+    e.queryDom('.img').style.backgroundImage = 'url($img)';
   }
 
   void roundToGrid() {
@@ -184,7 +183,7 @@ class Movable extends ClampedEntityBase with TokenModel {
         board.grid.grid.gridSnapCentered(position, displaySize).cast<double>();
   }
 
-  bool toggleCondition(int id, [bool add]) {
+  bool toggleCondition(int id, [bool? add]) {
     var didAdd = false;
     if (add != null) {
       didAdd = add ? conds.add(id) : conds.remove(id);
@@ -197,13 +196,13 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   void _applyConds() {
-    var container = e.querySelector('.conds');
+    var container = e.queryDom('.conds');
     for (var child in List<Element>.from(container.children)) {
       child.remove();
     }
 
     for (var id in conds) {
-      var cond = Condition.items[id];
+      var cond = Condition.items[id]!;
       container
           .append(icon(cond.icon)..append(SpanElement()..text = cond.name));
     }
@@ -221,7 +220,12 @@ class Movable extends ClampedEntityBase with TokenModel {
 
     e.classes.add('animate-remove');
     await Future.delayed(Duration(milliseconds: 500));
-    board.transform.unregisterInvZoom(e.querySelector('.toast'));
+
+    final toast = e.querySelector('.toast');
+    if (toast != null) {
+      board.transform.unregisterInvZoom(toast);
+    }
+
     e.remove();
   }
 
@@ -245,7 +249,7 @@ class Movable extends ClampedEntityBase with TokenModel {
 }
 
 class EmptyMovable extends Movable {
-  SpanElement _labelSpan;
+  late SpanElement _labelSpan;
 
   @override
   set label(String label) {
@@ -254,7 +258,7 @@ class EmptyMovable extends Movable {
     _labelSpan.text = label;
     var lines = label.split(' ');
 
-    var length = lines.fold(0, (len, line) => math.max<int>(len, line.length));
+    var length = lines.fold<int>(0, (len, line) => math.max(len, line.length));
     _labelSpan.style.setProperty('--length', '${length + 1}');
   }
 
@@ -264,11 +268,11 @@ class EmptyMovable extends Movable {
   }
 
   EmptyMovable._({
-    @required Board board,
-    @required EmptyPrefab prefab,
-    @required int id,
-    @required Point<double> pos,
-    @required Iterable<int> conds,
+    required Board board,
+    required EmptyPrefab prefab,
+    required int id,
+    required Point<double>? pos,
+    required Iterable<int>? conds,
   }) : super._(
           board: board,
           prefab: prefab,
@@ -290,8 +294,8 @@ class EmptyMovable extends Movable {
 }
 
 class AngleArrow {
-  static final HtmlElement container = querySelector('#angleArrow');
-  static final HtmlElement angleCurrent = querySelector('#angleCurrent');
+  static final HtmlElement container = queryDom('#angleArrow');
+  static final HtmlElement angleCurrent = queryDom('#angleCurrent');
 
   bool _visible = false;
   bool get visible => _visible;
@@ -301,7 +305,7 @@ class AngleArrow {
     container.classes.toggle('show', visible);
   }
 
-  Point<double> _origin;
+  Point<double> _origin = Point(0.0, 0.0);
   Point<double> get origin => _origin;
   set origin(Point<double> origin) {
     _origin = origin;
@@ -309,7 +313,7 @@ class AngleArrow {
     container.style.setProperty('--y', '${origin.y}px');
   }
 
-  double _angle;
+  double _angle = 0;
   double get angle => _angle;
   set angle(double angle) {
     _angle = angle.undeviate();
@@ -335,7 +339,7 @@ class AngleArrow {
   }
 
   void align(Board board, Point end, {bool updateSourceAngle = false}) {
-    final activeMovable = board.activeMovable;
+    final activeMovable = board.activeMovable!;
 
     origin = board.grid.grid.gridToWorldSpace(activeMovable.position);
     length = activeMovable.displaySize;

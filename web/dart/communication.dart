@@ -9,7 +9,7 @@ import 'package:web_whiteboard/communication/web_socket.dart';
 
 import '../main.dart';
 import 'action_handler.dart' as handler;
-import 'font_awesome.dart';
+import 'html_helpers.dart';
 import 'panels/dialog.dart';
 import 'session/measuring.dart';
 
@@ -44,10 +44,10 @@ const demoActions = [
 ];
 
 class FrontSocket extends Socket {
-  WebSocket _webSocket;
+  WebSocket? _webSocket;
   final _waitForOpen = Completer();
-  Timer _retryTimer;
-  ConstantDialog _errorDialog;
+  Timer? _retryTimer;
+  ConstantDialog? _errorDialog;
   bool _manualClose = false;
 
   Future<void> _requireConnection() async {
@@ -75,7 +75,7 @@ class FrontSocket extends Socket {
 
   void close() {
     _manualClose = true;
-    _webSocket.close();
+    _webSocket?.close();
   }
 
   void _handleConnectionClose() async {
@@ -115,18 +115,18 @@ class FrontSocket extends Socket {
   }
 
   @override
-  Stream get messageStream => _webSocket.onMessage.map((event) => event.data);
+  Stream get messageStream => _webSocket!.onMessage.map((event) => event.data);
 
   @override
   Future<void> send(data) async {
     if (user.isInDemo && data is! String) return;
 
     await _requireConnection();
-    _webSocket.send(data);
+    _webSocket!.send(data);
   }
 
   @override
-  Future<dynamic> request(String action, [Map<String, dynamic> params]) async {
+  Future<dynamic> request(String action, [Map<String, dynamic>? params]) async {
     if (!canSend(action)) return null;
 
     await _requireConnection();
@@ -134,7 +134,7 @@ class FrontSocket extends Socket {
   }
 
   @override
-  Future<void> sendAction(String action, [Map<String, dynamic> params]) async {
+  Future<void> sendAction(String action, [Map<String, dynamic>? params]) async {
     if (!canSend(action)) return;
 
     await _requireConnection();
@@ -142,8 +142,11 @@ class FrontSocket extends Socket {
   }
 
   @override
-  Future handleAction(String action, [Map<String, dynamic> params]) =>
-      handler.handleAction(action, params);
+  Future handleAction(
+    String action, [
+    Map<String, dynamic>? params,
+  ]) =>
+      handler.handleAction(action, params ?? {});
 
   @override
   void handleBinary(data) async {
@@ -154,7 +157,7 @@ class FrontSocket extends Socket {
       if (port == measuringPort) {
         handleMeasuringEvent(bytes);
       } else if (port != 99) {
-        user.session?.board?.mapTab?.handleEvent(bytes);
+        user.session?.board.mapTab.handleEvent(bytes);
       }
     }
   }

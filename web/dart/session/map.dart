@@ -6,37 +6,38 @@ import 'dart:typed_data';
 
 import 'package:async/async.dart';
 import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/iterable_extension.dart';
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/session_util.dart';
 import 'package:web_whiteboard/whiteboard.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../html_helpers.dart';
 import '../html_transform.dart';
 import '../panels/upload.dart' as uploader;
 import '../resource.dart';
 import 'map_tool_info.dart';
 
-final HtmlElement _e = querySelector('#map');
-final HtmlElement _mapContainer = _e.querySelector('#maps');
-final HtmlElement _minimapContainer = _e.querySelector('#mapSelect');
-final ButtonElement _backButton = _e.querySelector('button[type=reset]');
-final ButtonElement _imgButton = _e.querySelector('#addMap');
-final InputElement _name = _e.querySelector('#mapName');
-final ButtonElement _shared = _e.querySelector('#mapShared');
-final HtmlElement _tools = _e.querySelector('#mapTools');
-final HtmlElement _toolInfo = _e.querySelector('#toolInfo');
-final InputElement _color = _e.querySelector('#activeColor');
+final HtmlElement _e = queryDom('#map');
+final HtmlElement _mapContainer = _e.queryDom('#maps');
+final HtmlElement _minimapContainer = _e.queryDom('#mapSelect');
+final ButtonElement _backButton = _e.queryDom('button[type=reset]');
+final ButtonElement _imgButton = _e.queryDom('#addMap');
+final InputElement _name = _e.queryDom('#mapName');
+final ButtonElement _shared = _e.queryDom('#mapShared');
+final HtmlElement _tools = _e.queryDom('#mapTools');
+final HtmlElement _toolInfo = _e.queryDom('#toolInfo');
+final InputElement _color = _e.queryDom('#activeColor');
 
-final HtmlElement _indexText = _e.querySelector('#mapIndex');
-final ButtonElement _navLeft = _name.previousElementSibling;
-final ButtonElement _navRight = _name.parent.children.last;
+final HtmlElement _indexText = _e.queryDom('#mapIndex');
+final _navLeft = _name.previousElementSibling as ButtonElement;
+final _navRight = _name.parent!.children.last as ButtonElement;
 
-ButtonElement get _deleteButton => _e.querySelector('#mapDelete');
+ButtonElement get _deleteButton => _e.queryDom('#mapDelete');
 
 class MapTab {
   final maps = <GameMap>[];
-  final transform = MapTransform();
 
   bool get editMode => _e.classes.contains('edit');
   set editMode(bool editMode) {
@@ -44,7 +45,7 @@ class MapTab {
     _backButton.childNodes[0].text = editMode ? 'Overview' : 'Exit Map View';
 
     if (!editMode) {
-      transform.reset();
+      map!.transform.reset();
     }
 
     Future.delayed(
@@ -55,32 +56,34 @@ class MapTab {
 
   int _mapIndex = 0;
   int get mapIndex => _mapIndex;
-  set mapIndex(int currentMap) {
+  set mapIndex(int mapIndex) {
     if (map != null) {
-      map.whiteboard.captureInput = false;
+      map!.whiteboard.captureInput = false;
+      map!.transform.reset();
     }
 
-    transform.reset();
-    _mapIndex = currentMap;
-    _mapContainer.style.left = '${currentMap * -100}%';
-    _name.value = map.name;
-    shared = map.shared;
+    _mapIndex = mapIndex;
+
+    final focusedMap = map!;
+
+    _mapContainer.style.left = '${mapIndex * -100}%';
+    _name.value = focusedMap.name;
+    shared = focusedMap.shared;
     mode = mode;
-    transform.element = map._em;
     _updateHistoryButtons();
     _updateNavigateButtons();
     _updateIndexText();
-    Future.microtask(() => map._fixScaling());
+    Future.microtask(() => focusedMap._fixScaling());
   }
 
-  Point get _mapSize {
+  Point get mapSize {
     if (map == null) return Point(0, 0);
 
-    var img = map.whiteboard.backgroundImageElement;
+    var img = map!.whiteboard.backgroundImageElement;
     return Point(img.naturalWidth, img.naturalHeight);
   }
 
-  GameMap get map =>
+  GameMap? get map =>
       (maps.isNotEmpty && mapIndex < maps.length) ? maps[mapIndex] : null;
 
   String _mode = 'draw';
@@ -88,13 +91,13 @@ class MapTab {
   set mode(String mode) {
     _mode = mode;
     _tools.querySelectorAll('.active:not(#mapShared)').classes.remove('active');
-    _tools.querySelector('[mode=$mode]').classes.add('active');
+    _tools.queryDom('[mode=$mode]').classes.add('active');
     _setToolInfo(mode);
 
     _color.disabled = mode != 'draw';
 
     if (maps.isNotEmpty) {
-      var wb = map.whiteboard;
+      var wb = map!.whiteboard;
       if (mode == 'erase') {
         wb.mode = Whiteboard.modeDraw;
         wb.eraser = true;
@@ -103,7 +106,7 @@ class MapTab {
         wb.eraser = false;
 
         if (mode == 'draw') {
-          wb.activeColor = _color.value;
+          wb.activeColor = _color.value!;
         }
       }
     }
@@ -123,15 +126,19 @@ class MapTab {
   }
 
   void _updateToolsVisibility() {
-    var useTools = (user.session.isDM || map.shared) && !transform.isOffCenter;
-    map.whiteboard.captureInput = useTools;
+    final currentMap = map!;
+
+    final useTools = (user.session!.isDM || currentMap.shared) &&
+        !currentMap.transform.isOffCenter;
+
+    currentMap.whiteboard.captureInput = useTools;
     _tools.classes.toggle('hidden', !useTools);
   }
 
   void _updateNavigateButtons() {
     _navLeft.disabled = mapIndex == 0;
 
-    if (user.session.isDM) {
+    if (user.session!.isDM) {
       var showAdd = mapIndex == maps.length - 1;
       var icon = showAdd ? 'plus' : 'chevron-right';
       _navRight.classes.toggle('add-map', showAdd);
@@ -139,31 +146,30 @@ class MapTab {
 
       if (showAdd && maps.length >= mapsPerCampaign) {
         _navRight.disabled = true;
-        _navRight.querySelector('span').text =
+        _navRight.queryDom('span').text =
             'Limit of $mapsPerCampaign Maps Reached!';
       } else {
         _navRight.disabled = maps.isEmpty;
-        _navRight.querySelector('span').text = 'Create New Map';
+        _navRight.queryDom('span').text = 'Create New Map';
       }
     } else {
       _navRight.disabled = mapIndex >= maps.length - 1;
     }
   }
 
-  ButtonElement _toolBtn(String name) => _tools.querySelector('[action=$name]');
+  ButtonElement _toolBtn(String name) => _tools.queryDom('[action=$name]');
 
   void _updateHistoryButtons() {
-    _toolBtn('clear').disabled = map.whiteboard.isClear;
-    _toolBtn('undo').disabled = map.whiteboard.history.positionInStack == 0;
-    _toolBtn('redo').disabled = !map.whiteboard.history.canRedo;
+    _toolBtn('clear').disabled = map!.whiteboard.isClear;
+    _toolBtn('undo').disabled = map!.whiteboard.history.positionInStack == 0;
+    _toolBtn('redo').disabled = !map!.whiteboard.history.canRedo;
   }
 
   void _setToolInfo(String id) {
-    var info = getToolInfo(id, user.session.isDM);
-
-    if (info != null) {
+    try {
+      final info = getToolInfo(id, user.session!.isDM);
       _toolInfo.innerHtml = info;
-    }
+    } on ArgumentError catch (_) {}
   }
 
   Future<bool> _uploadNewMap(MouseEvent ev) async {
@@ -221,7 +227,7 @@ class MapTab {
 
     _navLeft.onLMB.listen((_) => mapIndex--);
     _navRight.onLMB.listen((ev) async {
-      if (user.session.isDM && mapIndex == maps.length - 1) {
+      if (user.session!.isDM && mapIndex == maps.length - 1) {
         await _uploadNewMap(ev);
       } else {
         mapIndex++;
@@ -235,25 +241,27 @@ class MapTab {
     _initTools();
     _initMapName();
     _shared.onClick.listen((_) {
-      map.shared = !map.shared;
-      shared = map.shared;
-      socket.sendAction(GAME_MAP_UPDATE, {'map': map.id, 'shared': map.shared});
+      final currentMap = map!;
+
+      currentMap.shared = !currentMap.shared;
+      shared = currentMap.shared;
+      socket.sendAction(GAME_MAP_UPDATE, {
+        'map': currentMap.id,
+        'shared': currentMap.shared,
+      });
     });
   }
 
   void _initZoom() {
-    StreamController<SimpleEvent> moveStreamCtrl;
-    Point previous;
-    int initialButton;
-
-    transform.getMapSize = () => _mapSize;
-    transform.onChange = (offCenter) {
-      _updateToolsVisibility();
-    };
+    StreamController<SimpleEvent>? moveStreamCtrl;
+    Point? previous;
+    int? initialButton;
 
     _e.onMouseWheel.listen((ev) {
-      if (visible && editMode && map?.whiteboard?.selectedText == null) {
-        transform.handleMousewheel(ev);
+      if (map != null) {
+        if (visible && editMode && map!.whiteboard.selectedText == null) {
+          map!.transform.handleMousewheel(ev);
+        }
       }
     });
 
@@ -264,42 +272,50 @@ class MapTab {
       Stream<T> endEvent,
     ) {
       SimpleEvent toSimple(T ev) {
-        var delta = evToPoint(ev) - previous;
-        previous = evToPoint(ev);
-        return SimpleEvent.fromJS(ev, null, delta);
+        final point = evToPoint(ev);
+        final delta = point - previous!;
+        previous = point;
+
+        return SimpleEvent.fromJS(ev, point, delta);
       }
 
       startEvent.listen((ev) async {
+        final focusedMap = map;
+
+        if (focusedMap == null) {
+          return;
+        }
+
         previous = evToPoint(ev);
         var start = toSimple(ev);
 
-        if (start.button == 0 && !transform.isOffCenter) return;
+        if (start.button == 0 && !focusedMap.transform.isOffCenter) return;
 
         ev.preventDefault();
-        document.activeElement.blur();
+        document.activeElement?.blur();
 
         if (start.button != initialButton && moveStreamCtrl != null) return;
 
         initialButton = start.button;
         moveStreamCtrl = StreamController();
-        var stream = moveStreamCtrl.stream;
+        var stream = moveStreamCtrl!.stream;
 
         if (start.ctrl && initialButton == 1) {
-          transform.handleFineZooming(start, stream);
+          focusedMap.transform.handleFineZooming(start, stream);
         } else {
-          transform.handlePanning(start, stream);
+          focusedMap.transform.handlePanning(start, stream);
         }
 
         await endEvent.firstWhere((ev) => toSimple(ev).button == initialButton);
 
-        var streamCopy = moveStreamCtrl;
+        final streamCopy = moveStreamCtrl!;
         moveStreamCtrl = null;
         await streamCopy.close();
       });
 
       moveEvent.listen((ev) {
         if (moveStreamCtrl != null) {
-          moveStreamCtrl.add(toSimple(ev));
+          moveStreamCtrl!.add(toSimple(ev));
         }
       });
     }
@@ -307,13 +323,13 @@ class MapTab {
     listenToCursorEvents<MouseEvent>(
         (ev) => ev.page, _e.onMouseDown, window.onMouseMove, window.onMouseUp);
 
-    listenToCursorEvents<TouchEvent>((ev) => ev.targetTouches[0].page,
+    listenToCursorEvents<TouchEvent>((ev) => ev.targetTouches![0].page,
         _e.onTouchStart, window.onTouchMove, window.onTouchEnd);
   }
 
   void _initTools() {
     void registerAction(String name, void Function(MouseEvent ev) action) {
-      ButtonElement button = _tools.querySelector('[action=$name]')
+      ButtonElement button = _tools.queryDom('[action=$name]')
         ..onClick.listen(action);
 
       button.onMouseEnter.listen((_) => _setToolInfo(name));
@@ -321,44 +337,46 @@ class MapTab {
     }
 
     void clearMap() {
-      map?.whiteboard?.clear();
+      map?.whiteboard.clear();
       _toolBtn('clear').disabled = true;
     }
 
     _color.onInput.listen((_) {
       if (maps.isNotEmpty) {
-        map.whiteboard.activeColor = _color.value;
+        map!.whiteboard.activeColor = _color.value!;
       }
     });
 
     _tools.children[0].children.forEach((element) {
       if (element is ButtonElement) {
         element.onClick.listen((_) {
-          mode = element.attributes['mode'];
+          mode = element.attributes['mode']!;
         });
       }
     });
 
-    registerAction('undo', (_) => map?.whiteboard?.history?.undo());
-    registerAction('redo', (_) => map?.whiteboard?.history?.redo());
+    registerAction('undo', (_) => map?.whiteboard.history.undo());
+    registerAction('redo', (_) => map?.whiteboard.history.redo());
     registerAction('clear', (_) => clearMap());
     registerAction('change', (ev) async {
+      final currentMap = map!;
+
       final response = await uploader.display(
         event: ev,
         action: GAME_MAP_UPDATE,
         type: IMAGE_TYPE_MAP,
-        extras: {'map': map.id},
+        extras: {'map': currentMap.id},
       );
 
       if (response != null) {
         clearMap();
-        map.image.path = response['image'];
-        map.applyImage();
+        currentMap.image.path = response['image'];
+        currentMap.applyImage();
       }
     });
 
     _toolInfo.onClick.listen((_) => _setInfoVisible(false));
-    _e.querySelector('#infoShow').onClick.listen((_) => _setInfoVisible(true));
+    _e.queryDom('#infoShow').onClick.listen((_) => _setInfoVisible(true));
     _tools.classes
         .toggle('collapsed', window.localStorage['mapToolInfo'] == 'false');
   }
@@ -370,21 +388,24 @@ class MapTab {
 
   void _listenToEraseAcross() {
     window.onKeyDown.listen((ev) {
-      if (ev.keyCode == 16) map?.whiteboard?.eraseAcrossLayers = true;
+      if (ev.keyCode == 16) map?.whiteboard.eraseAcrossLayers = true;
     });
     window.onKeyUp.listen((ev) {
-      if (ev.keyCode == 16) map?.whiteboard?.eraseAcrossLayers = false;
+      if (ev.keyCode == 16) map?.whiteboard.eraseAcrossLayers = false;
     });
   }
 
   void _deleteCurrentMap() {
-    socket.sendAction(GAME_MAP_REMOVE, {'map': map.id});
-    onMapRemove(map.id);
+    socket.sendAction(GAME_MAP_REMOVE, {'map': map!.id});
+    onMapRemove(map!.id);
   }
 
   void onMapRemove(int id) {
-    var map = maps.find((m) => m.id == id).._dispose();
+    final map = maps.find((m) => m.id == id)!;
+
+    map._dispose();
     maps.remove(map);
+
     if (maps.isEmpty) {
       _onAllRemoved();
     } else {
@@ -393,8 +414,8 @@ class MapTab {
   }
 
   void _initMapName() {
-    HtmlElement parent = _name.parent;
-    ButtonElement confirmBtn = parent.querySelector('.dm');
+    final parent = _name.parent!;
+    ButtonElement confirmBtn = parent.queryDom('.dm');
     var nameConfirm = StreamGroup.merge(<Stream>[
       _name.onKeyDown.where((ev) => ev.keyCode == 13),
       confirmBtn.onMouseDown,
@@ -408,7 +429,7 @@ class MapTab {
     _name.onBlur.listen((_) async {
       await Future.delayed(Duration(milliseconds: 50));
       if (focus) {
-        _name.value = map.name;
+        _name.value = map!.name;
         parent.classes.remove('focus');
         focus = false;
       }
@@ -419,16 +440,16 @@ class MapTab {
         focus = false;
         parent.classes.remove('focus');
         _name.blur();
-        map.name = _name.value;
+        map!.name = _name.value!;
         socket
-            .sendAction(GAME_MAP_UPDATE, {'map': map.id, 'name': _name.value});
+            .sendAction(GAME_MAP_UPDATE, {'map': map!.id, 'name': _name.value});
       }
     });
   }
 
   void _onFirstUpload() {
     mapIndex = 0;
-    if (user.session.isDM) {
+    if (user.session!.isDM) {
       _name.disabled = false;
     }
   }
@@ -437,7 +458,7 @@ class MapTab {
     editMode = false;
     _updateNavigateButtons();
     _name.value = '';
-    if (user.session.isDM) {
+    if (user.session!.isDM) {
       _name.disabled = true;
     }
   }
@@ -454,14 +475,14 @@ class MapTab {
       _onFirstUpload();
     }
 
-    if (user.session.isDM) {
+    if (user.session!.isDM) {
       _color.value = '#000000';
     } else {
-      _color.value = user.session.getPlayerColor(user.session.charId);
+      _color.value = user.session!.getPlayerColor(user.session!.charId);
     }
     mode = Whiteboard.modeDraw;
 
-    if (user.session.isDM) {
+    if (user.session!.isDM) {
       _listenToEraseAcross();
     }
   }
@@ -469,8 +490,9 @@ class MapTab {
   void _updateIndexText() => _indexText.text = '${mapIndex + 1}/${maps.length}';
 
   void addMap(int id, String name, String image, bool shared,
-      [String encodedData]) {
+      [String? encodedData]) {
     final map = GameMap(
+      this,
       id,
       name: name,
       shared: shared,
@@ -517,27 +539,31 @@ class MapTab {
 }
 
 class GameMap {
+  final MapTab mapTab;
+
   final int id;
   final Resource image;
-  HtmlElement _em;
-  HtmlElement _container;
-  HtmlElement _minimap;
-  SpanElement _miniTitle;
-  Whiteboard whiteboard;
+  late MapTransform transform;
+  late HtmlElement _em;
+  late HtmlElement _container;
+  late HtmlElement _minimap;
+  late SpanElement _miniTitle;
+  late Whiteboard whiteboard;
   bool shared;
 
-  String get name => _miniTitle.text;
+  String get name => _miniTitle.text!;
   set name(String name) {
     _miniTitle.text = name;
   }
 
   GameMap(
+    this.mapTab,
     this.id, {
     String name = '',
     this.shared = false,
-    String encodedData,
-    this.image,
-    void Function() onEnterEdit,
+    String? encodedData,
+    required this.image,
+    required void Function() onEnterEdit,
   }) {
     _em = DivElement()
       ..className = 'map'
@@ -559,20 +585,29 @@ class GameMap {
       })
       ..useStartEvent = (ev) {
         if (isMobile) return false;
-        return ev is! MouseEvent || (ev as MouseEvent).button == 0;
+        return ev is! MouseEvent || ev.button == 0;
       };
 
     if (encodedData != null) {
       whiteboard.fromBytes(base64.decode(encodedData));
     } else {
-      for (var i = 0; i <= user.session.characters.length; i++) {
+      for (var i = 0; i <= user.session!.characters.length; i++) {
         whiteboard.addDrawingLayer();
       }
     }
 
     // Assign user their own exclusive drawing layer
-    whiteboard.layerIndex = 1 + (user.session.charId ?? -1);
+    if (user.session!.isDM) {
+      whiteboard.layerIndex = 0;
+    } else {
+      final myChar = user.session!.myCharacter!;
+      final pcIndex = user.session!.characters.indexOf(myChar);
+
+      whiteboard.layerIndex = 1 + pcIndex;
+    }
     applyImage();
+
+    transform = new MapTransform(this);
   }
 
   void _dispose() {
@@ -585,7 +620,7 @@ class GameMap {
   void _fixScaling() {
     _container.style.width = '100%';
     whiteboard.updateScaling();
-    var img = _container.querySelector('image');
+    var img = _container.queryDom('image');
 
     var bestWidth = img.getBoundingClientRect().width;
     if (bestWidth > 0) {
@@ -620,17 +655,18 @@ class GameMap {
 }
 
 class MapTransform extends HtmlTransform {
+  final GameMap map;
   bool isOffCenter = false;
-  void Function(bool) onChange;
-  Point Function() getMapSize;
+  Point Function()? getMapSize;
 
-  MapTransform() : super(null, zoomAmount: 0.2) {
-    getMaxPosition = () => getMapSize() * zoom;
+  MapTransform(this.map) : super(map._em, zoomAmount: 0.2) {
+    getMaxPosition = () => map.mapTab.mapSize * zoom;
   }
 
   void _setOffCenter(bool v) {
     if (isOffCenter != v) {
-      onChange(isOffCenter = v);
+      isOffCenter = v;
+      map.mapTab._updateToolsVisibility();
     }
   }
 

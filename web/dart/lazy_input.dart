@@ -1,15 +1,13 @@
 import 'dart:html';
 
-import 'package:meta/meta.dart';
-
 void listenLazyUpdate(
   InputElement input, {
-  @required void Function(String s) onChange,
-  @required void Function(String s) onSubmit,
-  void Function() onFocus,
+  required void Function(String s) onChange,
+  required void Function(String s) onSubmit,
+  void Function()? onFocus,
 }) {
-  String startValue;
-  String typedValue;
+  late String startValue;
+  late String typedValue;
 
   void update() {
     if (startValue != typedValue) {
@@ -20,9 +18,9 @@ void listenLazyUpdate(
   }
 
   void onFoc() {
-    startValue = input.value;
+    startValue = input.value!;
     if (onFocus != null) onFocus();
-    typedValue = input.value;
+    typedValue = input.value!;
   }
 
   input.onMouseDown.listen((_) {
@@ -36,7 +34,7 @@ void listenLazyUpdate(
 
   input.onFocus.listen((_) => onFoc());
   input.onInput.listen((_) {
-    onChange(typedValue = input.value);
+    onChange(typedValue = input.value!);
   });
   input.onBlur.listen((_) => update());
   input.onChange.listen((_) => update());

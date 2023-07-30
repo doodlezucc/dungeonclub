@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:dungeonclub/models/entity_base.dart';
 
 import '../../main.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../resource.dart';
 import 'character.dart';
 import 'movable.dart';
@@ -25,10 +25,10 @@ abstract class ClampedEntityBase extends EntityBase {
 abstract class Prefab extends ClampedEntityBase {
   final HtmlElement e;
   final SpanElement _nameSpan;
-  final Resource image;
+  final Resource? image;
 
   Iterable<Movable> get movables =>
-      user.session.board.movables.where((movable) => movable.prefab == this);
+      user.session!.board.movables.where((movable) => movable.prefab == this);
 
   String get id;
   String get name;
@@ -58,9 +58,12 @@ abstract class Prefab extends ClampedEntityBase {
   }
 
   void applyImage() {
-    final src = image.url;
-    if (user.session.isDM) {
-      e.style.backgroundImage = 'url($src)';
+    if (image != null) {
+      final src = image!.url;
+
+      if (user.session!.isDM) {
+        e.style.backgroundImage = 'url($src)';
+      }
     }
   }
 
@@ -108,9 +111,9 @@ mixin ChangeableName on Prefab {
   void applyName() {
     super.applyName();
 
-    user.session.board.onPrefabNameChange(this);
+    user.session!.board.onPrefabNameChange(this);
     for (var m in movables) {
-      user.session.board.initiativeTracker.onNameUpdate(m);
+      user.session!.board.initiativeTracker.onNameUpdate(m);
       m.updateTooltip();
     }
   }
@@ -129,7 +132,7 @@ mixin ChangeableName on Prefab {
 }
 
 class CharacterPrefab extends Prefab with HasInitiativeMod, ChangeableName {
-  Character _character;
+  late Character _character;
   Character get character => _character;
   set character(Character c) {
     _character = c;

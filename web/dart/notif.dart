@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'font_awesome.dart';
+import 'html_helpers.dart';
 
 class HtmlNotification {
-  static final HtmlElement _parent = querySelector('#notifications');
+  static final _parent = queryDom('#notifications') as HtmlElement;
   final HtmlElement e;
 
   HtmlNotification(String msg)

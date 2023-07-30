@@ -25,8 +25,8 @@ const _hostname = '0.0.0.0';
 const githubUrl =
     'https://raw.githubusercontent.com/doodlezucc/dungeonclub/master';
 
-String _address;
-String get address => _address;
+String? _address;
+String? get address => _address;
 
 final data = ServerData();
 final autoSaver = AutoSaver(data);
@@ -59,7 +59,7 @@ void main(List<String> args) async {
   if (await maintainer.file.exists()) {
     print('Server restart blocked by maintenance file!');
     await Future.delayed(Duration(seconds: 5));
-    return exit(1);
+    exit(1);
   }
 
   // Start server in given bootstrap mode
@@ -221,7 +221,7 @@ Future<void> loadMockAccounts() async {
   }
 }
 
-String getMimeType(File f) {
+String? getMimeType(File f) {
   switch (p.extension(f.path)) {
     case '.html':
       return 'text/html';
@@ -268,7 +268,7 @@ Future<Response> _handleRequest(Request request) async {
   final isDataFile =
       path.startsWith('database/games') || path.startsWith('ambience/');
 
-  File file;
+  File? file;
   if (path.startsWith('asset/')) {
     final redirect = await resolveIndexedAsset(path, fullPath: true);
     return Response.movedPermanently('/$redirect');
@@ -291,7 +291,7 @@ Future<Response> _handleRequest(Request request) async {
   }
 
   // Embed current environment variables in frontend
-  List<int> bodyOverride;
+  List<int>? bodyOverride;
   if (Environment.isCompiled && file.path == 'web/index.html') {
     final htmlBody = await injectEnvironmentInFrontend(file);
     bodyOverride = utf8.encode(htmlBody);

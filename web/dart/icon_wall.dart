@@ -1,7 +1,7 @@
 import 'dart:html';
 import 'dart:math';
 
-import 'font_awesome.dart';
+import 'html_helpers.dart';
 
 const icons = [
   'hat-wizard',
@@ -60,7 +60,7 @@ class IconWall {
   }
 
   void spawnParticles() async {
-    var count = window.innerWidth / 30;
+    var count = window.innerWidth! / 30;
     for (var i = 0; i < count; i++) {
       createParticle();
       await Future.delayed(Duration(milliseconds: 50));

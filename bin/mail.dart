@@ -6,22 +6,23 @@ import 'package:dungeonclub/environment.dart';
 import 'package:googleapis_auth/auth_io.dart' as auth;
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
-import 'package:meta/meta.dart';
 import 'package:path/path.dart' as path;
 import 'package:prompts/prompts.dart' as prompts;
 
 import 'server.dart';
 
-SmtpServer _smtpServer;
+SmtpServer? _smtpServer;
 
 final pendingFeedback = <Feedback>[];
 final credFile = File('mail/gmail_credentials');
 
 class Feedback {
+  static const validTypes = ['feature', 'bug', 'account', 'other'];
+
   final String type;
   final String content;
-  final String account;
-  final String game;
+  final String? account;
+  final String? game;
 
   Feedback(this.type, this.content, this.account, this.game);
 
@@ -79,10 +80,10 @@ Future<bool> sendResetPasswordMail(String email, String code) {
 }
 
 Future<bool> sendMailWithCode({
-  @required String email,
-  @required String code,
-  @required String subject,
-  @required String layoutFile,
+  required String email,
+  required String code,
+  required String subject,
+  required String layoutFile,
 }) async {
   if (_smtpServer == null) return false;
 
@@ -121,9 +122,11 @@ Future<bool> _sendFeedbackMail() async {
 }
 
 Future<bool> _sendMessage(Message message) async {
+  if (_smtpServer == null) return false;
+
   try {
     await MailCredentials.refreshCredentials();
-    final sendReport = await send(message, _smtpServer);
+    final sendReport = await send(message, _smtpServer!);
     print('Message sent: ' + sendReport.toString());
     return true;
   } on MailerException catch (e) {
@@ -143,14 +146,15 @@ Future<bool> _sendMessage(Message message) async {
 }
 
 Future<void> closeMailServer() async {
-  if (_smtpServer == null) return false;
+  if (_smtpServer == null) return;
+
   await MailCredentials.save();
 }
 
 class MailCredentials {
-  static String user;
-  static auth.ClientId clientId;
-  static auth.AccessCredentials creds;
+  static late String user;
+  static late auth.ClientId clientId;
+  static late auth.AccessCredentials creds;
 
   static Duration get untilExpiry =>
       creds.accessToken.expiry.difference(DateTime.now()) -

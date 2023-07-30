@@ -5,22 +5,22 @@ import 'package:dungeonclub/limits.dart';
 
 import '../../main.dart';
 import '../communication.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../panels/upload.dart' as upload;
 import '../resource.dart';
 
-final HtmlElement _scenesContainer = querySelector('#scenes');
-final ButtonElement _addScene = _scenesContainer.querySelector('#addScene')
+final HtmlElement _scenesContainer = queryDom('#scenes');
+final ButtonElement _addScene = _scenesContainer.queryDom('#addScene')
   ..onLMB.listen((ev) async {
     var json = await upload.display(
       event: ev,
       action: GAME_SCENE_ADD,
       type: IMAGE_TYPE_SCENE,
-      simulateHoverClass: querySelector('#sceneSelector'),
+      simulateHoverClass: queryDom('#sceneSelector'),
     );
 
     if (json != null) {
-      final session = user.session;
+      final session = user.session!;
       if (session.scenes.length == 1) {
         session.scenes.first.enableRemove = true;
       }
@@ -37,11 +37,11 @@ class Scene {
   final HtmlElement e;
   final Resource background;
   final int id;
-  HtmlElement _bg;
-  ButtonElement _remove;
+  late HtmlElement _bg;
+  late ButtonElement _remove;
 
-  bool get isPlaying => user.session.playingScene == this;
-  bool get isEditing => user.session.board.refScene == this;
+  bool get isPlaying => user.session!.playingScene == this;
+  bool get isEditing => user.session!.board.refScene == this;
 
   set enableRemove(bool enable) => _remove.disabled = !enable;
 
@@ -76,7 +76,7 @@ class Scene {
   void sendRemove() {
     socket.sendAction(GAME_SCENE_REMOVE, {'id': id});
 
-    user.session.scenes.remove(this);
+    user.session!.scenes.remove(this);
     e.remove();
 
     updateAddSceneButton();
@@ -85,20 +85,20 @@ class Scene {
   void enterPlay() {
     if (isPlaying) return;
 
-    user.session.playingScene = this;
-    user.session.applySceneEditPlayStates();
+    user.session!.playingScene = this;
+    user.session!.applySceneEditPlayStates();
     socket.sendAction(GAME_SCENE_PLAY, {'id': id});
   }
 
-  Future<void> enterEdit([Map<String, dynamic> json]) async {
+  Future<void> enterEdit([Map<String, dynamic>? json]) async {
     if (isEditing) return;
 
     json = json ?? await socket.request(GAME_SCENE_GET, {'id': id});
-    user.session.board.fromJson(json, setAsPlaying: false);
+    user.session!.board.fromJson(json!, setAsPlaying: false);
   }
 
   static void updateAddSceneButton() {
-    final scenes = user.session.scenes;
+    final scenes = user.session!.scenes;
     final reachedLimit = scenes.length >= scenesPerCampaign;
 
     _addScene.disabled = reachedLimit;

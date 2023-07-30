@@ -1,6 +1,8 @@
 import 'dart:html';
 
+import 'html_helpers.dart';
+
 void showPage(String id) {
   querySelectorAll('section.show').classes.remove('show');
-  querySelector('section#$id').classes.add('show');
+  queryDom('section#$id').classes.add('show');
 }

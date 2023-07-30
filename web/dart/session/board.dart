@@ -4,15 +4,14 @@ import 'dart:html';
 import 'dart:svg' as svg;
 
 import 'package:dungeonclub/actions.dart' as a;
+import 'package:dungeonclub/iterable_extension.dart';
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/session_util.dart';
 import 'package:grid_space/grid_space.dart';
-import 'package:meta/meta.dart';
 
 import '../communication.dart';
-import '../font_awesome.dart';
-import '../formatting.dart';
+import '../html_helpers.dart';
 import '../html_transform.dart';
 import '../lazy_input.dart';
 import '../notif.dart';
@@ -32,32 +31,33 @@ import 'roll_dice.dart';
 import 'scene.dart';
 import 'session.dart';
 
-final HtmlElement _container = querySelector('#boardContainer');
-final HtmlElement _e = querySelector('#board');
-final ImageElement _ground = _e.querySelector('#ground');
+final HtmlElement _container = queryDom('#boardContainer');
+final HtmlElement _e = queryDom('#board');
+final ImageElement _ground = _e.queryDom('#ground');
 
-final ButtonElement _editScene = _container.querySelector('#editScene');
-final ButtonElement _exitEdit = _container.querySelector('#exitEdit');
+final ButtonElement _editScene = _container.queryDom('#editScene');
+final ButtonElement _exitEdit = _container.queryDom('#exitEdit');
 
-final HtmlElement _controls = _container.querySelector('#sceneEditor');
-final ButtonElement _changeImage = _controls.querySelector('#changeImage');
+final HtmlElement _controls = _container.queryDom('#sceneEditor');
+final ButtonElement _changeImage = _controls.queryDom('#changeImage');
 
-final svg.RectElement _selectionArea = _e.querySelector('#selectionArea');
-final HtmlElement _selectionProperties = querySelector('#selectionProperties');
-final HtmlElement _selectedLabelWrapper = querySelector('#movableLabel');
-final HtmlElement _selectedLabelPrefix = _selectedLabelWrapper.children.first;
-final InputElement _selectedLabel = _selectedLabelWrapper.children.last;
-final InputElement _selectedSize = querySelector('#movableSize');
-final InputElement _selectedAura = querySelector('#movableAura');
-final ButtonElement _selectedInvisible = querySelector('#movableInvisible');
-final ButtonElement _selectedRemove = querySelector('#movableRemove');
-final ButtonElement _selectedSnap = querySelector('#movableSnap');
-final HtmlElement _selectedConds = _selectionProperties.querySelector('#conds');
+final svg.RectElement _selectionArea = _e.queryDom('#selectionArea');
+final HtmlElement _selectionProperties = queryDom('#selectionProperties');
+final HtmlElement _selectedLabelWrapper = queryDom('#movableLabel');
+final _selectedLabelPrefix =
+    _selectedLabelWrapper.children.first as HtmlElement;
+final _selectedLabel = _selectedLabelWrapper.children.last as InputElement;
+final InputElement _selectedSize = queryDom('#movableSize');
+final InputElement _selectedAura = queryDom('#movableAura');
+final ButtonElement _selectedInvisible = queryDom('#movableInvisible');
+final ButtonElement _selectedRemove = queryDom('#movableRemove');
+final ButtonElement _selectedSnap = queryDom('#movableSnap');
+final HtmlElement _selectedConds = _selectionProperties.queryDom('#conds');
 
-final ButtonElement _fowToggle = querySelector('#fogOfWar');
-final ButtonElement _measureToggle = querySelector('#measureDistance');
-HtmlElement get _measureSticky => querySelector('#measureSticky');
-HtmlElement get _measureVisible => querySelector('#measureVisible');
+final ButtonElement _fowToggle = queryDom('#fogOfWar');
+final ButtonElement _measureToggle = queryDom('#measureDistance');
+HtmlElement get _measureSticky => queryDom('#measureSticky');
+HtmlElement get _measureVisible => queryDom('#measureVisible');
 
 class Board {
   final Session session;
@@ -75,7 +75,7 @@ class Board {
 
   final showMoveDistances = true;
 
-  BoardTransform _transform;
+  late BoardTransform _transform;
   BoardTransform get transform => _transform;
 
   Point get position => transform.position;
@@ -113,12 +113,12 @@ class Board {
   set measureVisible(bool v) {
     _measureVisible
       ..className = 'fas fa-' + (v ? 'eye active' : 'eye-slash')
-      ..querySelector('span').text = v ? 'Public' : 'Private';
+      ..queryDom('span').text = v ? 'Public' : 'Private';
 
     removeMeasuring(session.charId, sendEvent: true);
   }
 
-  String _mode;
+  String _mode = '';
   String get mode => _mode;
   set mode(String mode) {
     if (mode == _mode) mode = PAN;
@@ -149,17 +149,19 @@ class Board {
     }
   }
 
-  Movable _activeMovable;
-  Movable get activeMovable => _activeMovable;
-  set activeMovable(Movable activeMovable) {
-    if (_activeMovable == activeMovable) return;
+  Movable? _activeMovable;
+  Movable? get activeMovable => _activeMovable;
+  set activeMovable(Movable? activeMovable) {
+    final previousActiveMovable = _activeMovable;
 
-    if (_activeMovable != null) {
+    if (previousActiveMovable == activeMovable) return;
+
+    if (previousActiveMovable != null) {
       // Firefox doesn't automatically blurrr inputs when their parent
       // element gets moved or removed
       _selectedLabel.blur();
       _selectedSize.blur();
-      _activeMovable.e.classes.remove('active');
+      previousActiveMovable.e.classes.remove('active');
     }
 
     if (activeMovable != null && !activeMovable.accessible) {
@@ -199,7 +201,7 @@ class Board {
     _selectionProperties.classes.toggle('hidden', activeMovable == null);
   }
 
-  Scene _refScene;
+  late Scene _refScene;
   Scene get refScene => _refScene;
   bool _init = false;
 
@@ -263,10 +265,10 @@ class Board {
       mode = MEASURE;
     });
     _fowToggle.onClick.listen((ev) {
-      final Element clickedBox = ev.path.firstWhere(
+      final clickedBox = ev.path.find(
         (e) => e is Element && e.classes.contains('toolbox'),
-        orElse: () => null,
-      );
+      ) as Element?;
+
       if (clickedBox != null) {
         if (mode == FOG_OF_WAR || clickedBox.previousElementSibling != null) {
           return;
@@ -298,11 +300,11 @@ class Board {
     _editScene.onClick.listen((_) => editingGrid = true);
     _exitEdit.onClick.listen((_) => editingGrid = false);
 
-    _container.querySelector('#inactiveSceneWarning').onClick.listen((_) {
+    _container.queryDom('#inactiveSceneWarning').onClick.listen((_) {
       refScene.enterPlay();
     });
 
-    _container.querySelector('#openMap').onClick.listen((_) {
+    _container.queryDom('#openMap').onClick.listen((_) {
       mapTab.visible = true;
     });
 
@@ -382,8 +384,11 @@ class Board {
     fogOfWar.initFogOfWar(this);
   }
 
-  void toggleSelect(Iterable<Movable> movables,
-      {bool additive = false, bool state}) {
+  void toggleSelect(
+    Iterable<Movable> movables, {
+    bool additive = false,
+    bool? state,
+  }) {
     if (!additive) {
       _deselectAll();
     }
@@ -412,7 +417,7 @@ class Board {
 
     initiativeTracker.disabled = !isActiveScene;
     _container
-        .querySelector('#inactiveSceneWarning')
+        .queryDom('#inactiveSceneWarning')
         .classes
         .toggle('hidden', isActiveScene);
   }
@@ -460,8 +465,8 @@ class Board {
   }
 
   void _updateSelectionSizeInherit() {
-    _selectedSize.parent.children.last.style.display =
-        activeMovable.size == 0 ? '' : 'none';
+    _selectedSize.parent!.children.last.style.display =
+        activeMovable!.size == 0 ? '' : 'none';
   }
 
   void _sendSelectedMovablesUpdate() {
@@ -485,8 +490,8 @@ class Board {
 
   void _updateSelectedInvisible(bool v) {
     _selectedInvisible.classes.toggle('active', v);
-    _selectedInvisible.querySelector('span').text = v ? 'Invisible' : 'Visible';
-    _selectedInvisible.querySelector('i').className =
+    _selectedInvisible.queryDom('span').text = v ? 'Invisible' : 'Visible';
+    _selectedInvisible.queryDom('i').className =
         'fas fa-' + (v ? 'eye-slash' : 'eye');
   }
 
@@ -523,7 +528,7 @@ class Board {
 
   void _listenSelectedLazyUpdate(
     InputElement input, {
-    @required void Function(Movable m, String value) onChange,
+    required void Function(Movable m, String value) onChange,
   }) {
     listenLazyUpdate(
       input,
@@ -533,32 +538,37 @@ class Board {
   }
 
   void _initMouseControls() {
-    SimpleEvent lastEv;
-    StreamController<SimpleEvent> moveStreamCtrl;
-    Timer pingTimer;
-    Point startP;
-    Point previous;
+    SimpleEvent? lastEv;
+    StreamController<SimpleEvent>? moveStreamCtrl;
+    Timer? pingTimer;
+
+    late Point startP;
+    Point? previous;
+
     final lastZooms = Queue<double>();
     final lastPoints = Queue<Point>();
-    int initialButton;
-    double pinchStart;
-    double pinchZoomStart;
-    bool pan;
+
+    int? initialButton;
+    late double pinchStart;
+    late double pinchZoomStart;
+    bool pan = false;
 
     void _alignAngleArrow() {
       if (activeMovable == null) return;
 
       var display = false;
 
-      if (lastEv != null && lastEv.alt) {
+      if (lastEv != null && lastEv!.alt) {
         // Only show angle arrow if no movable is hovered
-        display = !lastEv.path.any(
+        final domPath = lastEv!.path!;
+
+        display = !domPath.any(
           (e) => e is Element && e.classes.contains('movable'),
         );
       }
 
       if (display) {
-        angleArrow.align(this, lastEv.p * (1 / scaledZoom));
+        angleArrow.align(this, lastEv!.p * (1 / scaledZoom));
       }
       angleArrow.visible = display;
     }
@@ -569,14 +579,17 @@ class Board {
 
     Point center(Iterable<Touch> touches) {
       var counted = touches;
-      if (!(pan ?? true)) counted = touches.take(1);
+      if (!pan) counted = touches.take(1);
 
-      return counted.fold(Point<num>(0, 0), (p, t) => p + t.page) *
-          (1 / counted.length);
+      final touchPositionSum =
+          counted.fold<Point>(Point<num>(0, 0), (p, t) => p + t.page);
+
+      // Averages out the center of all touches
+      return touchPositionSum * (1 / counted.length);
     }
 
     Point offCenter(Point p) {
-      var center = Point<num>(window.innerWidth, window.innerHeight) * 0.5;
+      var center = Point<num>(window.innerWidth!, window.innerHeight!) * 0.5;
       return p - center;
     }
 
@@ -590,7 +603,7 @@ class Board {
         final evP = evToPoint(ev);
         final delta = evP - (previous ?? evP);
         previous = evP;
-        final p = previous - _e.getBoundingClientRect().topLeft;
+        final p = previous! - _e.getBoundingClientRect().topLeft;
         return SimpleEvent.fromJS(ev, p, delta);
       }
 
@@ -598,8 +611,8 @@ class Board {
         startP = evToPoint(ev);
         previous = startP;
 
-        if (ev is TouchEvent && ev.touches.length > 1) {
-          pinchStart = pinchDistance(ev.touches);
+        if (ev is TouchEvent && ev.touches!.length > 1) {
+          pinchStart = pinchDistance(ev.touches!);
           pinchZoomStart = scaledZoom;
           return pingTimer?.cancel();
         }
@@ -620,10 +633,10 @@ class Board {
         }
 
         ev.preventDefault();
-        document.activeElement.blur();
+        document.activeElement?.blur();
 
         if (start.button != initialButton && moveStreamCtrl != null) {
-          return moveStreamCtrl.add(start);
+          return moveStreamCtrl!.add(start);
         }
 
         if (mode == FOG_OF_WAR &&
@@ -651,11 +664,11 @@ class Board {
         }
 
         moveStreamCtrl = StreamController();
-        var stream = moveStreamCtrl.stream;
+        var stream = moveStreamCtrl!.stream;
 
         pan = !(start.button == 0 && mode != PAN);
 
-        Movable clickedMovable;
+        Movable? clickedMovable;
 
         if (start.button == 0) {
           if (mode == MEASURE) {
@@ -666,12 +679,11 @@ class Board {
               pan = false;
             } else {
               // Figure out clicked token
-              var movableElem = ev.path.firstWhere(
+              final movableElem = ev.path.find(
                 (e) =>
                     e is Element &&
                     e.classes.contains('movable') &&
                     e.classes.contains('accessible'),
-                orElse: () => null,
               );
 
               if (movableElem != null) {
@@ -682,7 +694,10 @@ class Board {
                     break;
                   }
                 }
-                _handleMovableMove(start, stream, clickedMovable);
+
+                if (clickedMovable != null) {
+                  _handleMovableMove(start, stream, clickedMovable);
+                }
                 pan = false;
               } else if (start.alt && activeMovable != null) {
                 // Change token angle
@@ -692,21 +707,19 @@ class Board {
                 // Create new token at cursor position
                 final worldPos = grid.centeredWorldPoint(
                   start.p * (1 / scaledZoom),
-                  selectedPrefab.size,
+                  selectedPrefab!.size,
                 );
                 var gridPos = grid.grid.worldToGridSpace(worldPos);
 
-                var newMov =
-                    await addMovable(selectedPrefab, gridPos.undeviate());
+                final newMov =
+                    await addMovable(selectedPrefab!, gridPos.undeviate());
 
-                if (newMov != null) {
-                  toggleSelect([newMov], state: true);
-                  pan = false;
-                  if (newMov is EmptyMovable) {
-                    // Focus label input of created labeled token
-                    Future.delayed(Duration(milliseconds: 4),
-                        () => _selectedLabel.focus());
-                  }
+                toggleSelect([newMov], state: true);
+                pan = false;
+                if (newMov is EmptyMovable) {
+                  // Focus label input of created labeled token
+                  Future.delayed(
+                      Duration(milliseconds: 4), () => _selectedLabel.focus());
                 }
               } else if (!start.shift) {
                 _deselectAll();
@@ -724,23 +737,27 @@ class Board {
         await endEvent.firstWhere((ev) {
           if (ev is TouchEvent) {
             previous = evToPoint(ev);
-            return ev.touches.isEmpty;
+            return ev.touches!.isEmpty;
           }
           return toSimple(ev).button == initialButton;
         });
 
         var isClickEvent = false;
-        if (pingTimer != null && pingTimer.isActive) {
-          pingTimer.cancel();
+        if (pingTimer != null && pingTimer!.isActive) {
+          pingTimer!.cancel();
           isClickEvent = true;
         } else if (pan) {
           // Apply average velocity from last few pinches
           if (lastZooms.isNotEmpty) {
-            var zoomVel = lastZooms.fold(0.0, (v, z) => v + z);
+            var zoomVel = lastZooms.fold<double>(0, (v, z) => v + z);
             transform.applyZoomForce(zoomVel / lastZooms.length);
           }
           if (lastPoints.isNotEmpty) {
-            var velocity = lastPoints.fold(Point<num>(0, 0), (p, q) => p += q);
+            var velocity = lastPoints.fold<Point>(
+              Point<num>(0, 0),
+              (p, q) => p += q,
+            );
+
             transform.applyForce(velocity * (1 / lastPoints.length));
           }
         }
@@ -753,7 +770,7 @@ class Board {
           );
         }
 
-        var streamCopy = moveStreamCtrl;
+        final streamCopy = moveStreamCtrl!;
         moveStreamCtrl = null;
         await streamCopy.close();
       });
@@ -763,21 +780,21 @@ class Board {
         lastEv = sev;
         if (moveStreamCtrl != null) {
           var point = evToPoint(ev);
-          if (pingTimer != null && pingTimer.isActive) {
+          if (pingTimer != null && pingTimer!.isActive) {
             if (ev is! TouchEvent || point.squaredDistanceTo(startP) > 64) {
-              pingTimer.cancel();
+              pingTimer!.cancel();
             }
           }
 
-          moveStreamCtrl.add(sev);
+          moveStreamCtrl!.add(sev);
 
           if (ev is TouchEvent && pan) {
-            if (ev.touches.length == 1) {
+            if (ev.touches!.length == 1) {
               // Pinch zooming
               lastPoints.add(sev.movement);
             } else {
               // Pinch zooming
-              var distance = pinchDistance(ev.touches);
+              var distance = pinchDistance(ev.touches!);
               var offset = offCenter(point);
               var off1 = offset * (1 / scaledZoom);
               var nZoom = pinchZoomStart * (distance / pinchStart);
@@ -794,7 +811,7 @@ class Board {
         } else {
           if (selectedPrefab != null) {
             var p = evToPoint(ev) - _e.getBoundingClientRect().topLeft;
-            alignMovableGhost(p * (1 / scaledZoom), selectedPrefab);
+            alignMovableGhost(p * (1 / scaledZoom), selectedPrefab!);
             toggleMovableGhostVisible(true);
           } else {
             _alignAngleArrow();
@@ -806,22 +823,22 @@ class Board {
     listenToCursorEvents<MouseEvent>((ev) => ev.page, _container.onMouseDown,
         window.onMouseMove, window.onMouseUp);
 
-    listenToCursorEvents<TouchEvent>((ev) => center(ev.touches),
+    listenToCursorEvents<TouchEvent>((ev) => center(ev.touches!),
         _container.onTouchStart, window.onTouchMove, window.onTouchEnd);
 
     void triggerUpdate(bool alt) {
       if (lastEv != null) {
-        lastEv.alt = alt;
+        lastEv!.alt = alt;
         _alignAngleArrow();
 
         if (moveStreamCtrl != null) {
-          moveStreamCtrl.add(lastEv);
+          moveStreamCtrl!.add(lastEv!);
         }
       }
     }
 
     window.onKeyDown
-        .where((ev) => !ev.repeat && ev.keyCode == 18)
+        .where((ev) => !(ev.repeat!) && ev.keyCode == 18)
         .listen((ev) => triggerUpdate(true));
     window.onKeyUp
         .where((ev) => ev.keyCode == 18)
@@ -854,15 +871,15 @@ class Board {
 
   void _handleSelectArea(SimpleEvent first, Stream<SimpleEvent> moveStream) {
     void setAnimLen(svg.AnimatedLength len, num v) =>
-        len.baseVal.newValueSpecifiedUnits(svg.Length.SVG_LENGTHTYPE_PX, v);
+        len.baseVal!.newValueSpecifiedUnits(svg.Length.SVG_LENGTHTYPE_PX, v);
 
     var p = first.p * (1 / scaledZoom);
     var q = p;
 
     void scaleArea() {
       var rect = Rectangle.fromPoints(p, q);
-      setAnimLen(_selectionArea.x, rect.left);
-      setAnimLen(_selectionArea.y, rect.top);
+      setAnimLen(_selectionArea.x!, rect.left);
+      setAnimLen(_selectionArea.y!, rect.top);
       _selectionArea.style.width = '${rect.width}px';
       _selectionArea.style.height = '${rect.height}px';
     }
@@ -903,7 +920,7 @@ class Board {
 
     var movedOnce = false;
     var lastDelta = Point<double>(0, 0);
-    MeasuringPath measuring;
+    MeasuringPath? measuring;
 
     void setCssTransitionEnabled(bool enable) {
       for (var mv in affected) {
@@ -915,7 +932,7 @@ class Board {
       var mPos = clicked.position;
       var offset = clicked.displaySizePoint.cast<double>() * 0.35;
       var textPos = grid.grid.gridToWorldSpace(mPos + offset);
-      measuring.alignDistanceText(textPos);
+      measuring!.alignDistanceText(textPos);
     }
 
     Point<double> zoomApplied(Point p) {
@@ -959,16 +976,17 @@ class Board {
       delta = delta.undeviate();
 
       if (ev.isMouseDown && ev.button == 2 && measuring != null) {
-        measuring.handleRightclick(gridCursor);
+        measuring!.handleRightclick(gridCursor);
       }
 
       if (delta != lastDelta) {
         for (var mv in affected) {
-          mv.position = origins[mv] + delta;
+          final origin = origins[mv]!;
+          mv.position = origin + delta;
         }
         lastDelta = delta;
         if (measuring != null) {
-          measuring.handleMove(clicked.position);
+          measuring!.handleMove(clicked.position);
           alignText();
           toggleMovableGhostVisible(delta != Point(0, 0), translucent: true);
         }
@@ -978,7 +996,7 @@ class Board {
       toggleMovableGhostVisible(false);
       measuring?.dispose();
       if (lastDelta != Point(0, 0)) {
-        return socket.sendAction(a.GAME_MOVABLE_MOVE, {
+        socket.sendAction(a.GAME_MOVABLE_MOVE, {
           'movables': affected.map((e) => e.id).toList(),
           ...writePoint(lastDelta)
         });
@@ -1014,7 +1032,7 @@ class Board {
 
     if (isPublic) sendCreationEvent(type, origin, p);
 
-    Point measureEnd;
+    Point measureEnd = origin;
     var hasChanged = false;
 
     // ~30 FPS transmission
@@ -1077,9 +1095,12 @@ class Board {
 
         row.append(ico
           ..onClick.listen((_) {
-            var activate = !_activeMovable.conds.contains(id);
-            selected.forEach((m) => m.toggleCondition(id, activate));
-            ico.classes.toggle('active', activate);
+            final movable = activeMovable!;
+
+            final doEnable = !movable.conds.contains(id);
+
+            selected.forEach((m) => m.toggleCondition(id, doEnable));
+            ico.classes.toggle('active', doEnable);
             _sendSelectedMovablesUpdate();
           }));
       }
@@ -1087,8 +1108,8 @@ class Board {
       _selectedConds.append(div);
     }
 
-    _selectionProperties.querySelector('a').onClick.listen((_) {
-      if (_activeMovable.conds.isNotEmpty) {
+    _selectionProperties.queryDom('a').onClick.listen((_) {
+      if (activeMovable!.conds.isNotEmpty) {
         selected.forEach((m) => m.applyConditions([]));
         _selectedConds.querySelectorAll('.active').classes.remove('active');
         _sendSelectedMovablesUpdate();
@@ -1097,10 +1118,10 @@ class Board {
   }
 
   void displayTooltip(String text) {
-    _container.querySelector('#tooltip').innerHtml = formatToHtml(text);
+    _container.queryDom('#tooltip').innerHtml = formatToHtml(text);
   }
 
-  void displayPing(Point p, int player) async {
+  void displayPing(Point p, int? player) async {
     var ping = DivElement()
       ..className = 'ping'
       ..style.left = '${p.x}px'
@@ -1246,7 +1267,7 @@ class Board {
     updateRerollableInitiatives();
   }
 
-  Future<Movable> addMovable(Prefab prefab, Point pos) async {
+  Future<Movable> addMovable(Prefab prefab, Point<double> pos) async {
     var id = await socket.request(a.GAME_MOVABLE_CREATE, {
       ...writePoint(pos),
       'prefab': prefab.id,
@@ -1256,7 +1277,7 @@ class Board {
       id = nextMovableId;
     } else if (id == null) {
       _onMovableCountLimitReached();
-      return null;
+      throw RangeError('Limit of tokens reached');
     }
 
     var m = Movable.create(
@@ -1288,7 +1309,7 @@ class Board {
 
     var m = Movable.create(
       board: this,
-      prefab: isEmpty ? emptyPrefab : getPrefab(pref),
+      prefab: isEmpty ? emptyPrefab : getPrefab(pref)!,
       id: json['id'],
     )..fromJson(json);
     movables.add(m);
@@ -1322,7 +1343,7 @@ class Board {
   }
 
   void onMovableMove(json) =>
-      _movableEvent(json, (m) => m.onMove(parsePoint<double>(json)));
+      _movableEvent(json, (m) => m.onMove(parsePoint<double>(json)!));
 
   void onMovableRemove(json) => _movableEvent(json, (m) {
         if (selected.contains(m)) {
@@ -1357,23 +1378,23 @@ class Board {
   }
 
   void load({
-    int sceneID,
+    required int sceneID,
     bool setAsPlaying = true,
-    String fowData,
-    Map refSceneData,
-    void Function(SceneGrid grid) loadGrid,
-    Iterable movablesData,
-    Iterable initiativeData,
+    String? fowData,
+    Map<String, dynamic>? refSceneData,
+    required void Function(SceneGrid grid) loadGrid,
+    required Iterable movablesData,
+    Iterable? initiativeData,
   }) async {
     if (session.isDM) {
-      _refScene = session.scenes.find((e) => e.id == sceneID);
+      _refScene = session.scenes.find((e) => e.id == sceneID)!;
       if (setAsPlaying) {
         session.playingScene = _refScene;
       }
 
       session.applySceneEditPlayStates();
     } else {
-      _refScene = Scene.fromJson(refSceneData);
+      _refScene = Scene.fromJson(refSceneData!);
     }
 
     await _onSceneChange();
@@ -1407,8 +1428,11 @@ class BoardTransform extends HtmlTransform {
   final Board board;
   final Map<Element, bool> _invZoom = {};
 
-  BoardTransform(this.board, Element element, {Point Function() getMaxPosition})
-      : super(element, getMaxPosition: getMaxPosition);
+  BoardTransform(
+    this.board,
+    Element element, {
+    required Point Function() getMaxPosition,
+  }) : super(element, getMaxPosition: getMaxPosition);
 
   @override
   set zoom(double zoom) {

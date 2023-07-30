@@ -2,6 +2,7 @@ import 'dart:html';
 
 import 'package:dungeonclub/actions.dart';
 
+import '../html_helpers.dart';
 import '../resource.dart';
 import 'character.dart';
 import 'scene.dart';
@@ -14,13 +15,13 @@ class DemoSession extends Session {
   DemoSession() : super(demoId, demoName, true);
 
   void initializeDemo() async {
-    querySelector('#session').classes.add('demo');
+    queryDom('#session').classes.add('demo');
 
     var demoPlayers = ['Nathaniel', 'Luke', 'Teo'];
     var characters = <Character>[];
 
     for (var i = 0; i < demoPlayers.length; i++) {
-      var color = getPlayerColor(i, demoPlayers.length);
+      var color = Session.getUniqueColorForPlayer(i, demoPlayers.length);
       characters.add(Character(i, this,
           color: color, name: demoPlayers[i], avatarUrl: 'asset/pc/$i'));
     }

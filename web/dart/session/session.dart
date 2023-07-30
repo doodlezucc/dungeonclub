@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'dart:html';
 import 'dart:math';
 
-import 'package:dungeonclub/session_util.dart';
-import 'package:meta/meta.dart';
+import 'package:dungeonclub/iterable_extension.dart';
 
 import '../communication.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../game.dart';
 import '../panels/dialog.dart';
 import '../panels/upload.dart';
@@ -26,27 +25,27 @@ class Session extends Game {
   final scenes = <Scene>[];
   final audioplayer = AudioPlayer();
 
-  Scene playingScene;
+  late Scene playingScene;
 
-  Board _board;
+  late Board _board;
   Board get board => _board;
 
-  int _charId;
-  int get charId => _charId;
-  Character get myCharacter => characters.find((e) => e.id == _charId);
+  int? _charId;
+  int? get charId => _charId;
+  Character? get myCharacter => characters.find((e) => e.id == _charId);
 
   String get inviteLink => isDebugging
       ? '${window.location.origin}/index.html?game=$id'
       : window.location.href;
 
-  ConstantDialog _dmDisconnectedDialog;
+  ConstantDialog? _dmDisconnectedDialog;
 
   final _connectionCtrl = StreamController<bool>.broadcast();
   Stream<bool> get connectionEvent => _connectionCtrl.stream;
 
   bool get isDemo => this is DemoSession;
 
-  Session(String id, String name, this.isDM) : super(id, name, null) {
+  Session(String id, String name, this.isDM) : super(id, name, isDM) {
     _board = Board(this);
 
     var url = window.location.href;
@@ -69,11 +68,17 @@ class Session extends Game {
     window.localStorage['joined'] = jsonEncode(idNames);
   }
 
-  String getPlayerColor(int player, [int charCount]) {
-    if (player == null || player < 0) return '#ffffff'; // GM color
+  String getPlayerColor(int? playerId) {
+    if (playerId == null || playerId < 0) return '#ffffff'; // GM color
 
-    var h = 330 * player / (charCount ?? characters.length);
-    var l = 0.7 - 0.05 * cos(player * pi);
+    final playerIndex = characters.indexWhere((char) => char.id == playerId);
+
+    return getUniqueColorForPlayer(playerIndex, characters.length);
+  }
+
+  static String getUniqueColorForPlayer(int index, int maxIndex) {
+    var h = 330 * index / maxIndex;
+    var l = 0.7 - 0.05 * cos(index * pi);
 
     // Convert from HSL to RGB
     var c = 1 - (2 * l - 1).abs();
@@ -84,7 +89,7 @@ class Session extends Game {
     var g = h >= 240 ? 0 : ((h < 60 || h >= 180) ? x : c);
     var b = h < 120 ? 0 : ((h < 180 || h >= 300) ? x : c);
 
-    String hex(double v) =>
+    String hex(num v) =>
         ((v + m) * 255).round().toRadixString(16).padLeft(2, '0');
 
     return '#' + hex(r) + hex(g) + hex(b);
@@ -103,14 +108,14 @@ class Session extends Game {
   }
 
   void onConnectionChange(Map<String, dynamic> params) async {
-    bool join = params['join'];
-    int id = params['pc'];
+    bool? join = params['join'];
+    int? id = params['pc'];
 
     if (join == null) return _connectionCtrl.add(true);
 
     if (id != null) {
-      var pc = characters.find((e) => e.id == id);
-      var name = pc?.name;
+      final pc = characters.find((e) => e.id == id)!;
+      final name = pc.name;
 
       pc.hasJoined = join;
       if (join) {
@@ -131,7 +136,7 @@ class Session extends Game {
         removeMeasuring(null);
       } else {
         if (_dmDisconnectedDialog != null) {
-          _dmDisconnectedDialog.close();
+          _dmDisconnectedDialog!.close();
           _dmDisconnectedDialog = null;
         }
       }
@@ -146,20 +151,20 @@ class Session extends Game {
     board.applyInactiveSceneWarning();
   }
 
-  void initializeBoard(Map sceneJson) {
+  void initializeBoard(Map<String, dynamic> sceneJson) {
     _board.fromJson(sceneJson);
   }
 
   Future<void> initialize({
-    @required Iterable<Character> characters,
+    required Iterable<Character> characters,
     bool instantEdit = false,
-    int charId,
+    int? charId,
     Map ambienceJson = const {},
     Iterable prefabJsonList = const [],
-    Map sceneJson,
-    Iterable allScenesJson = const [],
+    Map<String, dynamic> sceneJson = const {},
     Iterable mapJsonList = const [],
-    int usedStorageBytes = 0,
+    Iterable? allScenesJson = const [],
+    int? usedStorageBytes,
   }) {
     this.characters.clear();
     this.characters.addAll(characters);
@@ -168,10 +173,10 @@ class Session extends Game {
     if (isDM) {
       logInviteLink(this);
     } else {
-      gameLog('Hello, ${myCharacter.name}!');
+      gameLog('Hello, ${myCharacter!.name}!');
     }
 
-    document.body.classes.add('is-session');
+    document.body!.classes.add('is-session');
     audioplayer.init(this, ambienceJson);
 
     // Depends on global session object
@@ -179,9 +184,9 @@ class Session extends Game {
       initMovableManager(prefabJsonList);
 
       if (isDM) {
-        usedStorage = usedStorageBytes;
+        usedStorage = usedStorageBytes ?? 0;
 
-        for (var json in allScenesJson) {
+        for (var json in allScenesJson!) {
           final scene = Scene.fromJson(json);
           scenes.add(scene);
         }
@@ -195,9 +200,9 @@ class Session extends Game {
 
       initializeBoard(sceneJson);
 
-      querySelector('#session').classes.toggle('is-dm', isDM);
+      queryDom('#session').classes.toggle('is-dm', isDM);
 
-      _board.mapTab.fromJson(mapJsonList ?? []);
+      _board.mapTab.fromJson(mapJsonList);
     });
   }
 
@@ -206,8 +211,8 @@ class Session extends Game {
     final pcs = List.from(json['pcs']);
 
     for (var i = 0; i < pcs.length; i++) {
-      chars
-          .add(Character.fromJson(getPlayerColor(i, pcs.length), this, pcs[i]));
+      chars.add(Character.fromJson(
+          getUniqueColorForPlayer(i, pcs.length), this, pcs[i]));
     }
 
     initialize(

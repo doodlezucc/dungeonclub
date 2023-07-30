@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ambience/metadata.dart';
 import 'package:ambience/server/playlists.dart';
+import 'package:dungeonclub/iterable_extension.dart';
 
 final PlaylistCollection collection = PlaylistCollection(Directory('ambience'));
 
@@ -44,7 +45,7 @@ void _customTrackMeta() {
         var regex = RegExp(r"(?<=').+?(?='(?: |$))");
         var match = regex.firstMatch(title);
         if (match != null) {
-          track.title = match[0];
+          track.title = match[0]!;
         }
       }
     }
@@ -54,8 +55,8 @@ void _customTrackMeta() {
 }
 
 class AmbienceState {
-  String playlistName;
-  Tracklist list;
+  String? playlistName;
+  Tracklist? list;
   int weather = -1;
   num inside = 0;
   int crowd = -1;
@@ -65,15 +66,14 @@ class AmbienceState {
         'weather': weather,
         'inside': inside,
         'crowd': crowd,
-        if (includeTracklist && list != null) ...list.toJson(),
+        if (includeTracklist && list != null) ...list!.toJson(),
       };
 
   void fromJson(Map<String, dynamic> json) {
     playlistName = json['playlist'];
     ambienceFromJson(json);
-    var pl = collection.playlists.firstWhere(
+    final pl = collection.playlists.firstWhereOrNull(
       (pl) => pl.title == json['playlist'],
-      orElse: () => null,
     );
 
     list = pl?.toTracklist(shuffle: true);

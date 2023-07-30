@@ -1,37 +1,38 @@
 import 'dart:async';
 import 'dart:html';
 
-import 'package:pedantic/pedantic.dart';
-
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import 'panel_overlay.dart';
 
-final HtmlElement _overlay = querySelector('#overlay');
+final HtmlElement _overlay = queryDom('#overlay');
 
 class Dialog<T> {
   final HtmlElement _e;
   final _completer = Completer<T>();
-  InputElement _input;
-  ButtonElement _okButton;
+  InputElement? _input;
+  late ButtonElement _okButton;
 
   Dialog(
     String title, {
-    T Function() onClose,
+    T Function()? onClose,
     String okText = 'OK',
-    String okClass,
+    String? okClass,
   }) : _e = DivElement()..className = 'panel dialog' {
+    final closeButton = iconButton('times')
+      ..className = 'close'
+      ..onClick.listen((event) {
+        final result = onClose == null ? null : onClose();
+        _completer.complete(result);
+      });
+
     _e
       ..append(HeadingElement.h2()..text = title)
-      ..append(iconButton('times')
-        ..className = 'close'
-        ..onClick.listen((event) {
-          _completer.complete(onClose());
-        }))
+      ..append(closeButton)
       ..append(_okButton = ButtonElement()
         ..className = 'big' + (okClass != null ? ' $okClass' : '')
         ..text = okText
         ..onClick.listen((event) {
-          _completer.complete(_input?.value ?? true);
+          _completer.complete((_input?.value ?? true) as T);
         }));
   }
 
@@ -40,15 +41,19 @@ class Dialog<T> {
     return this;
   }
 
-  Dialog withInput({String type = 'text', String placeholder}) {
+  Dialog withInput({String type = 'text', String? placeholder}) {
     _input = InputElement(type: type)
-      ..placeholder = placeholder
       ..onKeyDown.listen((event) {
         if (event.keyCode == 13) {
-          _completer.complete(_input.value as T);
+          _completer.complete(_input!.value as T);
         }
       });
-    _e.insertBefore(_input, _okButton);
+
+    if (placeholder != null) {
+      _input!.placeholder = placeholder;
+    }
+
+    _e.insertBefore(_input!, _okButton);
     return this;
   }
 

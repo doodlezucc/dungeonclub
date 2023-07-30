@@ -2,9 +2,8 @@ import '../main.dart';
 import 'communication.dart';
 import 'game.dart';
 
-class Resource {
-  final Game _game;
-  String path;
+class BaseResource {
+  String? path;
 
   bool get isAsset => path?.startsWith('asset') ?? false;
   bool get isUnresolvedAsset => path?.startsWith('asset/') ?? false;
@@ -12,7 +11,7 @@ class Resource {
 
   bool get isBlob => path?.startsWith('data:') ?? false;
 
-  String get _actualPath {
+  String? get _actualPath {
     if (path == null) return null;
 
     if (isUnresolvedAsset) {
@@ -21,7 +20,7 @@ class Resource {
     }
 
     if (isResolvedAsset) {
-      final assetID = path.substring(6);
+      final assetID = path!.substring(6);
       return 'images/assets/$assetID';
     }
 
@@ -30,11 +29,32 @@ class Resource {
       return path;
     }
 
-    return 'database/games/${_game.id}/$path';
+    throw StateError(
+        'Base resource must either point to an asset or to a blob');
   }
 
-  String get url => _actualPath == null ? '' : getFile(_actualPath);
+  String get url => _actualPath == null ? '' : getFile(_actualPath!);
 
-  Resource(this.path, {Game game}) : _game = game ?? user.session;
-  Resource.empty({Game game}) : this(null, game: game);
+  BaseResource(this.path);
+  BaseResource.empty() : this(null);
+}
+
+class Resource extends BaseResource {
+  final Game _game;
+
+  @override
+  String? get _actualPath {
+    try {
+      return super._actualPath;
+    } on StateError catch (_) {
+      return 'database/games/${_game.id}/$path';
+    }
+  }
+
+  String get url => _actualPath == null ? '' : getFile(_actualPath!);
+
+  Resource(String? path, {Game? game})
+      : _game = game ?? user.session!,
+        super(path);
+  Resource.empty({Game? game}) : this(null, game: game);
 }

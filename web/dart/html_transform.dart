@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:dungeonclub/point_json.dart';
 
-final _viewportM = sqrt(1920 / max(window.innerWidth, window.innerHeight));
+final _viewportM = sqrt(1920 / max(window.innerWidth!, window.innerHeight!));
 final _zoomMin = -1 * _viewportM;
 final _zoomMax = 1.5 / _viewportM;
 
@@ -13,12 +13,16 @@ final _scaledMax = exp(_zoomMax);
 class HtmlTransform {
   bool _isAnimating = false;
   double zoomAmount;
-  Element element;
-  Point Function() getMaxPosition;
+  final Element element;
+  Point Function()? getMaxPosition;
 
-  HtmlTransform(this.element, {this.getMaxPosition, this.zoomAmount = 0.33});
+  HtmlTransform(
+    this.element, {
+    this.getMaxPosition,
+    this.zoomAmount = 0.33,
+  });
 
-  Point _position;
+  Point _position = Point(0.0, 0.0);
   Point get position => _position;
   set position(Point pos) {
     if (_isAnimating) return;
@@ -47,21 +51,21 @@ class HtmlTransform {
   }
 
   void _transform() {
-    if (element != null) {
-      element.style
-        ..setProperty('scale', '$scaledZoom')
-        ..transform = 'translate(${position.x}px, ${position.y}px)';
-    }
+    element.style
+      ..setProperty('scale', '$scaledZoom')
+      ..transform = 'translate(${position.x}px, ${position.y}px)';
   }
 
-  void clampPosition([Point pos]) {
-    pos ??= position;
+  void clampPosition([Point? pos]) {
+    if (getMaxPosition != null) {
+      pos ??= position;
 
-    var max = getMaxPosition() * 0.5;
-    var min = Point(-max.x, -max.y);
+      var max = getMaxPosition!() * 0.5;
+      var min = Point(-max.x, -max.y);
 
-    _position = clamp(pos, min, max);
-    _transform();
+      _position = clamp(pos, min, max);
+      _transform();
+    }
   }
 
   void reset() {
@@ -122,7 +126,7 @@ class HtmlTransform {
 }
 
 class SimpleEvent {
-  List<EventTarget> path;
+  List<EventTarget>? path;
   Point p;
   Point movement;
   bool shift;

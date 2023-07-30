@@ -6,31 +6,31 @@ import 'package:dungeonclub/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../panels/context_menu.dart';
 import '../panels/panel_overlay.dart';
 import '../panels/upload.dart';
 import 'movable.dart';
 import 'prefab.dart';
 
-HtmlElement get initiativeBar => querySelector('#initiativeBar');
-HtmlElement get charContainer => initiativeBar.querySelector('.roster');
-ButtonElement get rerollButton => querySelector('#initiativeReroll');
-InitiativeSummary _summary;
+HtmlElement get initiativeBar => queryDom('#initiativeBar');
+HtmlElement get charContainer => initiativeBar.queryDom('.roster');
+ButtonElement get rerollButton => queryDom('#initiativeReroll');
+InitiativeSummary? _summary;
 
 class InitiativeTracker {
   final rng = Random();
 
-  Timer diceAnim;
-  Iterable<Movable> _similar;
+  Timer? _diceAnim;
+  Iterable<Movable>? _similar;
 
-  ButtonElement get callRollsButton => querySelector('#initiativeTracker');
-  SpanElement get initiativeDice => querySelector('#initiativeDice');
-  SpanElement get targetText => querySelector('#initiativeTarget');
-  ButtonElement get userRollButton => querySelector('#initiativeRoll');
-  ButtonElement get skipButton => querySelector('#initiativeSkip');
-  ButtonElement get skipTypeButton => querySelector('#initiativeSkipType');
-  HtmlElement get panel => querySelector('#initiativePanel');
+  ButtonElement get callRollsButton => queryDom('#initiativeTracker');
+  SpanElement get initiativeDice => queryDom('#initiativeDice');
+  SpanElement get targetText => queryDom('#initiativeTarget');
+  ButtonElement get userRollButton => queryDom('#initiativeRoll');
+  ButtonElement get skipButton => queryDom('#initiativeSkip');
+  ButtonElement get skipTypeButton => queryDom('#initiativeSkipType');
+  HtmlElement get panel => queryDom('#initiativePanel');
 
   bool get rollerPanelVisible => panel.classes.contains('show');
   set showBar(bool v) => initiativeBar.classes.toggle('hidden', !v);
@@ -44,7 +44,7 @@ class InitiativeTracker {
         sendRollForInitiative();
       } else {
         outOfCombat();
-        if (!user.session.board.refScene.isPlaying) {
+        if (!(user.session!.board.refScene.isPlaying)) {
           disabled = true;
         }
         socket.sendAction(GAME_CLEAR_INITIATIVE);
@@ -56,42 +56,42 @@ class InitiativeTracker {
     skipTypeButton.onClick.listen((_) => _skipAllOfType());
     if (isDM) {
       skipButton.onClick.listen((_) {
-        _summary.mine.removeAt(0);
+        _summary!.mine.removeAt(0);
         nextRoll();
       });
       rerollButton.onClick.listen((_) => sendReroll());
-      panel.querySelector('.close').onClick.listen((_) {
-        _summary.mine.clear();
+      panel.queryDom('.close').onClick.listen((_) {
+        _summary!.mine.clear();
         nextRoll();
       });
     }
   }
 
   void sendReroll() {
-    _summary.rollRemaining();
+    _summary!.rollRemaining();
     socket.sendAction(GAME_REROLL_INITIATIVE);
     nextRoll();
   }
 
   void sendRollForInitiative() {
     resetBar();
-    _summary.rollRemaining();
+    _summary!.rollRemaining();
     socket.sendAction(GAME_ROLL_INITIATIVE);
     nextRoll();
   }
 
   void rollDice() {
-    diceAnim?.cancel();
+    _diceAnim?.cancel();
     var r = rng.nextInt(20) + 1;
     initiativeDice.text = '$r';
 
-    var movable = _summary.mine.removeAt(0);
+    var movable = _summary!.mine.removeAt(0);
     var prefab = movable.prefab;
-    var dmOnly = user.session.isDM &&
+    var dmOnly = user.session!.isDM &&
         (prefab is EmptyPrefab ||
             (prefab is CustomPrefab && prefab.accessIds.isEmpty));
 
-    _summary.registerRoll(movable, r, dmOnly);
+    _summary!.registerRoll(movable, r, dmOnly);
     socket.sendAction(
         GAME_ADD_INITIATIVE, {'id': movable.id, 'roll': r, 'dm': dmOnly});
 
@@ -109,17 +109,17 @@ class InitiativeTracker {
   void addToInBar(Map<String, dynamic> json) {
     int id = json['id'];
     int total = json['roll'];
-    int mod = json['mod'];
+    int? mod = json['mod'];
     bool dm = json['dm'] ?? false;
-    for (var movable in user.session.board.movables) {
+    for (var movable in user.session!.board.movables) {
       if (id == movable.id) {
-        return _summary.registerRoll(movable, total, dm, mod);
+        return _summary!.registerRoll(movable, total, dm, mod);
       }
     }
   }
 
   void reroll() {
-    _summary.rollRemaining();
+    _summary!.rollRemaining();
     if (!rollerPanelVisible) {
       nextRoll();
     }
@@ -127,20 +127,20 @@ class InitiativeTracker {
 
   void showRollerPanel() {
     resetBar();
-    _summary.rollRemaining();
+    _summary!.rollRemaining();
     nextRoll();
   }
 
   void nextRoll() {
-    if (_summary.mine.isEmpty) {
+    if (_summary!.mine.isEmpty) {
       if (panel.classes.remove('show')) overlayVisible = false;
       return;
     }
 
-    diceAnim?.cancel();
+    _diceAnim?.cancel();
 
     var roll = -1;
-    diceAnim = Timer.periodic(Duration(milliseconds: 50), (_) {
+    _diceAnim = Timer.periodic(Duration(milliseconds: 50), (_) {
       int r;
       do {
         r = rng.nextInt(20) + 1;
@@ -150,9 +150,9 @@ class InitiativeTracker {
       initiativeDice.text = '$r';
     });
 
-    var mv = _summary.mine.first;
+    var mv = _summary!.mine.first;
     var prefab = mv.prefab;
-    _similar = _summary.mine.where((other) {
+    _similar = _summary!.mine.where((other) {
       if (mv is EmptyMovable) {
         return other is EmptyMovable && mv.label == other.label;
       }
@@ -162,8 +162,8 @@ class InitiativeTracker {
     var name = mv.displayName;
     targetText.innerHtml = "<b>$name</b>'s Initiative";
 
-    skipTypeButton.text = 'Skip ${_similar.length} Similar Tokens';
-    skipTypeButton.classes.toggle('hidden', _similar.length < 2);
+    skipTypeButton.text = 'Skip ${_similar!.length} Similar Tokens';
+    skipTypeButton.classes.toggle('hidden', _similar!.length < 2);
 
     if (panel.classes.add('show')) overlayVisible = true;
     _disableButtons(false);
@@ -171,7 +171,7 @@ class InitiativeTracker {
 
   void _skipAllOfType() {
     if (_similar != null) {
-      _summary.mine.removeWhere((m) => _similar.contains(m));
+      _summary!.mine.removeWhere((m) => _similar!.contains(m));
       nextRoll();
     }
   }
@@ -183,7 +183,7 @@ class InitiativeTracker {
 
   void outOfCombat() {
     showBar = false;
-    _summary?.entries?.forEach((entry) => entry.e.remove());
+    _summary?.entries.forEach((entry) => entry.e.remove());
     _summary = null;
     updateRerollableInitiatives();
     if (panel.classes.remove('show')) overlayVisible = false;
@@ -191,7 +191,7 @@ class InitiativeTracker {
 
   void onNameUpdate(Movable m) {
     if (_summary != null) {
-      for (var entry in _summary.entries) {
+      for (var entry in _summary!.entries) {
         if (entry.movable == m) {
           entry.nameText.text = m.displayName;
           return;
@@ -202,7 +202,7 @@ class InitiativeTracker {
 
   void onUpdatePrefabImage(Prefab p) {
     if (_summary != null) {
-      for (var entry in _summary.entries) {
+      for (var entry in _summary!.entries) {
         if (entry.movable.prefab == p) {
           entry.applyImage();
         }
@@ -212,9 +212,9 @@ class InitiativeTracker {
 
   void onRemoveID(int mid) {
     if (_summary != null) {
-      for (var entry in _summary.entries.toList()) {
+      for (var entry in _summary!.entries.toList()) {
         if (entry.movable.id == mid) {
-          return _summary.removeEntry(entry);
+          return _summary!.removeEntry(entry);
         }
       }
     }
@@ -222,9 +222,9 @@ class InitiativeTracker {
 
   void onRemove(Movable m) {
     if (_summary != null) {
-      for (var entry in _summary.entries.toList()) {
+      for (var entry in _summary!.entries.toList()) {
         if (entry.movable == m) {
-          return _summary.removeEntry(entry);
+          return _summary!.removeEntry(entry);
         }
       }
       updateRerollableInitiatives();
@@ -234,18 +234,18 @@ class InitiativeTracker {
   void onUpdate(Map<String, dynamic> json) {
     int id = json['id'];
     int mod = json['mod'];
-    for (var entry in _summary.entries) {
+    for (var entry in _summary!.entries) {
       if (entry.movable.id == id) {
         var prefab = entry.movable.prefab;
         if (prefab is HasInitiativeMod) prefab.initiativeMod = mod;
 
         entry.modifier = mod;
-        return _summary.sort();
+        return _summary!.sort();
       }
     }
   }
 
-  void fromJson(Iterable jList) {
+  void fromJson(Iterable? jList) {
     callRollsButton.classes.toggle('active', jList != null);
     outOfCombat();
     if (jList != null) {
@@ -260,9 +260,10 @@ class InitiativeTracker {
 
 bool canReroll() {
   if (_summary == null) return true;
-  var board = user.session.board;
+
+  var board = user.session!.board;
   for (var m in board.movables) {
-    if (!_summary.entries.any((e) => e.movable == m)) {
+    if (!(_summary!.entries.any((e) => e.movable == m))) {
       return true;
     }
   }
@@ -270,7 +271,7 @@ bool canReroll() {
 }
 
 void updateRerollableInitiatives() {
-  if (user.session.isDM) {
+  if (user.session!.isDM) {
     rerollButton.disabled = !canReroll();
   }
 }
@@ -288,8 +289,8 @@ class InitiativeSummary {
   }
 
   void rollRemaining() {
-    var isDm = user.session.isDM;
-    mine.addAll(user.session.board.movables.where((m) {
+    var isDm = user.session!.isDM;
+    mine.addAll(user.session!.board.movables.where((m) {
       if (entries.any((e) => e.movable == m) || mine.contains(m)) return false;
 
       var prefab = m.prefab;
@@ -303,7 +304,7 @@ class InitiativeSummary {
       }
 
       if (prefab is CustomPrefab) {
-        var controllers = user.session.characters.where((pc) {
+        var controllers = user.session!.characters.where((pc) {
           return pc.hasJoined && prefab.accessIds.contains(pc.id);
         });
 
@@ -329,7 +330,7 @@ class InitiativeSummary {
     updateRerollableInitiatives();
   }
 
-  void registerRoll(Movable movable, int base, bool dmOnly, [int mod]) {
+  void registerRoll(Movable movable, int base, bool dmOnly, [int? mod]) {
     var entry = InitiativeEntry(movable, base, dmOnly);
     if (mod != null) entry.modifier = mod;
 
@@ -368,14 +369,14 @@ class InitiativeEntry {
 
   bool get dmOnly => e.classes.contains('private');
   set dmOnly(bool dmOnly) {
-    if (user.session.isDM) {
+    if (user.session!.isDM) {
       e.classes.toggle('private', dmOnly);
     }
   }
 
   int get total => base + modifier;
 
-  int _modifier;
+  late int _modifier;
   int get modifier => _modifier;
   set modifier(int modifier) {
     _modifier = modifier;
@@ -389,7 +390,7 @@ class InitiativeEntry {
   }
 
   InitiativeEntry(this.movable, this.base, bool dmOnly) {
-    int _bufferedModifier;
+    int? _bufferedModifier;
     applyImage();
 
     e
@@ -411,7 +412,7 @@ class InitiativeEntry {
       ..onMouseLeave.listen((_) {
         movable.e.classes.remove('hovered');
         if (modifier != _bufferedModifier) {
-          _summary.sort();
+          _summary!.sort();
           sendUpdate();
         }
       });
@@ -439,7 +440,7 @@ class InitiativeEntry {
     var btnShowHide = -1;
     var btnRemove = -1;
 
-    if (user.session.isDM) {
+    if (user.session!.isDM) {
       btnShowHide = menu.addButton(
         dmOnly ? 'Show' : 'Hide',
         dmOnly ? 'eye' : 'eye-slash',
@@ -448,11 +449,11 @@ class InitiativeEntry {
       btnRemove = menu.addButton('Remove', 'trash');
     }
 
-    final result = await menu.display(ev, e.querySelector('div'));
+    final result = await menu.display(ev, e.queryDom('div'));
 
     if (result == btnGoTo) {
       // Animate transform to token position
-      await user.session.board.animateTransformToToken(movable);
+      await user.session!.board.animateTransformToToken(movable);
     } else if (result == btnShowHide) {
       // Change visibility of initiative entry
       dmOnly = !dmOnly;
@@ -460,12 +461,12 @@ class InitiativeEntry {
     } else if (result == btnRemove) {
       // Remove initiative entry
       await socket.sendAction(GAME_REMOVE_INITIATIVE, {'id': movable.id});
-      _summary.removeEntry(this);
+      _summary!.removeEntry(this);
     }
   }
 
   void sendUpdate() {
-    if (user.session.isDM) {
+    if (user.session!.isDM) {
       socket.sendAction(GAME_UPDATE_INITIATIVE, {
         'id': movable.id,
         'mod': modifier,

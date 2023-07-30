@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/comms.dart';
 import 'package:dungeonclub/dice_parser.dart';
+import 'package:dungeonclub/iterable_extension.dart';
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:random_string/random_string.dart';
@@ -38,14 +39,14 @@ class PasswordReset {
 class Connection extends Socket {
   final WebSocketChannel ws;
   final Stream broadcastStream;
-  Timer _pingTimer;
-  Game _game;
+  Timer? _pingTimer;
+  Game? _game;
   String logPrefix = '';
 
-  Scene scene;
+  Scene? scene;
 
-  Account _account;
-  Account get account => _account;
+  Account? _account;
+  Account? get account => _account;
 
   Connection(this.ws) : broadcastStream = ws.stream.asBroadcastStream() {
     listen(
@@ -89,63 +90,78 @@ class Connection extends Socket {
   String modifyLog(String message) => '$logPrefix$message';
 
   @override
-  Future handleAction(String action, [Map<String, dynamic> params]) async {
+  Future handleAction(
+    String action, [
+    Map<String, dynamic>? params,
+  ]) async {
+    params ??= {};
+
     switch (action) {
       case a.ACCOUNT_REGISTER:
-        var email = params['email'];
+        String email = params['email'];
+
         if (data.getAccount(email) != null) {
           return 'Email address already in use!';
         }
 
         _account = Account(email, params['password']);
-        var code = generateCode();
+        final code = generateCode();
         activationCodes[this] = code;
         return await sendVerifyCreationMail(email, code)
             ? true
             : 'Email could not be sent.';
 
       case a.ACCOUNT_ACTIVATE:
-        var actualCode = activationCodes[this];
+        final actualCode = activationCodes[this];
         String code = params['code'];
-        if (actualCode == null || code != actualCode) return null;
+
+        if (actualCode == null || code != actualCode) {
+          throw 'Invalid activation code';
+        }
 
         activationCodes.remove(this);
         print('New account activated!');
-        data.accounts.add(_account);
-        return _account.toSnippet();
+        data.accounts.add(_account!);
+        return _account!.toSnippet();
 
       case a.ACCOUNT_LOGIN:
-        String email = params['email'];
-        String password = params['password'];
-        String token = params['token'];
+        String? email = params['email'];
+        String? password = params['password'];
+        String? token = params['token'];
         bool remember = params['remember'] ?? false;
-        if (email == null || password == null) {
-          if (token == null || tokenAccounts[token] == null) return null;
 
-          return loginAccount(tokenAccounts[token]);
+        if (email == null || password == null) {
+          if (token == null || tokenAccounts[token] == null) {
+            return null;
+          }
+
+          return loginAccount(tokenAccounts[token]!);
         }
 
         return login(params['email'], params['password'],
             provideToken: remember);
 
       case a.ACCOUNT_RESET_PASSWORD:
-        var email = params['email'];
-        var password = params['password'];
-        if (password == null || data.getAccount(email) == null) {
+        String email = params['email'];
+        String password = params['password'];
+
+        if (data.getAccount(email) == null) {
           return 'No account connected to this email address found!';
         }
 
-        var code = generateCode();
+        final code = generateCode();
         resets[this] = PasswordReset(email, password, code);
         return await sendResetPasswordMail(email, code);
 
       case a.ACCOUNT_RESET_PASSWORD_ACTIVATE:
-        var reset = resets[this];
+        final reset = resets[this];
         String code = params['code'];
-        if (reset == null || code != reset.code) return null;
 
-        var acc = data.getAccount(reset.email);
-        if (acc == null) return null;
+        if (reset == null || code != reset.code) {
+          throw 'Invalid activation code';
+        }
+
+        final acc = data.getAccount(reset.email)!;
 
         acc.setPassword(reset.password);
 
@@ -155,20 +171,21 @@ class Connection extends Socket {
         return loginAccount(acc);
 
       case a.GAME_CREATE_NEW:
-        if (account == null ||
-            account.ownedGames.length > campaignsPerAccount) {
-          return false;
+        _requireLogin();
+
+        if (account!.ownedGames.length > campaignsPerAccount) {
+          throw RangeError('Campaign limit reached');
         }
 
-        final createdMeta = GameMeta.create(account);
+        final createdMeta = GameMeta.create(account!);
         final createdGame = Game.empty(createdMeta);
 
         await createdGame.applyChanges(params['data']);
 
         _game = createdGame..connect(this, true);
-        scene = _game.playingScene;
+        scene = _game!.playingScene;
         data.gameMeta.add(createdMeta..loadedGame = createdGame);
-        account.enteredGames.add(createdMeta);
+        account!.enteredGames.add(createdMeta);
 
         final assetPath = await resolveIndexedAsset(
           'asset/scene/',
@@ -176,22 +193,22 @@ class Connection extends Socket {
         );
 
         final asset = AssetFile.tryAsSceneAsset(assetPath);
-        scene.image.replaceWithFile(asset);
-        scene.tryUseTilesFromAsset();
+        scene!.image.replaceWithFile(asset);
+        scene!.tryUseTilesFromAsset();
 
-        return _game.toSessionSnippet(this);
+        return _game!.toSessionSnippet(this);
 
       case a.GAME_EDIT:
-        if (account == null) return false;
+        _requireLogin();
 
-        var gameId = params['id'];
-        var meta = account.ownedGames
-            .firstWhere((g) => g.id == gameId, orElse: () => null);
+        final gameId = params['id'];
+        final meta = account!.ownedGames.find((g) => g.id == gameId);
+
         if (meta == null) throw 'Access denied!';
 
-        var game = await meta.open();
+        final game = await meta.open();
 
-        var data = params['data'];
+        final data = params['data'];
         if (data != null) {
           // User wants to save changes.
           game.notify(
@@ -211,11 +228,11 @@ class Connection extends Socket {
         return game.toEditSnippet();
 
       case a.GAME_DELETE:
-        if (account == null) return false;
+        _requireLogin();
 
-        var gameId = params['id'];
-        var game = account.ownedGames
-            .firstWhere((g) => g.id == gameId, orElse: () => null);
+        final gameId = params['id'];
+        final game = account!.ownedGames.find((g) => g.id == gameId);
+
         if (game == null) return 'Access denied!';
 
         await game.delete();
@@ -223,45 +240,50 @@ class Connection extends Socket {
         return true;
 
       case a.GAME_JOIN:
-        var id = params['id'];
-        var name = params['name'];
-        var meta =
-            data.gameMeta.firstWhere((g) => g.id == id, orElse: () => null);
+        String id = params['id'];
+
+        final meta = data.gameMeta.find((g) => g.id == id);
 
         if (meta != null) {
           var game = meta.loadedGame;
 
-          int id;
+          int? myId;
           if (meta.owner != account) {
-            if (!meta.isLoaded || !game.dmOnline) {
+            if (game == null || !game.dmOnline) {
               return 'Your GM is not online!';
             }
 
-            id = await game.dm.request(a.GAME_JOIN_REQUEST, {'name': name});
-            if (id == null) return "You're not allowed to enter!";
+            String name = params['name'];
+            myId = await game.dm!.request(a.GAME_JOIN_REQUEST, {'name': name});
 
-            if (connectionClosed) {
-              return game.dm.sendAction(a.GAME_CONNECTION, {'cancelled': true});
+            if (myId == null) {
+              return "You're not allowed to enter!";
             }
 
-            game.assignPC(id, this);
+            if (connectionClosed) {
+              return game.dm!.sendAction(a.GAME_CONNECTION, {
+                'cancelled': true,
+              });
+            }
+
+            game.assignPC(myId, this);
           } else {
             game = await meta.open();
           }
           _game = game..connect(this, true);
           scene = game.playingScene;
-          return game.toSessionSnippet(this, id);
+          return game.toSessionSnippet(this, myId);
         }
         return 'Game "$id" not found!';
 
       case a.GAME_KICK:
-        int pc = params['pc'];
-        if (_game == null || pc == null || _game.meta.owner != account) {
-          return null;
-        }
+        _requireOwnerOfSession();
 
-        var connection = _game.characters.elementAt(pc).connection;
-        _game.connect(connection, false); // Ensure disconnect
+        int pcId = params['pc'];
+        final pc = _game!.characters.find((e) => e.id == pcId)!;
+
+        final connection = pc.connection!;
+        _game!.connect(connection, false); // Ensure disconnect
         connection._game = null;
 
         return connection.sendAction(action, {
@@ -269,23 +291,31 @@ class Connection extends Socket {
         });
 
       case a.GAME_PREFAB_CREATE:
-        if (_game != null || _game.prefabCount < prefabsPerCampaign) {
-          final prefab = _game.addPrefab();
-          await prefab.image.replaceWithData(params['data']);
+        _requireOwnerOfSession();
 
-          final response = prefab.toJson();
-          notifyOthers(action, response, true);
-          return response;
+        if (_game!.prefabCount >= prefabsPerCampaign) {
+          throw RangeError('Prefab limit reached');
         }
-        return null;
+
+        String data = params['data'];
+
+        final prefab = _game!.addPrefab();
+        await prefab.image.replaceWithData(data);
+
+        final response = prefab.toJson();
+        notifyOthers(action, response, true);
+        return response;
 
       case a.GAME_PREFAB_UPDATE:
-        String pid = params['prefab'];
-        var data = params['data'];
-        if (_game == null || pid == null) return null;
+        _requireOwnerOfSession();
 
-        final prefab = _game.getPrefab(pid);
-        if (prefab == null) return null;
+        String pid = params['prefab'];
+        final data = params['data'];
+
+        final prefab = _game!.getPrefab(pid);
+        if (prefab == null) {
+          throw 'Unable to find prefab with ID $pid';
+        }
 
         if (data != null) {
           // Update prefab image
@@ -306,16 +336,18 @@ class Connection extends Socket {
         return params;
 
       case a.GAME_PREFAB_REMOVE:
-        if (_game == null) return null;
+        _requireOwnerOfSession();
 
         final id = int.parse(params['prefab']);
-        _game.removePrefab(id);
+        _game!.removePrefab(id);
         return notifyOthers(action, params, true);
 
       case a.GAME_MOVABLE_CREATE:
-        if (scene != null && scene.movables.length < movablesPerScene) {
-          var m = scene.addMovable(params);
-          if (m == null) return null;
+        _requireOwnerOfSession();
+
+        if (scene != null && scene!.movables.length < movablesPerScene) {
+          final m = scene!.addMovable(params);
+
           notifyOthers(action, {
             'id': m.id,
             'prefab': m.prefab,
@@ -328,8 +360,8 @@ class Connection extends Socket {
       case a.GAME_MOVABLE_CREATE_ADVANCED:
         if (scene != null) {
           List source = params['movables'];
-          if (scene.movables.length + source.length <= movablesPerScene) {
-            var dest = source.map((src) => scene.addMovable(src)).toList();
+          if (scene!.movables.length + source.length <= movablesPerScene) {
+            var dest = source.map((src) => scene!.addMovable(src)).toList();
 
             notifyOthers(action, {'movables': dest});
             return dest.map((m) => m.id).toList();
@@ -338,20 +370,23 @@ class Connection extends Socket {
         return null;
 
       case a.GAME_MOVABLE_MOVE:
-        List ids = params['movables'];
-        var delta = parsePoint<double>(params);
+        List? ids = params['movables'];
+        final delta = parsePoint<double>(params);
+
         if (ids == null || delta == null || scene == null) return null;
 
         for (int movableId in ids) {
-          scene.getMovable(movableId).position += delta;
+          scene!.getMovable(movableId)?.position += delta;
         }
 
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_SNAP:
+        if (scene == null) return null;
+
         for (var jm in params['movables']) {
-          var m = scene.getMovable(jm['id']);
-          m.handleSnapEvent(jm);
+          final m = scene!.getMovable(jm['id']);
+          m?.handleSnapEvent(jm);
         }
 
         return notifyOthers(action, params);
@@ -372,118 +407,138 @@ class Connection extends Socket {
         return notifyOthers(action, params);
 
       case a.GAME_SCENE_UPDATE:
-        if (_game?.dm != this || scene == null) return;
+        _requireOwnerOfSession();
 
         final grid = params['grid'];
         if (grid != null) {
-          scene.applyGrid(grid);
-          scene.applyMovables(params['movables']);
+          scene!.applyGrid(grid);
+          scene!.applyMovables(params['movables']);
           return notifyOthers(action, params);
         }
 
-        final img = params['data'];
-        if (img != null) {
-          // Update scene image
-          await scene.image.replaceWithData(img);
+        String img = params['data'];
 
-          final response = scene.image.toJsonResponse();
-          _game.notify(a.GAME_SCENE_UPDATE, response, exclude: this);
-          return response;
-        }
-        return null;
+        // Update scene image
+        await scene!.image.replaceWithData(img);
+
+        final response = scene!.image.toJsonResponse()!;
+        _game!.notify(a.GAME_SCENE_UPDATE, response, exclude: this);
+        return response;
 
       case a.GAME_SCENE_GET:
-        if (_game.dm != this) throw 'Access denied';
+        _requireOwnerOfSession();
 
         int sceneID = params['id'];
-        var s = _game.getScene(sceneID);
 
-        scene = s;
-        return s.toJson(true);
+        final scene = _game!.getScene(sceneID);
+
+        if (scene == null) {
+          throw "Scene with ID $sceneID doesn't exist";
+        }
+
+        this.scene = scene;
+        return scene.toJson(true);
 
       case a.GAME_SCENE_PLAY:
-        int sceneID = params['id'];
-        final scene = _game.getScene(sceneID);
+        _requireOwnerOfSession();
 
-        _game.playScene(scene);
+        int sceneID = params['id'];
+        final scene = _game!.getScene(sceneID);
+
+        if (scene == null) {
+          throw "Scene with ID $sceneID doesn't exist";
+        }
+
+        _game!.playScene(scene);
         return;
 
       case a.GAME_SCENE_ADD:
-        if (_game.sceneCount >= scenesPerCampaign) return null;
+        _requireOwnerOfSession();
 
-        final background = params['data'];
-        final resource = await ControlledResource.withData(_game, background);
+        if (_game!.sceneCount >= scenesPerCampaign) {
+          throw RangeError('Scene limit reached');
+        }
 
-        final newScene = _game.addScene(resource);
+        String background = params['data'];
+        final resource = await ControlledResource.withData(_game!, background);
+
+        final newScene = _game!.addScene(resource);
         newScene.tryUseTilesFromAsset();
 
         scene = newScene;
         return newScene.toJson(true);
 
       case a.GAME_SCENE_REMOVE:
-        int id = params['id'];
-        if (_game == null ||
-            _account == null ||
-            _game.meta.owner != _account ||
-            id == null) return;
+        _requireOwnerOfSession();
 
-        _game.removeScene(id);
+        int id = params['id'];
+
+        _game!.removeScene(id);
         return;
 
       case a.GAME_SCENE_FOG_OF_WAR:
-        var data = params['data'];
+        _requireOwnerOfSession();
 
-        if (scene == null || data == null) return false;
+        String data = params['data'];
 
-        scene.fogOfWar = data;
-        _game.notify(action, params, exclude: this);
+        scene!.fogOfWar = data;
+        _game!.notify(action, params, exclude: this);
         return true;
 
       case a.GAME_ROLL_DICE:
-        if (_game == null) return;
+        _requireInSession();
 
         var combo = RollCombo.fromJson(params);
-        int charId = params['id'];
+        int? charId = params['id'];
         bool public = params['public'] ?? true;
 
         combo.rollAll();
 
-        var results = {
+        final results = {
           ...combo.toJson(),
           'id': charId,
         };
 
         if (public) {
-          _game.notify(action, results, exclude: this, allScenes: true);
+          _game!.notify(action, results, exclude: this, allScenes: true);
         }
         return results;
 
       case a.GAME_MAP_CREATE:
-        if (_game.mapCount >= mapsPerCampaign) return null;
+        _requireOwnerOfSession();
+
+        if (_game!.mapCount >= mapsPerCampaign) {
+          throw RangeError('Map limit reached');
+        }
 
         final image = params['data'];
-        final resource = await ControlledResource.withData(_game, image);
+        final resource = await ControlledResource.withData(_game!, image);
 
-        final map = _game.addMap(resource);
+        final map = _game!.addMap(resource);
         final response = {
           'map': map.id,
           'image': resource.filePath,
         };
 
-        _game.notify(action, response, exclude: this, allScenes: true);
+        _game!.notify(action, response, exclude: this, allScenes: true);
         return response;
 
       case a.GAME_MAP_UPDATE:
-        int id = params['map'];
-        String name = params['name'];
-        bool shared = params['shared'];
+        _requireOwnerOfSession();
 
-        final map = _game.getMap(id);
+        int id = params['map'];
+        String? name = params['name'];
+        bool? shared = params['shared'];
+
+        final map = _game!.getMap(id);
+        if (map == null) {
+          throw 'Invalid map ID $id';
+        }
 
         if (name != null || shared != null) {
           // Update map properties
           map.update(name, shared);
-          _game.notify(action, params, exclude: this, allScenes: true);
+          _game!.notify(action, params, exclude: this, allScenes: true);
           return true;
         }
 
@@ -495,63 +550,69 @@ class Connection extends Socket {
           'image': map.image.filePath,
         };
 
-        _game.notify(action, response, exclude: this, allScenes: true);
+        _game!.notify(action, response, exclude: this, allScenes: true);
         return response;
 
       case a.GAME_MAP_REMOVE:
-        int id = params['map'];
-        if (id == null) return false;
+        _requireOwnerOfSession();
 
-        _game.removeMap(id);
-        _game.notify(action, {'map': id}, exclude: this, allScenes: true);
-        return true;
+        int id = params['map'];
+
+        _game!.removeMap(id);
+        _game!.notify(action, {'map': id}, exclude: this, allScenes: true);
+        return;
 
       case a.GAME_PING:
-        if (_game != null) {
-          _game.notify(action, params, exclude: this);
-        }
-        return true;
+        _requireInSession();
+
+        _game!.notify(action, params, exclude: this);
+        return;
 
       case a.GAME_CHAT:
-        if (_game != null) {
-          _game.notify(action, params, exclude: this, allScenes: true);
-        }
-        return true;
+        _requireInSession();
+
+        _game!.notify(action, params, exclude: this, allScenes: true);
+        return;
 
       case a.FEEDBACK:
         String type = params['type'];
         String content = params['content'];
-        if (content == null ||
-            !(type == 'feature' ||
-                type == 'bug' ||
-                type == 'account' ||
-                type == 'other')) return false;
+
+        if (!Feedback.validTypes.contains(type)) {
+          throw 'Invalid feedback type';
+        }
 
         pendingFeedback.add(Feedback(
           type,
           content,
-          account?.encryptedEmail?.toString(),
-          _game?.meta?.id,
+          account?.encryptedEmail.toString(),
+          _game?.meta.id,
         ));
         return true;
 
       case a.GAME_UPDATE_INITIATIVE:
+        _requireOwnerOfSession();
+
         int id = params['id'];
         int mod = params['mod'];
-        bool dmOnly = params['dm'];
+        bool? dmOnly = params['dm'];
 
-        var initiative = scene.initiativeState.initiatives
+        final initiative = scene!.initiativeState!.initiatives
             .firstWhere((ini) => ini.movableId == id);
         initiative.mod = mod;
 
-        var movable = scene.getMovable(id);
-        var prefab = _game.getPrefab(movable.prefab);
+        final movable = scene!.getMovable(id);
+        if (movable == null) {
+          throw 'Invalid movable ID $id';
+        }
+
+        final prefab = _game!.getPrefab(movable.prefab);
         prefab?.mod = mod;
 
         if (dmOnly != null) {
           if (initiative.dmOnly != dmOnly) {
             initiative.dmOnly = dmOnly;
-            return _game.notify(
+            return _game!.notify(
               dmOnly ? a.GAME_REMOVE_INITIATIVE : a.GAME_ADD_INITIATIVE,
               dmOnly ? {'id': id} : initiative.toJson(includeDm: false),
               exclude: this,
@@ -561,76 +622,123 @@ class Connection extends Socket {
         }
 
         if (initiative.dmOnly) return;
-        continue notify;
+
+        return notifyOthers(action, params);
 
       case a.GAME_ROLL_INITIATIVE:
-        scene.initiativeState = InitiativeState([]);
-        continue notify;
+        _requireOwnerOfSession();
+
+        scene!.initiativeState = InitiativeState([]);
+        return notifyOthers(action, params);
 
       case a.GAME_ADD_INITIATIVE:
+        _requireInSession();
+
         int id = params['id'];
         int roll = params['roll'];
         bool dm = params['dm'];
 
-        var mod = 0;
-        var movable = scene.getMovable(id);
-        var prefab = _game.getPrefab(movable.prefab);
-        mod = prefab?.mod ?? 0;
+        final movable = scene!.getMovable(id);
+        if (movable == null) {
+          throw 'Invalid movable ID $id';
+        }
 
-        scene.initiativeState.initiatives.add(Initiative(id, roll, mod, dm));
+        final prefab = _game!.getPrefab(movable.prefab);
+        final mod = prefab?.mod ?? 0;
+
+        scene!.initiativeState!.initiatives.add(Initiative(id, roll, mod, dm));
         if (dm) return;
-        continue notify;
+
+        return notifyOthers(action, params);
 
       case a.GAME_REMOVE_INITIATIVE:
+        _requireOwnerOfSession();
+
         int id = params['id'];
-        scene.initiativeState.initiatives.removeWhere((i) => i.movableId == id);
-        continue notify;
+        scene!.initiativeState!.initiatives
+            .removeWhere((i) => i.movableId == id);
+
+        return notifyOthers(action, params);
 
       case a.GAME_CLEAR_INITIATIVE:
-        scene.initiativeState = null;
-        continue notify;
+        _requireOwnerOfSession();
 
-      notify:
+        scene!.initiativeState = null;
+        return notifyOthers(action, params);
+
       case a.GAME_REROLL_INITIATIVE:
-        return _game.notify(action, params, exclude: this, allScenes: true);
+        _requireOwnerOfSession();
+        return notifyOthers(action, params);
 
       case a.GAME_MUSIC_PLAYLIST:
-        var id = params['playlist'];
-        if (_game == null && id == null) return null;
+        String? playlistName = params['playlist'];
 
-        if (id == null) {
-          _game.ambience.playlistName = null;
-          _game.ambience.list = null;
-          _game.notify(action, null, exclude: this, allScenes: true);
+        if (_game == null && playlistName == null) {
+          // User is in a demo session and stops the audio player,
+          // no backend handling needed.
           return null;
         }
 
-        var pl = collection.playlists.firstWhere(
-          (pl) => pl.title == id,
-          orElse: () => null,
+        if (playlistName == null) {
+          _game!.ambience.playlistName = null;
+          _game!.ambience.list = null;
+          _game!.notify(action, {}, exclude: this, allScenes: true);
+          return;
+        }
+
+        final playlist = collection.playlists.find(
+          (pl) => pl.title == playlistName,
         );
 
-        var tracklist = pl.toTracklist(shuffle: true);
-        _game?.ambience?.playlistName = pl.title;
-        _game?.ambience?.list = tracklist;
+        if (playlist == null) {
+          throw 'Invalid playlist name $playlistName';
+        }
 
-        var response = tracklist.toJson();
+        final tracklist = playlist.toTracklist(shuffle: true);
+        _game?.ambience.playlistName = playlist.title;
+        _game?.ambience.list = tracklist;
+
+        final response = tracklist.toJson();
         _game?.notify(action, response, exclude: this, allScenes: true);
 
         return response;
 
       case a.GAME_MUSIC_SKIP:
-        if (_game == null) return;
-        _game.ambience.list.fromSyncJson(params);
-        continue notify;
+        _requireInSession();
+
+        _game!.ambience.list?.fromSyncJson(params);
+        return notifyOthers(action, params);
 
       case a.GAME_MUSIC_AMBIENCE:
-        if (_game == null) return;
-        _game.ambience.ambienceFromJson(params);
-        continue notify;
+        _requireInSession();
+
+        _game!.ambience.ambienceFromJson(params);
+        return notifyOthers(action, params);
 
       case 'manualSave':
+        _requireLogin();
         return data.manualSave();
+    }
+  }
+
+  void _requireLogin() {
+    if (account == null) {
+      throw 'You must be logged in';
+    }
+  }
+
+  void _requireInSession() {
+    if (_game == null || scene == null) {
+      throw 'You must be in a running session';
+    }
+  }
+
+  void _requireOwnerOfSession() {
+    _requireInSession();
+    _requireLogin();
+
+    if (_game!.meta.owner != account) {
+      throw 'You must be DM';
     }
   }
 
@@ -653,7 +761,7 @@ class Connection extends Socket {
 
   void notifyOthers(
     String action, [
-    Map<String, dynamic> params,
+    Map<String, dynamic> params = const {},
     bool allScenes = false,
   ]) {
     _game?.notify(action, params, exclude: this, allScenes: allScenes);
@@ -703,10 +811,10 @@ class Connection extends Socket {
 
         if (port == 80) {
           // Forward measuring event
-          _game.notifyBinary(data, exclude: this);
+          _game!.notifyBinary(data, exclude: this);
         } else {
           // Forward map event
-          _game.handleMapEvent(data, this);
+          _game!.handleMapEvent(data, this);
         }
       }
     }

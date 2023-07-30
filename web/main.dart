@@ -3,24 +3,26 @@ import 'dart:html';
 import 'dart:js' as js;
 
 import 'package:dungeonclub/environment.dart';
+import 'package:dungeonclub/iterable_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 
 import 'dart/communication.dart';
 import 'dart/home.dart' as home;
+import 'dart/html_helpers.dart';
 import 'dart/panels/code_panel.dart';
 import 'dart/panels/join_session.dart' as join_session;
 import 'dart/panels/feedback.dart' as feedback;
 import 'dart/session/demo.dart';
 import 'dart/user.dart';
 
-final bool isMobile = window.screen.width < 800;
+final bool isMobile = window.screen!.width! < 800;
 final _interaction = Completer();
 Future get requireFirstInteraction => _interaction.future;
 
 final user = User();
 const appName = 'Dungeon Club';
-String _homeUrl;
+late String _homeUrl;
 String get homeUrl => _homeUrl;
 
 void main() async {
@@ -29,14 +31,14 @@ void main() async {
   applyEnvironmentStyling();
   applyMobileStyling();
 
-  querySelector('#signup').onClick.listen((_) {
+  queryDom('#signup').onClick.listen((_) {
     registerPanel.display();
   });
-  querySelector('#feedback').onClick.listen((_) => !Environment.isCompiled
+  queryDom('#feedback').onClick.listen((_) => !Environment.isCompiled
       ? feedback.display()
-      : querySelector('#discordLink').click());
+      : queryDom('#discordLink').click());
 
-  querySelector('button#save').onClick.listen((_) {
+  queryDom('button#save').onClick.listen((_) {
     socket.send('{"action":"manualSave"}');
   });
 
@@ -53,9 +55,9 @@ void main() async {
 void applyMobileStyling() {
   if (isMobile) {
     // Remove text from icon buttons
-    querySelectorAll('#playerControls .icon').forEach((btn) => btn.childNodes
-        .firstWhere((node) => node is Text, orElse: () => null)
-        .remove());
+    querySelectorAll('#playerControls .icon').forEach(
+      (btn) => btn.childNodes.find((node) => node is Text)?.remove(),
+    );
   }
 
   // Register a custom .hovered selector to use instead of :hover
@@ -77,24 +79,24 @@ void applyEnvironmentStyling() {
     Environment.applyConfig(embeddedConfig);
 
     // Apply "self-hosted" changes
-    querySelector('#privacy').remove();
+    queryDom('#privacy').remove();
     var time = DateTime.fromMillisecondsSinceEpoch(Environment.buildTimestamp);
     var buildTime = DateFormat('y-MM-dd').format(time);
-    querySelector('#hostInfo').innerHtml = 'Self-Hosted (Build $buildTime)';
+    queryDom('#hostInfo').innerHtml = 'Self-Hosted (Build $buildTime)';
   }
 
-  document.body.classes.toggle('no-music', !Environment.enableMusic);
+  document.body!.classes.toggle('no-music', !Environment.enableMusic);
 }
 
 void processUrlPath() {
   if (window.location.href.contains('game')) {
-    var gameId = window.location.pathname;
+    var gameId = window.location.pathname!;
 
     if (gameId.contains('game/')) {
       gameId = gameId.substring(gameId.indexOf('game/') + 5);
       _homeUrl = dirname(_homeUrl);
     } else {
-      gameId = window.location.search;
+      gameId = window.location.search!;
       gameId = gameId.substring(gameId.indexOf('?game=') + 6);
 
       if (gameId.contains('&')) {
@@ -103,7 +105,7 @@ void processUrlPath() {
     }
 
     if (gameId.length >= 3) {
-      if (user.registered && user.account.games.any((g) => g.id == gameId)) {
+      if (user.registered && user.account!.games.any((g) => g.id == gameId)) {
         user.joinSession(gameId);
       } else if (gameId == DemoSession.demoId) {
         user.joinDemo();

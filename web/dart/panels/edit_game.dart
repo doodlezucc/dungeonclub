@@ -7,36 +7,40 @@ import 'package:dungeonclub/limits.dart';
 import '../../main.dart';
 import '../communication.dart';
 import '../edit_image.dart';
-import '../font_awesome.dart';
+import '../html_helpers.dart';
 import '../game.dart';
 import '../resource.dart';
 import 'dialog.dart';
 import 'panel_overlay.dart';
 import 'upload.dart' as uploader;
 
-final HtmlElement _panel = querySelector('#editGamePanel');
-final InputElement _gameNameInput = _panel.querySelector('#gameName');
-final HtmlElement _roster = _panel.querySelector('#editChars');
-final ButtonElement _cancelButton = _panel.querySelector('button.close');
-final ButtonElement _deleteButton = _panel.querySelector('button#delete');
-final ButtonElement _saveButton = _panel.querySelector('button#save');
+final HtmlElement _panel = queryDom('#editGamePanel');
+final InputElement _gameNameInput = _panel.queryDom('#gameName');
+final HtmlElement _roster = _panel.queryDom('#editChars');
+final ButtonElement _cancelButton = _panel.queryDom('button.close');
+final ButtonElement _deleteButton = _panel.queryDom('button#delete');
+final ButtonElement _saveButton = _panel.queryDom('button#save');
 
 final _chars = <_EditChar>[];
 
-final AnchorElement _addCharButton = _panel.querySelector('#addChar')
+final AnchorElement _addCharButton = _panel.queryDom('#addChar')
   ..onClick.listen((_) {
     _chars.add(_EditChar.empty()..focus());
     _updateAddButton();
   });
 
-bool _prepareMode;
+bool _prepareMode = false;
 bool get prepareMode => _prepareMode;
 set prepareMode(bool v) {
   _prepareMode = v;
   _panel.classes.toggle('prepare', v);
 }
 
-Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
+Future<void> display(
+  Game game, [
+  HtmlElement? title,
+  HtmlElement? refEl,
+]) async {
   prepareMode = false;
   var result = await socket.request(GAME_EDIT, {'id': game.id});
 
@@ -63,14 +67,14 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
       _saveButton.disabled = true;
       if (await _saveChanges(game.id)) {
         title?.text = _gameNameInput.value;
-        game.name = _gameNameInput.value;
+        game.name = _gameNameInput.value!;
         closer.complete();
       }
     }),
     _cancelButton.onClick.listen((event) => closer.complete()),
     _deleteButton.onClick.listen((event) async {
       if (await _delete(game)) {
-        refEl.remove();
+        refEl?.remove();
         closer.complete();
       }
     })
@@ -85,7 +89,7 @@ Future<void> display(Game game, [HtmlElement title, HtmlElement refEl]) async {
   overlayVisible = false;
 }
 
-Future<Game> displayPrepare() async {
+Future<Game?> displayPrepare() async {
   prepareMode = true;
   overlayVisible = true;
   _saveButton.text = 'Create Campaign';
@@ -130,12 +134,12 @@ void _updateAddButton() {
 
 class _EditChar {
   final HtmlElement e;
-  final int id;
-  final Resource avatar;
+  final int? id;
+  final BaseResource avatar;
   bool isRemoved = false;
-  String bufferedImg;
-  InputElement _nameInput;
-  String get name => _nameInput.value;
+  String? bufferedImg;
+  late InputElement _nameInput;
+  String get name => _nameInput.value!;
 
   bool get isOG => id != null;
 
@@ -165,16 +169,16 @@ class _EditChar {
           Resource(json['prefab']['image'], game: game),
         );
 
-  _EditChar.empty() : this(null, '', Resource('asset:default_pc.jpg'));
+  _EditChar.empty() : this(null, '', BaseResource('asset:default_pc.jpg'));
 
-  Future<String> _changeIcon(MouseEvent ev, [Blob initialFile]) async {
+  Future<String> _changeIcon(MouseEvent ev, [Blob? initialFile]) async {
     return await uploader.display(
       event: ev,
       type: IMAGE_TYPE_PC,
       initialImg: initialFile,
       processUpload: (data, maxRes, upscale) async {
         bufferedImg = data;
-        if (data.startsWith('asset')) return Resource(data).url;
+        if (data.startsWith('asset')) return BaseResource(data).url;
         return 'data:image/jpeg;base64,$data';
       },
       onPanelVisible: (v) => _panel.classes.toggle('upload', v),
@@ -204,7 +208,7 @@ class _EditChar {
     _nameInput.focus();
   }
 
-  Map<String, dynamic> toJson() => isRemoved
+  Map<String, dynamic>? toJson() => isRemoved
       ? null
       : {
           'name': name,
@@ -225,12 +229,15 @@ Map<String, dynamic> _currentDataJson() => {
     };
 
 Future<Game> _createGameAndJoin() async {
-  var name = _gameNameInput.value;
+  var name = _gameNameInput.value!;
 
   var session = await socket.request(GAME_CREATE_NEW, {
     'data': _currentDataJson(),
   });
-  if (session == null) return null;
+
+  if (session == null) {
+    throw 'Unable to create game';
+  }
 
   var game = Game(session['id'], name, true);
   user.joinFromJson(session, false);

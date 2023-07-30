@@ -5,6 +5,7 @@ import 'package:dungeonclub/actions.dart';
 
 import '../../main.dart';
 import '../communication.dart';
+import '../html_helpers.dart';
 import 'panel_overlay.dart';
 
 const pwLengthMin = 7;
@@ -18,57 +19,57 @@ final CodePanel resetPanel = CodePanel(
 class CodePanel {
   final HtmlElement _panel;
 
-  HtmlElement _sectionRegister;
-  HtmlElement _sectionActivate;
+  late HtmlElement _sectionRegister;
+  late HtmlElement _sectionActivate;
 
-  InputElement _emailInput;
+  late InputElement _emailInput;
 
-  InputElement _passwordInput;
+  late InputElement _passwordInput;
 
-  InputElement _confirmInput;
+  late InputElement _confirmInput;
 
-  InputElement _codeInput;
-  SpanElement _emailReader;
+  late InputElement _codeInput;
+  late SpanElement _emailReader;
 
-  ButtonElement _registerButton;
-  ButtonElement _activateButton;
+  late ButtonElement _registerButton;
+  late ButtonElement _activateButton;
 
-  HtmlElement _errorText1;
-  HtmlElement _errorText2;
+  late HtmlElement _errorText1;
+  late HtmlElement _errorText2;
 
-  ButtonElement _cancelButton;
-  final ButtonElement _loginButton = querySelector('button#login');
+  late ButtonElement _cancelButton;
+  final ButtonElement _loginButton = queryDom('button#login');
 
   final String actionSend;
   final String actionVerify;
 
   CodePanel(String panelId, this.actionSend, this.actionVerify)
-      : _panel = querySelector(panelId) {
-    _sectionRegister = _panel.querySelector('.credentials');
-    _sectionActivate = _panel.querySelector('.activate');
+      : _panel = queryDom(panelId) {
+    _sectionRegister = _panel.queryDom('.credentials');
+    _sectionActivate = _panel.queryDom('.activate');
 
-    _emailInput = _panel.querySelector('.email')
+    _emailInput = _panel.queryDom('.email')
       ..onInput.listen((event) => _updateCreateButton());
 
-    _passwordInput = _panel.querySelector('.password')
+    _passwordInput = _panel.queryDom('.password')
       ..onInput.listen((event) => _updateCreateButton());
 
-    _confirmInput = _panel.querySelector('.confirm')
+    _confirmInput = _panel.queryDom('.confirm')
       ..onInput.listen((event) => _updateCreateButton());
 
-    _codeInput = _panel.querySelector('.code')
+    _codeInput = _panel.queryDom('.code')
       ..onInput.listen((_) {
-        _activateButton.disabled = _codeInput.value.length != 5;
+        _activateButton.disabled = _codeInput.value!.length != 5;
       });
-    _emailReader = _panel.querySelector('.email-reader');
+    _emailReader = _panel.queryDom('.email-reader');
 
-    _registerButton = _panel.querySelector('.send');
-    _activateButton = _panel.querySelector('.activate-code');
+    _registerButton = _panel.queryDom('.send');
+    _activateButton = _panel.queryDom('.activate-code');
 
-    _errorText1 = _sectionRegister.querySelector('p.bad');
-    _errorText2 = _sectionActivate.querySelector('p.bad');
+    _errorText1 = _sectionRegister.queryDom('p.bad');
+    _errorText2 = _sectionActivate.queryDom('p.bad');
 
-    _cancelButton = _panel.querySelector('button.close');
+    _cancelButton = _panel.queryDom('button.close');
   }
 
   Future<void> display() async {
@@ -112,7 +113,8 @@ class CodePanel {
           'code': _codeInput.value,
         });
         if (account == null) {
-          return _errorText2.text = 'Invalid code!';
+          _errorText2.text = 'Invalid code!';
+          return;
         }
 
         user.onActivate(account);
@@ -139,10 +141,10 @@ class CodePanel {
   }
 
   bool isValidPassword(InputElement pw, InputElement confirm) =>
-      pw.value.length >= pwLengthMin && pw.value == confirm.value;
+      pw.value!.length >= pwLengthMin && pw.value == confirm.value;
 
   void _updateCreateButton() {
-    _registerButton.disabled = !_emailInput.value.contains('@') ||
+    _registerButton.disabled = !_emailInput.value!.contains('@') ||
         !isValidPassword(_passwordInput, _confirmInput);
   }
 }

@@ -4,15 +4,15 @@ import 'package:ambience/ambience.dart';
 import 'package:intl/intl.dart';
 
 import 'communication.dart';
-import 'formatting.dart';
+import 'html_helpers.dart';
 
 final changelog = Changelog().._init();
 
 class Changelog {
-  HtmlElement get button => querySelector('#changelogButton');
-  HtmlElement get root => querySelector('#changelog');
-  int lastChangeCount;
-  int currentChangeCount;
+  HtmlElement get button => queryDom('#changelogButton');
+  HtmlElement get root => queryDom('#changelog');
+  late int? lastChangeCount;
+  late int currentChangeCount;
 
   void _init() {
     button
@@ -29,7 +29,7 @@ class Changelog {
 
     var saved = window.localStorage['changelog'];
     if (saved != null) {
-      lastChangeCount = int.tryParse(saved);
+      lastChangeCount = int.parse(saved);
     } else {
       lastChangeCount = null;
     }
@@ -56,7 +56,7 @@ class Changelog {
     currentChangeCount = changes.length;
     if (lastChangeCount == null) _updateLastKnown();
 
-    var diff = currentChangeCount - lastChangeCount;
+    var diff = currentChangeCount - lastChangeCount!;
     if (diff > 0) button.classes.add('new');
 
     for (var change in changes) {
@@ -98,7 +98,7 @@ class Changelog {
 class LoggedChange {
   final DateTime date;
   final Iterable<String> changes;
-  String title;
+  late String title;
 
   LoggedChange(String header, this.changes) : date = parseDate(header) {
     var outputFormat = DateFormat('MMM d, yyyy');

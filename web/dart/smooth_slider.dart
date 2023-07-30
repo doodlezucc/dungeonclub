@@ -3,22 +3,22 @@ import 'dart:html';
 
 class SmoothSlider {
   final InputElement input;
-  final void Function(num value) onSmoothChange;
+  final void Function(num value)? onSmoothChange;
   final num _min;
   final num _max;
-  Timer _timer;
+  late Timer _timer;
   num _value = 0;
 
-  num get goal => input.valueAsNumber;
+  num get goal => input.valueAsNumber!;
   set goal(num v) => input.valueAsNumber = v;
 
   SmoothSlider(
     this.input, {
-    num stepMs = 20,
+    int stepMs = 20,
     num rangePerSecond = 0.2,
     this.onSmoothChange,
-  })  : _min = num.tryParse(input.min) ?? 0,
-        _max = num.tryParse(input.max) ?? 1 {
+  })  : _min = num.tryParse(input.min ?? '') ?? 0,
+        _max = num.tryParse(input.max ?? '') ?? 1 {
     input.classes.add('smooth-bg');
     _value = goal;
     _applyValue(_value);
@@ -41,7 +41,7 @@ class SmoothSlider {
 
   void _applyValue(num v) {
     _value = v;
-    if (onSmoothChange != null) onSmoothChange(v);
+    if (onSmoothChange != null) onSmoothChange!(v);
 
     var clamped = (v - _min) / (_max - _min);
     input.style.setProperty('--v', '${100 * clamped}%');

@@ -14,8 +14,8 @@ class EntryParser {
 
   EntryParser(
     this.defaultConfig, {
-    ParserBuilder prepend,
-    ParserBuilder append,
+    ParserBuilder? prepend,
+    ParserBuilder? append,
   }) : parser = _makeParser(defaultConfig, prepend: prepend, append: append);
 
   Map<String, dynamic> tryArgParse(Iterable<String> args) {
@@ -28,22 +28,26 @@ class EntryParser {
 
     try {
       var results = parser.parse(args);
-      if (results.wasParsed('help')) return _exitWithHelp();
+      if (results.wasParsed('help')) {
+        _exitWithHelp();
+      }
 
       config.addEntries(
           results.options.map((key) => MapEntry(key, results[key])));
       return config;
     } on ArgParserException catch (e) {
       print('Error: ${e.message}\n');
-      return _exitWithHelp();
+
+      _exitWithHelp();
+      rethrow;
     }
   }
 }
 
 ArgParser _makeParser(
   Map<String, dynamic> defaultConfig, {
-  ParserBuilder prepend,
-  ParserBuilder append,
+  ParserBuilder? prepend,
+  ParserBuilder? append,
 }) {
   var parser = ArgParser(usageLineLength: 120)
     ..addFlag('help', abbr: 'h', negatable: false, hide: true);
