@@ -562,13 +562,13 @@ class Connection extends Socket {
         return;
 
       case a.GAME_PING:
-        _requireOwnerOfSession();
+        _requireInSession();
 
         _game!.notify(action, params, exclude: this);
         return;
 
       case a.GAME_CHAT:
-        _requireOwnerOfSession();
+        _requireInSession();
 
         _game!.notify(action, params, exclude: this, allScenes: true);
         return;

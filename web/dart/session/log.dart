@@ -140,7 +140,7 @@ void _performChat(int? pcID, String msg) {
 
 void onChat(Map<String, dynamic> params) {
   String msg = params['msg'];
-  int id = params['pc'];
+  int? id = params['pc'];
   _performChat(id, msg);
 }
 
