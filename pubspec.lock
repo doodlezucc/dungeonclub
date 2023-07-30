@@ -687,8 +687,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "dart-3.0"
-      resolved-ref: a7b3e9d37a9fa919db97f802cee89db1c5b71e43
+      ref: HEAD
+      resolved-ref: e0a906d2181a136de0f588e63e741d6d20221b4b
       url: "https://github.com/doodlezucc/web_polymask.git"
     source: git
     version: "1.1.0"

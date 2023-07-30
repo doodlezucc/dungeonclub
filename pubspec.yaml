@@ -28,9 +28,7 @@ dependencies:
   ambience:
     git: https://github.com/doodlezucc/ambience.git
   web_polymask:
-    git:
-      url: https://github.com/doodlezucc/web_polymask.git
-      ref: dart-3.0
+    git: https://github.com/doodlezucc/web_polymask.git
   web_whiteboard:
     git: https://github.com/doodlezucc/web_whiteboard.git
 
