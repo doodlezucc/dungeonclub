@@ -488,7 +488,7 @@ class Connection extends Socket {
         _requireInSession();
 
         var combo = RollCombo.fromJson(params);
-        int charId = params['id'];
+        int? charId = params['id'];
         bool public = params['public'] ?? true;
 
         combo.rollAll();
