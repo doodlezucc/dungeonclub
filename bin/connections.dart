@@ -279,9 +279,10 @@ class Connection extends Socket {
       case a.GAME_KICK:
         _requireOwnerOfSession();
 
-        int pc = params['pc'];
+        int pcId = params['pc'];
+        final pc = _game!.characters.find((e) => e.id == pcId)!;
 
-        final connection = _game!.characters.elementAt(pc).connection!;
+        final connection = pc.connection!;
         _game!.connect(connection, false); // Ensure disconnect
         connection._game = null;
 
