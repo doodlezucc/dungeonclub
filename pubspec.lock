@@ -14,7 +14,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: e890b4010baabd5489bc4fccd6f5197a230ed7ee
+      resolved-ref: "2477fc396e733ca2aeb45ef7d6e58931b6cb2c0f"
       url: "https://github.com/doodlezucc/ambience.git"
     source: git
     version: "1.0.2"
@@ -303,10 +303,10 @@ packages:
     dependency: "direct main"
     description:
       name: http
-      sha256: "759d1a329847dd0f39226c688d3e06a6b8679668e350e2891a6474f8b4bb8525"
+      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "0.13.6"
   http_methods:
     dependency: transitive
     description:
