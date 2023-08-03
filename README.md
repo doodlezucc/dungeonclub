@@ -31,30 +31,15 @@ npm install -g sass              # Download SCSS->CSS transpiler
 You're now ready to start a debuggable local Dungeon Club server!
 
 ### Launching via VS Code
-If you're a using the IDE [Visual Studio Code](https://code.visualstudio.com/), you can make use of repository-included launch configurations available for both server and web.
-- **Server/Backend** - Run *`Debug: Start Debugging`* (or press <kbd>F5</kbd>).
-- **Web/Frontend** - Run *`Tasks: Run Build Task`* (or press <kbd>Control</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>).
+If you're a using the IDE [Visual Studio Code](https://code.visualstudio.com/), you can make use of the repository's launch configuration. Simply run *`Debug: Start Debugging`* or press <kbd>F5</kbd> to start the development server.
 
 ### Launching via Shell
-Alternatively, you can open three separate terminals and enter the following one-liners.
+Alternatively, you can start the development server by running a Dart script. 
 
 ```bash
-# Launch the backend server
-dart bin/server.dart
+# Launch the webdev server / stylesheet compiler / backend server
+dart bin/dev.dart
 ```
-```bash
-# Convert from Dart to browser-readable JavaScript (file watching)
-webdev serve
-
-# Alternatively, if "webdev" isn't found on your path
-dart pub global run webdev serve
-```
-
-```bash
-# Convert from SCSS to CSS (-w enables file watching) 
-sass web/sass/style.scss web/style/style.css -s compressed -w
-```
-
 
 After initializing backend and web serving, you can go to [_`localhost:8080`_](http://localhost:8080) and view your freshly delivered, live-compiled version of Dungeon Club.
 
