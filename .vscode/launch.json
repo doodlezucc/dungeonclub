@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Start Server",
+            "name": "Start Development Server",
             "request": "launch",
             "type": "dart",
-            "program": "bin/server.dart",
+            "program": "bin/dev.dart"
         }
     ]
 }
