@@ -8,7 +8,8 @@
             "name": "Start Development Server",
             "request": "launch",
             "type": "dart",
-            "program": "bin/dev.dart"
+            "program": "bin/dev.dart",
+            "console": "terminal"
         }
     ]
 }
