@@ -23,9 +23,9 @@ final activationCodes = <Connection, String>{};
 final resets = <Connection, PasswordReset>{};
 final tokenAccounts = <String, Account>{};
 
-void onConnect(WebSocketChannel ws) {
+void onConnect(Server server, WebSocketChannel ws) {
   print('New connection!');
-  connections.add(Connection(ws));
+  connections.add(Connection(server, ws));
 }
 
 class PasswordReset {
@@ -37,6 +37,7 @@ class PasswordReset {
 }
 
 class Connection extends Socket {
+  final Server server;
   final WebSocketChannel ws;
   final Stream broadcastStream;
   Timer? _pingTimer;
@@ -48,7 +49,8 @@ class Connection extends Socket {
   Account? _account;
   Account? get account => _account;
 
-  Connection(this.ws) : broadcastStream = ws.stream.asBroadcastStream() {
+  Connection(this.server, this.ws)
+      : broadcastStream = ws.stream.asBroadcastStream() {
     listen(
       onDone: () {
         print('Lost connection (${ws.closeCode})');
@@ -73,8 +75,8 @@ class Connection extends Socket {
       _pingTimer = Timer.periodic(wsPing, (timer) => send([99]));
     }
 
-    if (maintainer.shutdownTime != null) {
-      sendAction(a.MAINTENANCE, maintainer.jsonEntry);
+    if (server.maintainer.shutdownTime != null) {
+      sendAction(a.MAINTENANCE, server.maintainer.jsonEntry);
     }
   }
 
@@ -100,11 +102,11 @@ class Connection extends Socket {
       case a.ACCOUNT_REGISTER:
         String email = params['email'];
 
-        if (data.getAccount(email) != null) {
+        if (server.data.getAccount(email) != null) {
           return 'Email address already in use!';
         }
 
-        _account = Account(email, params['password']);
+        _account = Account(server.data, email, params['password']);
         final code = generateCode();
         activationCodes[this] = code;
         return await sendVerifyCreationMail(email, code)
@@ -121,7 +123,7 @@ class Connection extends Socket {
 
         activationCodes.remove(this);
         print('New account activated!');
-        data.accounts.add(_account!);
+        server.data.accounts.add(_account!);
         return _account!.toSnippet();
 
       case a.ACCOUNT_LOGIN:
@@ -145,7 +147,7 @@ class Connection extends Socket {
         String email = params['email'];
         String password = params['password'];
 
-        if (data.getAccount(email) == null) {
+        if (server.data.getAccount(email) == null) {
           return 'No account connected to this email address found!';
         }
 
@@ -161,7 +163,7 @@ class Connection extends Socket {
           throw 'Invalid activation code';
         }
 
-        final acc = data.getAccount(reset.email)!;
+        final acc = server.data.getAccount(reset.email)!;
 
         acc.setPassword(reset.password);
 
@@ -177,14 +179,14 @@ class Connection extends Socket {
           throw RangeError('Campaign limit reached');
         }
 
-        final createdMeta = GameMeta.create(account!);
+        final createdMeta = GameMeta.create(server.data, account!);
         final createdGame = Game.empty(createdMeta);
 
         await createdGame.applyChanges(params['data']);
 
         _game = createdGame..connect(this, true);
         scene = _game!.playingScene;
-        data.gameMeta.add(createdMeta..loadedGame = createdGame);
+        server.data.gameMeta.add(createdMeta..loadedGame = createdGame);
         account!.enteredGames.add(createdMeta);
 
         final assetPath = await resolveIndexedAsset(
@@ -242,7 +244,7 @@ class Connection extends Socket {
       case a.GAME_JOIN:
         String id = params['id'];
 
-        final meta = data.gameMeta.find((g) => g.id == id);
+        final meta = server.data.gameMeta.find((g) => g.id == id);
 
         if (meta != null) {
           var game = meta.loadedGame;
@@ -717,7 +719,7 @@ class Connection extends Socket {
 
       case 'manualSave':
         _requireLogin();
-        return data.manualSave();
+        return server.data.manualSave();
     }
   }
 
@@ -768,7 +770,7 @@ class Connection extends Socket {
   }
 
   dynamic login(String email, String password, {bool provideToken = true}) {
-    var acc = data.getAccount(email);
+    var acc = server.data.getAccount(email);
     if (acc == null || !acc.encryptedPassword.match(password)) {
       return null;
     }

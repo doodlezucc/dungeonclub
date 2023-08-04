@@ -8,10 +8,11 @@ import 'connections.dart';
 import 'server.dart';
 
 abstract class FileChecker {
+  final Server server;
   final File file;
   bool _locked = false;
 
-  FileChecker(String file) : file = File(file);
+  FileChecker(this.server, String file) : file = File(file);
 
   void autoCheckForFile() {
     Timer.periodic(Duration(seconds: 3), (_) => _checkForFile());
@@ -32,7 +33,8 @@ abstract class FileChecker {
 class Maintainer extends FileChecker {
   int? shutdownTime;
 
-  Maintainer(String timestampFile) : super(timestampFile);
+  Maintainer(Server server, String timestampFile)
+      : super(server, timestampFile);
 
   @override
   Future handleFileContents() async {
@@ -67,7 +69,7 @@ class Maintainer extends FileChecker {
 }
 
 class AccountMaintainer extends FileChecker {
-  AccountMaintainer(String file) : super(file);
+  AccountMaintainer(Server server, String file) : super(server, file);
 
   @override
   Future handleFileContents() async {
@@ -75,7 +77,7 @@ class AccountMaintainer extends FileChecker {
     var changed = false;
     for (var l in lines) {
       if (l.isNotEmpty) {
-        var acc = data.getAccount(l, alreadyEncrypted: !l.contains('@'));
+        var acc = server.data.getAccount(l, alreadyEncrypted: !l.contains('@'));
         if (acc != null) {
           changed = true;
           var count = acc.ownedGames.length;

@@ -22,7 +22,10 @@ void _devPrint(dynamic message, String process) {
   print(prefixedMessage);
 }
 
+Future<void> startBackendServerCycle() async {}
+
 Future<void> startWebdevServer() async {
+  final debugName = 'Web';
   final process = await Process.start('dart', [
     'pub',
     'global',
@@ -53,14 +56,14 @@ Future<void> startWebdevServer() async {
 
   process.stderr.listen((data) {
     final message = utf8.decode(data);
-    _devPrint(message, 'Web');
+    _devPrint(message, debugName);
   });
 
-  _devPrint('Starting webdev server...\n', 'Web');
+  _devPrint('Starting webdev server...\n', debugName);
   final isReady = await whenReady.future;
 
   if (isReady) {
-    _devPrint('\nWebsite serving at http://localhost:8080', 'Web');
+    _devPrint('\nWebsite serving at http://localhost:8080', debugName);
   } else {
     throw 'Unable to start webdev server';
   }
