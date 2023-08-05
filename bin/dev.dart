@@ -6,13 +6,12 @@ import 'dart:isolate';
 import 'package:sass/sass.dart' as sass;
 
 void main(List<String> args) async {
-  // final webdevProcess = WebdevProcess();
-  // final stylesheetProcess = StylesheetProcess();
+  final webdevProcess = WebdevProcess();
+  final stylesheetProcess = StylesheetProcess();
   final backendProcess = BackendProcess(args);
 
-  // await webdevProcess.startCycle();
-  // await stylesheetProcess.startCycle();
-
+  await webdevProcess.startCycle();
+  await stylesheetProcess.startCycle();
   await backendProcess.startCycle();
 }
 
