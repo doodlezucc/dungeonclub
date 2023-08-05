@@ -1,0 +1,75 @@
+// Use "Tasks: Run Build Task" to actively compile SCSS -> CSS and frontend Dart -> JavaScript. (Shortcut: Ctrl+Shift+B)
+// Use "Tasks: Run Test Task" to terminate all running tasks.
+{
+    "version": "2.0.0",
+    "inputs": [
+        {
+            "id": "terminate",
+            "type": "command",
+            "command": "workbench.action.tasks.terminate",
+            "args": "terminateAll"
+        }
+    ],
+    "presentation": {
+        "showReuseMessage": false,
+        "clear": true
+    },
+    "tasks": [
+        {
+            "label": "Serve Frontend",
+            "dependsOn": [
+                "Style",
+                "Web Code"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Cleanup",
+            "command": "echo ${input:terminate}",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+        },
+        {
+            "label": "Style",
+            "command": "sass",
+            "type": "shell",
+            "args": [
+                "web/sass/style.scss",
+                "web/style/style.css",
+                "--style",
+                "compressed",
+                "--watch"
+            ],
+            "problemMatcher": [],
+            "isBackground": true,
+            "presentation": {
+                "group": "frontend"
+            },
+        },
+        {
+            "label": "Web Code",
+            "command": "dart",
+            "type": "shell",
+            "args": [
+                "pub",
+                "global",
+                "run",
+                "webdev",
+                "serve"
+            ],
+            "problemMatcher": [],
+            "isBackground": true,
+            "presentation": {
+                "group": "frontend"
+            }
+        }
+    ]
+}
