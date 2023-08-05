@@ -6,16 +6,14 @@ import 'dart:isolate';
 import 'package:sass/sass.dart' as sass;
 
 void main(List<String> args) async {
-  final stylesheetProcess = StylesheetProcess();
-  final webdevProcess = WebdevProcess();
+  // final webdevProcess = WebdevProcess();
+  // final stylesheetProcess = StylesheetProcess();
   final backendProcess = BackendProcess(args);
 
-  await stylesheetProcess.startCycle();
   // await webdevProcess.startCycle();
+  // await stylesheetProcess.startCycle();
 
-  print(''); // Empty line
-
-  // await backendProcess.startCycle();
+  await backendProcess.startCycle();
 }
 
 abstract class DevProcess {
@@ -34,11 +32,17 @@ abstract class DevProcess {
   Future<void> startCycle();
 }
 
+enum BackendState { INACTIVE, STARTING, RUNNING, EXITING }
+
 class BackendProcess extends DevProcess {
   final List<String> _args;
-  Isolate? _serverIsolate;
+  BackendState _state = BackendState.INACTIVE;
 
-  bool get isStarting => _serverIsolate != null;
+  /// Port to send messages to the server.
+  late SendPort _serverSender;
+
+  /// A stream of messages sent by the server.
+  late Stream _signalsFromServer;
 
   BackendProcess(List<String> args)
       : _args = args,
@@ -46,46 +50,63 @@ class BackendProcess extends DevProcess {
 
   /// Starts the backend server (at "bin/server.dart") in a new isolate process.
   /// Returns the isolate after the server is fully started.
-  Future<Isolate> _startNewBackendIsolate() async {
-    devPrint('Spawning backend server isolate...');
-    final completer = Completer();
+  Future<void> startNewBackendIsolate() async {
+    if (_state != BackendState.INACTIVE) {
+      throw StateError('Isolate is already active');
+    }
+
+    _state = BackendState.STARTING;
+
+    devPrint('Spawning backend server isolate');
+    print(''); // Empty line
+
+    final completer = Completer<SendPort>();
+
+    final serverReceiver = ReceivePort();
+    _signalsFromServer = serverReceiver.asBroadcastStream();
 
     // Wait for a message to be sent to the receiver port.
-    final receiver = ReceivePort();
-    receiver.first.then(completer.complete);
+    _signalsFromServer.first.then((port) => completer.complete(port));
 
-    final isolate = await Isolate.spawnUri(
+    await Isolate.spawnUri(
       Uri.file('./server.dart'),
       _args,
-      receiver.sendPort,
+      serverReceiver.sendPort,
     );
 
-    await completer.future;
-
-    return isolate;
+    _serverSender = await completer.future;
+    _state = BackendState.RUNNING;
   }
 
   /// Kills the active server isolate process.
-  void killIsolate() {
-    if (_serverIsolate != null) {
-      _serverIsolate!.kill();
-      _serverIsolate = null;
-
-      devPrint('Exited server');
+  Future<void> killIsolate() async {
+    if (_state == BackendState.EXITING) {
+      throw StateError('Isolate is already exiting');
     }
+
+    _state = BackendState.EXITING;
+    _serverSender.send(null);
+
+    // Wait for isolate to shutdown gracefully
+    await _signalsFromServer.first;
+
+    _state = BackendState.INACTIVE;
+    devPrint('Exited server');
   }
 
   /// Kills the active isolate and waits for a new one to start.
   Future<void> restart() async {
-    if (isStarting) return;
+    if (!(_state == BackendState.STARTING || _state == BackendState.RUNNING)) {
+      throw StateError('Invalid state $_state');
+    }
 
-    killIsolate();
-    _serverIsolate = await _startNewBackendIsolate();
+    await killIsolate();
+    await startNewBackendIsolate();
   }
 
   /// Starts the backend server and listens to stdin for control keypresses.
   Future<void> startCycle() async {
-    await _startNewBackendIsolate();
+    await startNewBackendIsolate();
 
     stdin.echoMode = false;
     stdin.lineMode = false;
@@ -95,12 +116,14 @@ class BackendProcess extends DevProcess {
 
       switch (char.toLowerCase()) {
         case 'r':
-          restart();
+          if (_state != BackendState.EXITING) {
+            restart();
+          }
           break;
       }
     });
 
-    devPrint('Press [R] to restart the backend server');
+    devPrint('Press R to restart the backend server');
   }
 }
 

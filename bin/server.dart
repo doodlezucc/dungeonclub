@@ -42,7 +42,7 @@ const SERVE_BOOTSTRAP_ALLOWED = [
 
 final httpClient = http.Client();
 
-void main(List<String> args, [SendPort? port]) async {
+void main(List<String> args, [SendPort? signalsToParent]) async {
   resetCurrentWorkingDir();
   final server = Server();
 
@@ -68,14 +68,23 @@ void main(List<String> args, [SendPort? port]) async {
   final enableChildProcess =
       bootstrapMode == SERVE_BOOTSTRAP_ALL || Environment.isCompiled;
 
+  final signalsFromParent = ReceivePort();
+  signalsFromParent.first.then((_) async {
+    await server.shutdown();
+
+    // Notify the development launch script that the server has exited
+    signalsToParent!.send(null);
+    Isolate.current.kill(); // Kill any dangling asynchronous futures
+  });
+
   return bootstrap(
     (args) async {
       await server.start(args);
 
-      if (port != null) {
+      if (signalsToParent != null) {
         // Notify the development launch script that the server
-        // is now started.
-        port.send(null);
+        // is now started
+        signalsToParent.send(signalsFromParent.sendPort);
       }
     },
     args: args,
@@ -103,6 +112,8 @@ class Server {
   late final AutoSaver autoSaver;
   late final Maintainer maintainer;
   late final AccountMaintainer accountMaintainer;
+
+  late final HttpServer httpServer;
 
   Server() {
     data = ServerData(this);
@@ -135,14 +146,14 @@ class Server {
     var handler =
         const Pipeline().addMiddleware(_fixCORS).addHandler(_handleRequest);
 
-    var server = await io.serve(handler, _hostname, port);
+    httpServer = await io.serve(handler, _hostname, port);
 
     var config = File('config');
     if (await config.exists()) {
       _address = await config.readAsString();
     }
 
-    var servePort = server.port;
+    var servePort = httpServer.port;
     _address = _address?.trim() ?? 'http://${await _getNetworkIP()}:$servePort';
 
     await initializeMailServer();
@@ -203,15 +214,19 @@ class Server {
     );
   });
 
-  Future<void> shutdown() async {
-    await onExit();
-  }
+  /// Shuts down the server gracefully.
+  Future<void> shutdown() async => await onExit();
 
+  /// Handles server shutdown gracefully and returns an exit code.
   Future<int> onExit() async {
     try {
       httpClient.close();
-      await Future.wait(
-          [data.save(), sendPendingFeedback(), closeMailServer()]);
+      await Future.wait([
+        data.save(),
+        sendPendingFeedback(),
+        closeMailServer(),
+        httpServer.close(),
+      ]);
     } finally {
       // Wait so users can read exit messages
       if (Environment.isCompiled) {
