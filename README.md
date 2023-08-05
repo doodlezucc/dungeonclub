@@ -6,7 +6,7 @@ An online platform to gather and play Dungeons & Dragons, Call of Cthulu, Pathfi
 Visit the homepage for a demonstration of features or [try the demo](https://dungeonclub.net/game/sandbox) right now!
 
 ## Development
-There are three essential parts to debugging and running this VTT locally, all of which require an [installation of Dart](https://dart.dev/get-dart).
+In order to run and debug the VTT locally, you'll need the [Dart SDK](https://dart.dev/get-dart).
 If you're on Windows and don't want the trouble of installing Chocolatey, I recommend following [this guide](https://medium.com/2beengineer/install-the-dart-sdk-on-windows-10-b503cd065ab5) instead.
 
 After downloading the SDK and making sure it's part of your PATH, run the following lines as a *one-time* setup:
@@ -20,7 +20,7 @@ dart pub get                     # Download all required packages
 dart pub global activate webdev  # Download Dart->JavaScript transpiler
 ```
 
-The stylesheet is written in Sass and has to be transpiled into CSS. You can either install Sass as a [standalone executable](https://github.com/sass/dart-sass/releases/latest) or by using the Node.js package manager [npm](https://www.npmjs.com/package/sass).
+The web app's stylesheet is written in Sass and has to be transpiled into CSS. You can either install Sass as a [standalone executable](https://github.com/sass/dart-sass/releases/latest) or by using the Node.js package manager [npm](https://www.npmjs.com/package/sass).
 
 ```bash
 npm install -g sass              # Download SCSS->CSS transpiler
@@ -28,40 +28,29 @@ npm install -g sass              # Download SCSS->CSS transpiler
 
 <sup>More info on [sass](https://sass-lang.com/install/) and [webdev](https://dart.dev/tools/webdev).</sup>
 
-You're now ready to start a debuggable local Dungeon Club server!
-
 ### Launching via VS Code
-If you're a using the IDE [Visual Studio Code](https://code.visualstudio.com/), you can make use of repository-included launch configurations available for both server and web.
-- **Server/Backend** - Run *`Debug: Start Debugging`* (or press <kbd>F5</kbd>).
+If you're a using the IDE [Visual Studio Code](https://code.visualstudio.com/), you can make use of the repository's launch configurations. You can start backend as well as frontend services simultaneously by choosing the `Launch All (Terminal)` debug configuration.
+
+Note that this all-in-one launch configuration starts inside VS Code's **terminal**. This allows you to restart the backend server with a simple <kbd>R</kbd> keypress.
+In case you prefer the IDE's **debug console**, you can instead start the development processes separately:
+
 - **Web/Frontend** - Run *`Tasks: Run Build Task`* (or press <kbd>Control</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd>).
+- **Server/Backend** - Run *`Debug: Start Debugging`* (or press <kbd>F5</kbd>) and pick the `Launch Backend` configuration.
 
 ### Launching via Shell
-Alternatively, you can open three separate terminals and enter the following one-liners.
+Alternatively, you can start the development server by running a Dart script. 
 
 ```bash
-# Launch the backend server
-dart bin/server.dart
+# Launch the webdev server / stylesheet compiler / backend server
+dart bin/dev.dart
 ```
-```bash
-# Convert from Dart to browser-readable JavaScript (file watching)
-webdev serve
-
-# Alternatively, if "webdev" isn't found on your path
-dart pub global run webdev serve
-```
-
-```bash
-# Convert from SCSS to CSS (-w enables file watching) 
-sass web/sass/style.scss web/style/style.css -s compressed -w
-```
-
 
 After initializing backend and web serving, you can go to [_`localhost:8080`_](http://localhost:8080) and view your freshly delivered, live-compiled version of Dungeon Club.
 
 Changes to the source code are reflected at different times depending on what part you're working on. Changes can be seen...
-- **Server Code** - after restarting the server.
+- **Server Code** - after restarting the server. When launching from a terminal, you can press <kbd>R</kbd> inside your terminal to restart the backend process.
 - **Website Code** - after refreshing the website (at _`http://localhost:8080`_).
-- **Website Stylesheet** - after refreshing the website or by pressing <kbd>Shift</kbd>+<kbd>R</kbd> (not available on Firefox).
+- **Website Stylesheet** - after refreshing the website or by pressing <kbd>Shift</kbd>+<kbd>R</kbd> on the website (not available on Firefox).
 
 ## Self-Hosting
 You can find the official public version of Dungeon Club at https://dungeonclub.net. In case you want to host a local server on your machine, there are two ways to achieve this.

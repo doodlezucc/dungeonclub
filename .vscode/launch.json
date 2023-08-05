@@ -5,10 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Start Server",
+            "name": "Launch All (Terminal)",
             "request": "launch",
             "type": "dart",
-            "program": "bin/server.dart",
+            "program": "bin/dev.dart",
+            "console": "terminal"
+        },
+        {
+            "name": "Launch Backend",
+            "request": "launch",
+            "type": "dart",
+            "program": "bin/server.dart"
         }
     ]
 }

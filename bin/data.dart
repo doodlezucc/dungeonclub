@@ -31,10 +31,13 @@ class ServerData {
   static final file = File(path.join(directory.path, 'data.json'));
   static bool _isInitialized = false;
 
+  final Server server;
   final histogram = PlayingHistogram(path.join(directory.path, 'histogram'));
   final accounts = <Account>[];
   final gameMeta = <GameMeta>[];
   final Random rng = Random();
+
+  ServerData(this.server);
 
   Future<void> init() async {
     await load();
@@ -65,7 +68,7 @@ class ServerData {
     gameMeta.clear();
 
     for (var j in jGames) {
-      final meta = GameMeta._late(j['id'], name: j['name']);
+      final meta = GameMeta._late(this, j['id'], name: j['name']);
       owners[meta] = j['owner'];
 
       if (updateToDynamicLoading) {
@@ -78,12 +81,13 @@ class ServerData {
     print('Loaded ${gameMeta.length} game meta entries');
 
     accounts.clear();
-    accounts
-        .addAll(List.from(json['accounts']).map((j) => Account.fromJson(j)));
+    accounts.addAll(List.from(json['accounts']).map(
+      (j) => Account.fromJson(this, j),
+    ));
     print('Loaded ${accounts.length} accounts');
 
     owners.forEach((game, ownerEmail) {
-      game.owner = data.getAccount(ownerEmail, alreadyEncrypted: true)!;
+      game.owner = getAccount(ownerEmail, alreadyEncrypted: true)!;
     });
 
     if (updateToDynamicLoading) {
@@ -135,7 +139,8 @@ class ServerData {
 }
 
 class GameMeta {
-  final String id;
+  final ServerData data;
+  late final String id;
   late Account owner;
   late String name;
   Game? loadedGame;
@@ -143,7 +148,7 @@ class GameMeta {
   File get dataFile => File(path.join(gameResources(id).path, 'data.json'));
   bool get isLoaded => loadedGame != null;
 
-  GameMeta._late(this.id, {Account? owner, String? name}) {
+  GameMeta._late(this.data, this.id, {Account? owner, String? name}) {
     if (owner != null) {
       this.owner = owner;
     }
@@ -152,9 +157,11 @@ class GameMeta {
     }
   }
 
-  GameMeta.create(this.owner) : id = _generateId();
+  GameMeta.create(this.data, this.owner) {
+    id = _generateId();
+  }
 
-  static String _generateId() {
+  String _generateId() {
     String id;
     do {
       id = randomAlphaNumeric(10);
@@ -213,6 +220,7 @@ class GameMeta {
 }
 
 class Account {
+  final ServerData data;
   final Crypt encryptedEmail;
   Crypt encryptedPassword;
 
@@ -220,7 +228,7 @@ class Account {
   Iterable<GameMeta> get ownedGames =>
       enteredGames.where((g) => g.owner == this);
 
-  Account(String email, String password)
+  Account(this.data, String email, String password)
       : encryptedEmail = Crypt.sha256(email),
         encryptedPassword = Crypt.sha256(password);
 
@@ -232,7 +240,7 @@ class Account {
     encryptedPassword = Crypt.sha256(password);
   }
 
-  Account.fromJson(Map<String, dynamic> json)
+  Account.fromJson(this.data, Map<String, dynamic> json)
       : encryptedEmail = Crypt(json['email']),
         encryptedPassword = Crypt(json['password']),
         enteredGames = List.from(json['games'])

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:archive/archive_io.dart';
 import 'package:dungeonclub/environment.dart';
 import 'package:path/path.dart' as p;
+import 'package:sass/sass.dart' as sass;
 
 import 'entry_parser.dart';
 
@@ -183,22 +184,16 @@ Future<void> copyDirectory(
 }
 
 Future<void> compileStyling(Directory output) async {
-  await cmdAwait(Process.start('dart', [
-    'pub',
-    'global',
-    'activate',
-    'sass',
-  ]));
-  await cmdAwait(Process.start('dart', [
-    'pub',
-    'global',
-    'run',
-    'sass',
+  final compileResult = sass.compileToResult(
     'web/sass/style.scss',
-    p.join(output.path, 'web', 'style', 'style.css'),
-    '--style',
-    'compressed',
-  ]));
+    style: sass.OutputStyle.compressed,
+  );
+
+  final outputPath = p.join(output.path, 'web', 'style', 'style.css');
+  final outputFile = File(outputPath);
+
+  await outputFile.create(recursive: true);
+  await outputFile.writeAsString(compileResult.css);
 }
 
 Future<void> compileFrontend(Directory output, List<String> declarations) {
