@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/environment.dart';
@@ -41,7 +42,7 @@ const SERVE_BOOTSTRAP_ALLOWED = [
 
 final httpClient = http.Client();
 
-void main(List<String> args) async {
+void main(List<String> args, [SendPort? port]) async {
   resetCurrentWorkingDir();
   final server = Server();
 
@@ -68,7 +69,15 @@ void main(List<String> args) async {
       bootstrapMode == SERVE_BOOTSTRAP_ALL || Environment.isCompiled;
 
   return bootstrap(
-    server.run,
+    (args) async {
+      await server.start(args);
+
+      if (port != null) {
+        // Notify the development launch script that the server
+        // is now started.
+        port.send(null);
+      }
+    },
     args: args,
     fileOut: logFile,
     fileErr: logFile,
@@ -91,7 +100,6 @@ class Server {
   String? get address => _address;
 
   late final ServerData data;
-
   late final AutoSaver autoSaver;
   late final Maintainer maintainer;
   late final AccountMaintainer accountMaintainer;
@@ -103,7 +111,7 @@ class Server {
     accountMaintainer = AccountMaintainer(this, 'account');
   }
 
-  void run(List<String> args) async {
+  Future<void> start(List<String> args) async {
     var D = argParser.tryArgParse(args);
     Environment.applyConfig(D);
 

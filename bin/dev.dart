@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:sass/sass.dart' as sass;
-import './server.dart' as server;
 
 void main(List<String> args) async {
-  await startScssWatchCycle();
-  await startWebdevServer();
+  // await startScssWatchCycle();
+  // await startWebdevServer();
 
   print(''); // Empty line
 
-  server.main(args);
+  await startBackendServerCycle(args);
 }
 
 void _devPrint(dynamic message, String process) {
@@ -22,7 +22,61 @@ void _devPrint(dynamic message, String process) {
   print(prefixedMessage);
 }
 
-Future<void> startBackendServerCycle() async {}
+/// Starts the backend server (at "bin/server.dart") in a new isolate process.
+/// Returns the isolate after the server is fully started.
+Future<Isolate> _startNewBackendIsolate(List<String> args) async {
+  final completer = Completer();
+
+  // Wait for a message to be sent to the receiver port.
+  final receiver = ReceivePort();
+  receiver.first.then(completer.complete);
+
+  final isolate = await Isolate.spawnUri(
+    Uri.file('./server.dart'),
+    args,
+    receiver.sendPort,
+  );
+
+  await completer.future;
+
+  return isolate;
+}
+
+/// Starts the backend server and listens to stdin for control keypresses.
+Future<void> startBackendServerCycle(List<String> args) async {
+  final debugName = 'Backend';
+  var isRestarting = false;
+
+  _devPrint('Spawning backend server isolate...', debugName);
+  var serverIsolate = await _startNewBackendIsolate(args);
+
+  void restart() async {
+    if (isRestarting) return;
+
+    _devPrint('Restarting...', debugName);
+    isRestarting = true;
+    serverIsolate.kill();
+
+    serverIsolate = await _startNewBackendIsolate(args);
+
+    isRestarting = false;
+  }
+
+  stdin.echoMode = false;
+  stdin.lineMode = false;
+
+  stdin.listen((data) async {
+    final char = String.fromCharCodes(data)[0];
+
+    switch (char.toLowerCase()) {
+      case 'r':
+        restart();
+        break;
+    }
+  });
+
+  _devPrint('Press [R] to restart the backend server', debugName);
+}
 
 Future<void> startWebdevServer() async {
   final debugName = 'Web';
