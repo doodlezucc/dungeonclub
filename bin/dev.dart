@@ -3,16 +3,44 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:graceful/graceful.dart';
 import 'package:sass/sass.dart' as sass;
 
 void main(List<String> args) async {
-  final webdevProcess = WebdevProcess();
-  final stylesheetProcess = StylesheetProcess();
-  final backendProcess = BackendProcess(args);
+  final launcher = Launcher();
 
-  await webdevProcess.startCycle();
-  await stylesheetProcess.startCycle();
-  await backendProcess.startCycle();
+  bootstrap(
+    launcher.run,
+    args: args,
+    enableChildProcess: false,
+    enableLogFiles: false,
+    onExit: launcher.onExit,
+    exitAfterBody: false,
+  );
+}
+
+class Launcher {
+  late List<DevProcess> processes;
+
+  Future<void> run(List<String> args) async {
+    processes = [
+      WebdevProcess(),
+      StylesheetProcess(),
+      BackendProcess(args),
+    ];
+
+    for (final process in processes) {
+      await process.startCycle();
+    }
+  }
+
+  Future<int> onExit() async {
+    for (final process in processes) {
+      await process.exit();
+    }
+
+    return 0;
+  }
 }
 
 abstract class DevProcess {
@@ -29,6 +57,7 @@ abstract class DevProcess {
   }
 
   Future<void> startCycle();
+  Future<void> exit();
 }
 
 enum BackendState { INACTIVE, STARTING, RUNNING, EXITING }
@@ -71,6 +100,7 @@ class BackendProcess extends DevProcess {
       Uri.file('./server.dart'),
       _args,
       serverReceiver.sendPort,
+      debugName: 'Backend Server',
     );
 
     _serverSender = await completer.future;
@@ -79,8 +109,8 @@ class BackendProcess extends DevProcess {
 
   /// Kills the active server isolate process.
   Future<void> killIsolate() async {
-    if (_state == BackendState.EXITING) {
-      throw StateError('Isolate is already exiting');
+    if (_state == BackendState.EXITING || _state == BackendState.INACTIVE) {
+      throw StateError('Isolate is already exiting/killed');
     }
 
     _state = BackendState.EXITING;
@@ -124,14 +154,23 @@ class BackendProcess extends DevProcess {
 
     devPrint('Press R to restart the backend server');
   }
+
+  @override
+  Future<void> exit() async {
+    if (!(_state == BackendState.INACTIVE || _state == BackendState.EXITING)) {
+      await killIsolate();
+    }
+  }
 }
 
 class WebdevProcess extends DevProcess {
+  late Process process;
+
   WebdevProcess() : super('Web');
 
   @override
   Future<void> startCycle() async {
-    final process = await Process.start('dart', [
+    process = await Process.start('dart', [
       'pub',
       'global',
       'run',
@@ -174,6 +213,12 @@ class WebdevProcess extends DevProcess {
     } else {
       throw 'Unable to start webdev server';
     }
+  }
+
+  @override
+  Future<void> exit() async {
+    process.kill();
+    await process.exitCode;
   }
 }
 
@@ -226,4 +271,7 @@ class StylesheetProcess extends DevProcess {
       devPrint('\n$error\n');
     }
   }
+
+  @override
+  Future<void> exit() async {}
 }
