@@ -96,9 +96,12 @@ class BackendProcess extends DevProcess {
     // Wait for a message to be sent to the receiver port.
     _signalsFromServer.first.then((port) => completer.complete(port));
 
+    // Pass "--bootstrap none" to disable log files
+    final programArgs = ['--bootstrap', 'none', ..._args];
+
     await Isolate.spawnUri(
       Uri.file('./server.dart'),
-      _args,
+      programArgs,
       serverReceiver.sendPort,
       debugName: 'Backend Server',
     );
