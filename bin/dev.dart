@@ -156,32 +156,37 @@ class WebdevProcess extends DevProcess {
 }
 
 class StylesheetProcess extends DevProcess {
-  bool _isCompiling = false;
+  static const compileCooldownMs = 500;
+
+  static final sassDirectory = Directory('web/sass');
+  static final srcPath = '${sassDirectory.path}/style.scss';
+  static final dstFile = File('web/style/style.css');
+
+  bool _lastCompileWasError = false;
+  int _lastCompileTimestamp = 0;
 
   StylesheetProcess() : super('CSS');
 
   @override
   Future<void> startCycle() async {
-    final sassDirectory = Directory('web/sass');
-    final src = '${sassDirectory.path}/style.scss';
-
-    final dst = 'web/style/style.css';
-    final dstFile = File(dst);
-
-    await _compileScssToCss(src, dstFile);
+    await compileScssToCss(srcPath, dstFile);
 
     sassDirectory.watch(recursive: true).forEach((fse) async {
-      if (!_isCompiling) {
-        await _compileScssToCss(src, dstFile);
+      final currentTimestamp = DateTime.now().millisecondsSinceEpoch;
+      final sinceLastCompile = currentTimestamp - _lastCompileTimestamp;
+
+      // On Windows, a single file change gets detected twice.
+      // As a workaround, a cooldown is set.
+      if (sinceLastCompile > compileCooldownMs) {
+        _lastCompileTimestamp = currentTimestamp;
+        await compileScssToCss(srcPath, dstFile);
       }
     });
 
     devPrint('Watching for stylesheet changes');
   }
 
-  Future<void> _compileScssToCss(String src, File dstFile) async {
-    _isCompiling = true;
-
+  Future<void> compileScssToCss(String src, File dstFile) async {
     try {
       final compileResult = sass.compileToResult(
         src,
@@ -189,10 +194,14 @@ class StylesheetProcess extends DevProcess {
       );
 
       await dstFile.writeAsString(compileResult.css);
+
+      if (_lastCompileWasError) {
+        _lastCompileWasError = false;
+        devPrint('Compiled stylesheet without errors');
+      }
     } on sass.SassException catch (error) {
+      _lastCompileWasError = true;
       devPrint('\n$error\n');
-    } finally {
-      _isCompiling = false;
     }
   }
 }
