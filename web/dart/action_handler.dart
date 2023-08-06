@@ -19,7 +19,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return user.session!.board.onMovableCreateAdvanced(params);
 
     case GAME_MOVABLE_MOVE:
-      return user.session!.board.onMovableMove(params);
+      return user.session!.board.onMovablesMove(params);
 
     case GAME_MOVABLE_SNAP:
       return user.session!.board.onMovableSnap(params);
@@ -50,7 +50,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       var grid = params['grid'];
       if (grid != null) {
         user.session!.board.grid.fromJson(grid);
-        user.session!.board.onAllMovablesMove(params['movables']);
+        user.session!.board.onMovablesMove(params['movables']);
         return user.session!.board.rescaleMeasurings();
       }
 

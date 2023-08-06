@@ -169,10 +169,6 @@ class Movable extends ClampedEntityBase with TokenModel {
     updateTooltip();
   }
 
-  void onMove(Point<double> delta) async {
-    position += delta;
-  }
-
   void applyImage() {
     final img = prefab.image!.url;
     e.queryDom('.img').style.backgroundImage = 'url($img)';

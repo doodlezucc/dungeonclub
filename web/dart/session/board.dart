@@ -995,10 +995,15 @@ class Board {
       setCssTransitionEnabled(true);
       toggleMovableGhostVisible(false);
       measuring?.dispose();
+
       if (lastDelta != Point(0, 0)) {
         socket.sendAction(a.GAME_MOVABLE_MOVE, {
-          'movables': affected.map((e) => e.id).toList(),
-          ...writePoint(lastDelta)
+          'movables': affected
+              .map((m) => {
+                    'id': m.id,
+                    ...writePoint(m.position),
+                  })
+              .toList(),
         });
       }
     });
@@ -1326,12 +1331,6 @@ class Board {
     initiativeTracker.onUpdatePrefabImage(p);
   }
 
-  void onAllMovablesMove(Iterable jsons) {
-    for (var mj in jsons) {
-      onMovableMove(mj);
-    }
-  }
-
   void _movableEvent(json, void Function(Movable m) action) {
     List ids = json['movables'] ?? [json['movable']];
 
@@ -1342,8 +1341,16 @@ class Board {
     }
   }
 
-  void onMovableMove(json) =>
-      _movableEvent(json, (m) => m.onMove(parsePoint<double>(json)!));
+  void onMovablesMove(json) {
+    List movements = json['movables'];
+
+    for (Map movableJson in movements) {
+      final int movableId = movableJson['id'];
+      final position = parsePoint<double>(movableJson)!;
+
+      movables.find((m) => m.id == movableId)!.position = position;
+    }
+  }
 
   void onMovableRemove(json) => _movableEvent(json, (m) {
         if (selected.contains(m)) {

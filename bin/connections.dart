@@ -360,25 +360,28 @@ class Connection extends Socket {
         return null;
 
       case a.GAME_MOVABLE_CREATE_ADVANCED:
-        if (scene != null) {
-          List source = params['movables'];
-          if (scene!.movables.length + source.length <= movablesPerScene) {
-            var dest = source.map((src) => scene!.addMovable(src)).toList();
+        _requireInSession();
 
-            notifyOthers(action, {'movables': dest});
-            return dest.map((m) => m.id).toList();
-          }
+        List source = params['movables'];
+        if (scene!.movables.length + source.length > movablesPerScene) {
+          throw RangeError('Token limit reached');
         }
-        return null;
+
+        var dest = source.map((src) => scene!.addMovable(src)).toList();
+
+        notifyOthers(action, {'movables': dest});
+        return dest.map((m) => m.id).toList();
 
       case a.GAME_MOVABLE_MOVE:
-        List? ids = params['movables'];
-        final delta = parsePoint<double>(params);
+        _requireInSession();
 
-        if (ids == null || delta == null || scene == null) return null;
+        List movements = params['movables'];
 
-        for (int movableId in ids) {
-          scene!.getMovable(movableId)?.position += delta;
+        for (Map movableJson in movements) {
+          final int movableId = movableJson['id'];
+          final position = parsePoint<double>(movableJson)!;
+
+          scene!.getMovable(movableId)!.position = position;
         }
 
         return notifyOthers(action, params);
