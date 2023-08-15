@@ -751,12 +751,12 @@ footer {
 }
 
 .toolbox {
-    display: grid;
+    display: grid !important;
     background-color: #aaa;
     border: 1px solid #ddd;
-    gap: 1px;
+    gap: 1px !important;
 
-    > i {
+    i {
         @extend %toolbox-item;
     }
 }

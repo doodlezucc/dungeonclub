@@ -50,4 +50,8 @@ class Condition {
   final String icon;
 
   const Condition(this.name, this.icon);
+
+  static getConditionById(int id) {
+    return items.entries.firstWhere((entry) => entry.key == id).value;
+  }
 }

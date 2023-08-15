@@ -11,14 +11,12 @@ import 'package:dungeonclub/session_util.dart';
 import 'package:grid_space/grid_space.dart';
 
 import '../communication.dart';
-import '../html/popup_panel.dart';
 import '../html_helpers.dart';
 import '../html_transform.dart';
 import '../lazy_input.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
 import '../resource.dart';
-import 'condition.dart';
 import 'fog_of_war.dart';
 import 'grid.dart';
 import 'log.dart';
@@ -30,6 +28,7 @@ import 'prefab.dart';
 import 'prefab_palette.dart';
 import 'roll_dice.dart';
 import 'scene.dart';
+import 'selection_conditions.dart';
 import 'session.dart';
 
 final HtmlElement _container = queryDom('#boardContainer');
@@ -54,8 +53,6 @@ final ButtonElement _selectedInvisible = queryDom('#movableInvisible');
 final ButtonElement _selectedRemove = queryDom('#movableRemove');
 final ButtonElement _selectedSnap = queryDom('#movableSnap');
 
-final conditionsPopup = PopupPanel('#conds');
-
 final ButtonElement _fowToggle = queryDom('#fogOfWar');
 final ButtonElement _measureToggle = queryDom('#measureDistance');
 HtmlElement get _measureSticky => queryDom('#measureSticky');
@@ -69,6 +66,7 @@ class Board {
   final selected = <Movable>{};
   final fogOfWar = FogOfWar();
   final initiativeTracker = InitiativeTracker();
+  late SelectionConditions _selectionConditions;
   List<Movable> clipboard = [];
 
   static const PAN = 'pan';
@@ -187,22 +185,7 @@ class Board {
       _selectedSize.valueAsNumber = activeMovable.size;
       _updateSelectionSizeInherit();
 
-      conditionsPopup.htmlRoot
-          .querySelectorAll('.active')
-          .classes
-          .remove('active');
-
-      for (var c = 0; c < Condition.categories.length; c++) {
-        final category = Condition.categories[c];
-        final row = conditionsPopup.htmlRoot.children[c].children.last;
-
-        for (var cc = 0; cc < category.conditions.length; cc++) {
-          if (activeMovable.conds
-              .contains(category.conditions.keys.elementAt(cc))) {
-            row.children[cc].classes.add('active');
-          }
-        }
-      }
+      _selectionConditions.onActiveTokenChange(activeMovable);
     }
 
     _selectionProperties.classes.toggle('hidden', activeMovable == null);
@@ -220,6 +203,7 @@ class Board {
       );
     });
     position = Point(0, 0);
+    _selectionConditions = SelectionConditions(this);
 
     if (!_init) {
       _initBoard();
@@ -386,7 +370,6 @@ class Board {
     });
 
     _initSelectionHandler();
-    _initSelectionConds();
     mapTab.initMapControls();
     fogOfWar.initFogOfWar(this);
   }
@@ -476,7 +459,7 @@ class Board {
         activeMovable!.size == 0 ? '' : 'none';
   }
 
-  void _sendSelectedMovablesUpdate() {
+  void sendSelectedMovablesUpdate() {
     socket.sendAction(a.GAME_MOVABLE_UPDATE, {
       'changes': selected.map((e) => e.toJson()).toList(),
     });
@@ -525,7 +508,7 @@ class Board {
       var inv = !_selectedInvisible.classes.contains('active');
       _updateSelectedInvisible(inv);
       selected.forEach((m) => m.invisible = inv);
-      _sendSelectedMovablesUpdate();
+      sendSelectedMovablesUpdate();
     });
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
       m.setSizeWithGridSpecifics(int.parse(value));
@@ -540,7 +523,7 @@ class Board {
     listenLazyUpdate(
       input,
       onChange: (value) => selected.forEach((m) => onChange(m, value)),
-      onSubmit: (value) => _sendSelectedMovablesUpdate(),
+      onSubmit: (value) => sendSelectedMovablesUpdate(),
     );
   }
 
@@ -1088,54 +1071,6 @@ class Board {
       syncTimer.cancel();
       if (!_measureSticky.classes.contains('active')) {
         removeMeasuring(session.charId, sendEvent: isPublic);
-      }
-    });
-  }
-
-  void _initSelectionConds() {
-    final ButtonElement addButton = queryDom('#addCondition');
-
-    addButton.onLMB.listen((_) {
-      conditionsPopup.visible = true;
-    });
-
-    final categories = Condition.categories;
-    for (var category in categories) {
-      final row = DivElement()..className = 'toolbox';
-      final div = DivElement()
-        ..append(ParagraphElement()..text = category.name)
-        ..append(row);
-
-      for (var e in category.conditions.entries) {
-        final id = e.key;
-        final cond = e.value;
-        final ico = icon(cond.icon)..append(SpanElement()..text = cond.name);
-
-        row.append(ico
-          ..onClick.listen((_) {
-            final movable = activeMovable!;
-
-            final doEnable = !movable.conds.contains(id);
-
-            selected.forEach((m) => m.toggleCondition(id, doEnable));
-            ico.classes.toggle('active', doEnable);
-            _sendSelectedMovablesUpdate();
-          }));
-      }
-
-      conditionsPopup.htmlRoot.append(div);
-    }
-
-    _selectionProperties.queryDom('#clearConditions').onClick.listen((_) {
-      // Only clear conditions if any are active
-      if (activeMovable!.conds.isNotEmpty) {
-        selected.forEach((m) => m.applyConditions([]));
-        conditionsPopup.htmlRoot
-            .querySelectorAll('.active')
-            .classes
-            .remove('active');
-
-        _sendSelectedMovablesUpdate();
       }
     });
   }

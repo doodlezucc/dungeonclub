@@ -1074,7 +1074,13 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
 
 @keyframes scale-pulse {
     0%   { transform: scale(calc(1 + 0.3 / var(--size))); }
-    100%  { transform: scale(calc(1 + 0.5 / var(--size))); }
+    100% { transform: scale(calc(1 + 0.5 / var(--size))); }
+}
+
+#selectionConditions {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    width: fit-content;
 }
 
 #conds {
