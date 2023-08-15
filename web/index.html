@@ -488,9 +488,16 @@
 						</span>
 						<span class="space-between">
 							Conditions
-							<a>Clear all</a>
+							<a id="clearConditions">Clear all</a>
 						</span>
-						<div id="conds"></div>
+						<div id="activeConds" class="toolbox popup-container">
+							<i class="fas fa-plus"></i>
+							<button id="addCondition" class="icon">
+								<i class="fas fa-plus"></i>
+							</button>
+							
+							<div id="conds" class="popup-panel panel"></div>
+						</div>
 						<div class="left-col">
 							<button id="movableInvisible" class="icon elevate with-tooltip toggle">
 								<i class="fas fa-eye"></i>
@@ -504,6 +511,9 @@
 								<i class="fas fa-trash"></i>
 								<span>Remove from Scene</span>
 							</button>
+						</div>
+						<div id="bars">
+							
 						</div>
 					</div>
 				</div>

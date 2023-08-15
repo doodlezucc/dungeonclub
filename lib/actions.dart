@@ -21,6 +21,10 @@ const GAME_MOVABLE_SNAP = 'gameMovableSnap';
 const GAME_MOVABLE_UPDATE = 'gameMovableUpdate';
 const GAME_MOVABLE_REMOVE = 'gameMovableRemove';
 
+const GAME_MOVABLE_BAR_ADD = 'gameMovableBarAdd';
+const GAME_MOVABLE_BAR_UPDATE = 'gameMovableBarUpdate';
+const GAME_MOVABLE_BAR_REMOVE = 'gameMovableBarRemove';
+
 const GAME_PREFAB_CREATE = 'gamePrefabCreate';
 const GAME_PREFAB_UPDATE = 'gamePrefabUpdate';
 const GAME_PREFAB_REMOVE = 'gamePrefabRemove';

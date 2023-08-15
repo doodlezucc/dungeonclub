@@ -11,6 +11,7 @@ import 'package:dungeonclub/session_util.dart';
 import 'package:grid_space/grid_space.dart';
 
 import '../communication.dart';
+import '../html/popup_panel.dart';
 import '../html_helpers.dart';
 import '../html_transform.dart';
 import '../lazy_input.dart';
@@ -52,7 +53,8 @@ final InputElement _selectedAura = queryDom('#movableAura');
 final ButtonElement _selectedInvisible = queryDom('#movableInvisible');
 final ButtonElement _selectedRemove = queryDom('#movableRemove');
 final ButtonElement _selectedSnap = queryDom('#movableSnap');
-final HtmlElement _selectedConds = _selectionProperties.queryDom('#conds');
+
+final conditionsPopup = PopupPanel('#conds');
 
 final ButtonElement _fowToggle = queryDom('#fogOfWar');
 final ButtonElement _measureToggle = queryDom('#measureDistance');
@@ -184,10 +186,15 @@ class Board {
       _updateSelectedInvisible(activeMovable.invisible);
       _selectedSize.valueAsNumber = activeMovable.size;
       _updateSelectionSizeInherit();
-      _selectedConds.querySelectorAll('.active').classes.remove('active');
+
+      conditionsPopup.htmlRoot
+          .querySelectorAll('.active')
+          .classes
+          .remove('active');
+
       for (var c = 0; c < Condition.categories.length; c++) {
         final category = Condition.categories[c];
-        final row = _selectedConds.children[c].children.first;
+        final row = conditionsPopup.htmlRoot.children[c].children.last;
 
         for (var cc = 0; cc < category.conditions.length; cc++) {
           if (activeMovable.conds
@@ -1086,12 +1093,18 @@ class Board {
   }
 
   void _initSelectionConds() {
+    final ButtonElement addButton = queryDom('#addCondition');
+
+    addButton.onLMB.listen((_) {
+      conditionsPopup.visible = true;
+    });
+
     final categories = Condition.categories;
     for (var category in categories) {
       final row = DivElement()..className = 'toolbox';
       final div = DivElement()
-        ..append(row)
-        ..append(ParagraphElement()..text = category.name);
+        ..append(ParagraphElement()..text = category.name)
+        ..append(row);
 
       for (var e in category.conditions.entries) {
         final id = e.key;
@@ -1110,13 +1123,18 @@ class Board {
           }));
       }
 
-      _selectedConds.append(div);
+      conditionsPopup.htmlRoot.append(div);
     }
 
-    _selectionProperties.queryDom('a').onClick.listen((_) {
+    _selectionProperties.queryDom('#clearConditions').onClick.listen((_) {
+      // Only clear conditions if any are active
       if (activeMovable!.conds.isNotEmpty) {
         selected.forEach((m) => m.applyConditions([]));
-        _selectedConds.querySelectorAll('.active').classes.remove('active');
+        conditionsPopup.htmlRoot
+            .querySelectorAll('.active')
+            .classes
+            .remove('active');
+
         _sendSelectedMovablesUpdate();
       }
     });
