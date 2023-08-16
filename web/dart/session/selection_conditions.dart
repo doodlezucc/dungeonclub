@@ -9,7 +9,7 @@ import 'condition.dart';
 import 'movable.dart';
 
 class SelectionConditions extends Component {
-  final List<ConditionTile> _activeConditions = [];
+  final List<ConditionTile> _activeConditionTiles = [];
   final Board board;
   final conditionsPopup = PopupPanel('#conds');
 
@@ -29,7 +29,7 @@ class SelectionConditions extends Component {
   }
 
   void _initializeClearButton() {
-    queryDom('#clearConditions').onClick.listen((_) {
+    queryDom('#clearConditions').onLMB.listen((_) {
       // Only clear conditions if any are active
       if (board.activeMovable!.conds.isNotEmpty) {
         board.selected.forEach((m) => m.applyConditions([]));
@@ -57,17 +57,14 @@ class SelectionConditions extends Component {
       ..append(ParagraphElement()..text = category.name)
       ..append(row);
 
-    for (var e in category.conditions.entries) {
-      final id = e.key;
-      final cond = e.value;
-
-      final tile = ConditionTile(cond, onClick: (tile) {
+    for (var conditionId in category.conditions.keys) {
+      final tile = ConditionTile(conditionId, onClick: (tile) {
         final movable = board.activeMovable!;
 
-        final doEnable = !movable.conds.contains(id);
+        final doEnable = !movable.conds.contains(conditionId);
 
-        board.selected.forEach((m) => m.toggleCondition(id, doEnable));
-        tile.htmlRoot.classes.toggle('active', doEnable);
+        board.selected.forEach((m) => m.toggleCondition(conditionId, doEnable));
+        tile.highlight = doEnable;
         board.sendSelectedMovablesUpdate();
       });
 
@@ -94,39 +91,77 @@ class SelectionConditions extends Component {
       }
     }
 
-    for (var condition in _activeConditions) {
+    for (var condition in _activeConditionTiles) {
       condition.htmlRoot.remove();
     }
 
-    _activeConditions.clear();
+    _activeConditionTiles.clear();
 
     for (var conditionId in token.conds) {
       _addActiveCondition(conditionId);
     }
   }
 
-  void _addActiveCondition(int id) {
-    final condition = Condition.getConditionById(id);
+  void _onClickActiveCondition(ConditionTile tile) {
+    final doEnable = false;
+    board.selected
+        .forEach((m) => m.toggleCondition(tile.conditionId, doEnable));
+    board.sendSelectedMovablesUpdate();
+
+    _disposeActiveCondition(tile);
+  }
+
+  void _addActiveCondition(int conditionId) {
     final component = ConditionTile(
-      condition,
-      onClick: (_) {
-        print('click');
-      },
+      conditionId,
+      highlight: true,
+      onClick: _onClickActiveCondition,
     );
 
     _activeConditionsContainer.append(component.htmlRoot);
-    _activeConditions.add(component);
+    _activeConditionTiles.add(component);
+  }
+
+  void _disposeActiveCondition(ConditionTile tile) {
+    tile.htmlRoot.remove();
+    _activeConditionTiles.remove(tile);
   }
 }
 
-class ConditionTile extends Component {
-  final Condition condition;
-  final void Function(ConditionTile tile) onClick;
+typedef OnConditionClick = void Function(ConditionTile tile);
 
-  ConditionTile(this.condition, {required this.onClick})
-      : super.element(icon(condition.icon)) {
+class ConditionTile extends Component {
+  final int conditionId;
+  final Condition condition;
+  final OnConditionClick onClick;
+
+  bool _highlight = false;
+  bool get highlight => _highlight;
+  set highlight(bool value) {
+    _highlight = value;
+    htmlRoot.classes.toggle('active', value);
+  }
+
+  ConditionTile(
+    int conditionId, {
+    required OnConditionClick onClick,
+    bool highlight = false,
+  }) : this._initialized(
+          conditionId,
+          Condition.getConditionById(conditionId),
+          onClick,
+          highlight,
+        );
+
+  ConditionTile._initialized(
+    this.conditionId,
+    this.condition,
+    this.onClick,
+    bool highlight,
+  ) : super.element(icon(condition.icon)) {
     htmlRoot.append(SpanElement()..text = condition.name);
 
     htmlRoot.onLMB.listen((_) => onClick(this));
+    this.highlight = highlight;
   }
 }

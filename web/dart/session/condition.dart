@@ -51,7 +51,7 @@ class Condition {
 
   const Condition(this.name, this.icon);
 
-  static getConditionById(int id) {
+  static Condition getConditionById(int id) {
     return items.entries.firstWhere((entry) => entry.key == id).value;
   }
 }
