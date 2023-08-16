@@ -751,12 +751,11 @@ footer {
 }
 
 .toolbox {
-    display: grid !important;
-    background-color: #aaa;
-    border: 1px solid #ddd;
+    display: grid;
     gap: 1px !important;
+    padding: 1px;
 
-    i {
+    > i, > .wrapper > i {
         @extend %toolbox-item;
     }
 }
@@ -768,6 +767,7 @@ footer {
     height: 36px;
     font-size: 20px;
     align-items: center;
+    outline: 1px solid #aaa;
 
     &:hover {
         background-color: var(--color-button-hover);
@@ -795,4 +795,8 @@ button.floating-action {
     &.hovered {
         background-color: var(--color-button-active);
     }
+}
+
+.interactable {
+    cursor: pointer;
 }

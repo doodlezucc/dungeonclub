@@ -112,7 +112,7 @@
     .single-item {
         position: absolute !important;
         border-radius: base.$radius !important;
-        border: 1px solid white;
+        outline: 1px solid #aaa;
         min-width: 38px;
         min-height: 38px;
     }
