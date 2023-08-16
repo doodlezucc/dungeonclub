@@ -9,7 +9,9 @@ import 'condition.dart';
 import 'movable.dart';
 
 class SelectionConditions extends Component {
-  final List<ConditionTile> _activeConditionTiles = [];
+  final Map<int, ConditionTile> _activeConditionTiles = {};
+  final Map<int, ConditionTile> _popupConditions = {};
+
   final Board board;
   final conditionsPopup = PopupPanel('#conds');
 
@@ -33,10 +35,7 @@ class SelectionConditions extends Component {
       // Only clear conditions if any are active
       if (board.activeMovable!.conds.isNotEmpty) {
         board.selected.forEach((m) => m.applyConditions([]));
-        conditionsPopup.htmlRoot
-            .querySelectorAll('.active')
-            .classes
-            .remove('active');
+        _disposeConditionTiles();
 
         board.sendSelectedMovablesUpdate();
       }
@@ -58,57 +57,55 @@ class SelectionConditions extends Component {
       ..append(row);
 
     for (var conditionId in category.conditions.keys) {
-      final tile = ConditionTile(conditionId, onClick: (tile) {
-        final movable = board.activeMovable!;
-
-        final doEnable = !movable.conds.contains(conditionId);
-
-        board.selected.forEach((m) => m.toggleCondition(conditionId, doEnable));
-        tile.highlight = doEnable;
-        board.sendSelectedMovablesUpdate();
-      });
+      final tile = ConditionTile(conditionId, onClick: _onClickPopupCondition);
 
       row.append(tile.htmlRoot);
+      _popupConditions[conditionId] = tile;
     }
 
     return div;
   }
 
+  void _onClickPopupCondition(ConditionTile tile) {
+    final movable = board.activeMovable!;
+
+    final doEnable = !movable.conds.contains(tile.conditionId);
+    _setConditionState(tile.conditionId, doEnable);
+
+    board.selected.forEach(
+      (m) => m.toggleCondition(tile.conditionId, doEnable),
+    );
+    board.sendSelectedMovablesUpdate();
+  }
+
   void onActiveTokenChange(Movable token) {
-    conditionsPopup.htmlRoot
-        .querySelectorAll('.active')
-        .classes
-        .remove('active');
-
-    for (var c = 0; c < Condition.categories.length; c++) {
-      final category = Condition.categories[c];
-      final row = conditionsPopup.htmlRoot.children[c].children.last;
-
-      for (var cc = 0; cc < category.conditions.length; cc++) {
-        if (token.conds.contains(category.conditions.keys.elementAt(cc))) {
-          row.children[cc].classes.add('active');
-        }
-      }
-    }
-
-    for (var condition in _activeConditionTiles) {
-      condition.htmlRoot.remove();
-    }
-
-    _activeConditionTiles.clear();
+    _disposeConditionTiles();
 
     for (var conditionId in token.conds) {
-      _addActiveCondition(conditionId);
+      _setConditionState(conditionId, true);
     }
   }
 
-  void _onClickActiveCondition(ConditionTile tile) {
-    final doEnable = false;
-    board.selected
-        .forEach((m) => m.toggleCondition(tile.conditionId, doEnable));
-    board.sendSelectedMovablesUpdate();
+  void _disposeConditionTiles() {
+    final activeIds = _activeConditionTiles.keys.toList();
 
-    _disposeActiveCondition(tile);
+    for (var conditionId in activeIds) {
+      _setConditionState(conditionId, false);
+    }
+
+    _activeConditionTiles.clear();
+  }
+
+  void _setConditionState(int id, bool enable) {
+    if (enable) {
+      _addActiveCondition(id);
+    } else {
+      final tile = _activeConditionTiles[id]!;
+      tile.htmlRoot.remove();
+      _activeConditionTiles.remove(tile);
+    }
+
+    _popupConditions[id]!.highlight = enable;
   }
 
   void _addActiveCondition(int conditionId) {
@@ -119,12 +116,16 @@ class SelectionConditions extends Component {
     );
 
     _activeConditionsContainer.append(component.htmlRoot);
-    _activeConditionTiles.add(component);
+    _activeConditionTiles[conditionId] = component;
   }
 
-  void _disposeActiveCondition(ConditionTile tile) {
-    tile.htmlRoot.remove();
-    _activeConditionTiles.remove(tile);
+  void _onClickActiveCondition(ConditionTile tile) {
+    final doEnable = false;
+    board.selected
+        .forEach((m) => m.toggleCondition(tile.conditionId, doEnable));
+    board.sendSelectedMovablesUpdate();
+
+    _setConditionState(tile.conditionId, doEnable);
   }
 }
 
