@@ -6,6 +6,7 @@ import 'dart:svg' as svg;
 import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/iterable_extension.dart';
 import 'package:dungeonclub/limits.dart';
+import 'package:dungeonclub/models/token_bar.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/session_util.dart';
 import 'package:grid_space/grid_space.dart';
@@ -29,6 +30,7 @@ import 'prefab_palette.dart';
 import 'roll_dice.dart';
 import 'scene.dart';
 import 'selection_conditions.dart';
+import 'selection_token_bar.dart';
 import 'session.dart';
 
 final HtmlElement _container = queryDom('#boardContainer');
@@ -49,6 +51,7 @@ final _selectedLabelPrefix =
 final _selectedLabel = _selectedLabelWrapper.children.last as InputElement;
 final InputElement _selectedSize = queryDom('#movableSize');
 final InputElement _selectedAura = queryDom('#movableAura');
+final HtmlElement _selectedBars = queryDom('#selectionBars');
 final ButtonElement _selectedInvisible = queryDom('#movableInvisible');
 final ButtonElement _selectedRemove = queryDom('#movableRemove');
 final ButtonElement _selectedSnap = queryDom('#movableSnap');
@@ -57,6 +60,21 @@ final ButtonElement _fowToggle = queryDom('#fogOfWar');
 final ButtonElement _measureToggle = queryDom('#measureDistance');
 HtmlElement get _measureSticky => queryDom('#measureSticky');
 HtmlElement get _measureVisible => queryDom('#measureVisible');
+
+final demoBars = <TokenBar>[
+  TokenBar(0)
+    ..label = 'HP'
+    ..value = 24
+    ..maxValue = 24,
+  TokenBar(1)
+    ..label = 'Armor'
+    ..value = 13.5
+    ..maxValue = 16.5,
+  TokenBar(2)
+    ..label = 'My Epic Special Ability'
+    ..value = 25
+    ..maxValue = 100,
+];
 
 class Board {
   final Session session;
@@ -186,6 +204,12 @@ class Board {
       _updateSelectionSizeInherit();
 
       _selectionConditions.onActiveTokenChange(activeMovable);
+
+      _selectedBars.children.clear();
+      for (final bar in demoBars) {
+        final barComponent = SelectionTokenBar(activeMovable, bar);
+        _selectedBars.append(barComponent.htmlRoot);
+      }
     }
 
     _selectionProperties.classes.toggle('hidden', activeMovable == null);

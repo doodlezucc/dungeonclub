@@ -800,3 +800,24 @@ button.floating-action {
 .interactable {
     cursor: pointer;
 }
+
+ul.no-inset {
+    margin-block: 0;
+    padding-inline-start: 0;
+}
+
+ul.settings-list {
+    gap: 1px;
+}
+
+li.list-setting {
+    height: 2em;
+
+    > .label {
+        margin-right: auto;
+    }
+
+    > input {
+        padding-top: 3px;
+    }
+}
