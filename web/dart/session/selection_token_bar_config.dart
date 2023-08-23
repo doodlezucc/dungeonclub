@@ -27,6 +27,7 @@ class TokenBarConfigPanel extends Component {
 
     _labelInput.onInput.listen((_) {
       _attachedBar?.data.label = _labelInput.value!;
+      _attachedBar?.applyDataToInputs();
     });
   }
 
