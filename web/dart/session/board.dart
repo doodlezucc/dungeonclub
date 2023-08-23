@@ -61,6 +61,7 @@ final ButtonElement _measureToggle = queryDom('#measureDistance');
 HtmlElement get _measureSticky => queryDom('#measureSticky');
 HtmlElement get _measureVisible => queryDom('#measureVisible');
 
+// TODO debugging purposes
 final demoBars = <TokenBar>[
   TokenBar(0)
     ..label = 'HP'
@@ -189,6 +190,7 @@ class Board {
 
     if (activeMovable != null) {
       activeMovable.e.classes.add('active');
+      print(activeMovable.bars);
 
       // Assign current values to HTML inputs
       var nicknamePrefix = '';
@@ -206,7 +208,7 @@ class Board {
       _selectionConditions.onActiveTokenChange(activeMovable);
 
       _selectedBars.children.clear();
-      for (final bar in demoBars) {
+      for (final bar in activeMovable.bars) {
         final barComponent = SelectionTokenBar(activeMovable, bar);
         _selectedBars.append(barComponent.htmlRoot);
       }

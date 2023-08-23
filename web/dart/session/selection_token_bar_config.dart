@@ -27,6 +27,7 @@ class TokenBarConfigPanel extends Component {
 
     _labelInput.onInput.listen((_) {
       _attachedBar?.data.label = _labelInput.value!;
+      _attachedBar?.token.applyBars();
       _attachedBar?.applyDataToInputs();
     });
   }
@@ -58,6 +59,7 @@ class TokenBarConfigPanel extends Component {
     _applyVisiblity(visibility);
 
     _attachedBar?.data.visibility = visibility;
+    _attachedBar?.token.applyBars();
   }
 
   void _applyVisiblity(TokenBarVisibility visibility) {

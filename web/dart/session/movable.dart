@@ -2,6 +2,7 @@ import 'dart:html';
 import 'dart:math' as math;
 
 import 'package:dungeonclub/models/token.dart';
+import 'package:dungeonclub/models/token_bar.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:grid_space/grid_space.dart';
 
@@ -21,6 +22,7 @@ class Movable extends ClampedEntityBase with TokenModel {
 
   final e = DivElement();
   final _aura = DivElement();
+  final _barsRoot = UListElement();
 
   String get name => prefab.name;
 
@@ -102,7 +104,8 @@ class Movable extends ClampedEntityBase with TokenModel {
       ..append(_aura..className = 'aura')
       ..append(DivElement()..className = 'ring')
       ..append(DivElement()..className = 'img rotating')
-      ..append(DivElement()..className = 'conds');
+      ..append(DivElement()..className = 'conds')
+      ..append(_barsRoot..className = 'bars');
 
     if (createTooltip) {
       e.append(board.transform.registerInvZoom(
@@ -120,6 +123,7 @@ class Movable extends ClampedEntityBase with TokenModel {
     }
     if (conds != null) applyConditions(conds);
 
+    applyBars();
     angle = 0;
   }
 
@@ -136,6 +140,39 @@ class Movable extends ClampedEntityBase with TokenModel {
     }
     return Movable._(
         board: board, prefab: prefab, id: id, pos: pos, conds: conds);
+  }
+
+  bool _doDisplayTokenBar(TokenBar bar) {
+    switch (bar.visibility) {
+      case TokenBarVisibility.VISIBLE_TO_ALL:
+        return true;
+      case TokenBarVisibility.VISIBLE_TO_OWNERS:
+        return accessible;
+      case TokenBarVisibility.HIDDEN:
+        return board.session.isDM;
+    }
+  }
+
+  void applyBars() {
+    _barsRoot.children.clear();
+
+    for (final bar in bars) {
+      if (_doDisplayTokenBar(bar)) {
+        final progress = bar.value / bar.maxValue;
+        final valueText = '${bar.value} / ${bar.maxValue}';
+
+        _barsRoot.append(LIElement()
+          ..className = 'token-bar'
+          ..style.setProperty('--progress', '$progress')
+          ..append(DivElement()..className = 'bar-fill')
+          ..append(SpanElement()
+            ..className = 'token-bar-label'
+            ..text = bar.label)
+          ..append(SpanElement()
+            ..className = 'token-bar-value'
+            ..text = valueText));
+      }
+    }
   }
 
   void applyPosition() {
@@ -239,6 +276,8 @@ class Movable extends ClampedEntityBase with TokenModel {
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
+    bars = demoBars; // TODO debugging purposes only
+    applyBars();
     applyConditions(List<int>.from(json['conds'] ?? []));
     onPrefabUpdate();
   }

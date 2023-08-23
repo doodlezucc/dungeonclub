@@ -72,6 +72,7 @@ class SelectionTokenBar extends Component {
     if (value != null && max != null) {
       data.value = value.toDouble();
       data.maxValue = max.toDouble();
+      token.applyBars();
     }
   }
 

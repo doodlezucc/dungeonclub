@@ -1021,6 +1021,16 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
         opacity: 0;
     }
 
+    > .bars {
+        bottom: 100%;
+        width: 100%;
+        pointer-events: none;
+        padding-inline-start: 0;
+        margin: 0;
+        opacity: 0.7;
+        transition: 0.1s;
+    }
+
     &.empty {
         border-color: var(--color-bad);
         display: flex;
@@ -1069,6 +1079,56 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
             transition-delay: 0s;
         }
     }
+
+    &:not(:active):hover, &:not(:active).active {
+        > .bars {
+            opacity: 1;
+        }
+
+        .token-bar {
+            height: 1em;
+        }
+
+        .token-bar span {
+            opacity: 1;
+        }
+    }
+}
+
+.token-bar {
+    width: 100%;
+    height: 0.5em;
+    padding: 0;
+    margin: 2px 0;
+    background-color: #333c;
+    transition: 0.2s;
+    justify-content: center;
+    --progress: 0.4;
+
+    > .bar-fill {
+        height: 100%;
+        width: calc(var(--progress) * 100%);
+        margin-right: auto;
+        background-color: #ec4040;
+    }
+
+    span {
+        position: absolute;
+        font-size: 0.5em;
+        opacity: 0;
+        transition: inherit;
+        text-shadow: var(--shadow-text);
+    }
+}
+
+.token-bar-label {
+    width: max-content;
+    right: 100%;
+    margin-right: 4px;
+}
+
+.token-bar-value {
+    padding: 0 2px;
 }
 
 @keyframes scale-pulse {
