@@ -683,6 +683,7 @@ footer {
     position: absolute;
     bottom: 100%;
     background-color: var(--color-background);
+    color: var(--color-text-primary);
     border-radius: $radius;
     padding: 6px 8px;
     pointer-events: none;
@@ -819,5 +820,31 @@ li.list-setting {
 
     > input {
         padding-top: 3px;
+    }
+}
+
+.segmented-button {
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+
+    > button {
+        width: 100%;
+        background-color: var(--color-background);
+    }
+
+    > button.active {
+        background-color: var(--color-primary);
+        color: var(--color-text-inverse);
+    }
+
+    > :nth-child(n + 2) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    > :nth-last-child(n + 2) {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
     }
 }

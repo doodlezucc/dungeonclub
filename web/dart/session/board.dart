@@ -205,11 +205,11 @@ class Board {
 
       _selectionConditions.onActiveTokenChange(activeMovable);
 
-      _selectedBars.children.clear();
-      for (final bar in demoBars) {
-        final barComponent = SelectionTokenBar(activeMovable, bar);
-        _selectedBars.append(barComponent.htmlRoot);
-      }
+      // _selectedBars.children.clear();
+      // for (final bar in demoBars) {
+      //   final barComponent = SelectionTokenBar(activeMovable, bar);
+      //   _selectedBars.append(barComponent.htmlRoot);
+      // }
     }
 
     _selectionProperties.classes.toggle('hidden', activeMovable == null);

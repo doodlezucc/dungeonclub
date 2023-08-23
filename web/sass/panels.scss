@@ -96,6 +96,7 @@
 
 .popup-panel {
     position: absolute;
+    z-index: 1;
     width: auto;
     padding: 8px;
 
@@ -107,6 +108,11 @@
         opacity: 1;
         pointer-events: all;
     }
+}
+
+.anchor-left {
+    right: 100%;
+    margin-right: 8px;
 }
 
 #editGamePanel {

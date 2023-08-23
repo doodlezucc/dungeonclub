@@ -501,11 +501,40 @@
 							</div>
 						</div>
 						<div>
-							<span class="space-between">
-								Bars
-								<a id="configureBars">Configure</a>
-							</span>
-							<ul id="selectionBars" class="no-inset settings-list"></ul>
+							<span>Bars</span>
+							<ul id="selectionBars" class="no-inset settings-list">
+								<li class="token-bar-mini list-setting popup-container">
+									<span class="label">My Epic Special Ability</span>
+									<input type="number" placeholder="Value..." step="any">
+									<span>/</span>
+									<input type="number" placeholder="Max..." step="any">
+
+									<div class="popup-panel anchor-left panel show">
+										<label>
+											Label:
+											<input type="text" placeholder="Label...">
+										</label>
+
+										<div>
+											<label>Visibility</label>
+											<div class="segmented-button">
+												<button class="icon with-tooltip active">
+													<span>Visible to All</span>
+													<i class="fas fa-users"></i>
+												</button>
+												<button class="icon with-tooltip">
+													<span>Visible to Owners</span>
+													<i class="fas fa-user-lock"></i>
+												</button>
+												<button class="icon with-tooltip">
+													<span>Hidden</span>
+													<i class="fas fa-user-slash"></i>
+												</button>
+											</div>
+										</div>
+									</div>
+								</li>
+							</ul>
 						</div>
 						<div class="left-col">
 							<button id="movableInvisible" class="icon elevate with-tooltip toggle">
