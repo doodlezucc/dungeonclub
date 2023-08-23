@@ -1096,10 +1096,11 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
 }
 
 .token-bar {
-    width: 100%;
+    position: relative;
+    width: 90%;
     height: 0.5em;
     padding: 0;
-    margin: 2px 0;
+    margin: 2px auto;
     background-color: #333c;
     transition: 0.2s;
     justify-content: center;

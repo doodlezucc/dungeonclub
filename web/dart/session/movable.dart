@@ -158,8 +158,16 @@ class Movable extends ClampedEntityBase with TokenModel {
 
     for (final bar in bars) {
       if (_doDisplayTokenBar(bar)) {
-        final progress = bar.value / bar.maxValue;
-        final valueText = '${bar.value} / ${bar.maxValue}';
+        double progress;
+        String valueText;
+
+        if (bar.maxValue == 0) {
+          progress = 1;
+          valueText = '${bar.value}';
+        } else {
+          progress = bar.value / bar.maxValue;
+          valueText = '${bar.value} / ${bar.maxValue}';
+        }
 
         _barsRoot.append(LIElement()
           ..className = 'token-bar'

@@ -190,7 +190,6 @@ class Board {
 
     if (activeMovable != null) {
       activeMovable.e.classes.add('active');
-      print(activeMovable.bars);
 
       // Assign current values to HTML inputs
       var nicknamePrefix = '';
