@@ -65,21 +65,22 @@ class SelectionTokenBar extends Component {
     _maxInput.valueAsNumber = data.maxValue;
   }
 
+  bool _isValidNumber(num? number) {
+    if (number == null) return false;
+
+    return number.isFinite;
+  }
+
   void _applyInputsToData() {
     final value = _valueInput.valueAsNumber;
     final max = _maxInput.valueAsNumber;
 
-    if (value != null && max != null) {
-      data.value = value.toDouble();
-      data.maxValue = max.toDouble();
+    if (_isValidNumber(value) && _isValidNumber(max)) {
+      data.value = value!.toDouble();
+      data.maxValue = max!.toDouble();
       token.applyBars();
     }
   }
 
-  void _submitData() {
-    final value = _valueInput.valueAsNumber;
-    final max = _maxInput.valueAsNumber;
-
-    if (value != null && max != null) {}
-  }
+  void _submitData() {}
 }
