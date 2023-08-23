@@ -6,8 +6,11 @@ import '../html/component.dart';
 import '../html/input_soft_limits.dart';
 import '../lazy_input.dart';
 import 'movable.dart';
+import 'selection_token_bar_config.dart';
 
 class SelectionTokenBar extends Component {
+  static final panel = TokenBarConfigPanel();
+
   final Movable token;
   final TokenBar data;
 
@@ -23,7 +26,12 @@ class SelectionTokenBar extends Component {
       ..append(SpanElement()..text = '/')
       ..append(_maxInput = InputElement(type: 'number'));
 
-    _labelElement.className = 'label';
+    _labelElement
+      ..classes = ['label', 'interactable']
+      ..onClick.listen((_) {
+        panel.attachTo(this);
+      });
+
     _valueInput
       ..placeholder = 'Value...'
       ..step = 'any';
