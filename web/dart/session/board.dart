@@ -526,8 +526,13 @@ class Board {
     });
 
     _addTokenBarButton.onClick.listen((_) {
-      final number = activeMovable!.bars.length + 1;
-      final bar = TokenBar(label: 'Bar $number');
+      var label = 'HP';
+      if (activeMovable!.bars.any((bar) => bar.label == label)) {
+        final number = activeMovable!.bars.length + 1;
+        label = 'Bar $number';
+      }
+
+      final bar = TokenBar(label: label);
 
       activeMovable!.bars.add(bar);
       activeMovable!.applyBars();

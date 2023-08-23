@@ -16,6 +16,7 @@ class TokenBarConfigPanel extends Component {
 
   final InputElement _labelInput = queryDom('#barConfigLabel');
   final Element _visibilityRoot = queryDom('#barConfigVisibility');
+  final ButtonElement _removeButton = queryDom('#barRemoveButton');
 
   SelectionTokenBar? _attachedBar;
 
@@ -35,6 +36,14 @@ class TokenBarConfigPanel extends Component {
       },
       onSubmit: (_) => _attachedBar?.submitData(),
     );
+
+    _removeButton.onClick.listen((_) {
+      _attachedBar
+        ?..token.bars.remove(_attachedBar!.data)
+        ..htmlRoot.remove()
+        ..token.applyBars()
+        ..submitData();
+    });
   }
 
   void attachTo(SelectionTokenBar barComponent) {

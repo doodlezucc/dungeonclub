@@ -23,8 +23,8 @@ enum TokenBarVisibility {
 
 class TokenBar {
   String label = '';
-  double value = 0;
-  double maxValue = 100;
+  double value = 25;
+  double maxValue = 0;
 
   TokenBarVisibility visibility = TokenBarVisibility.VISIBLE_TO_OWNERS;
 
