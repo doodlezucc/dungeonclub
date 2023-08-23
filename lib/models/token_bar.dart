@@ -22,27 +22,25 @@ enum TokenBarVisibility {
 }
 
 class TokenBar {
-  int id;
   String label = '';
   double value = 0;
   double maxValue = 100;
 
-  TokenBarVisibility visibility = TokenBarVisibility.HIDDEN;
+  TokenBarVisibility visibility = TokenBarVisibility.VISIBLE_TO_OWNERS;
 
-  TokenBar(this.id);
-  TokenBar.parse(Map<String, dynamic> json) : id = json['id'] {
+  TokenBar({required this.label});
+  TokenBar.parse(Map<String, dynamic> json) {
     fromJson(json);
   }
 
   void fromJson(Map<String, dynamic> json) {
     label = json['label'];
-    value = json['value'];
-    maxValue = json['maxValue'];
+    value = (json['value'] as num).toDouble();
+    maxValue = (json['maxValue'] as num).toDouble();
     visibility = TokenBarVisibility.parse(json['visibility']);
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
         'label': label,
         'value': value,
         'maxValue': maxValue,

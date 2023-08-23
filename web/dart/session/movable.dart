@@ -284,7 +284,6 @@ class Movable extends ClampedEntityBase with TokenModel {
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
-    bars = demoBars; // TODO debugging purposes only
     applyBars();
     applyConditions(List<int>.from(json['conds'] ?? []));
     onPrefabUpdate();

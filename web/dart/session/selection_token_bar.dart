@@ -47,13 +47,13 @@ class SelectionTokenBar extends Component {
     listenLazyUpdate(
       _valueInput,
       onChange: (_) => _applyInputsToData(),
-      onSubmit: (_) => _submitData(),
+      onSubmit: (_) => submitData(),
     );
 
     listenLazyUpdate(
       _maxInput,
       onChange: (_) => _applyInputsToData(),
-      onSubmit: (_) => _submitData(),
+      onSubmit: (_) => submitData(),
     );
 
     applyDataToInputs();
@@ -82,5 +82,7 @@ class SelectionTokenBar extends Component {
     }
   }
 
-  void _submitData() {}
+  void submitData() {
+    token.board.sendSelectedMovablesUpdate();
+  }
 }

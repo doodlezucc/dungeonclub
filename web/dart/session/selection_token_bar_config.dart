@@ -4,6 +4,7 @@ import 'package:dungeonclub/models/token_bar.dart';
 
 import '../html/component.dart';
 import '../html_helpers.dart';
+import '../lazy_input.dart';
 import 'selection_token_bar.dart';
 
 class TokenBarConfigPanel extends Component {
@@ -25,11 +26,15 @@ class TokenBarConfigPanel extends Component {
       button.onClick.listen((event) => _onClickSegmentedButton(i));
     }
 
-    _labelInput.onInput.listen((_) {
-      _attachedBar?.data.label = _labelInput.value!;
-      _attachedBar?.token.applyBars();
-      _attachedBar?.applyDataToInputs();
-    });
+    listenLazyUpdate(
+      _labelInput,
+      onChange: (text) {
+        _attachedBar?.data.label = _labelInput.value!;
+        _attachedBar?.token.applyBars();
+        _attachedBar?.applyDataToInputs();
+      },
+      onSubmit: (_) => _attachedBar?.submitData(),
+    );
   }
 
   void attachTo(SelectionTokenBar barComponent) {
@@ -60,6 +65,7 @@ class TokenBarConfigPanel extends Component {
 
     _attachedBar?.data.visibility = visibility;
     _attachedBar?.token.applyBars();
+    _attachedBar?.submitData();
   }
 
   void _applyVisiblity(TokenBarVisibility visibility) {

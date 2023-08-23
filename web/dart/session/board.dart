@@ -52,6 +52,7 @@ final _selectedLabel = _selectedLabelWrapper.children.last as InputElement;
 final InputElement _selectedSize = queryDom('#movableSize');
 final InputElement _selectedAura = queryDom('#movableAura');
 final HtmlElement _selectedBars = queryDom('#selectionBars');
+final ButtonElement _addTokenBarButton = queryDom('#barAddButton');
 final ButtonElement _selectedInvisible = queryDom('#movableInvisible');
 final ButtonElement _selectedRemove = queryDom('#movableRemove');
 final ButtonElement _selectedSnap = queryDom('#movableSnap');
@@ -60,22 +61,6 @@ final ButtonElement _fowToggle = queryDom('#fogOfWar');
 final ButtonElement _measureToggle = queryDom('#measureDistance');
 HtmlElement get _measureSticky => queryDom('#measureSticky');
 HtmlElement get _measureVisible => queryDom('#measureVisible');
-
-// TODO debugging purposes
-final demoBars = <TokenBar>[
-  TokenBar(0)
-    ..label = 'HP'
-    ..value = 24
-    ..maxValue = 24,
-  TokenBar(1)
-    ..label = 'Armor'
-    ..value = 13.5
-    ..maxValue = 16.5,
-  TokenBar(2)
-    ..label = 'My Epic Special Ability'
-    ..value = 25
-    ..maxValue = 100,
-];
 
 class Board {
   final Session session;
@@ -538,6 +523,19 @@ class Board {
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
       m.setSizeWithGridSpecifics(int.parse(value));
       _updateSelectionSizeInherit();
+    });
+
+    _addTokenBarButton.onClick.listen((_) {
+      final number = activeMovable!.bars.length + 1;
+      final bar = TokenBar(label: 'Bar $number');
+
+      activeMovable!.bars.add(bar);
+      activeMovable!.applyBars();
+
+      final barComponent = SelectionTokenBar(activeMovable!, bar);
+      _selectedBars.append(barComponent.htmlRoot);
+
+      sendSelectedMovablesUpdate();
     });
   }
 
