@@ -163,11 +163,11 @@
         flex-direction: column;
         z-index: 6;
         pointer-events: none;
+        width: 280px;
 
         > .panel {
             padding: 8px;
             transition: opacity 0.2s;
-            width: 260px;
         }
     }
 

@@ -38,6 +38,12 @@
     }
 }
 
+#overlay .panel {
+    min-width: min-content;
+    width: 30rem;
+    max-width: calc(100vw - 2rem);
+}
+
 .panel {
     @extend %vertical;
     background-color: var(--color-header);
@@ -47,9 +53,6 @@
     border-radius: base.$radius;
     padding: 24px 32px 16px 32px;
     gap: 16px;
-    min-width: min-content;
-    width: 30rem;
-    max-width: calc(100vw - 2rem);
     pointer-events: all;
 
     h2 {

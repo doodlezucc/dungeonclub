@@ -816,6 +816,8 @@ li.list-setting {
 
     > .label {
         margin-right: auto;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 
     > input {
