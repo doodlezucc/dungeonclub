@@ -57,6 +57,10 @@ class TokenBarConfigPanel extends Component {
     document.onMouseDown
         .firstWhere((element) => !element.path.contains(htmlRoot))
         .then((_) => _setDomVisible(false));
+
+    _labelInput
+      ..focus()
+      ..select();
   }
 
   void _applyBarData(SelectionTokenBar barComponent) {
