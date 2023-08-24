@@ -850,3 +850,8 @@ li.list-setting {
         border-bottom-right-radius: 0;
     }
 }
+
+.tile-container {
+    display: flex;
+    flex-wrap: wrap;
+}

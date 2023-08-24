@@ -446,9 +446,9 @@
 						</button>
 						<div class="prefab-selection">
 							<p>Players</p>
-							<div id="pcPrefabs" class="prefab-container"></div>
+							<div id="pcPrefabs" class="tile-container prefab-container"></div>
 							<p>Custom</p>
-							<div id="otherPrefabs" class="prefab-container">
+							<div id="otherPrefabs" class="tile-container prefab-container">
 								<button id="addPrefab" class="icon with-tooltip">
 									<i class="fas fa-plus"></i>
 									<span>Add Token</span>
@@ -491,12 +491,13 @@
 							<a id="clearConditions">Clear all</a>
 						</span>
 						<div class="popup-container">
-							<div id="selectionConditions" class="toolbox toolbox-grid">
+							<div id="selectionConditions" class="tile-container toolbox">
 								<div id="activeConds" class="wrapper"></div>
 	
-								<i id="addCondition" class="fas fa-plus interactable with-tooltip">
+								<button id="addCondition" class="icon with-tooltip">
 									<span>Add</span>
-								</i>
+									<i class="fas fa-plus"></i>
+								</button>
 								<div id="conds" class="popup-panel panel"></div>
 							</div>
 						</div>
