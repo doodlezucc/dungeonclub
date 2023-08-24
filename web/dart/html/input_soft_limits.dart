@@ -1,52 +1,54 @@
 import 'dart:html';
 
+const _softLimitCooldownMs = 500;
+
 extension InputLimiter on InputElement {
   void registerSoftLimits({
     required double Function() getMin,
     required double Function() getMax,
   }) {
-    bool constrainRange = false;
-    DateTime? lastInput;
+    int lastInput = 0;
+    num? previousValue = valueAsNumber;
 
-    onMouseWheel.listen((event) {
-      final value = valueAsNumber;
+    void onStepChange(Event event, num previous, num value, int now) {
+      final min = getMin();
+      final max = getMax();
 
-      if (value == null || (value >= getMin() && value <= getMax())) {
-        constrainRange = true;
+      final crossingLowerBound = previous >= min && value < min;
+      final crossingUpperBound = previous <= max && value > max;
 
-        if (lastInput != null) {
-          final timeSinceInput = DateTime.now().difference(lastInput!);
+      if (crossingLowerBound || crossingUpperBound) {
+        final msSinceInput = now - lastInput;
 
-          if (timeSinceInput.inMilliseconds > 500) {
-            constrainRange = false;
+        if (msSinceInput < _softLimitCooldownMs) {
+          // Constrain range
+          event.preventDefault();
+
+          if (crossingLowerBound) {
+            valueAsNumber = value = min;
+          } else if (crossingUpperBound) {
+            valueAsNumber = value = max;
           }
         }
       }
-    });
+    }
 
     onInput.listen((event) {
-      lastInput = DateTime.now();
+      final value = valueAsNumber;
+      final previous = previousValue;
 
-      if (constrainRange) {
-        final value = valueAsNumber;
-        final min = getMin();
-        final max = getMax();
+      final now = DateTime.now().millisecondsSinceEpoch;
 
-        if (value != null) {
-          if (value < min || value > max) {
-            event.preventDefault();
-            lastInput = DateTime.now();
+      if (value != null && previous != null) {
+        final diff = (value - previous).abs();
 
-            if (value < min) {
-              valueAsNumber = min;
-            } else if (value > max) {
-              valueAsNumber = max;
-            }
-          }
+        if (diff == 1.0) {
+          onStepChange(event, previous, value, now);
         }
-
-        constrainRange = false;
       }
+
+      lastInput = now;
+      previousValue = valueAsNumber;
     });
   }
 }
