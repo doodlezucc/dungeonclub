@@ -76,9 +76,11 @@ class TokenBarConfigPanel extends Component {
     final visibility = _visibilityButtonOrder[index];
     _applyVisiblity(visibility);
 
-    _attachedBar?.data.visibility = visibility;
-    _attachedBar?.token.applyBars();
-    _attachedBar?.submitData();
+    _attachedBar
+      ?..data.visibility = visibility
+      ..applyVisibilityIcon()
+      ..token.applyBars()
+      ..submitData();
   }
 
   void _applyVisiblity(TokenBarVisibility visibility) {
