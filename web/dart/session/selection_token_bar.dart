@@ -95,9 +95,11 @@ class SelectionTokenBar extends Component {
     final max = _maxInput.valueAsNumber;
 
     if (_isValidNumber(value) && _isValidNumber(max)) {
-      data.value = value!.toDouble();
-      data.maxValue = max!.toDouble();
-      token.applyBars();
+      token.board.modifySelectedTokenBars(data, (token, bar) {
+        bar.value = value!.toDouble();
+        bar.maxValue = max!.toDouble();
+        token.applyBars();
+      });
     }
   }
 

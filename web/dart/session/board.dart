@@ -525,23 +525,48 @@ class Board {
       _updateSelectionSizeInherit();
     });
 
-    _addTokenBarButton.onClick.listen((_) {
-      var label = 'HP';
-      if (activeMovable!.bars.any((bar) => bar.label == label)) {
-        final number = activeMovable!.bars.length + 1;
-        label = 'Bar $number';
+    _addTokenBarButton.onClick.listen((_) => _addNewBarToSelectedTokens());
+  }
+
+  void _addNewBarToSelectedTokens() {
+    var label = 'HP';
+    if (activeMovable!.bars.any((bar) => bar.label == label)) {
+      final number = activeMovable!.bars.length + 1;
+      label = 'Bar $number';
+    }
+
+    for (var movable in selected.where((m) => m != activeMovable)) {
+      final hasBarOfName = movable.bars.any((bar) => bar.label == label);
+      if (!hasBarOfName) {
+        movable.bars.add(TokenBar(label: label));
+        movable.applyBars();
       }
+    }
 
-      final bar = TokenBar(label: label);
+    final activeBar = TokenBar(label: label);
+    activeMovable!.bars.add(activeBar);
+    activeMovable!.applyBars();
 
-      activeMovable!.bars.add(bar);
-      activeMovable!.applyBars();
+    final barComponent = SelectionTokenBar(activeMovable!, activeBar);
+    _selectedBars.append(barComponent.htmlRoot);
 
-      final barComponent = SelectionTokenBar(activeMovable!, bar);
-      _selectedBars.append(barComponent.htmlRoot);
+    sendSelectedMovablesUpdate();
+  }
 
-      sendSelectedMovablesUpdate();
-    });
+  void modifySelectedTokenBars(
+    TokenBar originBar,
+    void Function(Movable token, TokenBar bar) modify,
+  ) {
+    modify(activeMovable!, originBar);
+
+    final label = originBar.label;
+
+    for (var movable in selected.where((m) => m != activeMovable)) {
+      final similarBar = movable.bars.find((bar) => bar.label == label);
+      if (similarBar != null) {
+        modify(movable, similarBar);
+      }
+    }
   }
 
   void _listenSelectedLazyUpdate(

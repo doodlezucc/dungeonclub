@@ -5,6 +5,7 @@ import 'package:dungeonclub/models/token_bar.dart';
 import '../html/component.dart';
 import '../html_helpers.dart';
 import '../lazy_input.dart';
+import 'movable.dart';
 import 'selection_token_bar.dart';
 
 class TokenBarConfigPanel extends Component {
@@ -18,7 +19,7 @@ class TokenBarConfigPanel extends Component {
   final Element _visibilityRoot = queryDom('#barConfigVisibility');
   final ButtonElement _removeButton = queryDom('#barRemoveButton');
 
-  SelectionTokenBar? _attachedBar;
+  late SelectionTokenBar _attachedBar;
 
   TokenBarConfigPanel() : super('#barConfiguration') {
     for (var i = 0; i < _visibilityRoot.children.length; i++) {
@@ -30,20 +31,31 @@ class TokenBarConfigPanel extends Component {
     listenLazyUpdate(
       _labelInput,
       onChange: (text) {
-        _attachedBar?.data.label = _labelInput.value!;
-        _attachedBar?.token.applyBars();
-        _attachedBar?.applyDataToInputs();
+        _modifySimilarTokenBars((token, bar) {
+          bar.label = _labelInput.value!;
+          token.applyBars();
+        });
+
+        _attachedBar.applyDataToInputs();
       },
-      onSubmit: (_) => _attachedBar?.submitData(),
+      onSubmit: (_) => _attachedBar.submitData(),
     );
 
     _removeButton.onClick.listen((_) {
+      _modifySimilarTokenBars((token, bar) {
+        token.bars.remove(bar);
+        token.applyBars();
+      });
+
       _attachedBar
-        ?..token.bars.remove(_attachedBar!.data)
         ..htmlRoot.remove()
-        ..token.applyBars()
         ..submitData();
     });
+  }
+
+  void _modifySimilarTokenBars(
+      void Function(Movable token, TokenBar bar) modify) {
+    _attachedBar.token.board.modifySelectedTokenBars(_attachedBar.data, modify);
   }
 
   void attachTo(SelectionTokenBar barComponent) {
@@ -76,11 +88,13 @@ class TokenBarConfigPanel extends Component {
     final visibility = _visibilityButtonOrder[index];
     _applyVisiblity(visibility);
 
-    _attachedBar
-      ?..data.visibility = visibility
-      ..applyVisibilityIcon()
-      ..token.applyBars()
-      ..submitData();
+    _modifySimilarTokenBars((token, bar) {
+      bar.visibility = visibility;
+      token.applyBars();
+    });
+
+    _attachedBar.applyVisibilityIcon();
+    _attachedBar.submitData();
   }
 
   void _applyVisiblity(TokenBarVisibility visibility) {
