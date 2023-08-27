@@ -409,11 +409,11 @@ class InitiativeEntry {
         ..onContextMenu.listen(_onClick))
       ..append(nameText..text = movable.displayName)
       ..onMouseEnter.listen((_) {
-        movable.e.classes.add('hovered');
+        movable.htmlRoot.classes.add('hovered');
         _bufferedModifier = modifier;
       })
       ..onMouseLeave.listen((_) {
-        movable.e.classes.remove('hovered');
+        movable.htmlRoot.classes.remove('hovered');
         if (modifier != _bufferedModifier) {
           _summary!.sort();
           sendUpdate();

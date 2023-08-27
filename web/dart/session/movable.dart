@@ -1,18 +1,21 @@
 import 'dart:html';
 import 'dart:math' as math;
 
+import 'package:dungeonclub/models/entity_base.dart';
 import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/models/token_bar.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:grid_space/grid_space.dart';
 
+import '../html/instance_component.dart';
 import '../html_helpers.dart';
 import 'board.dart';
 import 'condition.dart';
 import 'prefab.dart';
 import 'token_bar_component.dart';
 
-class Movable extends ClampedEntityBase with TokenModel {
+class Movable extends InstanceComponent
+    with EntityBase, ClampedEntityBase, TokenModel {
   @override
   final int id;
   final Board board;
@@ -21,7 +24,6 @@ class Movable extends ClampedEntityBase with TokenModel {
   @override
   String get prefabId => prefab.id;
 
-  final e = DivElement();
   final _aura = DivElement();
   final _barsRoot = UListElement();
   final List<TokenBarComponent> _tokenBars = [];
@@ -59,13 +61,13 @@ class Movable extends ClampedEntityBase with TokenModel {
   @override
   set angle(double angle) {
     super.angle = angle;
-    e.style.setProperty('--angle', '$angle');
+    htmlRoot.style.setProperty('--angle', '$angle');
   }
 
   @override
   set invisible(bool invisible) {
     super.invisible = invisible;
-    e.classes.toggle('invisible', invisible);
+    htmlRoot.classes.toggle('invisible', invisible);
   }
 
   @override
@@ -84,7 +86,7 @@ class Movable extends ClampedEntityBase with TokenModel {
   @override
   set size(int size) {
     super.size = size;
-    e.style.setProperty('--size', '$displaySize');
+    htmlRoot.style.setProperty('--size', '$displaySize');
     applyPosition();
   }
 
@@ -100,8 +102,8 @@ class Movable extends ClampedEntityBase with TokenModel {
     required Point<double>? pos,
     required Iterable<int>? conds,
     bool createTooltip = true,
-  }) {
-    e
+  }) : super(DivElement()) {
+    htmlRoot
       ..className = 'movable'
       ..append(_aura..className = 'aura')
       ..append(DivElement()..className = 'ring')
@@ -110,7 +112,7 @@ class Movable extends ClampedEntityBase with TokenModel {
       ..append(_barsRoot..className = 'bars');
 
     if (createTooltip) {
-      e.append(board.transform.registerInvZoom(
+      htmlRoot.append(board.transform.registerInvZoom(
         SpanElement()..className = 'toast',
         scaleByCell: true,
       ));
@@ -188,7 +190,7 @@ class Movable extends ClampedEntityBase with TokenModel {
     final pos = board.grid.grid.gridToWorldSpace(position);
     board.updateSnapToGrid();
 
-    e.style
+    htmlRoot.style
       ..setProperty('--x', '${pos.x}px')
       ..setProperty('--y', '${pos.y}px');
   }
@@ -203,21 +205,21 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   void updateTooltip() {
-    e.queryDom('.toast').text = displayName;
+    htmlRoot.queryDom('.toast').text = displayName;
   }
 
   void onPrefabUpdate() {
     if (size == 0) {
-      e.style.setProperty('--size', '$displaySize');
+      htmlRoot.style.setProperty('--size', '$displaySize');
       applyPosition();
     }
-    e.classes.toggle('accessible', accessible);
+    htmlRoot.classes.toggle('accessible', accessible);
     updateTooltip();
   }
 
   void applyImage() {
     final img = prefab.image!.url;
-    e.queryDom('.img').style.backgroundImage = 'url($img)';
+    htmlRoot.queryDom('.img').style.backgroundImage = 'url($img)';
   }
 
   void roundToGrid() {
@@ -238,7 +240,7 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   void _applyConds() {
-    var container = e.queryDom('.conds');
+    var container = htmlRoot.queryDom('.conds');
     for (var child in List<Element>.from(container.children)) {
       child.remove();
     }
@@ -260,15 +262,15 @@ class Movable extends ClampedEntityBase with TokenModel {
     board.movables.remove(this);
     board.initiativeTracker.onRemove(this);
 
-    e.classes.add('animate-remove');
+    htmlRoot.classes.add('animate-remove');
     await Future.delayed(Duration(milliseconds: 500));
 
-    final toast = e.querySelector('.toast');
+    final toast = htmlRoot.querySelector('.toast');
     if (toast != null) {
       board.transform.unregisterInvZoom(toast);
     }
 
-    e.remove();
+    htmlRoot.remove();
   }
 
   Map<String, dynamic> toCloneJson() => {
@@ -324,7 +326,7 @@ class EmptyMovable extends Movable {
           conds: conds,
           createTooltip: false,
         ) {
-    e
+    htmlRoot
       ..classes.add('empty')
       ..append(_labelSpan = SpanElement());
   }

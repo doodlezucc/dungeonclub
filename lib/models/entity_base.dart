@@ -1,9 +1,7 @@
-abstract class EntityBase {
-  int size;
+mixin EntityBase {
+  late int size;
 
   int get jsonFallbackSize;
-
-  EntityBase({this.size = 1});
 
   void fromJson(Map<String, dynamic> json) {
     size = json['size'] ?? jsonFallbackSize;

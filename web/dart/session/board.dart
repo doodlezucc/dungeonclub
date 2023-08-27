@@ -165,7 +165,7 @@ class Board {
       // element gets moved or removed
       _selectedLabel.blur();
       _selectedSize.blur();
-      previousActiveMovable.e.classes.remove('active');
+      previousActiveMovable.htmlRoot.classes.remove('active');
     }
 
     if (activeMovable != null && !activeMovable.accessible) {
@@ -174,7 +174,7 @@ class Board {
     _activeMovable = activeMovable;
 
     if (activeMovable != null) {
-      activeMovable.e.classes.add('active');
+      activeMovable.htmlRoot.classes.add('active');
 
       // Assign current values to HTML inputs
       var nicknamePrefix = '';
@@ -401,7 +401,7 @@ class Board {
         activeMovable == null || !movables.any((m) => selected.contains(m));
 
     movables.forEach((m) {
-      if (m.e.classes.toggle('selected', state)) {
+      if (m.htmlRoot.classes.toggle('selected', state)) {
         selected.add(m);
       } else {
         selected.remove(m);
@@ -461,7 +461,7 @@ class Board {
 
   void _deselectAll() {
     for (var m in selected) {
-      m.e.classes.remove('selected');
+      m.htmlRoot.classes.remove('selected');
     }
     selected.clear();
     activeMovable = null;
@@ -737,7 +737,7 @@ class Board {
               if (movableElem != null) {
                 // Move clicked/selected token(s)
                 for (var mv in movables) {
-                  if (mv.e == movableElem) {
+                  if (mv.htmlRoot == movableElem) {
                     clickedMovable = mv;
                     break;
                   }
@@ -972,7 +972,7 @@ class Board {
 
     void setCssTransitionEnabled(bool enable) {
       for (var mv in affected) {
-        mv.e.classes.toggle('no-animate-move', !enable);
+        mv.htmlRoot.classes.toggle('no-animate-move', !enable);
       }
     }
 
@@ -998,7 +998,7 @@ class Board {
     moveStream.listen((ev) {
       if (!movedOnce) {
         movedOnce = true;
-        if (!clicked.e.classes.contains('selected') && !first.shift) {
+        if (!clicked.htmlRoot.classes.contains('selected') && !first.shift) {
           _deselectAll();
           affected = {clicked};
         }
@@ -1211,7 +1211,7 @@ class Board {
 
   void clear() {
     _deselectAll();
-    movables.forEach((m) => m.e.remove());
+    movables.forEach((m) => m.dispose());
     movables.clear();
   }
 
@@ -1275,7 +1275,7 @@ class Board {
 
       dest.add(m);
       movables.add(m);
-      grid.e.append(m.e);
+      grid.e.append(m.htmlRoot);
     }
     _deselectAll();
     _syncMovableAnim();
@@ -1302,7 +1302,7 @@ class Board {
     m.label = generateNewLabel(m, movables);
 
     movables.add(m);
-    grid.e.append(m.e);
+    grid.e.append(m.htmlRoot);
     _syncMovableAnim();
     updateRerollableInitiatives();
     return m;
@@ -1329,7 +1329,7 @@ class Board {
       id: json['id'],
     )..fromJson(json);
     movables.add(m);
-    grid.e.append(m.e);
+    grid.e.append(m.htmlRoot);
   }
 
   void onUpdatePrefabImage(Prefab p) {

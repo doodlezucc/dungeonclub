@@ -48,7 +48,7 @@ set selectedPrefab(Prefab? p) {
 
   _selectedPrefab = p;
   _palette.querySelectorAll('.prefab.selected').classes.remove('selected');
-  p?.e.classes.add('selected');
+  p?.htmlRoot.classes.add('selected');
 
   _prefabProperties.classes.toggle('disabled', p == null);
 
@@ -138,10 +138,10 @@ void initMovableManager(Iterable jList) {
 void _initPrefabPalette() {
   for (var pc in user.session!.characters) {
     pcPrefabs.add(pc.prefab);
-    _pcPrefs.append(pc.prefab.e);
+    _pcPrefs.append(pc.prefab.htmlRoot);
   }
 
-  _otherPrefs.nodes.insert(0, emptyPrefab.e);
+  _otherPrefs.nodes.insert(0, emptyPrefab.htmlRoot);
 
   _addPref.onLMB.listen(createPrefab);
   _palette.queryDom('#paletteCollapse').onClick.listen((_) {
@@ -154,10 +154,11 @@ void _copyStyleProp(String name, Element a, Element b) {
 }
 
 void imitateMovableGhost(Movable m) {
-  _copyStyleProp('--x', m.e, _movableGhost);
-  _copyStyleProp('--y', m.e, _movableGhost);
-  _copyStyleProp('--size', m.e, _movableGhost);
-  _copyStyleProp('--angle', m.e, _movableGhost);
+  final srcElement = m.htmlRoot;
+  _copyStyleProp('--x', srcElement, _movableGhost);
+  _copyStyleProp('--y', srcElement, _movableGhost);
+  _copyStyleProp('--size', srcElement, _movableGhost);
+  _copyStyleProp('--angle', srcElement, _movableGhost);
   _movableGhost.classes.toggle('empty', m is EmptyMovable);
 
   final img = m.prefab.image?.url;
@@ -318,7 +319,7 @@ CustomPrefab onPrefabCreate(Map<String, dynamic> json) {
 
 void _postPrefabCreate(CustomPrefab p) {
   prefabs.add(p);
-  _otherPrefs.insertBefore(p.e, _addPref);
+  _otherPrefs.insertBefore(p.htmlRoot, _addPref);
   _updateAddButton();
 }
 
@@ -340,7 +341,7 @@ void onPrefabUpdate(Map<String, dynamic> json) {
 }
 
 void onPrefabRemove(Prefab prefab) {
-  prefab.e.remove();
+  prefab.dispose();
   user.session!.board.clipboard.removeWhere((m) => m.prefab == prefab);
   user.session!.board.movables.toList().forEach((m) {
     if (m.prefab == prefab) {
