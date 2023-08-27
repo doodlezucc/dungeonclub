@@ -20,7 +20,13 @@ class SelectionTokenBar extends InstanceComponent {
   late InputElement _valueInput;
   late InputElement _maxInput;
 
-  SelectionTokenBar(this.token, this.data) : super(LIElement()) {
+  double _previousValue;
+  double _previousMaxValue;
+
+  SelectionTokenBar(this.token, this.data)
+      : _previousValue = data.value,
+        _previousMaxValue = data.maxValue,
+        super(LIElement()) {
     htmlRoot
       ..classes = ['token-bar-mini', 'list-setting']
       ..append(_clickableContainer = SpanElement()
@@ -53,7 +59,7 @@ class SelectionTokenBar extends InstanceComponent {
       onSubmit: (_) => submitData(),
     );
 
-    _valueInput.listenLazyUpdate(
+    _maxInput.listenLazyUpdate(
       onChange: (_) => _applyInputsToData(),
       onSubmit: (_) => submitData(),
     );
@@ -88,17 +94,39 @@ class SelectionTokenBar extends InstanceComponent {
   }
 
   void _applyInputsToData() {
-    final value = _valueInput.valueAsNumber;
-    final max = _maxInput.valueAsNumber;
+    final valueRaw = _valueInput.valueAsNumber;
+    final maxRaw = _maxInput.valueAsNumber;
 
-    if (_isValidNumber(value) && _isValidNumber(max)) {
+    if (_isValidNumber(valueRaw) && _isValidNumber(maxRaw)) {
+      final value = valueRaw!.toDouble();
+      final max = maxRaw!.toDouble();
+
+      final valueDiff = value - _previousValue;
+      final maxDiff = max - _previousMaxValue;
+
+      final affectValueInsteadOfMax = valueDiff != 0;
+
       token.board.modifySelectedTokenBars(data, (token, bar) {
-        bar.value = value!.toDouble();
-        bar.maxValue = max!.toDouble();
+        if (affectValueInsteadOfMax) {
+          if (valueDiff.abs() <= 1.0) {
+            bar.value += valueDiff;
+          } else {
+            bar.value = value;
+          }
+        } else {
+          if (maxDiff.abs() <= 1.0) {
+            bar.maxValue += maxDiff;
+          } else {
+            bar.maxValue = max;
+          }
+        }
 
         final component = token.getTokenBarComponent(bar);
         component.applyData();
       });
+
+      _previousValue = value;
+      _previousMaxValue = max;
     }
   }
 
