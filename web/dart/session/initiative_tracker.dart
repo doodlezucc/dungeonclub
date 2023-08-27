@@ -3,6 +3,7 @@ import 'dart:html';
 import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/models/entity_base.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -237,7 +238,9 @@ class InitiativeTracker {
     for (var entry in _summary!.entries) {
       if (entry.movable.id == id) {
         var prefab = entry.movable.prefab;
-        if (prefab is HasInitiativeMod) prefab.initiativeMod = mod;
+        if (prefab is HasInitiativeMod) {
+          (prefab as HasInitiativeMod).mod = mod;
+        }
 
         entry.modifier = mod;
         return _summary!.sort();
@@ -385,7 +388,7 @@ class InitiativeEntry {
 
     var pref = movable.prefab;
     if (pref is HasInitiativeMod) {
-      pref.initiativeMod = modifier;
+      (pref as HasInitiativeMod).mod = modifier;
     }
   }
 
@@ -420,7 +423,7 @@ class InitiativeEntry {
     this.dmOnly = dmOnly;
     var pref = movable.prefab;
     if (pref is HasInitiativeMod) {
-      modifier = pref.initiativeMod;
+      modifier = (pref as HasInitiativeMod).mod;
     } else {
       modifier = 0;
     }

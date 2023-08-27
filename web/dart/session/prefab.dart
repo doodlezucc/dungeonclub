@@ -87,16 +87,6 @@ class EmptyPrefab extends Prefab {
   }
 }
 
-mixin HasInitiativeMod on Prefab {
-  int initiativeMod = 0;
-
-  @override
-  void fromJson(Map<String, dynamic> json) {
-    super.fromJson(json);
-    initiativeMod = json['mod'] ?? 0;
-  }
-}
-
 mixin ChangeableName on Prefab {
   String _name = '';
 
