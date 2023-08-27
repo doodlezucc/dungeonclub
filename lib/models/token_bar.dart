@@ -23,6 +23,7 @@ enum TokenBarVisibility {
 
 class TokenBar {
   String label = '';
+  int hue = 0;
   double value = 25;
   double maxValue = 0;
 
@@ -35,6 +36,7 @@ class TokenBar {
 
   void fromJson(Map<String, dynamic> json) {
     label = json['label'];
+    hue = (json['hue'] as num).toInt();
     value = (json['value'] as num).toDouble();
     maxValue = (json['maxValue'] as num).toDouble();
     visibility = TokenBarVisibility.parse(json['visibility']);
@@ -42,6 +44,7 @@ class TokenBar {
 
   Map<String, dynamic> toJson() => {
         'label': label,
+        'hue': hue,
         'value': value,
         'maxValue': maxValue,
         'visibility': visibility.id,

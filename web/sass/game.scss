@@ -1104,12 +1104,13 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
     justify-content: center;
     opacity: 0.7;
     --progress: 0.4;
+    --hue: 0;
 
     > .bar-fill {
         height: 100%;
         width: calc(var(--progress) * 100%);
         margin-right: auto;
-        background-color: #ec4040;
+        background-color: hsl(var(--hue), 82%, 59%);
     }
 
     span {
