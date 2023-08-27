@@ -53,7 +53,6 @@ final _selectedLabelPrefix =
 final _selectedLabel = _selectedLabelWrapper.children.last as InputElement;
 final InputElement _selectedSize = queryDom('#movableSize');
 final InputElement _selectedAura = queryDom('#movableAura');
-final HtmlElement _selectedBars = queryDom('#selectionBars');
 final ButtonElement _addTokenBarButton = queryDom('#barAddButton');
 final ButtonElement _selectedInvisible = queryDom('#movableInvisible');
 final ButtonElement _selectedRemove = queryDom('#movableRemove');
@@ -72,6 +71,8 @@ class Board {
   final selected = SelectionSystem<Movable>();
   final fogOfWar = FogOfWar();
   final initiativeTracker = InitiativeTracker();
+  final selectedBars =
+      InstanceList<SelectionTokenBar>(queryDom('#selectionBars'));
   late SelectionConditions _selectionConditions;
   List<Movable> clipboard = [];
 
@@ -207,10 +208,9 @@ class Board {
 
       _selectionConditions.onActiveTokenChange(activeMovable);
 
-      _selectedBars.children.clear();
+      selectedBars.clear();
       for (final bar in activeMovable.bars) {
-        final barComponent = SelectionTokenBar(activeMovable, bar);
-        _selectedBars.append(barComponent.htmlRoot);
+        selectedBars.add(SelectionTokenBar(activeMovable, bar));
       }
     }
 
@@ -553,7 +553,7 @@ class Board {
     activeMovable!.createTokenBarComponent(activeBar);
 
     final barComponent = SelectionTokenBar(activeMovable!, activeBar);
-    _selectedBars.append(barComponent.htmlRoot);
+    selectedBars.add(barComponent);
 
     sendSelectedMovablesUpdate();
   }

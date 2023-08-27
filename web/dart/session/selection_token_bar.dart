@@ -2,14 +2,14 @@ import 'dart:html';
 
 import 'package:dungeonclub/models/token_bar.dart';
 
-import '../html/component.dart';
 import '../html/input_soft_limits.dart';
+import '../html/instance_component.dart';
 import '../html_helpers.dart';
 import '../lazy_input.dart';
 import 'movable.dart';
 import 'selection_token_bar_config.dart';
 
-class SelectionTokenBar extends Component {
+class SelectionTokenBar extends InstanceComponent {
   static final panel = TokenBarConfigPanel();
 
   final Movable token;
@@ -21,7 +21,7 @@ class SelectionTokenBar extends Component {
   late InputElement _valueInput;
   late InputElement _maxInput;
 
-  SelectionTokenBar(this.token, this.data) : super.element(LIElement()) {
+  SelectionTokenBar(this.token, this.data) : super(LIElement()) {
     htmlRoot
       ..classes = ['token-bar-mini', 'list-setting']
       ..append(_clickableContainer = SpanElement()

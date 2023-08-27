@@ -50,7 +50,7 @@ class TokenBarConfigPanel extends Component {
       });
 
       _attachedBar
-        ..htmlRoot.remove()
+        ..token.board.selectedBars.remove(_attachedBar)
         ..submitData();
     });
   }

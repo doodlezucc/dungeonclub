@@ -20,4 +20,12 @@ class InstanceList<E extends InstanceComponent> extends ReactiveList<E> {
     value.dispose(this);
     super.remove(value);
   }
+
+  @override
+  void clear() {
+    for (final instance in this) {
+      instance.dispose(this);
+    }
+    super.clear();
+  }
 }
