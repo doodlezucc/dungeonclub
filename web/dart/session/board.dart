@@ -395,7 +395,6 @@ class Board {
         activeMovable == null || !movables.any((m) => selected.contains(m));
 
     movables.forEach((m) {
-      m.styleSelected = doSelect;
       if (doSelect) {
         selected.add(m);
       } else {
@@ -461,9 +460,6 @@ class Board {
   }
 
   void _deselectAll() {
-    for (var m in selected) {
-      m.styleSelected = false;
-    }
     selected.clear();
     selectedPrefab = null;
   }

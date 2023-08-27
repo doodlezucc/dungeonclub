@@ -34,7 +34,7 @@ class TokenBarComponent extends InstanceComponent {
 
   void _onActiveMovableChange(Movable? activeToken) {
     final isDM = token.board.session.isDM;
-    final isTokenSelected = token.styleSelected;
+    final isTokenSelected = token.board.selected.contains(token);
 
     if (!isDM || activeToken == null || !isTokenSelected) {
       highlight = false;

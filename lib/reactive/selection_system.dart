@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:dungeonclub/reactive/set.dart';
 
 class SelectionSystem<E> extends ReactiveSet<E> {
@@ -16,6 +17,11 @@ class SelectionSystem<E> extends ReactiveSet<E> {
   final _activeController =
       StreamController<SetActiveEvent<E>>.broadcast(sync: true);
   Stream<SetActiveEvent<E>> get onSetActive => _activeController.stream;
+
+  Stream<bool> observe(E element) => StreamGroup.merge([
+        onAdd.where((e) => e == element).map((_) => true),
+        onRemove.where((e) => e == element).map((_) => false),
+      ]);
 
   @override
   void clear() {

@@ -168,6 +168,13 @@ class Movable extends InstanceComponent
         board: board, prefab: prefab, id: id, pos: pos, conds: conds);
   }
 
+  @override
+  List<StreamSubscription> initializeListeners() => [
+        board.selected
+            .observe(this)
+            .listen((selected) => this.styleSelected = selected)
+      ];
+
   TokenBarComponent getTokenBarComponent(TokenBar data) {
     return barInstances.firstWhere((bar) => bar.data == data);
   }
