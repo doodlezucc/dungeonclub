@@ -201,11 +201,24 @@ class Movable extends InstanceComponent
     barInstances.add(component);
   }
 
+  bool _doDisplayTokenBar(TokenBar bar) {
+    switch (bar.visibility) {
+      case TokenBarVisibility.VISIBLE_TO_ALL:
+        return true;
+      case TokenBarVisibility.VISIBLE_TO_OWNERS:
+        return accessible;
+      case TokenBarVisibility.HIDDEN:
+        return board.session.isDM;
+    }
+  }
+
   void _createBarComponents() {
     barInstances.clear();
 
     for (final bar in bars) {
-      createTokenBarComponent(bar);
+      if (_doDisplayTokenBar(bar)) {
+        createTokenBarComponent(bar);
+      }
     }
 
     _onActiveTokenChange(board.activeMovable);

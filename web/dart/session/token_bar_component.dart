@@ -41,15 +41,4 @@ class TokenBarComponent extends InstanceComponent {
     _labelElement.text = data.label;
     _valueElement.text = valueText;
   }
-
-  bool get doDisplayTokenBar {
-    switch (data.visibility) {
-      case TokenBarVisibility.VISIBLE_TO_ALL:
-        return true;
-      case TokenBarVisibility.VISIBLE_TO_OWNERS:
-        return token.accessible;
-      case TokenBarVisibility.HIDDEN:
-        return token.board.session.isDM;
-    }
-  }
 }
