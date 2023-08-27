@@ -71,6 +71,23 @@ class Movable extends InstanceComponent
     htmlRoot.classes.toggle('invisible', invisible);
   }
 
+  set styleActive(bool value) {
+    htmlRoot.classes.toggle('active', value);
+  }
+
+  bool get styleSelected => htmlRoot.classes.contains('selected');
+  set styleSelected(bool value) {
+    htmlRoot.classes.toggle('selected', value);
+  }
+
+  set styleHovered(bool value) {
+    htmlRoot.classes.toggle('hovered', value);
+  }
+
+  set stylePreventTransition(bool value) {
+    htmlRoot.classes.toggle('no-animate-move', value);
+  }
+
   @override
   set auraRadius(double auraRadius) {
     super.auraRadius = auraRadius;

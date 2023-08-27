@@ -166,7 +166,7 @@ class Board {
       // element gets moved or removed
       _selectedLabel.blur();
       _selectedSize.blur();
-      previousActiveMovable.htmlRoot.classes.remove('active');
+      previousActiveMovable.styleActive = false;
     }
 
     if (activeMovable != null && !activeMovable.accessible) {
@@ -175,7 +175,7 @@ class Board {
     _activeMovable = activeMovable;
 
     if (activeMovable != null) {
-      activeMovable.htmlRoot.classes.add('active');
+      activeMovable.styleActive = true;
 
       // Assign current values to HTML inputs
       var nicknamePrefix = '';
@@ -398,11 +398,12 @@ class Board {
       _deselectAll();
     }
 
-    state ??=
+    final doSelect = state ??
         activeMovable == null || !movables.any((m) => selected.contains(m));
 
     movables.forEach((m) {
-      if (m.htmlRoot.classes.toggle('selected', state)) {
+      m.styleSelected = doSelect;
+      if (doSelect) {
         selected.add(m);
       } else {
         selected.remove(m);
@@ -411,7 +412,7 @@ class Board {
       }
     });
 
-    if (state && movables.length == 1) {
+    if (doSelect && movables.length == 1) {
       activeMovable = movables.first;
     }
     updateSnapToGrid();
@@ -462,7 +463,7 @@ class Board {
 
   void _deselectAll() {
     for (var m in selected) {
-      m.htmlRoot.classes.remove('selected');
+      m.styleSelected = false;
     }
     selected.clear();
     activeMovable = null;
@@ -973,7 +974,7 @@ class Board {
 
     void setCssTransitionEnabled(bool enable) {
       for (var mv in affected) {
-        mv.htmlRoot.classes.toggle('no-animate-move', !enable);
+        mv.stylePreventTransition = !enable;
       }
     }
 
@@ -999,7 +1000,7 @@ class Board {
     moveStream.listen((ev) {
       if (!movedOnce) {
         movedOnce = true;
-        if (!clicked.htmlRoot.classes.contains('selected') && !first.shift) {
+        if (!clicked.styleSelected && !first.shift) {
           _deselectAll();
           affected = {clicked};
         }
@@ -1275,7 +1276,6 @@ class Board {
 
       dest.add(m);
       movables.add(m);
-      grid.e.append(m.htmlRoot);
     }
     _deselectAll();
     _syncMovableAnim();
@@ -1302,7 +1302,6 @@ class Board {
     m.label = generateNewLabel(m, movables);
 
     movables.add(m);
-    grid.e.append(m.htmlRoot);
     _syncMovableAnim();
     updateRerollableInitiatives();
     return m;
@@ -1329,7 +1328,6 @@ class Board {
       id: json['id'],
     )..fromJson(json);
     movables.add(m);
-    grid.e.append(m.htmlRoot);
   }
 
   void onUpdatePrefabImage(Prefab p) {
