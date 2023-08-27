@@ -191,52 +191,6 @@
             }
         }
 
-        > .prefab-selection {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            transition: opacity 0.1s;
-        }
-
-        .prefab-container {
-            padding: 1px;
-            gap: 1px;
-
-            > * {
-                width: 36px;
-                height: 36px;
-                transition-duration: 0.2s;
-                transition-timing-function: cubic-bezier(0.23, 1, 0.320, 1);
-
-                &:active {
-                    transform: scale(0.9) !important;
-                }
-            }
-
-            > .prefab {
-                @extend %with-tooltip;
-                @include base.center-background;
-                cursor: pointer;
-                opacity: 0.5;
-                box-sizing: border-box;
-                border: 2px solid transparent;
-                align-items: center;
-                font-size: 20px;
-
-                &.selected {
-                    opacity: 1;
-                    border: 2px solid var(--color-note);
-                }
-                &:not(.selected) {
-                    transform: scale(0.95);
-
-                    &:hover {
-                        opacity: 1;
-                    }
-                }
-            }
-        }
-
         #prefabImage {
             width: 80px;
             height: 80px;
@@ -428,6 +382,52 @@
     }
     &:not([mode="fow"]) {
         #polymaskWrapper { pointer-events: none; opacity: 0.85; }
+    }
+}
+
+.prefab {
+    @extend %with-tooltip;
+    @include base.center-background;
+    cursor: pointer;
+    opacity: 0.5;
+    box-sizing: border-box;
+    border: 2px solid transparent;
+    align-items: center;
+    font-size: 20px;
+
+    &.selected {
+        opacity: 1;
+        border: 2px solid var(--color-note);
+    }
+    &:not(.selected) {
+        transform: scale(0.95);
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+.prefab-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: opacity 0.1s;
+}
+
+.prefab-container {
+    padding: 1px;
+    gap: 1px;
+
+    > *, > .wrapper > * {
+        width: 36px;
+        height: 36px;
+        transition-duration: 0.2s;
+        transition-timing-function: cubic-bezier(0.23, 1, 0.320, 1);
+
+        &:active {
+            transform: scale(0.9) !important;
+        }
     }
 }
 

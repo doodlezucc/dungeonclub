@@ -7,6 +7,7 @@ import 'package:dungeonclub/point_json.dart';
 import '../main.dart';
 import 'panels/upload.dart';
 import 'session/log.dart';
+import 'session/prefab.dart';
 import 'session/prefab_palette.dart';
 import 'session/roll_dice.dart';
 
@@ -75,7 +76,7 @@ Future<dynamic> handleAction(String action, Map<String, dynamic> params) async {
       return onPrefabUpdate(params);
 
     case GAME_PREFAB_REMOVE:
-      return onPrefabRemove(getPrefab(params['prefab'])!);
+      return onPrefabRemove(getPrefab(params['prefab']) as CustomPrefab);
 
     case GAME_MAP_CREATE:
       return user.session?.board.mapTab

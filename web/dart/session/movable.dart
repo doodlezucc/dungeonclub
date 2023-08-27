@@ -256,8 +256,8 @@ class Movable extends InstanceComponent
     _applyConds();
   }
 
-  void onRemove() async {
-    board.movables.remove(this);
+  @override
+  void dispose(InstanceList list) async {
     board.initiativeTracker.onRemove(this);
 
     htmlRoot.classes.add('animate-remove');
@@ -268,7 +268,7 @@ class Movable extends InstanceComponent
       board.transform.unregisterInvZoom(toast);
     }
 
-    htmlRoot.remove();
+    super.dispose(list);
   }
 
   Map<String, dynamic> toCloneJson() => {

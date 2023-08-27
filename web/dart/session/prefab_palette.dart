@@ -9,6 +9,7 @@ import 'package:dungeonclub/session_util.dart';
 import '../../main.dart';
 import '../communication.dart';
 import '../edit_image.dart';
+import '../html/instance_list.dart';
 import '../html_helpers.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
@@ -35,8 +36,8 @@ final UListElement _prefabAccess = queryDom('#prefabAccess');
 final HtmlElement _prefabAccessSpan = queryDom('#prefabAccessSpan');
 final ButtonElement _prefabRemove = queryDom('#prefabRemove');
 
-final List<CharacterPrefab> pcPrefabs = [];
-final List<CustomPrefab> prefabs = [];
+final pcPrefabs = InstanceList<CharacterPrefab>(_pcPrefs);
+final prefabs = InstanceList<CustomPrefab>(_otherPrefs);
 final emptyPrefab = EmptyPrefab();
 
 final Map<Character, LIElement> _accessEntries = {};
@@ -138,10 +139,9 @@ void initMovableManager(Iterable jList) {
 void _initPrefabPalette() {
   for (var pc in user.session!.characters) {
     pcPrefabs.add(pc.prefab);
-    _pcPrefs.append(pc.prefab.htmlRoot);
   }
 
-  _otherPrefs.nodes.insert(0, emptyPrefab.htmlRoot);
+  _otherPrefs.parent!.nodes.insert(1, emptyPrefab.htmlRoot);
 
   _addPref.onLMB.listen(createPrefab);
   _palette.queryDom('#paletteCollapse').onClick.listen((_) {
@@ -319,7 +319,6 @@ CustomPrefab onPrefabCreate(Map<String, dynamic> json) {
 
 void _postPrefabCreate(CustomPrefab p) {
   prefabs.add(p);
-  _otherPrefs.insertBefore(p.htmlRoot, _addPref);
   _updateAddButton();
 }
 
@@ -340,12 +339,11 @@ void onPrefabUpdate(Map<String, dynamic> json) {
   }
 }
 
-void onPrefabRemove(Prefab prefab) {
-  prefab.dispose();
+void onPrefabRemove(CustomPrefab prefab) {
   user.session!.board.clipboard.removeWhere((m) => m.prefab == prefab);
   user.session!.board.movables.toList().forEach((m) {
     if (m.prefab == prefab) {
-      m.onRemove();
+      user.session!.board.movables.remove(m);
     }
   });
   prefabs.remove(prefab);

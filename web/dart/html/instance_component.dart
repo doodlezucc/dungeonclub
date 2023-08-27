@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:html';
 
 import 'component.dart';
+import 'instance_list.dart';
 
 abstract class InstanceComponent<T extends Element> extends Component<T> {
   late List<StreamSubscription> _listeners;
@@ -12,7 +13,7 @@ abstract class InstanceComponent<T extends Element> extends Component<T> {
 
   List<StreamSubscription> initializeListeners() => [];
 
-  void dispose() {
+  void dispose(InstanceList list) {
     htmlRoot.remove();
 
     for (var listener in _listeners) {

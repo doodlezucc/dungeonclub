@@ -26,6 +26,14 @@ class ReactiveList<E> extends Iterable<E> {
     }
   }
 
+  int indexOf(E element) {
+    return _list.indexOf(element);
+  }
+
   @override
   Iterator<E> get iterator => _list.iterator;
+
+  operator [](int index) {
+    return _list[index];
+  }
 }

@@ -83,6 +83,7 @@ class EmptyPrefab extends Prefab {
   String get iconId => 'pen';
 
   EmptyPrefab() : super(null) {
+    size = 1;
     htmlRoot.append(icon(iconId));
     applyName();
   }

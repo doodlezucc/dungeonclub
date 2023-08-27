@@ -12,6 +12,7 @@ import 'package:dungeonclub/session_util.dart';
 import 'package:grid_space/grid_space.dart';
 
 import '../communication.dart';
+import '../html/instance_list.dart';
 import '../html_helpers.dart';
 import '../html_transform.dart';
 import '../lazy_input.dart';
@@ -66,7 +67,7 @@ class Board {
   final Session session;
   final grid = SceneGrid();
   final mapTab = MapTab();
-  final movables = <Movable>[];
+  late final movables = InstanceList<Movable>(grid.e);
   final selected = <Movable>{};
   final fogOfWar = FogOfWar();
   final initiativeTracker = InitiativeTracker();
@@ -434,7 +435,7 @@ class Board {
     });
 
     for (var m in selected) {
-      m.onRemove();
+      movables.remove(m);
       if (m == activeMovable) {
         activeMovable = null;
       }
@@ -1211,7 +1212,6 @@ class Board {
 
   void clear() {
     _deselectAll();
-    movables.forEach((m) => m.dispose());
     movables.clear();
   }
 
@@ -1367,7 +1367,7 @@ class Board {
         if (selected.contains(m)) {
           toggleSelect([m], additive: true, state: false);
         }
-        m.onRemove();
+        movables.remove(m);
       });
 
   void onMovablesUpdate(json) {

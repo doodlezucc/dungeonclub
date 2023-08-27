@@ -17,7 +17,7 @@ class InstanceList<E extends InstanceComponent> extends ReactiveList<E> {
 
   @override
   void remove(E value) {
-    value.dispose();
+    value.dispose(this);
     super.remove(value);
   }
 }
