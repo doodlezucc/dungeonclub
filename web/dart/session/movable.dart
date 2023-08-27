@@ -168,25 +168,6 @@ class Movable extends InstanceComponent
         board: board, prefab: prefab, id: id, pos: pos, conds: conds);
   }
 
-  @override
-  List<StreamSubscription> initializeListeners() => [
-        board.selected.onSetActive.listen((event) {
-          _onActiveTokenChange(event.active);
-        }),
-      ];
-
-  void _onActiveTokenChange(Movable? activeToken) {
-    for (final component in barInstances) {
-      if (activeToken != null) {
-        component.highlight = activeToken.bars.any(
-          (activeBar) => activeBar.label == component.data.label,
-        );
-      } else {
-        component.highlight = false;
-      }
-    }
-  }
-
   TokenBarComponent getTokenBarComponent(TokenBar data) {
     return barInstances.firstWhere((bar) => bar.data == data);
   }
@@ -220,8 +201,6 @@ class Movable extends InstanceComponent
         createTokenBarComponent(bar);
       }
     }
-
-    _onActiveTokenChange(board.activeMovable);
   }
 
   void applyPosition() {

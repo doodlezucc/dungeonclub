@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 
 import 'package:dungeonclub/models/token_bar.dart';
@@ -23,6 +24,26 @@ class TokenBarComponent extends InstanceComponent {
       ..append(_valueElement = SpanElement()..className = 'token-bar-value');
 
     applyData();
+  }
+
+  @override
+  List<StreamSubscription> initializeListeners() => [
+        token.board.selected.onSetActive
+            .listen((event) => _onActiveMovableChange(event.active)),
+      ];
+
+  void _onActiveMovableChange(Movable? activeToken) {
+    final isDM = token.board.session.isDM;
+    final isTokenSelected = token.styleSelected;
+
+    if (!isDM || activeToken == null || !isTokenSelected) {
+      highlight = false;
+      return;
+    }
+
+    highlight = activeToken.bars.any(
+      (activeBar) => activeBar.label == data.label,
+    );
   }
 
   void applyData() {
