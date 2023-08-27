@@ -113,6 +113,9 @@ class Movable extends InstanceComponent
   Point<double> get topLeft =>
       position - Point(0.5 * displaySize, 0.5 * displaySize);
 
+  Point<double> get positionScreenSpace =>
+      board.grid.grid.gridToWorldSpace(position);
+
   Movable._({
     required this.board,
     required this.prefab,
@@ -202,7 +205,7 @@ class Movable extends InstanceComponent
   }
 
   void applyPosition() {
-    final pos = board.grid.grid.gridToWorldSpace(position);
+    final pos = positionScreenSpace;
     board.updateSnapToGrid();
 
     htmlRoot.style

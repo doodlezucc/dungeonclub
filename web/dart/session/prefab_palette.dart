@@ -149,16 +149,14 @@ void _initPrefabPalette() {
   });
 }
 
-void _copyStyleProp(String name, Element a, Element b) {
-  b.style.setProperty(name, a.style.getPropertyValue(name));
-}
-
 void imitateMovableGhost(Movable m) {
-  final srcElement = m.htmlRoot;
-  _copyStyleProp('--x', srcElement, _movableGhost);
-  _copyStyleProp('--y', srcElement, _movableGhost);
-  _copyStyleProp('--size', srcElement, _movableGhost);
-  _copyStyleProp('--angle', srcElement, _movableGhost);
+  final screenPosition = m.positionScreenSpace;
+  _movableGhost.style
+    ..setProperty('--x', '${screenPosition.x}px')
+    ..setProperty('--y', '${screenPosition.y}px')
+    ..setProperty('--size', '${m.displaySize}')
+    ..setProperty('--angle', '${m.angle}');
+
   _movableGhost.classes.toggle('empty', m is EmptyMovable);
 
   final img = m.prefab.image?.url;
