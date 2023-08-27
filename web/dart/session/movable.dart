@@ -8,6 +8,7 @@ import 'package:dungeonclub/point_json.dart';
 import 'package:grid_space/grid_space.dart';
 
 import '../html/instance_component.dart';
+import '../html/instance_list.dart';
 import '../html_helpers.dart';
 import 'board.dart';
 import 'condition.dart';
@@ -26,7 +27,7 @@ class Movable extends InstanceComponent
 
   final _aura = DivElement();
   final _barsRoot = UListElement();
-  final List<TokenBarComponent> _tokenBars = [];
+  late final barInstances = InstanceList<TokenBarComponent>(_barsRoot);
 
   String get name => prefab.name;
 
@@ -147,13 +148,13 @@ class Movable extends InstanceComponent
   }
 
   TokenBarComponent getTokenBarComponent(TokenBar data) {
-    return _tokenBars.firstWhere((bar) => bar.data == data);
+    return barInstances.firstWhere((bar) => bar.data == data);
   }
 
   void onActiveTokenChange() {
     final activeToken = board.activeMovable;
 
-    for (final component in _tokenBars) {
+    for (final component in barInstances) {
       if (activeToken != null) {
         component.highlight = activeToken.bars.any(
           (activeBar) => activeBar.label == component.data.label,
@@ -164,20 +165,17 @@ class Movable extends InstanceComponent
 
   void onRemoveTokenBar(TokenBar data) {
     final component = getTokenBarComponent(data);
-    component.htmlRoot.remove();
-
-    _tokenBars.remove(component);
+    barInstances.remove(component);
   }
 
   void createTokenBarComponent(TokenBar bar) {
     final component = TokenBarComponent(this, bar);
-    _tokenBars.add(component);
-    _barsRoot.append(component.htmlRoot);
+    barInstances.add(component);
   }
 
   void _createBarComponents() {
     _barsRoot.children.clear();
-    _tokenBars.clear();
+    barInstances.clear();
 
     for (final bar in bars) {
       createTokenBarComponent(bar);

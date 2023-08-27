@@ -2,10 +2,10 @@ import 'dart:html';
 
 import 'package:dungeonclub/models/token_bar.dart';
 
-import '../html/component.dart';
+import '../html/instance_component.dart';
 import 'movable.dart';
 
-class TokenBarComponent extends Component {
+class TokenBarComponent extends InstanceComponent {
   final Movable token;
   final TokenBar data;
   late SpanElement _labelElement;
@@ -15,7 +15,7 @@ class TokenBarComponent extends Component {
     htmlRoot.classes.toggle('active', value);
   }
 
-  TokenBarComponent(this.token, this.data) : super.element(LIElement()) {
+  TokenBarComponent(this.token, this.data) : super(LIElement()) {
     htmlRoot
       ..className = 'token-bar'
       ..append(DivElement()..className = 'bar-fill')
