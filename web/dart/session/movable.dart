@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html';
 import 'dart:math' as math;
 
@@ -167,18 +168,25 @@ class Movable extends InstanceComponent
         board: board, prefab: prefab, id: id, pos: pos, conds: conds);
   }
 
+  @override
+  List<StreamSubscription> initializeListeners() => [
+        board.selected.onSetActive.listen((event) {
+          onActiveTokenChange(event.active);
+        }),
+      ];
+
   TokenBarComponent getTokenBarComponent(TokenBar data) {
     return barInstances.firstWhere((bar) => bar.data == data);
   }
 
-  void onActiveTokenChange() {
-    final activeToken = board.activeMovable;
-
+  void onActiveTokenChange(Movable? activeToken) {
     for (final component in barInstances) {
       if (activeToken != null) {
         component.highlight = activeToken.bars.any(
           (activeBar) => activeBar.label == component.data.label,
         );
+      } else {
+        component.highlight = false;
       }
     }
   }
@@ -201,7 +209,7 @@ class Movable extends InstanceComponent
       createTokenBarComponent(bar);
     }
 
-    onActiveTokenChange();
+    onActiveTokenChange(board.activeMovable);
   }
 
   void applyPosition() {

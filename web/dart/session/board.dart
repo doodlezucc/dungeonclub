@@ -8,6 +8,7 @@ import 'package:dungeonclub/iterable_extension.dart';
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/models/token_bar.dart';
 import 'package:dungeonclub/point_json.dart';
+import 'package:dungeonclub/reactive/selection_system.dart';
 import 'package:dungeonclub/session_util.dart';
 import 'package:grid_space/grid_space.dart';
 
@@ -68,7 +69,7 @@ class Board {
   final grid = SceneGrid();
   final mapTab = MapTab();
   late final movables = InstanceList<Movable>(grid.e);
-  final selected = <Movable>{};
+  final selected = SelectionSystem<Movable>();
   final fogOfWar = FogOfWar();
   final initiativeTracker = InitiativeTracker();
   late SelectionConditions _selectionConditions;
@@ -154,12 +155,31 @@ class Board {
     }
   }
 
-  Movable? _activeMovable;
-  Movable? get activeMovable => _activeMovable;
-  set activeMovable(Movable? activeMovable) {
-    final previousActiveMovable = _activeMovable;
+  Movable? get activeMovable => selected.active;
 
-    if (previousActiveMovable == activeMovable) return;
+  late Scene _refScene;
+  Scene get refScene => _refScene;
+  bool _init = false;
+
+  Board(this.session) {
+    _transform = BoardTransform(this, _e, getMaxPosition: () {
+      return Point(
+        _ground.naturalWidth,
+        _ground.naturalHeight,
+      );
+    });
+    position = Point(0, 0);
+    _selectionConditions = SelectionConditions(this);
+
+    if (!_init) {
+      _initBoard();
+      _init = true;
+    }
+  }
+
+  void _onActiveMovableChange(SetActiveEvent<Movable> event) {
+    final activeMovable = event.active;
+    final previousActiveMovable = event.previousActive;
 
     if (previousActiveMovable != null) {
       // Firefox doesn't automatically blurrr inputs when their parent
@@ -168,11 +188,6 @@ class Board {
       _selectedSize.blur();
       previousActiveMovable.styleActive = false;
     }
-
-    if (activeMovable != null && !activeMovable.accessible) {
-      activeMovable = null;
-    }
-    _activeMovable = activeMovable;
 
     if (activeMovable != null) {
       activeMovable.styleActive = true;
@@ -199,31 +214,7 @@ class Board {
       }
     }
 
-    for (var token in selected.where((token) => token != activeMovable)) {
-      token.onActiveTokenChange();
-    }
-
     _selectionProperties.classes.toggle('hidden', activeMovable == null);
-  }
-
-  late Scene _refScene;
-  Scene get refScene => _refScene;
-  bool _init = false;
-
-  Board(this.session) {
-    _transform = BoardTransform(this, _e, getMaxPosition: () {
-      return Point(
-        _ground.naturalWidth,
-        _ground.naturalHeight,
-      );
-    });
-    position = Point(0, 0);
-    _selectionConditions = SelectionConditions(this);
-
-    if (!_init) {
-      _initBoard();
-      _init = true;
-    }
   }
 
   void onPrefabNameChange(Prefab prefab) {
@@ -243,6 +234,8 @@ class Board {
   }
 
   void _initBoard() {
+    selected.onSetActive.listen(_onActiveMovableChange);
+
     _initMouseControls();
     initDiceTable();
     initGameLog();
@@ -408,12 +401,18 @@ class Board {
       } else {
         selected.remove(m);
 
-        if (m == activeMovable) activeMovable = null;
+        if (m == activeMovable) {
+          selected.active = null;
+        }
       }
     });
 
     if (doSelect && movables.length == 1) {
-      activeMovable = movables.first;
+      Movable? active = movables.first;
+      if (!active.accessible) {
+        active = null;
+      }
+      selected.active = movables.first;
     }
     updateSnapToGrid();
   }
@@ -438,7 +437,7 @@ class Board {
     for (var m in selected) {
       movables.remove(m);
       if (m == activeMovable) {
-        activeMovable = null;
+        selected.active = null;
       }
     }
     selected.clear();
@@ -466,7 +465,6 @@ class Board {
       m.styleSelected = false;
     }
     selected.clear();
-    activeMovable = null;
     selectedPrefab = null;
   }
 
