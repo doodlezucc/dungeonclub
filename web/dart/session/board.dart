@@ -198,6 +198,10 @@ class Board {
       }
     }
 
+    for (var token in selected.where((token) => token != activeMovable)) {
+      token.onActiveTokenChange();
+    }
+
     _selectionProperties.classes.toggle('hidden', activeMovable == null);
   }
 
@@ -538,14 +542,15 @@ class Board {
     for (var movable in selected.where((m) => m != activeMovable)) {
       final hasBarOfName = movable.bars.any((bar) => bar.label == label);
       if (!hasBarOfName) {
-        movable.bars.add(TokenBar(label: label));
-        movable.applyBars();
+        final bar = TokenBar(label: label);
+        movable.bars.add(bar);
+        movable.createTokenBarComponent(bar);
       }
     }
 
     final activeBar = TokenBar(label: label);
     activeMovable!.bars.add(activeBar);
-    activeMovable!.applyBars();
+    activeMovable!.createTokenBarComponent(activeBar);
 
     final barComponent = SelectionTokenBar(activeMovable!, activeBar);
     _selectedBars.append(barComponent.htmlRoot);

@@ -35,7 +35,7 @@ class TokenBarConfigPanel extends Component {
       onChange: (text) {
         _modifySimilarTokenBars((token, bar) {
           bar.label = _labelInput.value!;
-          token.applyBars();
+          token.getTokenBarComponent(bar).applyData();
         });
 
         _attachedBar.applyDataToInputs();
@@ -46,7 +46,7 @@ class TokenBarConfigPanel extends Component {
     _removeButton.onClick.listen((_) {
       _modifySimilarTokenBars((token, bar) {
         token.bars.remove(bar);
-        token.applyBars();
+        token.onRemoveTokenBar(bar);
       });
 
       _attachedBar
@@ -113,7 +113,7 @@ class TokenBarConfigPanel extends Component {
 
     _modifySimilarTokenBars((token, bar) {
       bar.visibility = visibility;
-      token.applyBars();
+      token.getTokenBarComponent(bar).applyData();
     });
 
     _attachedBar.applyVisibilityIcon();

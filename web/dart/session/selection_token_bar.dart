@@ -98,7 +98,9 @@ class SelectionTokenBar extends Component {
       token.board.modifySelectedTokenBars(data, (token, bar) {
         bar.value = value!.toDouble();
         bar.maxValue = max!.toDouble();
-        token.applyBars();
+
+        final component = token.getTokenBarComponent(bar);
+        component.applyData();
       });
     }
   }

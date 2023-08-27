@@ -10,6 +10,7 @@ import '../html_helpers.dart';
 import 'board.dart';
 import 'condition.dart';
 import 'prefab.dart';
+import 'token_bar_component.dart';
 
 class Movable extends ClampedEntityBase with TokenModel {
   @override
@@ -23,6 +24,7 @@ class Movable extends ClampedEntityBase with TokenModel {
   final e = DivElement();
   final _aura = DivElement();
   final _barsRoot = UListElement();
+  final List<TokenBarComponent> _tokenBars = [];
 
   String get name => prefab.name;
 
@@ -123,7 +125,7 @@ class Movable extends ClampedEntityBase with TokenModel {
     }
     if (conds != null) applyConditions(conds);
 
-    applyBars();
+    _createBarComponents();
     angle = 0;
   }
 
@@ -142,45 +144,44 @@ class Movable extends ClampedEntityBase with TokenModel {
         board: board, prefab: prefab, id: id, pos: pos, conds: conds);
   }
 
-  bool _doDisplayTokenBar(TokenBar bar) {
-    switch (bar.visibility) {
-      case TokenBarVisibility.VISIBLE_TO_ALL:
-        return true;
-      case TokenBarVisibility.VISIBLE_TO_OWNERS:
-        return accessible;
-      case TokenBarVisibility.HIDDEN:
-        return board.session.isDM;
+  TokenBarComponent getTokenBarComponent(TokenBar data) {
+    return _tokenBars.firstWhere((bar) => bar.data == data);
+  }
+
+  void onActiveTokenChange() {
+    final activeToken = board.activeMovable;
+
+    for (final component in _tokenBars) {
+      if (activeToken != null) {
+        component.highlight = activeToken.bars.any(
+          (activeBar) => activeBar.label == component.data.label,
+        );
+      }
     }
   }
 
-  void applyBars() {
+  void onRemoveTokenBar(TokenBar data) {
+    final component = getTokenBarComponent(data);
+    component.htmlRoot.remove();
+
+    _tokenBars.remove(component);
+  }
+
+  void createTokenBarComponent(TokenBar bar) {
+    final component = TokenBarComponent(this, bar);
+    _tokenBars.add(component);
+    _barsRoot.append(component.htmlRoot);
+  }
+
+  void _createBarComponents() {
     _barsRoot.children.clear();
+    _tokenBars.clear();
 
     for (final bar in bars) {
-      if (_doDisplayTokenBar(bar)) {
-        double progress;
-        String valueText;
-
-        if (bar.maxValue == 0) {
-          progress = 1;
-          valueText = '${bar.value}';
-        } else {
-          progress = bar.value / bar.maxValue;
-          valueText = '${bar.value} / ${bar.maxValue}';
-        }
-
-        _barsRoot.append(LIElement()
-          ..className = 'token-bar'
-          ..style.setProperty('--progress', '$progress')
-          ..append(DivElement()..className = 'bar-fill')
-          ..append(SpanElement()
-            ..className = 'token-bar-label'
-            ..text = bar.label)
-          ..append(SpanElement()
-            ..className = 'token-bar-value'
-            ..text = valueText));
-      }
+      createTokenBarComponent(bar);
     }
+
+    onActiveTokenChange();
   }
 
   void applyPosition() {
@@ -284,7 +285,7 @@ class Movable extends ClampedEntityBase with TokenModel {
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
-    applyBars();
+    _createBarComponents();
     applyConditions(List<int>.from(json['conds'] ?? []));
     onPrefabUpdate();
   }

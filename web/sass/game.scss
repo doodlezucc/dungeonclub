@@ -1025,7 +1025,6 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
         pointer-events: none;
         padding-inline-start: 0;
         margin: 0;
-        opacity: 0.7;
         transition: 0.1s;
     }
 
@@ -1079,17 +1078,18 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
     }
 
     &:not(:active):hover, &:not(:active).active {
-        > .bars {
-            opacity: 1;
-        }
-
         .token-bar {
-            height: 1em;
+            @extend %active-token-bar;
         }
+    }
+}
 
-        .token-bar span {
-            opacity: 1;
-        }
+%active-token-bar {
+    height: 1em;
+    opacity: 1;
+
+    span {
+        opacity: 1;
     }
 }
 
@@ -1102,6 +1102,7 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
     background-color: #333c;
     transition: 0.2s;
     justify-content: center;
+    opacity: 0.7;
     --progress: 0.4;
 
     > .bar-fill {
@@ -1117,6 +1118,10 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
         opacity: 0;
         transition: inherit;
         text-shadow: var(--shadow-text);
+    }
+
+    &.active {
+        @extend %active-token-bar;
     }
 }
 
