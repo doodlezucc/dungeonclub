@@ -4,8 +4,8 @@ import 'package:dungeonclub/iterable_extension.dart';
 import 'package:dungeonclub/models/token_bar.dart';
 
 import '../html/component.dart';
+import '../html/input_extension.dart';
 import '../html_helpers.dart';
-import '../lazy_input.dart';
 import 'movable.dart';
 import 'selection_token_bar.dart';
 
@@ -30,8 +30,7 @@ class TokenBarConfigPanel extends Component {
       button.onClick.listen((event) => _onClickSegmentedButton(i));
     }
 
-    listenLazyUpdate(
-      _labelInput,
+    _labelInput.listenLazyUpdate(
       onChange: (text) {
         _modifySimilarTokenBars((token, bar) {
           bar.label = _labelInput.value!;

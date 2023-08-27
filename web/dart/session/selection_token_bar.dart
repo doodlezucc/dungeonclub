@@ -2,10 +2,9 @@ import 'dart:html';
 
 import 'package:dungeonclub/models/token_bar.dart';
 
-import '../html/input_soft_limits.dart';
+import '../html/input_extension.dart';
 import '../html/instance_component.dart';
 import '../html_helpers.dart';
-import '../lazy_input.dart';
 import 'movable.dart';
 import 'selection_token_bar_config.dart';
 
@@ -49,14 +48,12 @@ class SelectionTokenBar extends InstanceComponent {
       getMax: () => data.maxValue,
     );
 
-    listenLazyUpdate(
-      _valueInput,
+    _valueInput.listenLazyUpdate(
       onChange: (_) => _applyInputsToData(),
       onSubmit: (_) => submitData(),
     );
 
-    listenLazyUpdate(
-      _maxInput,
+    _valueInput.listenLazyUpdate(
       onChange: (_) => _applyInputsToData(),
       onSubmit: (_) => submitData(),
     );

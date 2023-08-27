@@ -3,6 +3,45 @@ import 'dart:html';
 const _softLimitCooldownMs = 500;
 
 extension InputLimiter on InputElement {
+  void listenLazyUpdate({
+    required void Function(String s) onChange,
+    required void Function(String s) onSubmit,
+    void Function()? onFocus,
+  }) {
+    late String startValue;
+    late String typedValue;
+
+    void update() {
+      if (startValue != typedValue) {
+        startValue = typedValue;
+        onChange(typedValue);
+        onSubmit(typedValue);
+      }
+    }
+
+    void onFoc() {
+      startValue = value!;
+      if (onFocus != null) onFocus();
+      typedValue = value!;
+    }
+
+    onMouseDown.listen((_) {
+      // Firefox number inputs can trigger onInput without being focused
+      var isFocused = document.activeElement == this;
+      if (!isFocused) {
+        focus();
+        onFoc();
+      }
+    });
+
+    this.onFocus.listen((_) => onFoc());
+    this.onChange.listen((_) => update());
+    onInput.listen((_) {
+      onChange(typedValue = value!);
+    });
+    onBlur.listen((_) => update());
+  }
+
   void registerSoftLimits({
     required double Function() getMin,
     required double Function() getMax,

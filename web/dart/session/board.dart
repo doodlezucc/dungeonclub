@@ -13,10 +13,10 @@ import 'package:dungeonclub/session_util.dart';
 import 'package:grid_space/grid_space.dart';
 
 import '../communication.dart';
+import '../html/input_extension.dart';
 import '../html/instance_list.dart';
 import '../html_helpers.dart';
 import '../html_transform.dart';
-import '../lazy_input.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
 import '../resource.dart';
@@ -574,8 +574,7 @@ class Board {
     InputElement input, {
     required void Function(Movable m, String value) onChange,
   }) {
-    listenLazyUpdate(
-      input,
+    input.listenLazyUpdate(
       onChange: (value) => selected.forEach((m) => onChange(m, value)),
       onSubmit: (value) => sendSelectedMovablesUpdate(),
     );
