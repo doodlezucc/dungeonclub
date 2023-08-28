@@ -6,18 +6,20 @@ import 'dart:svg' as svg;
 import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/iterable_extension.dart';
 import 'package:dungeonclub/limits.dart';
+import 'package:dungeonclub/models/token_bar.dart';
 import 'package:dungeonclub/point_json.dart';
+import 'package:dungeonclub/reactive/selection_system.dart';
 import 'package:dungeonclub/session_util.dart';
 import 'package:grid_space/grid_space.dart';
 
 import '../communication.dart';
+import '../html/input_extension.dart';
+import '../html/instance_list.dart';
 import '../html_helpers.dart';
 import '../html_transform.dart';
-import '../lazy_input.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
 import '../resource.dart';
-import 'condition.dart';
 import 'fog_of_war.dart';
 import 'grid.dart';
 import 'log.dart';
@@ -29,6 +31,8 @@ import 'prefab.dart';
 import 'prefab_palette.dart';
 import 'roll_dice.dart';
 import 'scene.dart';
+import 'selection_conditions.dart';
+import 'selection_token_bar.dart';
 import 'session.dart';
 
 final HtmlElement _container = queryDom('#boardContainer');
@@ -49,10 +53,10 @@ final _selectedLabelPrefix =
 final _selectedLabel = _selectedLabelWrapper.children.last as InputElement;
 final InputElement _selectedSize = queryDom('#movableSize');
 final InputElement _selectedAura = queryDom('#movableAura');
+final ButtonElement _addTokenBarButton = queryDom('#barAddButton');
 final ButtonElement _selectedInvisible = queryDom('#movableInvisible');
 final ButtonElement _selectedRemove = queryDom('#movableRemove');
 final ButtonElement _selectedSnap = queryDom('#movableSnap');
-final HtmlElement _selectedConds = _selectionProperties.queryDom('#conds');
 
 final ButtonElement _fowToggle = queryDom('#fogOfWar');
 final ButtonElement _measureToggle = queryDom('#measureDistance');
@@ -63,10 +67,13 @@ class Board {
   final Session session;
   final grid = SceneGrid();
   final mapTab = MapTab();
-  final movables = <Movable>[];
-  final selected = <Movable>{};
+  late final movables = InstanceList<Movable>(grid.e);
+  final selected = SelectionSystem<Movable>();
   final fogOfWar = FogOfWar();
   final initiativeTracker = InitiativeTracker();
+  final selectedBars =
+      InstanceList<SelectionTokenBar>(queryDom('#selectionBars'));
+  late SelectionConditions _selectionConditions;
   List<Movable> clipboard = [];
 
   static const PAN = 'pan';
@@ -149,57 +156,7 @@ class Board {
     }
   }
 
-  Movable? _activeMovable;
-  Movable? get activeMovable => _activeMovable;
-  set activeMovable(Movable? activeMovable) {
-    final previousActiveMovable = _activeMovable;
-
-    if (previousActiveMovable == activeMovable) return;
-
-    if (previousActiveMovable != null) {
-      // Firefox doesn't automatically blurrr inputs when their parent
-      // element gets moved or removed
-      _selectedLabel.blur();
-      _selectedSize.blur();
-      previousActiveMovable.e.classes.remove('active');
-    }
-
-    if (activeMovable != null && !activeMovable.accessible) {
-      activeMovable = null;
-    }
-    _activeMovable = activeMovable;
-
-    if (activeMovable != null) {
-      activeMovable.e.classes.add('active');
-
-      // Assign current values to HTML inputs
-      var nicknamePrefix = '';
-      if (activeMovable is! EmptyMovable) {
-        nicknamePrefix = activeMovable.name;
-      }
-
-      _selectedLabelPrefix.text = nicknamePrefix;
-      _selectedLabel.value = activeMovable.label;
-      _selectedAura.valueAsNumber = activeMovable.auraRadius;
-      _updateSelectedInvisible(activeMovable.invisible);
-      _selectedSize.valueAsNumber = activeMovable.size;
-      _updateSelectionSizeInherit();
-      _selectedConds.querySelectorAll('.active').classes.remove('active');
-      for (var c = 0; c < Condition.categories.length; c++) {
-        final category = Condition.categories[c];
-        final row = _selectedConds.children[c].children.first;
-
-        for (var cc = 0; cc < category.conditions.length; cc++) {
-          if (activeMovable.conds
-              .contains(category.conditions.keys.elementAt(cc))) {
-            row.children[cc].classes.add('active');
-          }
-        }
-      }
-    }
-
-    _selectionProperties.classes.toggle('hidden', activeMovable == null);
-  }
+  Movable? get activeMovable => selected.active;
 
   late Scene _refScene;
   Scene get refScene => _refScene;
@@ -213,11 +170,51 @@ class Board {
       );
     });
     position = Point(0, 0);
+    _selectionConditions = SelectionConditions(this);
 
     if (!_init) {
       _initBoard();
       _init = true;
     }
+  }
+
+  void _onActiveMovableChange(SetActiveEvent<Movable> event) {
+    final activeMovable = event.active;
+    final previousActiveMovable = event.previousActive;
+
+    if (previousActiveMovable != null) {
+      // Firefox doesn't automatically blurrr inputs when their parent
+      // element gets moved or removed
+      _selectedLabel.blur();
+      _selectedSize.blur();
+      previousActiveMovable.styleActive = false;
+    }
+
+    if (activeMovable != null) {
+      activeMovable.styleActive = true;
+
+      // Assign current values to HTML inputs
+      var nicknamePrefix = '';
+      if (activeMovable is! EmptyMovable) {
+        nicknamePrefix = activeMovable.name;
+      }
+
+      _selectedLabelPrefix.text = nicknamePrefix;
+      _selectedLabel.value = activeMovable.label;
+      _selectedAura.valueAsNumber = activeMovable.auraRadius;
+      _updateSelectedInvisible(activeMovable.invisible);
+      _selectedSize.valueAsNumber = activeMovable.size;
+      _updateSelectionSizeInherit();
+
+      _selectionConditions.onActiveTokenChange(activeMovable);
+
+      selectedBars.clear();
+      for (final bar in activeMovable.bars) {
+        selectedBars.add(SelectionTokenBar(activeMovable, bar));
+      }
+    }
+
+    _selectionProperties.classes.toggle('hidden', activeMovable == null);
   }
 
   void onPrefabNameChange(Prefab prefab) {
@@ -237,6 +234,8 @@ class Board {
   }
 
   void _initBoard() {
+    selected.onSetActive.listen(_onActiveMovableChange);
+
     _initMouseControls();
     initDiceTable();
     initGameLog();
@@ -379,7 +378,6 @@ class Board {
     });
 
     _initSelectionHandler();
-    _initSelectionConds();
     mapTab.initMapControls();
     fogOfWar.initFogOfWar(this);
   }
@@ -393,21 +391,27 @@ class Board {
       _deselectAll();
     }
 
-    state ??=
+    final doSelect = state ??
         activeMovable == null || !movables.any((m) => selected.contains(m));
 
     movables.forEach((m) {
-      if (m.e.classes.toggle('selected', state)) {
+      if (doSelect) {
         selected.add(m);
       } else {
         selected.remove(m);
 
-        if (m == activeMovable) activeMovable = null;
+        if (m == activeMovable) {
+          selected.active = null;
+        }
       }
     });
 
-    if (state && movables.length == 1) {
-      activeMovable = movables.first;
+    if (doSelect && movables.length == 1) {
+      Movable? active = movables.first;
+      if (!active.accessible) {
+        active = null;
+      }
+      selected.active = movables.first;
     }
     updateSnapToGrid();
   }
@@ -430,9 +434,9 @@ class Board {
     });
 
     for (var m in selected) {
-      m.onRemove();
+      movables.remove(m);
       if (m == activeMovable) {
-        activeMovable = null;
+        selected.active = null;
       }
     }
     selected.clear();
@@ -456,11 +460,7 @@ class Board {
   }
 
   void _deselectAll() {
-    for (var m in selected) {
-      m.e.classes.remove('selected');
-    }
     selected.clear();
-    activeMovable = null;
     selectedPrefab = null;
   }
 
@@ -469,7 +469,7 @@ class Board {
         activeMovable!.size == 0 ? '' : 'none';
   }
 
-  void _sendSelectedMovablesUpdate() {
+  void sendSelectedMovablesUpdate() {
     socket.sendAction(a.GAME_MOVABLE_UPDATE, {
       'changes': selected.map((e) => e.toJson()).toList(),
     });
@@ -518,22 +518,65 @@ class Board {
       var inv = !_selectedInvisible.classes.contains('active');
       _updateSelectedInvisible(inv);
       selected.forEach((m) => m.invisible = inv);
-      _sendSelectedMovablesUpdate();
+      sendSelectedMovablesUpdate();
     });
     _listenSelectedLazyUpdate(_selectedSize, onChange: (m, value) {
       m.setSizeWithGridSpecifics(int.parse(value));
       _updateSelectionSizeInherit();
     });
+
+    _addTokenBarButton.onClick.listen((_) => _addNewBarToSelectedTokens());
+  }
+
+  void _addNewBarToSelectedTokens() {
+    var label = 'HP';
+    if (activeMovable!.bars.any((bar) => bar.label == label)) {
+      final number = activeMovable!.bars.length + 1;
+      label = 'Bar $number';
+    }
+
+    for (var movable in selected.where((m) => m != activeMovable)) {
+      final hasBarOfName = movable.bars.any((bar) => bar.label == label);
+      if (!hasBarOfName) {
+        final bar = TokenBar(label: label);
+        movable.bars.add(bar);
+        movable.createTokenBarComponent(bar);
+      }
+    }
+
+    final activeBar = TokenBar(label: label);
+    activeMovable!.bars.add(activeBar);
+    activeMovable!.createTokenBarComponent(activeBar);
+
+    final barComponent = SelectionTokenBar(activeMovable!, activeBar);
+    selectedBars.add(barComponent);
+
+    sendSelectedMovablesUpdate();
+  }
+
+  void modifySelectedTokenBars(
+    TokenBar originBar,
+    void Function(Movable token, TokenBar bar) modify,
+  ) {
+    modify(activeMovable!, originBar);
+
+    final label = originBar.label;
+
+    for (var movable in selected.where((m) => m != activeMovable)) {
+      final similarBar = movable.bars.find((bar) => bar.label == label);
+      if (similarBar != null) {
+        modify(movable, similarBar);
+      }
+    }
   }
 
   void _listenSelectedLazyUpdate(
     InputElement input, {
     required void Function(Movable m, String value) onChange,
   }) {
-    listenLazyUpdate(
-      input,
+    input.listenLazyUpdate(
       onChange: (value) => selected.forEach((m) => onChange(m, value)),
-      onSubmit: (value) => _sendSelectedMovablesUpdate(),
+      onSubmit: (value) => sendSelectedMovablesUpdate(),
     );
   }
 
@@ -689,7 +732,7 @@ class Board {
               if (movableElem != null) {
                 // Move clicked/selected token(s)
                 for (var mv in movables) {
-                  if (mv.e == movableElem) {
+                  if (mv.htmlRoot == movableElem) {
                     clickedMovable = mv;
                     break;
                   }
@@ -924,7 +967,7 @@ class Board {
 
     void setCssTransitionEnabled(bool enable) {
       for (var mv in affected) {
-        mv.e.classes.toggle('no-animate-move', !enable);
+        mv.stylePreventTransition = !enable;
       }
     }
 
@@ -950,7 +993,7 @@ class Board {
     moveStream.listen((ev) {
       if (!movedOnce) {
         movedOnce = true;
-        if (!clicked.e.classes.contains('selected') && !first.shift) {
+        if (!clicked.styleSelected && !first.shift) {
           _deselectAll();
           affected = {clicked};
         }
@@ -1085,43 +1128,6 @@ class Board {
     });
   }
 
-  void _initSelectionConds() {
-    final categories = Condition.categories;
-    for (var category in categories) {
-      final row = DivElement()..className = 'toolbox';
-      final div = DivElement()
-        ..append(row)
-        ..append(ParagraphElement()..text = category.name);
-
-      for (var e in category.conditions.entries) {
-        final id = e.key;
-        final cond = e.value;
-        final ico = icon(cond.icon)..append(SpanElement()..text = cond.name);
-
-        row.append(ico
-          ..onClick.listen((_) {
-            final movable = activeMovable!;
-
-            final doEnable = !movable.conds.contains(id);
-
-            selected.forEach((m) => m.toggleCondition(id, doEnable));
-            ico.classes.toggle('active', doEnable);
-            _sendSelectedMovablesUpdate();
-          }));
-      }
-
-      _selectedConds.append(div);
-    }
-
-    _selectionProperties.queryDom('a').onClick.listen((_) {
-      if (activeMovable!.conds.isNotEmpty) {
-        selected.forEach((m) => m.applyConditions([]));
-        _selectedConds.querySelectorAll('.active').classes.remove('active');
-        _sendSelectedMovablesUpdate();
-      }
-    });
-  }
-
   void displayTooltip(String text) {
     _container.queryDom('#tooltip').innerHtml = formatToHtml(text);
   }
@@ -1200,7 +1206,6 @@ class Board {
 
   void clear() {
     _deselectAll();
-    movables.forEach((m) => m.e.remove());
     movables.clear();
   }
 
@@ -1264,7 +1269,6 @@ class Board {
 
       dest.add(m);
       movables.add(m);
-      grid.e.append(m.e);
     }
     _deselectAll();
     _syncMovableAnim();
@@ -1291,7 +1295,6 @@ class Board {
     m.label = generateNewLabel(m, movables);
 
     movables.add(m);
-    grid.e.append(m.e);
     _syncMovableAnim();
     updateRerollableInitiatives();
     return m;
@@ -1318,7 +1321,6 @@ class Board {
       id: json['id'],
     )..fromJson(json);
     movables.add(m);
-    grid.e.append(m.e);
   }
 
   void onUpdatePrefabImage(Prefab p) {
@@ -1356,7 +1358,7 @@ class Board {
         if (selected.contains(m)) {
           toggleSelect([m], additive: true, state: false);
         }
-        m.onRemove();
+        movables.remove(m);
       });
 
   void onMovablesUpdate(json) {

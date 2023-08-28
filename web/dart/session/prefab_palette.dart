@@ -9,6 +9,7 @@ import 'package:dungeonclub/session_util.dart';
 import '../../main.dart';
 import '../communication.dart';
 import '../edit_image.dart';
+import '../html/instance_list.dart';
 import '../html_helpers.dart';
 import '../notif.dart';
 import '../panels/upload.dart' as upload;
@@ -35,8 +36,8 @@ final UListElement _prefabAccess = queryDom('#prefabAccess');
 final HtmlElement _prefabAccessSpan = queryDom('#prefabAccessSpan');
 final ButtonElement _prefabRemove = queryDom('#prefabRemove');
 
-final List<CharacterPrefab> pcPrefabs = [];
-final List<CustomPrefab> prefabs = [];
+final pcPrefabs = InstanceList<CharacterPrefab>(_pcPrefs);
+final prefabs = InstanceList<CustomPrefab>(_otherPrefs);
 final emptyPrefab = EmptyPrefab();
 
 final Map<Character, LIElement> _accessEntries = {};
@@ -48,7 +49,7 @@ set selectedPrefab(Prefab? p) {
 
   _selectedPrefab = p;
   _palette.querySelectorAll('.prefab.selected').classes.remove('selected');
-  p?.e.classes.add('selected');
+  p?.htmlRoot.classes.add('selected');
 
   _prefabProperties.classes.toggle('disabled', p == null);
 
@@ -138,10 +139,9 @@ void initMovableManager(Iterable jList) {
 void _initPrefabPalette() {
   for (var pc in user.session!.characters) {
     pcPrefabs.add(pc.prefab);
-    _pcPrefs.append(pc.prefab.e);
   }
 
-  _otherPrefs.nodes.insert(0, emptyPrefab.e);
+  _otherPrefs.parent!.nodes.insert(1, emptyPrefab.htmlRoot);
 
   _addPref.onLMB.listen(createPrefab);
   _palette.queryDom('#paletteCollapse').onClick.listen((_) {
@@ -149,15 +149,14 @@ void _initPrefabPalette() {
   });
 }
 
-void _copyStyleProp(String name, Element a, Element b) {
-  b.style.setProperty(name, a.style.getPropertyValue(name));
-}
-
 void imitateMovableGhost(Movable m) {
-  _copyStyleProp('--x', m.e, _movableGhost);
-  _copyStyleProp('--y', m.e, _movableGhost);
-  _copyStyleProp('--size', m.e, _movableGhost);
-  _copyStyleProp('--angle', m.e, _movableGhost);
+  final screenPosition = m.positionScreenSpace;
+  _movableGhost.style
+    ..setProperty('--x', '${screenPosition.x}px')
+    ..setProperty('--y', '${screenPosition.y}px')
+    ..setProperty('--size', '${m.displaySize}')
+    ..setProperty('--angle', '${m.angle}');
+
   _movableGhost.classes.toggle('empty', m is EmptyMovable);
 
   final img = m.prefab.image?.url;
@@ -318,7 +317,6 @@ CustomPrefab onPrefabCreate(Map<String, dynamic> json) {
 
 void _postPrefabCreate(CustomPrefab p) {
   prefabs.add(p);
-  _otherPrefs.insertBefore(p.e, _addPref);
   _updateAddButton();
 }
 
@@ -339,12 +337,11 @@ void onPrefabUpdate(Map<String, dynamic> json) {
   }
 }
 
-void onPrefabRemove(Prefab prefab) {
-  prefab.e.remove();
+void onPrefabRemove(CustomPrefab prefab) {
   user.session!.board.clipboard.removeWhere((m) => m.prefab == prefab);
   user.session!.board.movables.toList().forEach((m) {
     if (m.prefab == prefab) {
-      m.onRemove();
+      user.session!.board.movables.remove(m);
     }
   });
   prefabs.remove(prefab);

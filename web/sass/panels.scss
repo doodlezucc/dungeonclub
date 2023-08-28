@@ -38,6 +38,12 @@
     }
 }
 
+#overlay .panel {
+    min-width: min-content;
+    width: 30rem;
+    max-width: calc(100vw - 2rem);
+}
+
 .panel {
     @extend %vertical;
     background-color: var(--color-header);
@@ -47,9 +53,6 @@
     border-radius: base.$radius;
     padding: 24px 32px 16px 32px;
     gap: 16px;
-    min-width: min-content;
-    width: 30rem;
-    max-width: calc(100vw - 2rem);
     pointer-events: all;
 
     h2 {
@@ -84,6 +87,36 @@
         text-align: center;
         align-items: center;
     }
+}
+
+.wrapper {
+    display: contents;
+}
+
+.popup-container {
+    position: relative;
+}
+
+.popup-panel {
+    position: absolute;
+    z-index: 1;
+    width: auto;
+    padding: 8px;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.2s;
+
+    &.show {
+        opacity: 1;
+        pointer-events: all;
+        animation: fade-in 0.2s;
+    }
+}
+
+.anchor-left {
+    right: 100%;
+    margin-right: 8px;
 }
 
 #editGamePanel {

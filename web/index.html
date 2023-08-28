@@ -446,9 +446,10 @@
 						</button>
 						<div class="prefab-selection">
 							<p>Players</p>
-							<div id="pcPrefabs" class="prefab-container"></div>
+							<div id="pcPrefabs" class="tile-container prefab-container"></div>
 							<p>Custom</p>
-							<div id="otherPrefabs" class="prefab-container">
+							<div class="tile-container prefab-container">
+								<div id="otherPrefabs" class="wrapper"></div>
 								<button id="addPrefab" class="icon with-tooltip">
 									<i class="fas fa-plus"></i>
 									<span>Add Token</span>
@@ -488,9 +489,53 @@
 						</span>
 						<span class="space-between">
 							Conditions
-							<a>Clear all</a>
+							<a id="clearConditions">Clear all</a>
 						</span>
-						<div id="conds"></div>
+						<div class="popup-container">
+							<div id="selectionConditions" class="tile-container toolbox">
+								<div id="activeConds" class="wrapper"></div>
+	
+								<button id="addCondition" class="icon with-tooltip">
+									<span>Add</span>
+									<i class="fas fa-plus"></i>
+								</button>
+								<div id="conds" class="popup-panel panel"></div>
+							</div>
+						</div>
+						<div>
+							<span>Bars</span>
+							<ul id="selectionBars" class="no-inset settings-list"></ul>
+							<button id="barAddButton" class="elevate">Add Token Bar</button>
+							<div id="barConfiguration" class="popup-panel anchor-left panel">
+								<label>
+									Label:
+									<input id="barConfigLabel" type="text" placeholder="Label...">
+								</label>
+
+								<div>
+									<div id="barConfigColor" class="color-palette"></div>
+								</div>
+
+								<div>
+									<div id="barConfigVisibility" class="segmented-button">
+										<button class="icon with-tooltip active">
+											<span>Visible to All</span>
+											<i class="fas fa-users"></i>
+										</button>
+										<button class="icon with-tooltip">
+											<span>Visible to Owners</span>
+											<i class="fas fa-user-lock"></i>
+										</button>
+										<button class="icon with-tooltip">
+											<span>Hidden</span>
+											<i class="fas fa-user-slash"></i>
+										</button>
+									</div>
+								</div>
+
+								<button id="barRemoveButton" class="bad">Remove From Token</button>
+							</div>
+						</div>
 						<div class="left-col">
 							<button id="movableInvisible" class="icon elevate with-tooltip toggle">
 								<i class="fas fa-eye"></i>

@@ -683,6 +683,7 @@ footer {
     position: absolute;
     bottom: 100%;
     background-color: var(--color-background);
+    color: var(--color-text-primary);
     border-radius: $radius;
     padding: 6px 8px;
     pointer-events: none;
@@ -752,11 +753,10 @@ footer {
 
 .toolbox {
     display: grid;
-    background-color: #aaa;
-    border: 1px solid #ddd;
-    gap: 1px;
+    gap: 1px !important;
+    padding: 1px;
 
-    > i {
+    > i, > .wrapper > i {
         @extend %toolbox-item;
     }
 }
@@ -768,6 +768,7 @@ footer {
     height: 36px;
     font-size: 20px;
     align-items: center;
+    outline: 1px solid #aaa;
 
     &:hover {
         background-color: var(--color-button-hover);
@@ -795,4 +796,67 @@ button.floating-action {
     &.hovered {
         background-color: var(--color-button-active);
     }
+}
+
+.interactable {
+    cursor: pointer;
+}
+
+ul.no-inset {
+    margin-block: 0;
+    padding-inline-start: 0;
+}
+
+ul.settings-list {
+    gap: 1px;
+}
+
+li.list-setting {
+    height: 2em;
+
+    > .label {
+        width: 100%;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    > input {
+        padding-top: 3px;
+    }
+}
+
+.label > i {
+    margin-right: 6px;
+    font-size: 0.85em;
+}
+
+.segmented-button {
+    display: flex;
+    flex-direction: row;
+    gap: 2px;
+
+    > button {
+        width: 100%;
+        background-color: var(--color-background);
+    }
+
+    > button.active {
+        background-color: var(--color-primary);
+        color: var(--color-text-inverse);
+    }
+
+    > :nth-child(n + 2) {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    > :nth-last-child(n + 2) {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+}
+
+.tile-container {
+    display: flex;
+    flex-wrap: wrap;
 }

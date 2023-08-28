@@ -4,13 +4,14 @@ import 'dart:math';
 import 'package:dungeonclub/models/entity_base.dart';
 
 import '../../main.dart';
+import '../html/instance_component.dart';
 import '../html_helpers.dart';
 import '../resource.dart';
 import 'character.dart';
 import 'movable.dart';
 import 'prefab_palette.dart';
 
-abstract class ClampedEntityBase extends EntityBase {
+mixin ClampedEntityBase on EntityBase {
   int get minSize;
 
   @override
@@ -22,10 +23,16 @@ abstract class ClampedEntityBase extends EntityBase {
   }
 }
 
-abstract class Prefab extends ClampedEntityBase {
-  final HtmlElement e;
+abstract class Prefab extends InstanceComponent
+    with EntityBase, ClampedEntityBase {
   final SpanElement _nameSpan;
   final Resource? image;
+
+  @override
+  set size(int size) {
+    super.size = size;
+    movables.forEach((m) => m.onPrefabUpdate());
+  }
 
   Iterable<Movable> get movables =>
       user.session!.board.movables.where((movable) => movable.prefab == this);
@@ -36,16 +43,10 @@ abstract class Prefab extends ClampedEntityBase {
   @override
   int get minSize => 1;
 
-  @override
-  set size(int size) {
-    super.size = size;
-    movables.forEach((m) => m.onPrefabUpdate());
-  }
-
   Prefab(this.image)
-      : e = DivElement(),
-        _nameSpan = SpanElement() {
-    e
+      : _nameSpan = SpanElement(),
+        super(DivElement()) {
+    htmlRoot
       ..className = 'prefab'
       ..onClick.listen((_) {
         if (selectedPrefab == this) {
@@ -62,7 +63,7 @@ abstract class Prefab extends ClampedEntityBase {
       final src = image!.url;
 
       if (user.session!.isDM) {
-        e.style.backgroundImage = 'url($src)';
+        htmlRoot.style.backgroundImage = 'url($src)';
       }
     }
   }
@@ -82,18 +83,9 @@ class EmptyPrefab extends Prefab {
   String get iconId => 'pen';
 
   EmptyPrefab() : super(null) {
-    this.e.append(icon(iconId));
+    size = 1;
+    htmlRoot.append(icon(iconId));
     applyName();
-  }
-}
-
-mixin HasInitiativeMod on Prefab {
-  int initiativeMod = 0;
-
-  @override
-  void fromJson(Map<String, dynamic> json) {
-    super.fromJson(json);
-    initiativeMod = json['mod'] ?? 0;
   }
 }
 

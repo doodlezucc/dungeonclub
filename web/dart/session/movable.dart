@@ -1,16 +1,23 @@
+import 'dart:async';
 import 'dart:html';
 import 'dart:math' as math;
 
+import 'package:dungeonclub/models/entity_base.dart';
 import 'package:dungeonclub/models/token.dart';
+import 'package:dungeonclub/models/token_bar.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:grid_space/grid_space.dart';
 
+import '../html/instance_component.dart';
+import '../html/instance_list.dart';
 import '../html_helpers.dart';
 import 'board.dart';
 import 'condition.dart';
 import 'prefab.dart';
+import 'token_bar_component.dart';
 
-class Movable extends ClampedEntityBase with TokenModel {
+class Movable extends InstanceComponent
+    with EntityBase, ClampedEntityBase, TokenModel {
   @override
   final int id;
   final Board board;
@@ -19,8 +26,9 @@ class Movable extends ClampedEntityBase with TokenModel {
   @override
   String get prefabId => prefab.id;
 
-  final e = DivElement();
   final _aura = DivElement();
+  final _barsRoot = UListElement();
+  late final barInstances = InstanceList<TokenBarComponent>(_barsRoot);
 
   String get name => prefab.name;
 
@@ -55,13 +63,30 @@ class Movable extends ClampedEntityBase with TokenModel {
   @override
   set angle(double angle) {
     super.angle = angle;
-    e.style.setProperty('--angle', '$angle');
+    htmlRoot.style.setProperty('--angle', '$angle');
   }
 
   @override
   set invisible(bool invisible) {
     super.invisible = invisible;
-    e.classes.toggle('invisible', invisible);
+    htmlRoot.classes.toggle('invisible', invisible);
+  }
+
+  set styleActive(bool value) {
+    htmlRoot.classes.toggle('active', value);
+  }
+
+  bool get styleSelected => htmlRoot.classes.contains('selected');
+  set styleSelected(bool value) {
+    htmlRoot.classes.toggle('selected', value);
+  }
+
+  set styleHovered(bool value) {
+    htmlRoot.classes.toggle('hovered', value);
+  }
+
+  set stylePreventTransition(bool value) {
+    htmlRoot.classes.toggle('no-animate-move', value);
   }
 
   @override
@@ -80,7 +105,7 @@ class Movable extends ClampedEntityBase with TokenModel {
   @override
   set size(int size) {
     super.size = size;
-    e.style.setProperty('--size', '$displaySize');
+    htmlRoot.style.setProperty('--size', '$displaySize');
     applyPosition();
   }
 
@@ -89,6 +114,9 @@ class Movable extends ClampedEntityBase with TokenModel {
   Point<double> get topLeft =>
       position - Point(0.5 * displaySize, 0.5 * displaySize);
 
+  Point<double> get positionScreenSpace =>
+      board.grid.grid.gridToWorldSpace(position);
+
   Movable._({
     required this.board,
     required this.prefab,
@@ -96,16 +124,17 @@ class Movable extends ClampedEntityBase with TokenModel {
     required Point<double>? pos,
     required Iterable<int>? conds,
     bool createTooltip = true,
-  }) {
-    e
+  }) : super(DivElement()) {
+    htmlRoot
       ..className = 'movable'
       ..append(_aura..className = 'aura')
       ..append(DivElement()..className = 'ring')
       ..append(DivElement()..className = 'img rotating')
-      ..append(DivElement()..className = 'conds');
+      ..append(DivElement()..className = 'conds')
+      ..append(_barsRoot..className = 'bars');
 
     if (createTooltip) {
-      e.append(board.transform.registerInvZoom(
+      htmlRoot.append(board.transform.registerInvZoom(
         SpanElement()..className = 'toast',
         scaleByCell: true,
       ));
@@ -120,6 +149,7 @@ class Movable extends ClampedEntityBase with TokenModel {
     }
     if (conds != null) applyConditions(conds);
 
+    _createBarComponents();
     angle = 0;
   }
 
@@ -138,11 +168,53 @@ class Movable extends ClampedEntityBase with TokenModel {
         board: board, prefab: prefab, id: id, pos: pos, conds: conds);
   }
 
+  @override
+  List<StreamSubscription> initializeListeners() => [
+        board.selected
+            .observe(this)
+            .listen((selected) => this.styleSelected = selected)
+      ];
+
+  TokenBarComponent getTokenBarComponent(TokenBar data) {
+    return barInstances.firstWhere((bar) => bar.data == data);
+  }
+
+  void onRemoveTokenBar(TokenBar data) {
+    final component = getTokenBarComponent(data);
+    barInstances.remove(component);
+  }
+
+  void createTokenBarComponent(TokenBar bar) {
+    final component = TokenBarComponent(this, bar);
+    barInstances.add(component);
+  }
+
+  bool _doDisplayTokenBar(TokenBar bar) {
+    switch (bar.visibility) {
+      case TokenBarVisibility.VISIBLE_TO_ALL:
+        return true;
+      case TokenBarVisibility.VISIBLE_TO_OWNERS:
+        return accessible;
+      case TokenBarVisibility.HIDDEN:
+        return board.session.isDM;
+    }
+  }
+
+  void _createBarComponents() {
+    barInstances.clear();
+
+    for (final bar in bars) {
+      if (_doDisplayTokenBar(bar)) {
+        createTokenBarComponent(bar);
+      }
+    }
+  }
+
   void applyPosition() {
-    final pos = board.grid.grid.gridToWorldSpace(position);
+    final pos = positionScreenSpace;
     board.updateSnapToGrid();
 
-    e.style
+    htmlRoot.style
       ..setProperty('--x', '${pos.x}px')
       ..setProperty('--y', '${pos.y}px');
   }
@@ -157,21 +229,21 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   void updateTooltip() {
-    e.queryDom('.toast').text = displayName;
+    htmlRoot.queryDom('.toast').text = displayName;
   }
 
   void onPrefabUpdate() {
     if (size == 0) {
-      e.style.setProperty('--size', '$displaySize');
+      htmlRoot.style.setProperty('--size', '$displaySize');
       applyPosition();
     }
-    e.classes.toggle('accessible', accessible);
+    htmlRoot.classes.toggle('accessible', accessible);
     updateTooltip();
   }
 
   void applyImage() {
     final img = prefab.image!.url;
-    e.queryDom('.img').style.backgroundImage = 'url($img)';
+    htmlRoot.queryDom('.img').style.backgroundImage = 'url($img)';
   }
 
   void roundToGrid() {
@@ -192,7 +264,7 @@ class Movable extends ClampedEntityBase with TokenModel {
   }
 
   void _applyConds() {
-    var container = e.queryDom('.conds');
+    var container = htmlRoot.queryDom('.conds');
     for (var child in List<Element>.from(container.children)) {
       child.remove();
     }
@@ -210,19 +282,19 @@ class Movable extends ClampedEntityBase with TokenModel {
     _applyConds();
   }
 
-  void onRemove() async {
-    board.movables.remove(this);
+  @override
+  void dispose(InstanceList list) async {
     board.initiativeTracker.onRemove(this);
 
-    e.classes.add('animate-remove');
+    htmlRoot.classes.add('animate-remove');
     await Future.delayed(Duration(milliseconds: 500));
 
-    final toast = e.querySelector('.toast');
+    final toast = htmlRoot.querySelector('.toast');
     if (toast != null) {
       board.transform.unregisterInvZoom(toast);
     }
 
-    e.remove();
+    super.dispose(list);
   }
 
   Map<String, dynamic> toCloneJson() => {
@@ -239,6 +311,7 @@ class Movable extends ClampedEntityBase with TokenModel {
   @override
   void fromJson(Map<String, dynamic> json) {
     super.fromJson(json);
+    _createBarComponents();
     applyConditions(List<int>.from(json['conds'] ?? []));
     onPrefabUpdate();
   }
@@ -277,7 +350,7 @@ class EmptyMovable extends Movable {
           conds: conds,
           createTooltip: false,
         ) {
-    e
+    htmlRoot
       ..classes.add('empty')
       ..append(_labelSpan = SpanElement());
   }

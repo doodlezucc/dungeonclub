@@ -10,14 +10,18 @@ extension ElementExtension on Element {
   }
 }
 
-HtmlElement icon(String id, {bool isBrand = false}) {
-  final element = Element.tag('i') as HtmlElement;
-  element.classes = [
-    isBrand ? 'fab' : 'fas',
-    'fa-$id',
-  ];
+Element icon(String id, {bool isBrand = false}) {
+  final element = Element.tag('i');
+  applyIconClasses(element, id);
 
   return element;
+}
+
+void applyIconClasses(Element element, String iconId, {bool isBrand = false}) {
+  element.classes = [
+    isBrand ? 'fab' : 'fas',
+    'fa-$iconId',
+  ];
 }
 
 String iconHtml(String id) {

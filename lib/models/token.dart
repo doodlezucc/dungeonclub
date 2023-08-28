@@ -2,6 +2,7 @@ import 'dart:math';
 
 import '../point_json.dart';
 import 'entity_base.dart';
+import 'token_bar.dart';
 
 mixin TokenModel on EntityBase {
   final Set<int> conds = {};
@@ -13,6 +14,8 @@ mixin TokenModel on EntityBase {
   String label = '';
   double auraRadius = 0;
   bool invisible = false;
+
+  List<TokenBar> bars = [];
 
   @override
   int get jsonFallbackSize => 0;
@@ -36,6 +39,10 @@ mixin TokenModel on EntityBase {
     invisible = json['invisible'] ?? false;
     conds.clear();
     conds.addAll(List.from(json['conds'] ?? []));
+
+    bars = List.from(json['bars'] ?? [])
+        .map((bar) => TokenBar.parse(bar))
+        .toList();
   }
 
   @override
@@ -52,5 +59,6 @@ mixin TokenModel on EntityBase {
         'conds': conds.toList(),
         'aura': auraRadius,
         'invisible': invisible,
+        'bars': bars.map((e) => e.toJson()).toList()
       };
 }

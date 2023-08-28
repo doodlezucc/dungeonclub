@@ -369,7 +369,7 @@ class Game with Upgradeable {
   }
 
   CustomPrefab addPrefab() {
-    var p = CustomPrefab.create(this, _nextPrefabId, 1);
+    var p = CustomPrefab.create(this, _nextPrefabId);
     _prefabs.add(p);
     return p;
   }
@@ -916,7 +916,7 @@ mixin HasImage {
   ControlledResource get image;
 }
 
-class CharacterPrefab extends EntityBase with HasInitiativeMod, HasImage {
+class CharacterPrefab with EntityBase, HasInitiativeMod, HasImage {
   final ControlledResource _avatar;
   String name;
 
@@ -941,11 +941,11 @@ class CharacterPrefab extends EntityBase with HasInitiativeMod, HasImage {
       };
 }
 
-class CustomPrefab extends EntityBase with HasInitiativeMod, HasImage {
+class CustomPrefab with EntityBase, HasInitiativeMod, HasImage {
   final int id;
   final ControlledResource _image;
   late String name;
-  List<int> accessIds;
+  late List<int> accessIds;
 
   @override
   ControlledResource get image => _image;
@@ -953,15 +953,13 @@ class CustomPrefab extends EntityBase with HasInitiativeMod, HasImage {
   @override
   int get jsonFallbackSize => 1;
 
-  CustomPrefab.create(Game game, this.id, int size)
+  CustomPrefab.create(Game game, this.id)
       : _image = ControlledResource.empty(game),
         name = '',
-        accessIds = [],
-        super(size: size);
+        accessIds = [];
   CustomPrefab.fromJson(Game game, Map<String, dynamic> json)
       : id = json['id'],
-        _image = ControlledResource.path(game, json['image']),
-        accessIds = List.from(json['access'] ?? []) {
+        _image = ControlledResource.path(game, json['image']) {
     fromJson(json);
   }
 
@@ -982,7 +980,7 @@ class CustomPrefab extends EntityBase with HasInitiativeMod, HasImage {
       };
 }
 
-class Movable extends EntityBase with TokenModel {
+class Movable with EntityBase, TokenModel {
   final int _id;
   String prefab;
 
