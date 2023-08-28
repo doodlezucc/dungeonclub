@@ -958,7 +958,9 @@ class CustomPrefab with EntityBase, HasInitiativeMod, HasImage {
   CustomPrefab.create(Game game, this.id)
       : _image = ControlledResource.empty(game),
         name = '',
-        accessIds = [];
+        accessIds = [] {
+    size = 1;
+  }
   CustomPrefab.fromJson(Game game, Map<String, dynamic> json)
       : id = json['id'],
         _image = ControlledResource.path(game, json['image']) {
