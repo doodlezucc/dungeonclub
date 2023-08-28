@@ -3,6 +3,7 @@ import 'dart:html';
 import 'package:dungeonclub/iterable_extension.dart';
 import 'package:dungeonclub/models/token_bar.dart';
 
+import '../html/color_palette.dart';
 import '../html/component.dart';
 import '../html/input_extension.dart';
 import '../html_helpers.dart';
@@ -10,6 +11,7 @@ import 'movable.dart';
 import 'selection_token_bar.dart';
 
 class TokenBarConfigPanel extends Component {
+  static const hues = [0, 25, 150, 190, 210, 250, 340];
   static const _visibilityButtonOrder = [
     TokenBarVisibility.VISIBLE_TO_ALL,
     TokenBarVisibility.VISIBLE_TO_OWNERS,
@@ -19,11 +21,18 @@ class TokenBarConfigPanel extends Component {
   final InputElement _labelInput = queryDom('#barConfigLabel');
   final Element _visibilityRoot = queryDom('#barConfigVisibility');
   final ButtonElement _removeButton = queryDom('#barRemoveButton');
+  late ColorPalette palette;
 
   late SelectionTokenBar _attachedBar;
   late Map<Movable, TokenBar> _affectedBars;
 
   TokenBarConfigPanel() : super('#barConfiguration') {
+    palette = ColorPalette(
+      queryDom('#barConfigColor'),
+      hues: hues,
+      onSelect: _onSelectHue,
+    );
+
     for (var i = 0; i < _visibilityRoot.children.length; i++) {
       final button = _visibilityRoot.children[i];
 
@@ -51,6 +60,13 @@ class TokenBarConfigPanel extends Component {
       _attachedBar
         ..token.board.selectedBars.remove(_attachedBar)
         ..submitData();
+    });
+  }
+
+  void _onSelectHue(int hue) {
+    _modifySimilarTokenBars((token, bar) {
+      bar.hue = hue;
+      token.getTokenBarComponent(bar).applyData();
     });
   }
 

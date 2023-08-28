@@ -385,15 +385,10 @@
     }
 }
 
-.prefab {
-    @extend %with-tooltip;
-    @include base.center-background;
+%selectable-tile {
     cursor: pointer;
-    opacity: 0.5;
     box-sizing: border-box;
     border: 2px solid transparent;
-    align-items: center;
-    font-size: 20px;
 
     &.selected {
         opacity: 1;
@@ -406,6 +401,15 @@
             opacity: 1;
         }
     }
+}
+
+.prefab {
+    @extend %with-tooltip;
+    @include base.center-background;
+    @extend %selectable-tile;
+    opacity: 0.5;
+    align-items: center;
+    font-size: 20px;
 }
 
 .prefab-selection {
@@ -1443,4 +1447,23 @@ $ping-radius: 100px;
     transform: translate(0, calc(var(--size) * $token-unit-size-half-px - var(--offset)));
     text-shadow: 0 0 4px #000b;
     font-size: 1.5rem;
+}
+
+.color-palette {
+    display: flex;
+}
+
+.hue {
+    @extend .interactable;
+    @extend %responsive;
+    @extend %selectable-tile;
+    opacity: 0.8;
+    background-color: hsl(var(--hue), 82%, 59%);
+    width: 32px;
+    height: 32px;
+
+    &.selected {
+        outline: 2px solid white;
+        z-index: 1;
+    }
 }
