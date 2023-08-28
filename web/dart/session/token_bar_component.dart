@@ -59,7 +59,7 @@ class TokenBarComponent extends InstanceComponent {
     }
 
     htmlRoot.style.setProperty('--progress', '$progress');
-    htmlRoot.style.setProperty('--hue', '${data.hue}');
+    htmlRoot.style.setProperty('--color', '${data.color}');
     _labelElement.text = data.label;
     _valueElement.text = valueText;
   }

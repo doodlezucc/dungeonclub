@@ -11,7 +11,6 @@ import 'movable.dart';
 import 'selection_token_bar.dart';
 
 class TokenBarConfigPanel extends Component {
-  static const hues = [0, 25, 150, 190, 210, 250, 340];
   static const _visibilityButtonOrder = [
     TokenBarVisibility.VISIBLE_TO_ALL,
     TokenBarVisibility.VISIBLE_TO_OWNERS,
@@ -21,17 +20,16 @@ class TokenBarConfigPanel extends Component {
   final InputElement _labelInput = queryDom('#barConfigLabel');
   final Element _visibilityRoot = queryDom('#barConfigVisibility');
   final ButtonElement _removeButton = queryDom('#barRemoveButton');
-  late ColorPalette palette;
+  late ColorPalette palette = ColorPalette(
+    queryDom('#barConfigColor'),
+    colors: TokenBar.colors,
+  );
 
   late SelectionTokenBar _attachedBar;
   late Map<Movable, TokenBar> _affectedBars;
 
   TokenBarConfigPanel() : super('#barConfiguration') {
-    palette = ColorPalette(
-      queryDom('#barConfigColor'),
-      hues: hues,
-      onSelect: _onSelectHue,
-    );
+    palette.onSelect.listen(_onSelectColor);
 
     for (var i = 0; i < _visibilityRoot.children.length; i++) {
       final button = _visibilityRoot.children[i];
@@ -63,11 +61,12 @@ class TokenBarConfigPanel extends Component {
     });
   }
 
-  void _onSelectHue(int hue) {
+  void _onSelectColor(String color) {
     _modifySimilarTokenBars((token, bar) {
-      bar.hue = hue;
+      bar.color = color;
       token.getTokenBarComponent(bar).applyData();
     });
+    _attachedBar.submitData();
   }
 
   void _modifySimilarTokenBars(
@@ -116,6 +115,7 @@ class TokenBarConfigPanel extends Component {
   void _applyBarData(SelectionTokenBar barComponent) {
     _labelInput.value = barComponent.data.label;
     _applyVisiblity(barComponent.data.visibility);
+    palette.activeColor = barComponent.data.color;
   }
 
   void _setDomVisible(bool visible) {

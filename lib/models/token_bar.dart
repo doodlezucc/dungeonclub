@@ -22,8 +22,17 @@ enum TokenBarVisibility {
 }
 
 class TokenBar {
+  static const colors = [
+    '#ec4141',
+    '#e7783e',
+    '#45c575',
+    '#2badd7',
+    '#9276f9',
+    '#db6b98',
+  ];
+
   String label = '';
-  int hue = 0;
+  String color = colors[0];
   double value = 25;
   double maxValue = 0;
 
@@ -36,7 +45,7 @@ class TokenBar {
 
   void fromJson(Map<String, dynamic> json) {
     label = json['label'];
-    hue = (json['hue'] as num).toInt();
+    color = json['color'];
     value = (json['value'] as num).toDouble();
     maxValue = (json['maxValue'] as num).toDouble();
     visibility = TokenBarVisibility.parse(json['visibility']);
@@ -44,7 +53,7 @@ class TokenBar {
 
   Map<String, dynamic> toJson() => {
         'label': label,
-        'hue': hue,
+        'color': color,
         'value': value,
         'maxValue': maxValue,
         'visibility': visibility.id,
