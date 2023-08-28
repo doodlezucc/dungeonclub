@@ -535,18 +535,20 @@ class Board {
       label = 'Bar $number';
     }
 
+    final activeBar = TokenBar(label: label);
+    activeMovable!.bars.add(activeBar);
+    activeMovable!.createTokenBarComponent(activeBar);
+
     for (var movable in selected.where((m) => m != activeMovable)) {
       final hasBarOfName = movable.bars.any((bar) => bar.label == label);
       if (!hasBarOfName) {
         final bar = TokenBar(label: label);
         movable.bars.add(bar);
-        movable.createTokenBarComponent(bar);
+
+        final component = movable.createTokenBarComponent(bar);
+        component.updateHighlight(activeMovable);
       }
     }
-
-    final activeBar = TokenBar(label: label);
-    activeMovable!.bars.add(activeBar);
-    activeMovable!.createTokenBarComponent(activeBar);
 
     final barComponent = SelectionTokenBar(activeMovable!, activeBar);
     selectedBars.add(barComponent);

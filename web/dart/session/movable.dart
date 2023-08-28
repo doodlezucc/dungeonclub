@@ -184,9 +184,10 @@ class Movable extends InstanceComponent
     barInstances.remove(component);
   }
 
-  void createTokenBarComponent(TokenBar bar) {
+  TokenBarComponent createTokenBarComponent(TokenBar bar) {
     final component = TokenBarComponent(this, bar);
     barInstances.add(component);
+    return component;
   }
 
   bool _doDisplayTokenBar(TokenBar bar) {

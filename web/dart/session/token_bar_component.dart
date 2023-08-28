@@ -12,7 +12,7 @@ class TokenBarComponent extends InstanceComponent {
   late SpanElement _labelElement;
   late SpanElement _valueElement;
 
-  set highlight(bool value) {
+  set _highlight(bool value) {
     htmlRoot.classes.toggle('active', value);
   }
 
@@ -29,19 +29,19 @@ class TokenBarComponent extends InstanceComponent {
   @override
   List<StreamSubscription> initializeListeners() => [
         token.board.selected.onSetActive
-            .listen((event) => _onActiveMovableChange(event.active)),
+            .listen((event) => updateHighlight(event.active)),
       ];
 
-  void _onActiveMovableChange(Movable? activeToken) {
+  void updateHighlight(Movable? activeToken) {
     final isDM = token.board.session.isDM;
     final isTokenSelected = token.board.selected.contains(token);
 
     if (!isDM || activeToken == null || !isTokenSelected) {
-      highlight = false;
+      _highlight = false;
       return;
     }
 
-    highlight = activeToken.bars.any(
+    _highlight = activeToken.bars.any(
       (activeBar) => activeBar.label == data.label,
     );
   }
