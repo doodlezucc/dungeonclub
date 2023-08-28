@@ -813,15 +813,21 @@ ul.settings-list {
 
 li.list-setting {
     height: 2em;
+    padding: 4px 8px;
 
     > .label {
         width: 100%;
         text-overflow: ellipsis;
         overflow: hidden;
+        transition: 0.1s;
     }
 
     > input {
         padding-top: 3px;
+    }
+
+    &.highlight > .label, > .label:hover {
+        color: var(--color-primary);
     }
 }
 

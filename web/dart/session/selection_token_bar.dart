@@ -23,12 +23,16 @@ class SelectionTokenBar extends InstanceComponent {
   double _previousValue;
   double _previousMaxValue;
 
+  set styleHighlight(bool value) {
+    htmlRoot.classes.toggle('highlight', value);
+  }
+
   SelectionTokenBar(this.token, this.data)
       : _previousValue = data.value,
         _previousMaxValue = data.maxValue,
         super(LIElement()) {
     htmlRoot
-      ..classes = ['token-bar-mini', 'list-setting']
+      ..classes = ['list-setting']
       ..append(_clickableContainer = SpanElement()
         ..append(_iconElement = icon('lock'))
         ..append(_labelElement = SpanElement()))

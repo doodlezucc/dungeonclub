@@ -25,7 +25,7 @@ class TokenBarConfigPanel extends Component {
     colors: TokenBar.colors,
   );
 
-  late SelectionTokenBar _attachedBar;
+  SelectionTokenBar? _attachedBar;
   late Map<Movable, TokenBar> _affectedBars;
 
   TokenBarConfigPanel() : super('#barConfiguration') {
@@ -44,9 +44,9 @@ class TokenBarConfigPanel extends Component {
           token.getTokenBarComponent(bar).applyData();
         });
 
-        _attachedBar.applyDataToInputs();
+        _attachedBar!.applyDataToInputs();
       },
-      onSubmit: (_) => _attachedBar.submitData(),
+      onSubmit: (_) => _attachedBar!.submitData(),
     );
 
     _removeButton.onClick.listen((_) {
@@ -55,8 +55,8 @@ class TokenBarConfigPanel extends Component {
         token.onRemoveTokenBar(bar);
       });
 
-      _attachedBar
-        ..token.board.selectedBars.remove(_attachedBar)
+      _attachedBar!
+        ..token.board.selectedBars.remove(_attachedBar!)
         ..submitData();
     });
   }
@@ -66,12 +66,12 @@ class TokenBarConfigPanel extends Component {
       bar.color = color;
       token.getTokenBarComponent(bar).applyData();
     });
-    _attachedBar.submitData();
+    _attachedBar!.submitData();
   }
 
   void _modifySimilarTokenBars(
       void Function(Movable token, TokenBar bar) modify) {
-    modify(_attachedBar.token, _attachedBar.data);
+    modify(_attachedBar!.token, _attachedBar!.data);
 
     for (var movable in _affectedBars.keys) {
       final bar = _affectedBars[movable]!;
@@ -80,11 +80,11 @@ class TokenBarConfigPanel extends Component {
   }
 
   Map<Movable, TokenBar> _findAffectedBars() {
-    final tokens = _attachedBar.token.board.selected;
-    final activeLabel = _attachedBar.data.label;
+    final tokens = _attachedBar!.token.board.selected;
+    final activeLabel = _attachedBar!.data.label;
 
     final affected = <Movable, TokenBar>{};
-    for (var movable in tokens.where((m) => m != _attachedBar.token)) {
+    for (var movable in tokens.where((m) => m != _attachedBar!.token)) {
       final similarBar = movable.bars.find((bar) => bar.label == activeLabel);
       if (similarBar != null) {
         affected[movable] = similarBar;
@@ -99,9 +99,9 @@ class TokenBarConfigPanel extends Component {
     barComponent.htmlRoot.append(htmlRoot);
     _applyBarData(barComponent);
 
-    _setDomVisible(true);
     _attachedBar = barComponent;
     _affectedBars = _findAffectedBars();
+    _setDomVisible(true);
 
     document.onMouseDown
         .firstWhere((element) => !element.path.contains(htmlRoot))
@@ -119,6 +119,7 @@ class TokenBarConfigPanel extends Component {
   }
 
   void _setDomVisible(bool visible) {
+    _attachedBar?.styleHighlight = visible;
     htmlRoot.classes.toggle('show', visible);
   }
 
@@ -131,8 +132,8 @@ class TokenBarConfigPanel extends Component {
       token.getTokenBarComponent(bar).applyData();
     });
 
-    _attachedBar.applyVisibilityIcon();
-    _attachedBar.submitData();
+    _attachedBar!.applyVisibilityIcon();
+    _attachedBar!.submitData();
   }
 
   void _applyVisiblity(TokenBarVisibility visibility) {
