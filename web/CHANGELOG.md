@@ -1,3 +1,6 @@
+## 28-08-2023
+- Tokens can now have *health bars*, each with a configurable label, color and visibility setting!
+
 ## 06-03-2023
 - The *maximum size* of battle maps has been *quadrupled* in both width and height. This allows you to upload mega dungeons in *full quality*!
 - Rolling with *advantage/disadvantage* can now be done by typing "d20adv", "d20a" or simply "adv" into the chat.
