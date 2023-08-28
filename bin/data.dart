@@ -926,7 +926,9 @@ class CharacterPrefab with EntityBase, HasInitiativeMod, HasImage {
   @override
   ControlledResource get image => _avatar;
 
-  CharacterPrefab(this.name, ControlledResource avatar) : _avatar = avatar;
+  CharacterPrefab(this.name, ControlledResource avatar) : _avatar = avatar {
+    size = 1;
+  }
 
   @override
   void fromJson(Map<String, dynamic> json) {
