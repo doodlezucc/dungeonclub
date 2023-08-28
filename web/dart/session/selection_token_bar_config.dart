@@ -50,6 +50,7 @@ class TokenBarConfigPanel extends Component {
     );
 
     _removeButton.onClick.listen((_) {
+      _removeButton.classes.remove('hovered');
       _modifySimilarTokenBars((token, bar) {
         token.bars.remove(bar);
         token.onRemoveTokenBar(bar);
