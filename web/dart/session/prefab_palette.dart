@@ -2,7 +2,6 @@ import 'dart:html';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/iterable_extension.dart';
-import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/models/entity_base.dart';
 import 'package:dungeonclub/session_util.dart';
 
@@ -274,18 +273,18 @@ void _sendUpdate() {
 }
 
 void _updateAddButton() {
-  var limitReached = prefabs.length >= prefabsPerCampaign;
+  var limitReached = prefabs.length >= user.getPrefabsPerCampaign();
   _addPref.disabled = limitReached;
   _addPref.queryDom('span').text = limitReached ? 'Limit Reached' : 'Add Token';
 }
 
 void _displayLimitMsg() {
-  HtmlNotification('Limit of $prefabsPerCampaign custom tokens reached.')
+  HtmlNotification('Limit of ${user.getPrefabsPerCampaign()} custom tokens reached.')
       .display();
 }
 
 Future<void> createPrefab(MouseEvent ev) async {
-  if (prefabs.length >= prefabsPerCampaign) return _displayLimitMsg();
+  if (prefabs.length >= user.getPrefabsPerCampaign()) return _displayLimitMsg();
 
   var fallbackID = prefabs.getNextAvailableID((e) => e.idNum);
 

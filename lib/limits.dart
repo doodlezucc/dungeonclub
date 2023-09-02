@@ -1,8 +1,10 @@
-const campaignsPerAccount = 10;
-const scenesPerCampaign = 20;
-const prefabsPerCampaign = 20;
-const mapsPerCampaign = 10;
+import 'package:dungeonclub/dungeon_club_config.dart';
+
+final campaignsPerAccount = DungeonClubConfig.getCampaignsPerAccount();
+final scenesPerCampaign = DungeonClubConfig.getScenesPerCampaign();
+final prefabsPerCampaign = DungeonClubConfig.getPrefabsPerCampaign();
+final mapsPerCampaign = DungeonClubConfig.getMapsPerCampaign();
 const movablesPerScene = 500;
 const playersPerCampaign = 20;
 
-const mediaBytesPerCampaign = 25 * 1000 * 1000;
+final mediaBytesPerCampaign = DungeonClubConfig.getStorageMegabytesPerCampaign() * 1000 * 1000;

@@ -109,4 +109,46 @@ class User {
     }
     return false;
   }
+
+  int getMediaBytesPerCampaign() {
+    if (account != null) { return account!.getMediaBytesPerCampaign(); }
+
+    return 0;
+  }
+
+  int getPrefabsPerCampaign() {
+    if (account != null) { return account!.getPrefabsPerCampaign(); }
+
+    return 0;
+  }
+
+  int getScenesPerCampaign() {
+    if (account != null) { return account!.getScenesPerCampaign(); }
+
+    return 0;
+  }
+
+  int getMapsPerCampaign() {
+    if (account != null) { return account!.getMapsPerCampaign(); }
+
+    return 0;
+  }
+
+  int getCampaignsPerAccount() {
+    if (account != null) { return account!.getCampaignsPerAccount(); }
+
+    return 0;
+  }
+
+  int getPlayersPerCampaign() {
+    if (account != null) { return account!.getPlayersPerCampaign(); }
+
+    return 0;
+  }
+
+  int getMovablesPerScene() {
+    if (account != null) { return account!.getMovablesPerScene(); }
+
+    return 0;
+  }
 }

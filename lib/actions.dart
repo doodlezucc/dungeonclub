@@ -66,10 +66,12 @@ const GRID_HEX_V = 3;
 
 const ASSET_DIRECTORIES = {
   IMAGE_TYPE_PC: 'images/assets/pc',
+  IMAGE_TYPE_ENTITY: 'images/assets/entity',
   IMAGE_TYPE_SCENE: 'images/assets/scene',
 };
 
 const ASSET_PREVIEWS = {
   IMAGE_TYPE_PC: 'images/assets/pc-preview.png',
+  IMAGE_TYPE_ENTITY: 'images/assets/entity-preview.png',
   IMAGE_TYPE_SCENE: 'images/assets/scene-preview.jpg',
 };

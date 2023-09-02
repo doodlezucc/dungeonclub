@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/comms.dart';
-import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:grid_space/grid_space.dart';
 
@@ -70,17 +69,17 @@ int get usedStorage => _usedStorage;
 set usedStorage(int bytes) {
   _usedStorage = bytes;
 
-  final percentage = '${100 * bytes / mediaBytesPerCampaign}%';
+  final percentage = '${100 * bytes / user.getMediaBytesPerCampaign()}%';
 
   querySelectorAll('.used-storage').forEach(
     (e) => (e as InputElement)
       ..style.setProperty('--v', percentage)
       ..min = '0'
-      ..max = '$mediaBytesPerCampaign'
+      ..max = '${user.getMediaBytesPerCampaign().toString()}'
       ..valueAsNumber = bytes,
   );
 
-  final storageLeft = mediaBytesPerCampaign - bytes;
+  final storageLeft = user.getMediaBytesPerCampaign() - bytes;
   final displayWarning = storageLeft <= thresholdStorageWarning;
 
   queryDom('#storageWarning').classes.toggle('hidden', !displayWarning);
@@ -89,7 +88,7 @@ set usedStorage(int bytes) {
   querySelectorAll('.storage-left')
       .forEach((e) => e.text = bytesToMB(storageLeft));
   querySelectorAll('.storage-max')
-      .forEach((e) => e.text = '${mediaBytesPerCampaign ~/ 1000000}');
+      .forEach((e) => e.text = '${user.getMediaBytesPerCampaign() ~/ 1000000}');
 }
 
 void _initialize() {
@@ -343,7 +342,7 @@ Future _displayOffline({
   final subs = [
     _uploadButton.onClick.listen((_) async {
       _uploadButton.disabled = true;
-      final limit = mediaBytesPerCampaign - usedStorage;
+      final limit = user.getMediaBytesPerCampaign() - usedStorage;
 
       dynamic result;
 
@@ -498,7 +497,7 @@ Future<void> _showUploadErrorDialog(
   int? bytesMaximum,
 ]) async {
   bytesUsed ??= usedStorage;
-  bytesMaximum ??= mediaBytesPerCampaign;
+  bytesMaximum ??= user.getMediaBytesPerCampaign();
 
   final uploadMB = bytesToMB(bytesUpload);
   final usedMB = bytesToMB(bytesUsed);
@@ -589,7 +588,7 @@ Future display({
 
     var assets = -1;
     var empty = -1;
-    if (type == IMAGE_TYPE_PC || type == IMAGE_TYPE_SCENE) {
+    if (type == IMAGE_TYPE_ENTITY || type == IMAGE_TYPE_PC || type == IMAGE_TYPE_SCENE) {
       assets = menu.addButton('Pick from Assets', 'image');
     }
 

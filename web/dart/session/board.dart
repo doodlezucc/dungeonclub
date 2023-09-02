@@ -5,13 +5,13 @@ import 'dart:svg' as svg;
 
 import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/iterable_extension.dart';
-import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/models/token_bar.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/reactive/selection_system.dart';
 import 'package:dungeonclub/session_util.dart';
 import 'package:grid_space/grid_space.dart';
 
+import '../../main.dart';
 import '../communication.dart';
 import '../html/input_extension.dart';
 import '../html/instance_list.dart';
@@ -355,19 +355,19 @@ class Board {
         }
         // Copy to clipboard or duplicate
         else if (selected.isNotEmpty) {
-          if (ev.ctrlKey) {
-            // Copy with Ctrl+C
+          if (ev.ctrlKey || ev.metaKey) {
+            // Copy with Ctrl+C or Cmd+C (MacOS)
             if (ev.key == 'c') {
               ev.preventDefault();
               clipboard = selected.toList();
             }
-            // Cut with Ctrl+X
+            // Cut with Ctrl+X or Cmd+X (MacOS)
             else if (ev.key == 'x') {
               ev.preventDefault();
               clipboard = selected.toList();
               _removeSelectedMovables();
             }
-            // Duplicate with Ctrl+D
+            // Duplicate with Ctrl+D or Cmd+D (MacOS)
             else if (ev.key == 'd') {
               ev.preventDefault();
               cloneMovables(selected);
@@ -1303,7 +1303,7 @@ class Board {
   }
 
   void _onMovableCountLimitReached() {
-    HtmlNotification('Limit of $movablesPerScene movables reached.').display();
+    HtmlNotification('Limit of ${user.getMovablesPerScene()} movables reached.').display();
     _deselectAll();
   }
 

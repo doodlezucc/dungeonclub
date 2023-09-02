@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/dungeon_club_config.dart';
 import 'package:dungeonclub/environment.dart';
 import 'package:graceful/graceful.dart';
 import 'package:http/http.dart' as http;
@@ -162,6 +163,7 @@ class Server {
     accountMaintainer.autoCheckForFile();
 
     await createAssetPreview(IMAGE_TYPE_PC, tileSize: 240);
+    await createAssetPreview(IMAGE_TYPE_ENTITY, tileSize: 240);
     await createAssetPreview(IMAGE_TYPE_SCENE, zoomIn: true);
 
     if (Environment.enableMusic) {
@@ -311,7 +313,7 @@ class Server {
     }
 
     final isDataFile =
-        path.startsWith('database/games') || path.startsWith('ambience/');
+        path.contains('database/games') || path.startsWith('ambience/');
 
     File? file;
     if (path.startsWith('asset/')) {
@@ -320,7 +322,7 @@ class Server {
     }
 
     file ??= isDataFile
-        ? File(path)
+        ? File("${DungeonClubConfig.getDatabasePath()}/${path}")
         : (path.startsWith('game')
             ? File('web/' + path.substring(5))
             : File('web/' + path));

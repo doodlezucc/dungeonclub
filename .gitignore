@@ -4,6 +4,7 @@
 
 # Conventional directory for build outputs
 build/
+logs/
 
 # Directory created by dartdoc
 doc/api/
@@ -21,3 +22,9 @@ web/images/assets/*-preview.*
 # Include only a single battle map in the repo
 web/images/assets/scene/*
 !web/images/assets/scene/Shipyard (23x16) Base Map, Day.jpg
+db/*
+!db/.keep
+config.yaml
+tmp/*
+!tmp/.keep
+login.yaml

@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:html';
 
-import 'package:dungeonclub/limits.dart';
-
 import '../main.dart';
 import 'changelog.dart';
 import 'html_helpers.dart';
@@ -37,9 +35,9 @@ Future<void> init() {
       return HtmlNotification('No permissions to create a new game!').display();
     }
 
-    if (_gamesContainer.children.length > campaignsPerAccount) {
+    if (_gamesContainer.children.length > user.getCampaignsPerAccount()) {
       return HtmlNotification(
-              'Limit of $campaignsPerAccount campaigns reached.')
+              'Limit of ${user.getCampaignsPerAccount()} campaigns reached.')
           .display();
     }
 

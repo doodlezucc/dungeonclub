@@ -6,6 +6,7 @@ import 'dart:math';
 
 import 'package:crypt/crypt.dart';
 import 'package:dungeonclub/actions.dart' as a;
+import 'package:dungeonclub/dungeon_club_config.dart';
 import 'package:dungeonclub/iterable_extension.dart';
 import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/models/entity_base.dart';
@@ -27,7 +28,7 @@ import 'versioning.dart';
 
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
-  static final directory = Directory('database');
+  static final directory = Directory(DungeonClubConfig.getDatabasePath() + "/database");
   static final file = File(path.join(directory.path, 'data.json'));
   static bool _isInitialized = false;
 
@@ -258,11 +259,20 @@ class Account {
   Map<String, dynamic> toJson() => {
         'email': encryptedEmail.toString(),
         'password': encryptedPassword.toString(),
-        'games': enteredGames.map((g) => g.id).toList(),
+        'games': enteredGames.map((g) => g.id).toList()
       };
 
   Map<String, dynamic> toSnippet() => {
         'games': enteredGames.map((g) => g.toSnippet(this)).toList(),
+        'limits': {
+          "media_bytes_per_campaign": mediaBytesPerCampaign,
+          "prefabs_per_campaign": prefabsPerCampaign,
+          "scenes_per_campaign": scenesPerCampaign,
+          "maps_per_campaign": mapsPerCampaign,
+          "players_per_campaign": playersPerCampaign,
+          "campaigns_per_account": campaignsPerAccount,
+          "movables_per_scene": movablesPerScene
+        }
       };
 }
 
