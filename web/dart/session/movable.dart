@@ -316,6 +316,21 @@ class Movable extends InstanceComponent
     applyConditions(List<int>.from(json['conds'] ?? []));
     onPrefabUpdate();
   }
+
+  void ping() {
+    this.styleSelected = true;
+    Future.delayed(const Duration(seconds: 10), () {
+      this.styleSelected = false;
+    });
+  }
+
+  void goTo() {
+    this.styleSelected = true;
+    board.animateTransformToToken(this);
+    Future.delayed(const Duration(seconds: 10), () {
+      this.styleSelected = false;
+    });
+  }
 }
 
 class EmptyMovable extends Movable {

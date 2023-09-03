@@ -386,6 +386,14 @@ class Connection extends Socket {
 
         return notifyOthers(action, params);
 
+      case a.GAME_MOVABLE_GOTO:
+        _requireInSession();
+        return notifyOthers(action, params);
+
+      case a.GAME_MOVABLE_PING:
+        _requireInSession();
+        return notifyOthers(action, params);
+
       case a.GAME_MOVABLE_SNAP:
         if (scene == null) return null;
 

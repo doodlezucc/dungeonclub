@@ -57,6 +57,8 @@ final ButtonElement _addTokenBarButton = queryDom('#barAddButton');
 final ButtonElement _selectedInvisible = queryDom('#movableInvisible');
 final ButtonElement _selectedRemove = queryDom('#movableRemove');
 final ButtonElement _selectedSnap = queryDom('#movableSnap');
+final ButtonElement _selectedGoTo = queryDom('#movableGoTo');
+final ButtonElement _selectedPing = queryDom('#movablePing');
 
 final ButtonElement _fowToggle = queryDom('#fogOfWar');
 final ButtonElement _measureToggle = queryDom('#measureDistance');
@@ -452,11 +454,33 @@ class Board {
     _sendSelectedMovablesSnap();
   }
 
+  void _goToMovable() {
+    socket.sendAction(a.GAME_MOVABLE_GOTO, {
+      'movable': selected.first.id,
+    }).then((value) => selected.first.goTo());
+  }
+
+  void _pingMovable() {
+    socket.sendAction(a.GAME_MOVABLE_PING, {
+      'movable': selected.first.id,
+    }).then((value) => selected.first.ping());
+  }
+
   void onMovableSnap(Map<String, dynamic> json) {
     for (var jm in json['movables']) {
       var m = movables.firstWhere((mv) => mv.id == jm['id']);
       m.handleSnapEvent(jm);
     }
+  }
+
+  void onMovableGoTo(Map<String, dynamic> json) {
+    var m = movables.firstWhere((mv) => mv.id == json['movable']);
+    m.goTo();
+  }
+
+  void onMovablePing(Map<String, dynamic> json) {
+    var m = movables.firstWhere((mv) => mv.id == json['movable']);
+    m.ping();
   }
 
   void _deselectAll() {
@@ -507,6 +531,8 @@ class Board {
   void _initSelectionHandler() {
     _selectedRemove.onClick.listen((_) => _removeSelectedMovables());
     _selectedSnap.onClick.listen((_) => _snapSelection());
+    _selectedGoTo.onClick.listen((_) => _goToMovable());
+    _selectedPing.onClick.listen((_) => _pingMovable());
 
     _listenSelectedLazyUpdate(_selectedLabel, onChange: (m, value) {
       m.label = value;
