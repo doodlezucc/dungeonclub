@@ -31,7 +31,7 @@ class Account {
   int get mapsPerCampaign => limits["maps_per_campaign"] as int;
   int get campaignsPerAccount => limits["campaigns_per_account"] as int;
   int get playersPerCampaign => limits["players_per_campaign"] as int;
-  int get movablesPerScene => limits["movable_per_scene"] as int;
+  int get movablesPerScene => limits["movables_per_scene"] as int;
 
   Future<Game?> createNewGame() async {
     final game = await edit_game.displayPrepare();
