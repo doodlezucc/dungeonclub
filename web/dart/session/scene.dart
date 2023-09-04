@@ -98,11 +98,11 @@ class Scene {
 
   static void updateAddSceneButton() {
     final scenes = user.session!.scenes;
-    final reachedLimit = scenes.length >= user.getScenesPerCampaign();
+    final reachedLimit = scenes.length >= user.scenesPerCampaign;
 
     _addScene.disabled = reachedLimit;
     _addScene.title = reachedLimit
-        ? "You can't have more than ${user.getScenesPerCampaign()} scenes at a time."
+        ? "You can't have more than ${user.scenesPerCampaign} scenes at a time."
         : '';
 
     scenes.first.enableRemove = scenes.length != 1;

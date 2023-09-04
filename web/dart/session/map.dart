@@ -143,10 +143,10 @@ class MapTab {
       _navRight.classes.toggle('add-map', showAdd);
       _navRight.children.first.className = 'fas fa-$icon';
 
-      if (showAdd && maps.length >= user.getMapsPerCampaign()) {
+      if (showAdd && maps.length >= user.mapsPerCampaign) {
         _navRight.disabled = true;
         _navRight.queryDom('span').text =
-            'Limit of ${user.getMapsPerCampaign()} Maps Reached!';
+            'Limit of ${user.mapsPerCampaign} Maps Reached!';
       } else {
         _navRight.disabled = maps.isEmpty;
         _navRight.queryDom('span').text = 'Create New Map';
@@ -172,7 +172,7 @@ class MapTab {
   }
 
   Future<bool> _uploadNewMap(MouseEvent ev) async {
-    if (maps.length >= user.getMapsPerCampaign()) return false;
+    if (maps.length >= user.mapsPerCampaign) return false;
 
     final response = await uploader.display(
       event: ev,

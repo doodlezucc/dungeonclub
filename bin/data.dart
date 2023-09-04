@@ -6,9 +6,9 @@ import 'dart:math';
 
 import 'package:crypt/crypt.dart';
 import 'package:dungeonclub/actions.dart' as a;
-import 'package:dungeonclub/dungeon_club_config.dart';
+import 'config.dart';
 import 'package:dungeonclub/iterable_extension.dart';
-import 'package:dungeonclub/limits.dart';
+import 'limits.dart';
 import 'package:dungeonclub/models/entity_base.dart';
 import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/point_json.dart';
@@ -28,7 +28,7 @@ import 'versioning.dart';
 
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
-  static final directory = Directory(DungeonClubConfig.getDatabasePath() + "/database");
+  static final directory = Directory(path.join(DungeonClubConfig.getDatabasePath(), "database"));
   static final file = File(path.join(directory.path, 'data.json'));
   static bool _isInitialized = false;
 

@@ -4,7 +4,7 @@ import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/comms.dart';
 import 'package:dungeonclub/dice_parser.dart';
 import 'package:dungeonclub/iterable_extension.dart';
-import 'package:dungeonclub/limits.dart';
+import 'limits.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:random_string/random_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -387,11 +387,11 @@ class Connection extends Socket {
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_GOTO:
-        _requireInSession();
+        _requireOwnerOfSession();
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_PING:
-        _requireInSession();
+        _requireOwnerOfSession();
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_SNAP:

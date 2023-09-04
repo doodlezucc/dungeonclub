@@ -110,45 +110,11 @@ class User {
     return false;
   }
 
-  int getMediaBytesPerCampaign() {
-    if (account != null) { return account!.getMediaBytesPerCampaign(); }
-
-    return 0;
-  }
-
-  int getPrefabsPerCampaign() {
-    if (account != null) { return account!.getPrefabsPerCampaign(); }
-
-    return 0;
-  }
-
-  int getScenesPerCampaign() {
-    if (account != null) { return account!.getScenesPerCampaign(); }
-
-    return 0;
-  }
-
-  int getMapsPerCampaign() {
-    if (account != null) { return account!.getMapsPerCampaign(); }
-
-    return 0;
-  }
-
-  int getCampaignsPerAccount() {
-    if (account != null) { return account!.getCampaignsPerAccount(); }
-
-    return 0;
-  }
-
-  int getPlayersPerCampaign() {
-    if (account != null) { return account!.getPlayersPerCampaign(); }
-
-    return 0;
-  }
-
-  int getMovablesPerScene() {
-    if (account != null) { return account!.getMovablesPerScene(); }
-
-    return 0;
-  }
+  int get mediaBytesPerCampaign => account?.mediaBytesPerCampaign ?? 0;
+  int get prefabsPerCampaign => account?.prefabsPerCampaign ?? 0;
+  int get scenesPerCampaign => account?.scenesPerCampaign ?? 0;
+  int get mapsPerCampaign => account?.mapsPerCampaign ?? 0;
+  int get campaignsPerAccount => account?.campaignsPerAccount ?? 0;
+  int get playersPerCampaign => account?.playersPerCampaign ?? 0;
+  int get movablesPerScene => account?.movablesPerScene ?? 0;
 }

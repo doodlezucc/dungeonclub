@@ -128,7 +128,7 @@ Future<Game?> displayPrepare() async {
 
 void _updateAddButton() {
   _addCharButton.classes.toggle('disabled',
-      _chars.where((char) => !char.isRemoved).length >= user.getPlayersPerCampaign());
+      _chars.where((char) => !char.isRemoved).length >= user.playersPerCampaign);
 }
 
 class _EditChar {

@@ -455,15 +455,17 @@ class Board {
   }
 
   void _goToMovable() {
+    selected.active!.goTo();
     socket.sendAction(a.GAME_MOVABLE_GOTO, {
-      'movable': selected.first.id,
-    }).then((value) => selected.first.goTo());
+      'movable': selected.active!.id,
+    });
   }
 
   void _pingMovable() {
+    selected.active!.ping();
     socket.sendAction(a.GAME_MOVABLE_PING, {
-      'movable': selected.first.id,
-    }).then((value) => selected.first.ping());
+      'movable': selected.active!.id,
+    });
   }
 
   void onMovableSnap(Map<String, dynamic> json) {
@@ -1329,7 +1331,7 @@ class Board {
   }
 
   void _onMovableCountLimitReached() {
-    HtmlNotification('Limit of ${user.getMovablesPerScene()} movables reached.').display();
+    HtmlNotification('Limit of ${user.movablesPerScene} movables reached.').display();
     _deselectAll();
   }
 

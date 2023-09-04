@@ -35,9 +35,9 @@ Future<void> init() {
       return HtmlNotification('No permissions to create a new game!').display();
     }
 
-    if (_gamesContainer.children.length > user.getCampaignsPerAccount()) {
+    if (_gamesContainer.children.length > user.campaignsPerAccount) {
       return HtmlNotification(
-              'Limit of ${user.getCampaignsPerAccount()} campaigns reached.')
+              'Limit of ${user.campaignsPerAccount} campaigns reached.')
           .display();
     }
 

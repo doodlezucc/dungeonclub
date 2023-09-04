@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:path/path.dart' as path;
 import 'package:dungeonclub/actions.dart';
-import 'package:dungeonclub/dungeon_club_config.dart';
+import 'config.dart';
 import 'package:dungeonclub/environment.dart';
 import 'package:graceful/graceful.dart';
 import 'package:http/http.dart' as http;
@@ -290,47 +291,47 @@ class Server {
       return Response.forbidden('Server is shutting down.');
     }
 
-    var path = Uri.decodeComponent(request.url.path);
+    var urlPath = Uri.decodeComponent(request.url.path);
 
-    if (path == 'ws') {
+    if (urlPath == 'ws') {
       return await ws.webSocketHandler(_onWebSocketConnect,
           pingInterval: wsPing)(request);
-    } else if (path.isEmpty || path == 'home') {
-      path = 'index.html';
-    } else if (path == 'privacy') {
-      path += '.html';
-    } else if (path.endsWith('.mp4')) {
-      var vid = path.substring(path.lastIndexOf('/'));
+    } else if (urlPath.isEmpty || urlPath == 'home') {
+      urlPath = 'index.html';
+    } else if (urlPath == 'privacy') {
+      urlPath += '.html';
+    } else if (urlPath.endsWith('.mp4')) {
+      var vid = urlPath.substring(urlPath.lastIndexOf('/'));
       return Response.seeOther('$githubUrl/web/videos$vid', headers: {
         'Set-Cookie': '',
       });
-    } else if (path == 'online') {
+    } else if (urlPath == 'online') {
       var count = connections.length;
       var loggedIn = connections.where((e) => e.account != null).length;
       return Response.ok('Connections: $count\nLogged in: $loggedIn');
-    } else if (path.startsWith('untaint')) {
+    } else if (urlPath.startsWith('untaint')) {
       return untaint(request, _notFound);
     }
 
     final isDataFile =
-        path.contains('database/games') || path.startsWith('ambience/');
+        urlPath.startsWith('database/games') || urlPath.startsWith('ambience/');
 
     File? file;
-    if (path.startsWith('asset/')) {
-      final redirect = await resolveIndexedAsset(path, fullPath: true);
+    if (urlPath.startsWith('asset/')) {
+      final redirect = await resolveIndexedAsset(urlPath, fullPath: true);
       return Response.movedPermanently('/$redirect');
     }
 
     file ??= isDataFile
-        ? File("${DungeonClubConfig.getDatabasePath()}/${path}")
-        : (path.startsWith('game')
-            ? File('web/' + path.substring(5))
-            : File('web/' + path));
+        ? File(path.join(DungeonClubConfig.getDatabasePath(), urlPath))
+        : (urlPath.startsWith('game')
+            ? File('web/' + urlPath.substring(5))
+            : File('web/' + urlPath));
 
     if (!await file.exists()) {
-      if (isDataFile && path.contains('/pc')) {
+      if (isDataFile && urlPath.contains('/pc')) {
         return Response.seeOther('$address/images/assets/default_pc.jpg');
-      } else if (!path.startsWith('game/') && path.isNotEmpty) {
+      } else if (!urlPath.startsWith('game/') && urlPath.isNotEmpty) {
         return _notFound(request);
       } else {
         file = File('web/index.html');

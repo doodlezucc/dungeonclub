@@ -25,34 +25,13 @@ class Account {
     }
   }
 
-  int getMediaBytesPerCampaign() {
-    return limits["media_bytes_per_campaign"] as int;
-  }
-
-  int getPrefabsPerCampaign() {
-    return limits["prefabs_per_campaign"] as int;
-  }
-
-  int getScenesPerCampaign() {
-    return limits["scenes_per_campaign"] as int;
-  }
-
-  int getMapsPerCampaign() {
-    return limits["maps_per_campaign"] as int;
-  }
-
-  int getCampaignsPerAccount() {
-    return limits["campaigns_per_account"] as int;
-  }
-
-  int getPlayersPerCampaign() {
-    return limits["players_per_campaign"] as int;
-  }
-
-  int getMovablesPerScene() {
-    return limits["movable_per_scene"] as int;
-  }
-
+  int get mediaBytesPerCampaign => limits["media_bytes_per_campaign"] as int;
+  int get prefabsPerCampaign => limits["prefabs_per_campaign"] as int;
+  int get scenesPerCampaign => limits["scenes_per_campaign"] as int;
+  int get mapsPerCampaign => limits["maps_per_campaign"] as int;
+  int get campaignsPerAccount => limits["campaigns_per_account"] as int;
+  int get playersPerCampaign => limits["players_per_campaign"] as int;
+  int get movablesPerScene => limits["movable_per_scene"] as int;
 
   Future<Game?> createNewGame() async {
     final game = await edit_game.displayPrepare();

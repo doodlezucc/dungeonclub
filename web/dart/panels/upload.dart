@@ -69,17 +69,17 @@ int get usedStorage => _usedStorage;
 set usedStorage(int bytes) {
   _usedStorage = bytes;
 
-  final percentage = '${100 * bytes / user.getMediaBytesPerCampaign()}%';
+  final percentage = '${100 * bytes / user.mediaBytesPerCampaign}%';
 
   querySelectorAll('.used-storage').forEach(
     (e) => (e as InputElement)
       ..style.setProperty('--v', percentage)
       ..min = '0'
-      ..max = '${user.getMediaBytesPerCampaign().toString()}'
+      ..max = '${user.mediaBytesPerCampaign.toString()}'
       ..valueAsNumber = bytes,
   );
 
-  final storageLeft = user.getMediaBytesPerCampaign() - bytes;
+  final storageLeft = user.mediaBytesPerCampaign - bytes;
   final displayWarning = storageLeft <= thresholdStorageWarning;
 
   queryDom('#storageWarning').classes.toggle('hidden', !displayWarning);
@@ -88,7 +88,7 @@ set usedStorage(int bytes) {
   querySelectorAll('.storage-left')
       .forEach((e) => e.text = bytesToMB(storageLeft));
   querySelectorAll('.storage-max')
-      .forEach((e) => e.text = '${user.getMediaBytesPerCampaign() ~/ 1000000}');
+      .forEach((e) => e.text = '${user.mediaBytesPerCampaign ~/ 1000000}');
 }
 
 void _initialize() {
@@ -342,7 +342,7 @@ Future _displayOffline({
   final subs = [
     _uploadButton.onClick.listen((_) async {
       _uploadButton.disabled = true;
-      final limit = user.getMediaBytesPerCampaign() - usedStorage;
+      final limit = user.mediaBytesPerCampaign - usedStorage;
 
       dynamic result;
 
@@ -497,7 +497,7 @@ Future<void> _showUploadErrorDialog(
   int? bytesMaximum,
 ]) async {
   bytesUsed ??= usedStorage;
-  bytesMaximum ??= user.getMediaBytesPerCampaign();
+  bytesMaximum ??= user.mediaBytesPerCampaign;
 
   final uploadMB = bytesToMB(bytesUpload);
   final usedMB = bytesToMB(bytesUsed);

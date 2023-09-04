@@ -97,7 +97,7 @@ class BackendProcess extends DevProcess {
     _signalsFromServer.first.then((port) => completer.complete(port));
 
     // Pass "--bootstrap none" to disable log files
-    final programArgs = ['--bootstrap', 'none', ..._args];
+    final programArgs = ['--mock-account', '--bootstrap', 'none', ..._args];
 
     await Isolate.spawnUri(
       Uri.file('./server.dart'),
