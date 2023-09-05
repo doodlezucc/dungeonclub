@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dungeonclub/comms.dart';
-import 'package:dungeonclub/limits.dart';
+import 'limits.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
 

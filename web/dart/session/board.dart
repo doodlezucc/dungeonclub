@@ -5,13 +5,13 @@ import 'dart:svg' as svg;
 
 import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/iterable_extension.dart';
-import 'package:dungeonclub/limits.dart';
 import 'package:dungeonclub/models/token_bar.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/reactive/selection_system.dart';
 import 'package:dungeonclub/session_util.dart';
 import 'package:grid_space/grid_space.dart';
 
+import '../../main.dart';
 import '../communication.dart';
 import '../html/input_extension.dart';
 import '../html/instance_list.dart';
@@ -57,6 +57,8 @@ final ButtonElement _addTokenBarButton = queryDom('#barAddButton');
 final ButtonElement _selectedInvisible = queryDom('#movableInvisible');
 final ButtonElement _selectedRemove = queryDom('#movableRemove');
 final ButtonElement _selectedSnap = queryDom('#movableSnap');
+final ButtonElement _selectedGoTo = queryDom('#movableGoTo');
+final ButtonElement _selectedPing = queryDom('#movablePing');
 
 final ButtonElement _fowToggle = queryDom('#fogOfWar');
 final ButtonElement _measureToggle = queryDom('#measureDistance');
@@ -355,19 +357,19 @@ class Board {
         }
         // Copy to clipboard or duplicate
         else if (selected.isNotEmpty) {
-          if (ev.ctrlKey) {
-            // Copy with Ctrl+C
+          if (ev.ctrlKey || ev.metaKey) {
+            // Copy with Ctrl+C or Cmd+C (MacOS)
             if (ev.key == 'c') {
               ev.preventDefault();
               clipboard = selected.toList();
             }
-            // Cut with Ctrl+X
+            // Cut with Ctrl+X or Cmd+X (MacOS)
             else if (ev.key == 'x') {
               ev.preventDefault();
               clipboard = selected.toList();
               _removeSelectedMovables();
             }
-            // Duplicate with Ctrl+D
+            // Duplicate with Ctrl+D or Cmd+D (MacOS)
             else if (ev.key == 'd') {
               ev.preventDefault();
               cloneMovables(selected);
@@ -452,11 +454,35 @@ class Board {
     _sendSelectedMovablesSnap();
   }
 
+  void _goToMovable() {
+    selected.active!.goTo();
+    socket.sendAction(a.GAME_MOVABLE_GOTO, {
+      'movable': selected.active!.id,
+    });
+  }
+
+  void _pingMovable() {
+    selected.active!.ping();
+    socket.sendAction(a.GAME_MOVABLE_PING, {
+      'movable': selected.active!.id,
+    });
+  }
+
   void onMovableSnap(Map<String, dynamic> json) {
     for (var jm in json['movables']) {
       var m = movables.firstWhere((mv) => mv.id == jm['id']);
       m.handleSnapEvent(jm);
     }
+  }
+
+  void onMovableGoTo(Map<String, dynamic> json) {
+    var m = movables.firstWhere((mv) => mv.id == json['movable']);
+    m.goTo();
+  }
+
+  void onMovablePing(Map<String, dynamic> json) {
+    var m = movables.firstWhere((mv) => mv.id == json['movable']);
+    m.ping();
   }
 
   void _deselectAll() {
@@ -507,6 +533,8 @@ class Board {
   void _initSelectionHandler() {
     _selectedRemove.onClick.listen((_) => _removeSelectedMovables());
     _selectedSnap.onClick.listen((_) => _snapSelection());
+    _selectedGoTo.onClick.listen((_) => _goToMovable());
+    _selectedPing.onClick.listen((_) => _pingMovable());
 
     _listenSelectedLazyUpdate(_selectedLabel, onChange: (m, value) {
       m.label = value;
@@ -1303,7 +1331,7 @@ class Board {
   }
 
   void _onMovableCountLimitReached() {
-    HtmlNotification('Limit of $movablesPerScene movables reached.').display();
+    HtmlNotification('Limit of ${user.tokensPerScene} movables reached.').display();
     _deselectAll();
   }
 

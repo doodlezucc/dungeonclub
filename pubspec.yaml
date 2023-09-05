@@ -26,6 +26,7 @@ dependencies:
   shelf: ^1.2.0
   shelf_web_socket: ^1.0.1
   web_socket_channel: ^2.1.0
+  yaml: ^3.1.2
   ambience:
     git: https://github.com/doodlezucc/ambience.git
   web_polymask:

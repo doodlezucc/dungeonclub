@@ -4,7 +4,7 @@ import 'package:dungeonclub/actions.dart' as a;
 import 'package:dungeonclub/comms.dart';
 import 'package:dungeonclub/dice_parser.dart';
 import 'package:dungeonclub/iterable_extension.dart';
-import 'package:dungeonclub/limits.dart';
+import 'limits.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:random_string/random_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -347,7 +347,7 @@ class Connection extends Socket {
       case a.GAME_MOVABLE_CREATE:
         _requireOwnerOfSession();
 
-        if (scene != null && scene!.movables.length < movablesPerScene) {
+        if (scene != null && scene!.movables.length < tokensPerScene) {
           final m = scene!.addMovable(params);
 
           notifyOthers(action, {
@@ -363,7 +363,7 @@ class Connection extends Socket {
         _requireInSession();
 
         List source = params['movables'];
-        if (scene!.movables.length + source.length > movablesPerScene) {
+        if (scene!.movables.length + source.length > tokensPerScene) {
           throw RangeError('Token limit reached');
         }
 
@@ -384,6 +384,14 @@ class Connection extends Socket {
           scene!.getMovable(movableId)!.position = position;
         }
 
+        return notifyOthers(action, params);
+
+      case a.GAME_MOVABLE_GOTO:
+        _requireOwnerOfSession();
+        return notifyOthers(action, params);
+
+      case a.GAME_MOVABLE_PING:
+        _requireOwnerOfSession();
         return notifyOthers(action, params);
 
       case a.GAME_MOVABLE_SNAP:

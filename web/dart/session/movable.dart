@@ -81,6 +81,11 @@ class Movable extends InstanceComponent
     htmlRoot.classes.toggle('selected', value);
   }
 
+  bool get stylePinged => htmlRoot.classes.contains('pinged');
+  set stylePinged(bool value) {
+    htmlRoot.classes.toggle('pinged', value);
+  }
+
   set styleHovered(bool value) {
     htmlRoot.classes.toggle('hovered', value);
   }
@@ -315,6 +320,21 @@ class Movable extends InstanceComponent
     _createBarComponents();
     applyConditions(List<int>.from(json['conds'] ?? []));
     onPrefabUpdate();
+  }
+
+  void ping() {
+    this.stylePinged = true;
+    Future.delayed(const Duration(seconds: 10), () {
+      this.stylePinged = false;
+    });
+  }
+
+  void goTo() {
+    this.stylePinged = true;
+    board.animateTransformToToken(this);
+    Future.delayed(const Duration(seconds: 10), () {
+      this.stylePinged = false;
+    });
   }
 }
 

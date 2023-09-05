@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:dungeonclub/actions.dart';
-import 'package:dungeonclub/limits.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -129,7 +128,7 @@ Future<Game?> displayPrepare() async {
 
 void _updateAddButton() {
   _addCharButton.classes.toggle('disabled',
-      _chars.where((char) => !char.isRemoved).length >= playersPerCampaign);
+      _chars.where((char) => !char.isRemoved).length >= user.playersPerCampaign);
 }
 
 class _EditChar {

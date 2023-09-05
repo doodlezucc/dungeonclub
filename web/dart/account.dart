@@ -11,17 +11,27 @@ import 'panels/panel_overlay.dart';
 class Account {
   final List<Game> games;
   final _joinStream = StreamController<bool>.broadcast();
+  final Map<String, dynamic> limits;
   int _lockJoin = 0;
 
   Account(Map<String, dynamic> json)
       : games = List.from(json['games'])
             .map((e) => Game(e['id'], e['name'], e['mine']))
-            .toList() {
+            .toList(),
+        limits = (json['limits'] ?? {}) {
     var token = json['token'];
     if (token != null) {
       window.localStorage['token'] = token;
     }
   }
+
+  int get mediaBytesPerCampaign => limits["media_bytes_per_campaign"] as int;
+  int get prefabsPerCampaign => limits["prefabs_per_campaign"] as int;
+  int get scenesPerCampaign => limits["scenes_per_campaign"] as int;
+  int get mapsPerCampaign => limits["maps_per_campaign"] as int;
+  int get campaignsPerAccount => limits["campaigns_per_account"] as int;
+  int get playersPerCampaign => limits["players_per_campaign"] as int;
+  int get tokensPerScene => limits["tokens_per_scene"] as int;
 
   Future<Game?> createNewGame() async {
     final game = await edit_game.displayPrepare();

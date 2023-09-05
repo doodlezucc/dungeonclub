@@ -17,6 +17,8 @@ const GAME_STORAGE_CHANGED = 'gameStorageChanged';
 const GAME_MOVABLE_CREATE = 'gameMovableCreate';
 const GAME_MOVABLE_CREATE_ADVANCED = 'gameMovableCreateAdvanced';
 const GAME_MOVABLE_MOVE = 'gameMovableMove';
+const GAME_MOVABLE_GOTO = 'gameMovableGoTo';
+const GAME_MOVABLE_PING = 'gameMovablePing';
 const GAME_MOVABLE_SNAP = 'gameMovableSnap';
 const GAME_MOVABLE_UPDATE = 'gameMovableUpdate';
 const GAME_MOVABLE_REMOVE = 'gameMovableRemove';
@@ -66,10 +68,12 @@ const GRID_HEX_V = 3;
 
 const ASSET_DIRECTORIES = {
   IMAGE_TYPE_PC: 'images/assets/pc',
+  IMAGE_TYPE_ENTITY: 'images/assets/entity',
   IMAGE_TYPE_SCENE: 'images/assets/scene',
 };
 
 const ASSET_PREVIEWS = {
   IMAGE_TYPE_PC: 'images/assets/pc-preview.png',
+  IMAGE_TYPE_ENTITY: 'images/assets/entity-preview.png',
   IMAGE_TYPE_SCENE: 'images/assets/scene-preview.jpg',
 };

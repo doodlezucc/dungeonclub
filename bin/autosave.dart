@@ -2,12 +2,13 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:archive/archive_io.dart';
+import 'config.dart';
 import 'package:path/path.dart' as p;
 
 import 'data.dart';
 
-final _backupDaily = Directory('database_backup/daily');
-final _backupWeeks = Directory('database_backup/weeks');
+final _backupDaily = Directory(p.join(DungeonClubConfig.databasePath, 'database_backup', 'daily'));
+final _backupWeeks = Directory(p.join(DungeonClubConfig.databasePath, 'database_backup', 'weeks'));
 
 class AutoSaver {
   final int weeklySaveDay = DateTime.monday;

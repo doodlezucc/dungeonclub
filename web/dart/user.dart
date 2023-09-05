@@ -109,4 +109,12 @@ class User {
     }
     return false;
   }
+
+  int get mediaBytesPerCampaign => account?.mediaBytesPerCampaign ?? 0;
+  int get prefabsPerCampaign => account?.prefabsPerCampaign ?? 0;
+  int get scenesPerCampaign => account?.scenesPerCampaign ?? 0;
+  int get mapsPerCampaign => account?.mapsPerCampaign ?? 0;
+  int get campaignsPerAccount => account?.campaignsPerAccount ?? 0;
+  int get playersPerCampaign => account?.playersPerCampaign ?? 0;
+  int get tokensPerScene => account?.tokensPerScene ?? 0;
 }

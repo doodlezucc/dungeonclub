@@ -1,7 +1,6 @@
 import 'dart:html';
 
 import 'package:dungeonclub/actions.dart';
-import 'package:dungeonclub/limits.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -99,11 +98,11 @@ class Scene {
 
   static void updateAddSceneButton() {
     final scenes = user.session!.scenes;
-    final reachedLimit = scenes.length >= scenesPerCampaign;
+    final reachedLimit = scenes.length >= user.scenesPerCampaign;
 
     _addScene.disabled = reachedLimit;
     _addScene.title = reachedLimit
-        ? "You can't have more than $scenesPerCampaign scenes at a time."
+        ? "You can't have more than ${user.scenesPerCampaign} scenes at a time."
         : '';
 
     scenes.first.enableRemove = scenes.length != 1;
