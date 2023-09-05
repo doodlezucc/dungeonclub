@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:yaml/yaml.dart';
 
-final _yamlConfig = loadYaml(File("config.yaml").readAsStringSync());
+final _yamlConfigFile = File("config.yaml");
+final _yamlConfig = _yamlConfigFile.existsSync() ? loadYaml(_yamlConfigFile.readAsStringSync()) : {};
 
 class DungeonClubConfig {
   static String _databasePath = _yamlConfig["database_path"] ?? ".";
