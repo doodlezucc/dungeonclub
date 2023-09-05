@@ -347,7 +347,7 @@ class Connection extends Socket {
       case a.GAME_MOVABLE_CREATE:
         _requireOwnerOfSession();
 
-        if (scene != null && scene!.movables.length < movablesPerScene) {
+        if (scene != null && scene!.movables.length < tokensPerScene) {
           final m = scene!.addMovable(params);
 
           notifyOthers(action, {
@@ -363,7 +363,7 @@ class Connection extends Socket {
         _requireInSession();
 
         List source = params['movables'];
-        if (scene!.movables.length + source.length > movablesPerScene) {
+        if (scene!.movables.length + source.length > tokensPerScene) {
           throw RangeError('Token limit reached');
         }
 

@@ -12,27 +12,10 @@ class DungeonClubConfig {
   static int _mapsPerCampaign = _yamlConfig["maps_per_campaign"] ?? 10;
   static int _campaignsPerAccount = _yamlConfig["campaigns_per_account"] ?? 10;
 
-  static String getDatabasePath() {
-    return _databasePath;
-  }
-
-  static int getStorageMegabytesPerCampaign() {
-    return _storageMegabytesPerCampaign;
-  }
-
-  static int getPrefabsPerCampaign() {
-    return _prefabsPerCampaign;
-  }
-
-  static int getScenesPerCampaign() {
-    return _scenesPerCampaign;
-  }
-
-  static int getMapsPerCampaign() {
-    return _mapsPerCampaign;
-  }
-
-  static int getCampaignsPerAccount() {
-    return _campaignsPerAccount;
-  }
+  static String get databasePath => _databasePath;
+  static int get storageMegabytesPerCampaign => _storageMegabytesPerCampaign;
+  static int get prefabsPerCampaign => _prefabsPerCampaign;
+  static int get scenesPerCampaign => _scenesPerCampaign;
+  static int get mapsPerCampaign => _mapsPerCampaign;
+  static int get campaignsPerAccount => _campaignsPerAccount;
 }

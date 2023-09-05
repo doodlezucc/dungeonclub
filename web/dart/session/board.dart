@@ -1331,7 +1331,7 @@ class Board {
   }
 
   void _onMovableCountLimitReached() {
-    HtmlNotification('Limit of ${user.movablesPerScene} movables reached.').display();
+    HtmlNotification('Limit of ${user.tokensPerScene} movables reached.').display();
     _deselectAll();
   }
 

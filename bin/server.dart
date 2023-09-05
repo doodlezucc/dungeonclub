@@ -323,7 +323,7 @@ class Server {
     }
 
     file ??= isDataFile
-        ? File(path.join(DungeonClubConfig.getDatabasePath(), urlPath))
+        ? File(path.join(DungeonClubConfig.databasePath, urlPath))
         : (urlPath.startsWith('game')
             ? File('web/' + urlPath.substring(5))
             : File('web/' + urlPath));

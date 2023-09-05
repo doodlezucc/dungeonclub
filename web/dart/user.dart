@@ -116,5 +116,5 @@ class User {
   int get mapsPerCampaign => account?.mapsPerCampaign ?? 0;
   int get campaignsPerAccount => account?.campaignsPerAccount ?? 0;
   int get playersPerCampaign => account?.playersPerCampaign ?? 0;
-  int get movablesPerScene => account?.movablesPerScene ?? 0;
+  int get tokensPerScene => account?.tokensPerScene ?? 0;
 }

@@ -28,7 +28,7 @@ import 'versioning.dart';
 
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
-  static final directory = Directory(path.join(DungeonClubConfig.getDatabasePath(), "database"));
+  static final directory = Directory(path.join(DungeonClubConfig.databasePath, "database"));
   static final file = File(path.join(directory.path, 'data.json'));
   static bool _isInitialized = false;
 
@@ -271,7 +271,7 @@ class Account {
           "maps_per_campaign": mapsPerCampaign,
           "players_per_campaign": playersPerCampaign,
           "campaigns_per_account": campaignsPerAccount,
-          "movables_per_scene": movablesPerScene
+          "tokens_per_scene": tokensPerScene
         }
       };
 }
