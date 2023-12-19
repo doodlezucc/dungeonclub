@@ -7,8 +7,10 @@ import 'package:path/path.dart' as p;
 
 import 'data.dart';
 
-final _backupDaily = Directory(p.join(DungeonClubConfig.databasePath, 'database_backup', 'daily'));
-final _backupWeeks = Directory(p.join(DungeonClubConfig.databasePath, 'database_backup', 'weeks'));
+final _backupDaily = Directory(
+    p.join(DungeonClubConfig.databasePath, 'database_backup', 'daily'));
+final _backupWeeks = Directory(
+    p.join(DungeonClubConfig.databasePath, 'database_backup', 'weeks'));
 
 class AutoSaver {
   final int weeklySaveDay = DateTime.monday;
@@ -73,7 +75,7 @@ void _isolateZip(List<Object> args) async {
   final includeImages = args[2] as bool;
 
   var encoder = ZipFileEncoder();
-  encoder.create(path);
+  encoder.create(path, level: Deflate.BEST_SPEED);
 
   var dir = ServerData.directory;
   var files = await dir.list(recursive: true).toList();
@@ -98,5 +100,5 @@ void _isolateZip(List<Object> args) async {
   encoder.close();
 
   var stat = await File(path).stat();
-  port.send(stat.size / 1024 / 1024);
+  port.send(stat.size / 1000 / 1000);
 }
