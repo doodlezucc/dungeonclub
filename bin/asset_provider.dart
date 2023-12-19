@@ -68,6 +68,7 @@ Future<void> createAssetPreview(
   var img = image.Image(
     width: tileSize,
     height: sources.length * tileSize,
+    numChannels: 4, // RGB + alpha
   );
 
   for (var i = 0; i < sources.length; i++) {
