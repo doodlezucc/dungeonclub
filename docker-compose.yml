@@ -1,0 +1,19 @@
+version: "2.1"
+services:
+  dungeonclub:
+    image: dungeonclub:latest
+    container_name: dungeonclub
+    volumes:
+      - ./DCV/ambience:/app/ambience
+      - ./DCV/database:/app/database
+      - ./DCV/database_backup:/app/database_backup
+      - ./DCV/logs:/app/logs
+      - ./DCV/mail:/app/mail
+      - ./DCV/web:/app/web
+    # environment:
+    #   - PUID=1000
+    #   - PGID=1000
+    #   - TZ=Europe/London
+    ports:
+      - 7070:7070
+    restart: unless-stopped

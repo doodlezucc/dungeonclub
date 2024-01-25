@@ -1,4 +1,10 @@
 FROM dart:stable as builder
+
+LABEL build_version="dungeonclub 0.5"
+#version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL maintainer="thembeat"
+LABEL description="Dungeon Club"
+
 WORKDIR /app
 COPY pubspec.* ./
 RUN dart pub get
@@ -6,10 +12,27 @@ RUN dart pub get
 COPY . .
 
 RUN dart pub get --offline
-RUN dart compile exe bin/server.dart -o bin/server
+RUN dart bin/build.dart
 
-FROM scratch
-COPY --from=builder /runtime/ /
-COPY --from=builder /app/bin/server /app/bin/
+# FROM scratch
+FROM ubuntu
+WORKDIR /app
 
-CMD ["/app/bin/server"]
+# RUN apt update
+# RUN apt install -y yt-dlp ffmpeg
+# RUN rm -rf /var/lib/apt/lists/*
+# RUN apt clean
+
+COPY --from=builder /runtime/ ./app
+COPY --from=builder /app/build/latest /app
+
+CMD ["/app/server", "--music"]
+
+EXPOSE 7070
+
+VOLUME /app/ambience
+VOLUME /app/database
+VOLUME /app/database_backup
+VOLUME /app/logs
+VOLUME /app/mail
+VOLUME /app/web
