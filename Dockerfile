@@ -30,6 +30,8 @@ CMD ["/app/server", "--music"]
 
 EXPOSE 7070
 
+HEALTHCHECK --interval=1m -start-period=15s CMD wget --no-verbose --tries=3 --spider http://localhost:7070 || exit 1
+
 VOLUME /app/ambience
 VOLUME /app/database
 VOLUME /app/database_backup
