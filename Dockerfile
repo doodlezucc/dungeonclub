@@ -18,6 +18,8 @@ RUN dart bin/build.dart
 FROM ubuntu
 WORKDIR /app_tmp
 
+ENV ENABLE_MUSIC_PLAYER = true
+
 # RUN apt update
 # RUN apt install -y yt-dlp ffmpeg
 # RUN rm -rf /var/lib/apt/lists/*
