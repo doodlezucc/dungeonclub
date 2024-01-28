@@ -21,9 +21,10 @@ if [[ "$enable_music_player" = "true" ]]; then
 server_args = "--music"
 
 echo "-----                        Update Sytem                         -----"
-apt-get update && apt-get upgrade -y
-apt-get install unzip
-apt-get clean
+apt update
+apt install -y unzip
+rm -rf /var/lib/apt/lists/*
+apt clean
 echo "-----                        Download and Unzip Ambience Music                         -----"
 
 wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1X4yT3Ch-eKqnaucqBkX46XzTt2SITctk' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1X4yT3Ch-eKqnaucqBkX46XzTt2SITctk" -O ../app/ambience/music-bundle.zip && rm -rf /tmp/cookies.txt
