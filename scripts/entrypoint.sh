@@ -1,39 +1,63 @@
-#!/bin/bash
-
-# Das set -o pipefail schaltet in Pipelines das Konsensprinzip ein: Eine Pipeline scheitert, sobald irgendwo in der Pipeline etwas schief geht. Das ist das, was man will (fast immer[1]).
+#!/usr/bin/env bash
+# bash strict mode
 set -euo pipefail
-
-
-# -u  Treat unset variables as an error when substituting.The +u turn this off.
+# Reading ENV
 set +u
-enable_music_player	= $ENABLE_MUSIC_PLAYER
-
-server_args= ""
+enable_music_player=$ENABLE_MUSIC_PLAYER
+server_args=""
 set -u
-
+echo "-----                                                                      -----"                                                                
+echo "                                                                                "
+echo "        @@@@@@@  @@@  @@@ @@@  @@@  @@@@@@@  @@@@@@@@  @@@@@@  @@@  @@@         "
+echo "        @@!  @@@ @@!  @@@ @@!@!@@@ !@@       @@!      @@!  @@@ @@!@!@@@         "
+echo "        @!@  !@! @!@  !@! @!@@!!@! !@! @!@!@ @!!!:!   @!@  !@! @!@@!!@!         "
+echo "        !!:  !!! !!:  !!! !!:  !!! :!!   !!: !!:      !!:  !!! !!:  !!!         "
+echo "        :: :  :   :.:: :  ::    :   :: :: :  : :: ::   : :. :  ::    :          "
+echo "                                                                                "
+echo "                                                                                "
+echo "                     @@@@@@@ @@@      @@@  @@@ @@@@@@@                          "
+echo "                    !@@      @@!      @@!  @@@ @@!  @@@                         "
+echo "                    !@!      @!!      @!@  !@! @!@!@!@                          "
+echo "                    :!!      !!:      !!:  !!! !!:  !!!                         "
+echo "                     :: :: : : ::.: :  :.:: :  :: : ::                          "
+echo "                                                                                "
+echo "              .,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,                   "
+echo "              ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.                  "
+echo "              ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.                  "
+echo "              ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.                  "
+echo "              ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.                  "
+echo "              ,,,,,,,,,         ,,,,,,,,,,,         ,,,,,,,,,.                  "
+echo "              ,,,,,,,              ,,,,,,              ,,,,,,.                  "
+echo "              ,,,,,,               ,,,,,               ,,,,,,.                  "
+echo "              ,,,,,,,              ,,,,,,              ,,,,,,.                  "
+echo "              ,,,,,,,,            ,,,,,,,,            ,,,,,,,.                  "
+echo "              ,,,,,,,,,,        ,,,,,,,,,,,,        ,,,,,,,,,.                  "
+echo "              ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.                  "
+echo "              ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.                  "
+echo "              ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.                  "
+echo "              ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.                  "
+echo "              ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.                  "
+echo "              .,,,,,,,....,,,,,,,,,,,..,,,,,,,,,,,....,,,,,,,.                  "
+echo "               .,,,.        .,,,,.        .,,,,.        ,,,,                    "
+echo "                                                                                "
 echo "-----                        Environment Variables                         -----"
-if [[ "$enable_music_player" != "" ]]; then echo -n "-----                    " && echo -n "$(printf "%-20s %-28s" ENABLE_MUSIC_PLAYER: "$enable_music_player")" && echo " -----"; fi
+if [[ "$enable_music_player" != "" ]]; then 
+echo -n "-----                    " && echo -n "$(printf "%-20s %-28s" ENABLE_MUSIC_PLAYER: "$enable_music_player")" && echo " -----"
+fi
 
-echo "-----                        Copy Data                         -----"
-mv -u -v ../app_tmp/* ../app/
+echo "-----                             Copy Data                                -----"
+# mv -u -v ../app_tmp/* ../app/
+rsync -auvhp --remove-source-files --info=progress2 --size-only ../app_tmp/* ../app/
 
 if [[ "$enable_music_player" = "true" ]]; then 
-server_args = "--music"
+server_args="--music"
+echo "-----                  Download and Unzip Ambience Music                   -----"
 
-echo "-----                        Update Sytem                         -----"
-apt update
-apt install -y unzip
-rm -rf /var/lib/apt/lists/*
-apt clean
-echo "-----                        Download and Unzip Ambience Music                         -----"
+wget -q --no-check-certificate -O ../app/ambience/music-bundle.zip "https://www.dropbox.com/scl/fi/jvzrz1jy813r0f4d5kxw7/music-bundle.zip?rlkey=88eq8s06mzzgxdpwu96tyj273&dl=1" && unzip -u -v ../app/ambience/music-bundle.zip -d ../app/ambience/ && rm -r ../app/ambience/music-bundle.zip 
+#rsync -auvhp --remove-source-files --info=progress2 --size-only ../app/ambience/music-bundle/* ../app/ambience/ 
 
-wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id=1X4yT3Ch-eKqnaucqBkX46XzTt2SITctk' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id=1X4yT3Ch-eKqnaucqBkX46XzTt2SITctk" -O ../app/ambience/music-bundle.zip && rm -rf /tmp/cookies.txt
-
-unzip ../app/ambience/music-bundle.zip -d ../app/ambience/tracks/
-
-rm -r ..app/ambience/music-bundle.zip
 else
-server_args = "--no-music"
+server_args="--no-music"
 fi
 
 ../app/server "$server_args"

@@ -14,16 +14,30 @@ COPY . .
 RUN dart pub get --offline
 RUN dart bin/build.dart
 
-# FROM scratch
-FROM ubuntu
+#debian:bookworm-slim
+FROM ubuntu 
 WORKDIR /app_tmp
 
-ENV ENABLE_MUSIC_PLAYER = true
+ENV ENABLE_MUSIC_PLAYER="true"
 
-# RUN apt update
-# RUN apt install -y yt-dlp ffmpeg
-# RUN rm -rf /var/lib/apt/lists/*
-# RUN apt clean
+RUN apt-get update && apt-get upgrade -y \
+    # Install prerequisites
+    && apt-get install -q -y --no-install-recommends \
+    # apt-utils \
+    # ca-certificates \
+    # cifs-utils \
+    # locales \
+    # tar \
+    # tzdata \
+    rsync \
+    wget \
+    unzip \
+    # Clean up installation cache
+    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+    && apt-get autoclean -y \
+    && apt-get autoremove \
+    && apt-get clean \
+    && rm -rf /tmp/* /var/tmp/* /root/.cache/* /root/.npm/* /var/lib/apt/lists/*
 
 COPY --from=builder /runtime/ ./runtime
 COPY --from=builder /app/build/latest /app_tmp
@@ -31,7 +45,7 @@ COPY --from=builder /app/scripts /scripts
 
 RUN chmod +x /scripts/entrypoint.sh
 
-CMD ["bash", "/scripts/entrypoint.sh"]
+CMD ["/bin/bash", "/scripts/entrypoint.sh"]
 
 EXPOSE 7070
 
