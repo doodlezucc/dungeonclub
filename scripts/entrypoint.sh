@@ -53,8 +53,10 @@ if [[ "$enable_music_player" = "true" ]]; then
 server_args="--music"
 echo "-----                  Download and Unzip Ambience Music                   -----"
 
-wget -q --no-check-certificate -O ../app/ambience/music-bundle.zip "https://www.dropbox.com/scl/fi/jvzrz1jy813r0f4d5kxw7/music-bundle.zip?rlkey=88eq8s06mzzgxdpwu96tyj273&dl=1" && unzip -u -v ../app/ambience/music-bundle.zip -d ../app/ambience/ && rm -r ../app/ambience/music-bundle.zip 
-#rsync -auvhp --remove-source-files --info=progress2 --size-only ../app/ambience/music-bundle/* ../app/ambience/ 
+wget -q --no-check-certificate -O ../app/ambience/music-bundle.zip "https://www.dropbox.com/scl/fi/jvzrz1jy813r0f4d5kxw7/music-bundle.zip?rlkey=88eq8s06mzzgxdpwu96tyj273&dl=1" && \
+unzip -u -v ../app/ambience/music-bundle.zip -d ../app/ambience/ && \
+rsync -auvhp --remove-source-files --info=progress2 --size-only ../app/ambience/music-bundle/* ../app/ambience/ && \
+rm -r ../app/ambience/music-bundle.zip
 
 else
 server_args="--no-music"
