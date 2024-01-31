@@ -1,9 +1,15 @@
 FROM dart:stable as builder
 
-LABEL build_version="dungeonclub 0.5"
-#version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="thembeat"
-LABEL description="Dungeon Club"
+LABEL org.opencontainers.image.title="Dungeon Club - Virtual Tabletop" \
+      org.opencontainers.image.description="Dungeon Club - Virtual Tabletop: An online platform to gather and play Dungeons & Dragons, Call of Cthulu, Pathfinder and more. Dungeon Club strives to be the most user-friendly virtual tabletop of all, providing tons of features and a comfortable design." \
+      org.opencontainers.image.documentation="https://github.com/buanet/ioBroker.docker#readme" \
+      org.opencontainers.image.authors="Marcel A." \
+      org.opencontainers.image.url="https://github.com/doodlezucc/dungeonclub" \
+      org.opencontainers.image.source="https://github.com/doodlezucc/dungeonclub" \
+      org.opencontainers.image.base.name="ubuntu" \
+      org.opencontainers.image.version="0.1" 
+      #\
+      #org.opencontainers.image.created="${DATI}" #TODO: Update workflow to set job variables
 
 WORKDIR /app
 COPY pubspec.* ./
