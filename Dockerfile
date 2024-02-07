@@ -51,7 +51,6 @@ RUN apt-get update && apt-get upgrade -y \
 COPY --from=builder /runtime/ ./runtime
 COPY --from=builder /app/build/latest /app_tmp
 COPY --from=builder /app/scripts /scripts
-COPY --from=builder /opt/.docker_config /opt/.docker_config
 
 RUN chmod +x /scripts/entrypoint.sh
 
