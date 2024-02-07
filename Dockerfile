@@ -7,9 +7,8 @@ LABEL org.opencontainers.image.title="Dungeon Club - Virtual Tabletop" \
       org.opencontainers.image.url="https://github.com/doodlezucc/dungeonclub" \
       org.opencontainers.image.source="https://github.com/doodlezucc/dungeonclub" \
       org.opencontainers.image.base.name="ubuntu" \
-      org.opencontainers.image.version="0.1" 
-      #\
-      #org.opencontainers.image.created="${DATI}" #TODO: Update workflow to set job variables
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.created="${DATI}"
 
 WORKDIR /app
 COPY pubspec.* ./
@@ -43,11 +42,16 @@ RUN apt-get update && apt-get upgrade -y \
     && apt-get autoclean -y \
     && apt-get autoremove \
     && apt-get clean \
-    && rm -rf /tmp/* /var/tmp/* /root/.cache/* /root/.npm/* /var/lib/apt/lists/*
+    && rm -rf /tmp/* /var/tmp/* /root/.cache/* /root/.npm/* /var/lib/apt/lists/*\ 
+    # Prepare .docker_config
+    && mkdir /opt/.docker_config \
+    && echo "${VERSION}" > /opt/.docker_config/.thisisdocker \
+    && echo "true" > /opt/.docker_config/.first_run \
 
 COPY --from=builder /runtime/ ./runtime
 COPY --from=builder /app/build/latest /app_tmp
 COPY --from=builder /app/scripts /scripts
+COPY --from=builder /opt/.docker_config /opt/.docker_config
 
 RUN chmod +x /scripts/entrypoint.sh
 

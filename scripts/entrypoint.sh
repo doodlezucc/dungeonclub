@@ -40,26 +40,34 @@ echo "              ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,.            
 echo "              .,,,,,,,....,,,,,,,,,,,..,,,,,,,,,,,....,,,,,,,.                  "
 echo "               .,,,.        .,,,,.        .,,,,.        ,,,,                    "
 echo "                                                                                "
+echo "-----                          Version Information                         -----"
+echo -n "-----                    " && echo -n "$(printf "%-20s %-28s" image: "${VERSION}")" && echo " -----"
+echo "                                                                                "
 echo "-----                        Environment Variables                         -----"
 if [[ "$enable_music_player" != "" ]]; then 
 echo -n "-----                    " && echo -n "$(printf "%-20s %-28s" ENABLE_MUSIC_PLAYER: "$enable_music_player")" && echo " -----"
 fi
 
-echo "-----                             Copy Data                                -----"
-# mv -u -v ../app_tmp/* ../app/
-rsync -auvhp --remove-source-files --info=progress2 --size-only ../app_tmp/* ../app/
+# Actions running on first start only
+if [[ -f /opt/.docker_config/.first_run ]]; then
+    echo "-----                             Copy Data                                -----"
+    # mv -u -v ../app_tmp/* ../app/
+    rsync -auvhp --remove-source-files --info=progress2 --size-only ../app_tmp/* ../app/
+fi
 
 if [[ "$enable_music_player" = "true" ]]; then 
-server_args="--music"
-echo "-----                  Download and Unzip Ambience Music                   -----"
+    server_args="--music"
+        if [[ -f /opt/.docker_config/.first_run ]]; then
+        echo "-----                  Download and Unzip Ambience Music                   -----"
 
-wget -q --no-check-certificate -O ../app/ambience/music-bundle.zip "https://www.dropbox.com/scl/fi/jvzrz1jy813r0f4d5kxw7/music-bundle.zip?rlkey=88eq8s06mzzgxdpwu96tyj273&dl=1" && \
-unzip -u -v ../app/ambience/music-bundle.zip -d ../app/ambience/ && \
-rsync -auvhp --remove-source-files --info=progress2 --size-only ../app/ambience/music-bundle/* ../app/ambience/ && \
-rm -r ../app/ambience/music-bundle.zip
-
+        wget --no-check-certificate -O ../app/ambience/music-bundle.zip "https://next.auclair.info/s/2495D2HNojr9jDi/download" \
+        && unzip ../app/ambience/music-bundle.zip -d ../app/ambience/music-bundle \
+        && rsync -auvhp --remove-source-files --info=progress2 --size-only ../app/ambience/music-bundle/* ../app/ambience/ \
+        && rm -r ../app/ambience/music-bundle.zip \
+        && rm -r ../app/ambience/music-bundle
+        fi
 else
-server_args="--no-music"
+    server_args="--no-music"
 fi
 
 ../app/server "$server_args"
