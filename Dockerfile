@@ -46,7 +46,7 @@ RUN apt-get update && apt-get upgrade -y \
     # Prepare .docker_config
     && mkdir /opt/.docker_config \
     && echo "${VERSION}" > /opt/.docker_config/.thisisdocker \
-    && echo "true" > /opt/.docker_config/.first_run \
+    && echo "true" > /opt/.docker_config/.first_run
 
 COPY --from=builder /runtime/ ./runtime
 COPY --from=builder /app/build/latest /app_tmp
