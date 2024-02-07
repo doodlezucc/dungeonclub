@@ -30,7 +30,7 @@ jobs:
           echo "COMMIT_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           echo "DOCKER_REPO=ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "DATI=$DATI" >> $GITHUB_ENV"
+          echo "DATI=$DATI" >> $GITHUB_ENV
           
           # Set values in iobroker_startup.sh
           sed -e "s/\${VERSION}/$VERSION/" -e "s/\${BUILD}/$DATI/" ./scripts/entrypoint.sh > ./scripts/entrypoint.tmp
