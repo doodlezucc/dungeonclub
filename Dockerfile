@@ -23,7 +23,7 @@ RUN dart bin/build.dart
 FROM ubuntu 
 WORKDIR /app_tmp
 
-ENV ENABLE_MUSIC_PLAYER="true"
+ENV ENABLE_MUSIC_PLAYER="false"
 
 RUN apt-get update && apt-get upgrade -y \
     # Install prerequisites

@@ -60,7 +60,7 @@ if [[ "$enable_music_player" = "true" ]]; then
         if [[ -f /opt/.docker_config/.first_run ]]; then
         echo "-----                  Download and Unzip Ambience Music                   -----"
 
-        wget --no-check-certificate -O ../app/ambience/music-bundle.zip "https://next.auclair.info/s/2495D2HNojr9jDi/download" \
+        wget --no-check-certificate -O ../app/ambience/music-bundle.zip "https://evi.nl.tab.digital/s/y2w7b7e7ztPRYra/download" \
         && unzip ../app/ambience/music-bundle.zip -d ../app/ambience/music-bundle \
         && rsync -auvhp --remove-source-files --info=progress2 --size-only ../app/ambience/music-bundle/* ../app/ambience/ \
         && rm -r ../app/ambience/music-bundle.zip \
