@@ -4,7 +4,7 @@ services:
     image: dungeonclub:latest
     container_name: dungeonclub
     environment:
-      - ENABLE_MUSIC_PLAYER=true
+      - ENABLE_MUSIC_PLAYER=false
     volumes:
       - ./DungeonClub_Data:/app
     ports:

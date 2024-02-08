@@ -81,7 +81,7 @@ A new Docker container is also created for each new release.  The container can 
 CLI
 ```bash
 # Start the Container
-docker run -v <path-to-data>:/app -p <your-port>:7070 ghcr.io/doodlezucc/dungeonclub:latest
+docker run -v <path-to-data>:/app -p <your-port>:7070 -e ENABLE_MUSIC_PLAYER=false ghcr.io/doodlezucc/dungeonclub:latest
 ```
 
 Docker-Compose
@@ -95,6 +95,8 @@ services:
     ports:
       - 7070:7070
     restart: always
+    environment:
+      - ENABLE_MUSIC_PLAYER=false
     volumes:
       - <path-to-data>:/app
 ```
