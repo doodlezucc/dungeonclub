@@ -4,15 +4,15 @@ import 'dart:io';
 import 'package:dungeonclub/actions.dart';
 import 'package:graceful/graceful.dart';
 
-import 'connections.dart';
-import 'server.dart';
+import '../connections.dart';
+import '../server.dart';
 
-abstract class FileChecker {
+abstract class ScheduledFileChecker {
   final Server server;
   final File file;
   bool _locked = false;
 
-  FileChecker(this.server, String file) : file = File(file);
+  ScheduledFileChecker(this.server, String file) : file = File(file);
 
   void autoCheckForFile() {
     Timer.periodic(Duration(seconds: 3), (_) => _checkForFile());
@@ -30,7 +30,7 @@ abstract class FileChecker {
   Future handleFileContents();
 }
 
-class Maintainer extends FileChecker {
+class Maintainer extends ScheduledFileChecker {
   int? shutdownTime;
 
   Maintainer(Server server, String timestampFile)
@@ -68,7 +68,7 @@ class Maintainer extends FileChecker {
   }
 }
 
-class AccountMaintainer extends FileChecker {
+class AccountMaintainer extends ScheduledFileChecker {
   AccountMaintainer(Server server, String file) : super(server, file);
 
   @override

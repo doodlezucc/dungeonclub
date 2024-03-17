@@ -2,10 +2,10 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:archive/archive_io.dart';
-import 'config.dart';
+import '../config.dart';
 import 'package:path/path.dart' as p;
 
-import 'data.dart';
+import '../data.dart';
 
 final _backupDaily = Directory(
     p.join(DungeonClubConfig.databasePath, 'database_backup', 'daily'));
