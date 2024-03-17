@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:prompts/prompts.dart' as prompts;
 import 'package:googleapis_auth/auth_io.dart' as auth;
+
+import '../server.dart';
+import '../service/mail.dart';
 
 Future<void> setupMailAuth() async {
   print('''
@@ -29,8 +34,13 @@ Future<void> setupMailAuth() async {
     },
   );
 
-  await MailCredentials.configure(user, client, creds);
-  await MailCredentials.save();
+  final credentials = MailCredentials(
+    user: user,
+    clientId: client,
+    credentials: creds,
+  );
+
+  await credentials.save();
   httpClient.close();
   print('\nAuthorization complete! Emails can now be sent from $user');
   exit(0);
