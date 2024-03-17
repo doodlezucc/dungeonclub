@@ -1,30 +1,23 @@
-import 'dart:async';
 import 'dart:io';
 
-import '../../server.dart';
+import 'scheduled_service.dart';
 
-abstract class ScheduledFileProcessor {
+abstract class ScheduledFileProcessorService extends ScheduledService {
   static const Duration pauseBetweenProcessing = Duration(seconds: 3);
 
-  final Server server;
   final File _file;
 
-  ScheduledFileProcessor(this.server, String filePath) : _file = File(filePath);
+  ScheduledFileProcessorService({
+    required String filePath,
+    super.interval = pauseBetweenProcessing,
+  }) : _file = File(filePath);
 
   Future<bool> doesFileExist() => _file.exists();
 
-  Future<void> autoCheckForFile() async {
-    while (true) {
-      try {
-        if (await doesFileExist()) {
-          await processFile(_file);
-        }
-      } catch (err) {
-        stderr.writeln('Error while processing file (${_file.path})');
-        stderr.writeln(err);
-      }
-
-      await Future.delayed(pauseBetweenProcessing);
+  @override
+  Future<void> onSchedule() async {
+    if (await doesFileExist()) {
+      await processFile(_file);
     }
   }
 

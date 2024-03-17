@@ -23,6 +23,7 @@ import 'connections.dart';
 import 'data.dart';
 import 'mail.dart';
 import 'service/schedule/maintenance.dart';
+import 'service/service.dart';
 import 'untaint.dart';
 
 const _hostname = '0.0.0.0';
@@ -55,7 +56,7 @@ void main(List<String> args, [SendPort? signalsToParent]) async {
   }
 
   // Check for maintenance file
-  if (await server.maintainer.doesFileExist()) {
+  if (await server.maintenanceSwitch.doesFileExist()) {
     print('Server restart blocked by maintenance file!');
     await Future.delayed(Duration(seconds: 5));
     exit(1);
@@ -110,19 +111,17 @@ class Server {
   String? _address;
   String? get address => _address;
 
-  late final ServerData data;
-  late final AutoSaver autoSaver;
-  late final Maintainer maintainer;
-  late final AccountMaintainer accountMaintainer;
+  late final ServerData data = ServerData(this);
+  late final MaintenanceSwitchService maintenanceSwitch =
+      MaintenanceSwitchService();
 
   late final HttpServer httpServer;
 
-  Server() {
-    data = ServerData(this);
-    autoSaver = AutoSaver(data);
-    maintainer = Maintainer(this, 'maintenance');
-    accountMaintainer = AccountMaintainer(this, 'account');
-  }
+  late final List<Service> services = [
+    AutoSaveService(serverData: data),
+    AccountRemovalService(serverData: data),
+    maintenanceSwitch
+  ];
 
   Future<void> start(List<String> args) async {
     var D = argParser.tryArgParse(args);
@@ -159,9 +158,7 @@ class Server {
     _address = _address?.trim() ?? 'http://${await _getNetworkIP()}:$servePort';
 
     await initializeMailServer();
-    autoSaver.init();
-    maintainer.autoCheckForFile();
-    accountMaintainer.autoCheckForFile();
+    _startServices();
 
     await createAssetPreview(IMAGE_TYPE_PC, tileSize: 240);
     await createAssetPreview(IMAGE_TYPE_ENTITY, tileSize: 240);
@@ -178,6 +175,12 @@ class Server {
   - Local:   http://localhost:$servePort
   - Network: $address
 ''');
+  }
+
+  void _startServices() {
+    for (final service in services) {
+      service.start();
+    }
   }
 
   static Future<String> _getNetworkIP() async {

@@ -5,37 +5,40 @@ import 'package:dungeonclub/actions.dart';
 import 'package:graceful/graceful.dart';
 
 import '../../connections.dart';
+import '../../data.dart';
 import 'file_processor.dart';
 
-class Maintainer extends ScheduledFileProcessor {
-  int? shutdownTime;
+class MaintenanceSwitchService extends ScheduledFileProcessorService {
+  int? shutdownTimestamp;
+  bool get isShutownScheduled => shutdownTimestamp != null;
 
-  Maintainer(super.server, super.timestampFile);
+  MaintenanceSwitchService() : super(filePath: 'maintenance');
 
   @override
-  Future processFile(File file) async {
+  Future<void> processFile(File file) async {
     var minutes = int.tryParse(await file.readAsString());
 
     if (minutes != null && minutes > 0) {
       var now = DateTime.now();
       var date = DateTime(now.year, now.month, now.day, now.hour, now.minute)
           .add(Duration(minutes: minutes));
-      shutdownTime = date.millisecondsSinceEpoch;
+      shutdownTimestamp = date.millisecondsSinceEpoch;
 
       _sendShutdown();
-      _waitForShutdown();
+      _scheduleShutdownEvent();
       print('Scheduled shutdown for $date');
-      return true;
+
+      interrupt();
     }
   }
 
-  void _waitForShutdown() async {
+  void _scheduleShutdownEvent() async {
     var now = DateTime.now().millisecondsSinceEpoch;
-    await Future.delayed(Duration(milliseconds: shutdownTime! - now));
+    await Future.delayed(Duration(milliseconds: shutdownTimestamp! - now));
     exitGracefully();
   }
 
-  Map<String, dynamic> get jsonEntry => {'shutdown': shutdownTime};
+  Map<String, dynamic> get jsonEntry => {'shutdown': shutdownTimestamp};
 
   void _sendShutdown() {
     for (var c in connections) {
@@ -44,8 +47,11 @@ class Maintainer extends ScheduledFileProcessor {
   }
 }
 
-class AccountMaintainer extends ScheduledFileProcessor {
-  AccountMaintainer(super.server, super.filePath);
+class AccountRemovalService extends ScheduledFileProcessorService {
+  final ServerData serverData;
+
+  AccountRemovalService({required this.serverData})
+      : super(filePath: 'account');
 
   @override
   Future processFile(File file) async {
@@ -53,7 +59,7 @@ class AccountMaintainer extends ScheduledFileProcessor {
     var changed = false;
     for (var l in lines) {
       if (l.isNotEmpty) {
-        var acc = server.data.getAccount(l, alreadyEncrypted: !l.contains('@'));
+        var acc = serverData.getAccount(l, alreadyEncrypted: !l.contains('@'));
         if (acc != null) {
           changed = true;
           var count = acc.ownedGames.length;

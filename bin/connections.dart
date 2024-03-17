@@ -75,8 +75,8 @@ class Connection extends Socket {
       _pingTimer = Timer.periodic(wsPing, (timer) => send([99]));
     }
 
-    if (server.maintainer.shutdownTime != null) {
-      sendAction(a.MAINTENANCE, server.maintainer.jsonEntry);
+    if (server.maintenanceSwitch.isShutownScheduled) {
+      sendAction(a.MAINTENANCE, server.maintenanceSwitch.jsonEntry);
     }
   }
 

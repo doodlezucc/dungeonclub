@@ -2,14 +2,23 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-abstract class Service {
-  bool _isStarted = false;
+mixin Service {
+  FutureOr<void> start();
+}
 
-  @mustBeOverridden
+abstract class ServiceImpl implements Service {
+  bool _isStarted = false;
+  bool get isStarted => _isStarted;
+
   @mustCallSuper
   FutureOr<void> start() async {
-    if (_isStarted) return;
+    if (_isStarted) {
+      return;
+    }
 
     _isStarted = true;
+    await startService();
   }
+
+  FutureOr<void> startService();
 }
