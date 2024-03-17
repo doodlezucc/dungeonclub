@@ -16,6 +16,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'asset_provider.dart';
 import 'audio.dart';
+import 'cli/mail_setup.dart';
 import 'config.dart';
 import 'connections.dart';
 import 'data.dart';
@@ -58,7 +59,7 @@ void main(List<String> args, [SendPort? signalsToParent]) async {
   }
 
   // Check for maintenance file
-  if (await server.maintenanceSwitch.doesFileExist()) {
+  if (await server.maintenanceSwitchService.doesFileExist()) {
     print('Server restart blocked by maintenance file!');
     await Future.delayed(Duration(seconds: 5));
     exit(1);
@@ -113,18 +114,19 @@ class Server {
   String? _address;
   String? get address => _address;
 
-  late final ServerData data = ServerData(this);
-  late final MaintenanceSwitchService maintenanceSwitch =
-      MaintenanceSwitchService();
-
   late final HttpServer httpServer;
+  late final ServerData data = ServerData(this);
+
+  late final feedbackPushService = FeedbackPushService(mailService);
+  late final mailService = MailService();
+  late final maintenanceSwitchService = MaintenanceSwitchService();
 
   late final List<Service> services = [
     AutoSaveService(serverData: data),
     AccountRemovalService(serverData: data),
-    maintenanceSwitch,
-    MailService(),
-    FeedbackPushService(),
+    feedbackPushService,
+    maintenanceSwitchService,
+    mailService,
   ];
 
   Future<void> start(List<String> args) async {

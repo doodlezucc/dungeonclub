@@ -5,10 +5,9 @@ import 'package:mailer/mailer.dart';
 import 'mail.dart';
 import 'service.dart';
 
-final pendingFeedback = <Feedback>[];
-
 class FeedbackPushService extends ScheduledService {
   final MailService mailService;
+  final pendingFeedback = <Feedback>[];
 
   FeedbackPushService(this.mailService)
       : super(interval: Duration(minutes: 10));

@@ -13,7 +13,7 @@ import 'asset_provider.dart';
 import 'audio.dart';
 import 'controlled_resource.dart';
 import 'data.dart';
-import 'service/mail.dart';
+import 'service/feedback_push.dart';
 import 'server.dart';
 
 const sendPings = false;
@@ -75,8 +75,8 @@ class Connection extends Socket {
       _pingTimer = Timer.periodic(wsPing, (timer) => send([99]));
     }
 
-    if (server.maintenanceSwitch.isShutownScheduled) {
-      sendAction(a.MAINTENANCE, server.maintenanceSwitch.jsonEntry);
+    if (server.maintenanceSwitchService.isShutownScheduled) {
+      sendAction(a.MAINTENANCE, server.maintenanceSwitchService.jsonEntry);
     }
   }
 
@@ -109,7 +109,7 @@ class Connection extends Socket {
         _account = Account(server.data, email, params['password']);
         final code = generateCode();
         activationCodes[this] = code;
-        return await sendVerifyCreationMail(email, code)
+        return await server.mailService.sendVerifyCreationMail(email, code)
             ? true
             : 'Email could not be sent.';
 
@@ -153,7 +153,7 @@ class Connection extends Socket {
 
         final code = generateCode();
         resets[this] = PasswordReset(email, password, code);
-        return await sendResetPasswordMail(email, code);
+        return await server.mailService.sendResetPasswordMail(email, code);
 
       case a.ACCOUNT_RESET_PASSWORD_ACTIVATE:
         final reset = resets[this];
@@ -595,7 +595,7 @@ class Connection extends Socket {
           throw 'Invalid feedback type';
         }
 
-        pendingFeedback.add(Feedback(
+        server.feedbackPushService.pendingFeedback.add(Feedback(
           type,
           content,
           account?.encryptedEmail.toString(),
