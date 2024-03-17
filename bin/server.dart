@@ -55,7 +55,7 @@ void main(List<String> args, [SendPort? signalsToParent]) async {
   }
 
   // Check for maintenance file
-  if (await server.maintainer.file.exists()) {
+  if (await server.maintainer.doesFileExist()) {
     print('Server restart blocked by maintenance file!');
     await Future.delayed(Duration(seconds: 5));
     exit(1);

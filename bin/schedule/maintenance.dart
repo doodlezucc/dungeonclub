@@ -5,39 +5,15 @@ import 'package:dungeonclub/actions.dart';
 import 'package:graceful/graceful.dart';
 
 import '../connections.dart';
-import '../server.dart';
+import 'file_processor.dart';
 
-abstract class ScheduledFileChecker {
-  final Server server;
-  final File file;
-  bool _locked = false;
-
-  ScheduledFileChecker(this.server, String file) : file = File(file);
-
-  void autoCheckForFile() {
-    Timer.periodic(Duration(seconds: 3), (_) => _checkForFile());
-  }
-
-  Future<void> _checkForFile() async {
-    if (!_locked && await file.exists()) {
-      _locked = true;
-      if (await handleFileContents() == null) {
-        _locked = false;
-      }
-    }
-  }
-
-  Future handleFileContents();
-}
-
-class Maintainer extends ScheduledFileChecker {
+class Maintainer extends ScheduledFileProcessor {
   int? shutdownTime;
 
-  Maintainer(Server server, String timestampFile)
-      : super(server, timestampFile);
+  Maintainer(super.server, super.timestampFile);
 
   @override
-  Future handleFileContents() async {
+  Future processFile(File file) async {
     var minutes = int.tryParse(await file.readAsString());
 
     if (minutes != null && minutes > 0) {
@@ -68,11 +44,11 @@ class Maintainer extends ScheduledFileChecker {
   }
 }
 
-class AccountMaintainer extends ScheduledFileChecker {
-  AccountMaintainer(Server server, String file) : super(server, file);
+class AccountMaintainer extends ScheduledFileProcessor {
+  AccountMaintainer(super.server, super.filePath);
 
   @override
-  Future handleFileContents() async {
+  Future processFile(File file) async {
     var lines = await file.readAsLines();
     var changed = false;
     for (var l in lines) {
