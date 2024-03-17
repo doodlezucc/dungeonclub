@@ -1,18 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'dart:io';
 import 'dart:math';
 
 import 'package:crypt/crypt.dart';
 import 'package:dungeonclub/actions.dart' as a;
-import 'config.dart';
 import 'package:dungeonclub/iterable_extension.dart';
-import 'limits.dart';
 import 'package:dungeonclub/models/entity_base.dart';
 import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/point_json.dart';
 import 'package:dungeonclub/session_util.dart';
+import 'package:dungeonclub/upgradeable.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
 import 'package:web_whiteboard/communication/data_socket.dart';
@@ -20,11 +18,11 @@ import 'package:web_whiteboard/layers/drawing_data.dart';
 import 'package:web_whiteboard/whiteboard_data.dart';
 
 import 'audio.dart';
+import 'config.dart';
 import 'connections.dart';
 import 'controlled_resource.dart';
-import 'playing_histogram.dart';
+import 'limits.dart';
 import 'server.dart';
-import '../lib/upgradeable.dart';
 
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
@@ -34,7 +32,6 @@ class ServerData {
   static bool _isInitialized = false;
 
   final Server server;
-  final histogram = PlayingHistogram(path.join(directory.path, 'histogram'));
   final accounts = <Account>[];
   final gameMeta = <GameMeta>[];
   final Random rng = Random();
@@ -43,8 +40,6 @@ class ServerData {
 
   Future<void> init() async {
     await load();
-    await histogram.load();
-    histogram.startTracking();
     _manualSaveWatch.start();
     _isInitialized = true;
   }
@@ -103,7 +98,6 @@ class ServerData {
     var json = JsonEncoder.withIndent(' ').convert(toJson());
     // print(json);
     await file.writeAsString(json);
-    await histogram.save();
 
     for (var meta in gameMeta) {
       if (meta.isLoaded) {
