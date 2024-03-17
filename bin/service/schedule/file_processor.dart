@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import '../server.dart';
+import '../../server.dart';
 
 abstract class ScheduledFileProcessor {
   static const Duration pauseBetweenProcessing = Duration(seconds: 3);

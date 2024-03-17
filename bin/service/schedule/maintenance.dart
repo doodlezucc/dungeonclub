@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:dungeonclub/actions.dart';
 import 'package:graceful/graceful.dart';
 
-import '../connections.dart';
+import '../../connections.dart';
 import 'file_processor.dart';
 
 class Maintainer extends ScheduledFileProcessor {

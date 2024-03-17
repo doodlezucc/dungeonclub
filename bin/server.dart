@@ -18,11 +18,11 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'entry_parser.dart';
 import 'asset_provider.dart';
 import 'audio.dart';
-import 'schedule/autosave.dart';
+import 'service/schedule/autosave.dart';
 import 'connections.dart';
 import 'data.dart';
 import 'mail.dart';
-import 'schedule/maintenance.dart';
+import 'service/schedule/maintenance.dart';
 import 'untaint.dart';
 
 const _hostname = '0.0.0.0';
