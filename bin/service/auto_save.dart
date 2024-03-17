@@ -3,11 +3,11 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:archive/archive_io.dart';
-import '../../config.dart';
+import '../config.dart';
 import 'package:path/path.dart' as path;
 
-import '../../data.dart';
-import 'scheduled_service.dart';
+import '../data.dart';
+import 'service.dart';
 
 final _backupRoot =
     path.join(DungeonClubConfig.databasePath, 'database_backup');
@@ -27,8 +27,8 @@ class AutoSaveService extends ScheduledService {
 
   @override
   Future<void> start() async {
-    _createBackupDirectories();
     super.start();
+    _createBackupDirectories();
   }
 
   Future<void> _createBackupDirectories() async {

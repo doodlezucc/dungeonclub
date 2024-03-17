@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'scheduled_service.dart';
+import 'service.dart';
 
 abstract class ScheduledFileProcessorService extends ScheduledService {
   static const Duration pauseBetweenProcessing = Duration(seconds: 3);

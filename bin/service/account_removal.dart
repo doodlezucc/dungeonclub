@@ -1,7 +1,7 @@
-import '../../data.dart';
+import '../data.dart';
 import 'dart:async';
 import 'dart:io';
-import 'file_processor.dart';
+import 'scheduled_file_processor_service.dart';
 
 class AccountRemovalService extends ScheduledFileProcessorService {
   final ServerData serverData;

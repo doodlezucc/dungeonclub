@@ -21,9 +21,9 @@ import 'connections.dart';
 import 'data.dart';
 import 'entry_parser.dart';
 import 'mail.dart';
-import 'service/scheduled/account_removal.dart';
-import 'service/scheduled/auto_save.dart';
-import 'service/scheduled/maintenance_switch.dart';
+import 'service/account_removal.dart';
+import 'service/auto_save.dart';
+import 'service/maintenance_switch.dart';
 import 'service/service.dart';
 import 'untaint.dart';
 

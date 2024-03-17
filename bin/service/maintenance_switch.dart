@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:dungeonclub/actions.dart';
 import 'package:graceful/graceful.dart';
 
-import '../../connections.dart';
-import 'file_processor.dart';
+import '../connections.dart';
+import 'scheduled_file_processor_service.dart';
 
 class MaintenanceSwitchService extends ScheduledFileProcessorService {
   int? shutdownTimestamp;
