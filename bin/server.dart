@@ -20,7 +20,7 @@ import 'cli/mail_setup.dart';
 import 'config.dart';
 import 'connections.dart';
 import 'data.dart';
-import 'entry_parser.dart';
+import 'cli/entry_parser.dart';
 import 'services/feedback_push.dart';
 import 'services/mail.dart';
 import 'services/account_removal.dart';
