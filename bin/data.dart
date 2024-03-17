@@ -24,11 +24,12 @@ import 'connections.dart';
 import 'controlled_resource.dart';
 import 'playing_histogram.dart';
 import 'server.dart';
-import 'versioning.dart';
+import '../lib/upgradeable.dart';
 
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
-  static final directory = Directory(path.join(DungeonClubConfig.databasePath, "database"));
+  static final directory =
+      Directory(path.join(DungeonClubConfig.databasePath, "database"));
   static final file = File(path.join(directory.path, 'data.json'));
   static bool _isInitialized = false;
 
