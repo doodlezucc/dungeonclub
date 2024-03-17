@@ -72,7 +72,8 @@ class MailService extends StartableService {
     return connection!.sendMessage(message);
   }
 
-  Future<void> closeMailServer() async {
+  @override
+  Future<void> dispose() async {
     await connection?.credentials.save();
   }
 }

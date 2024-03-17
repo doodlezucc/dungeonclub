@@ -1,27 +1,43 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:meta/meta.dart';
 
 mixin Service {
-  FutureOr<void> start();
+  Future<void> start();
+  Future<void> dispose();
 }
 
 abstract class StartableService implements Service {
   bool _isStarted = false;
   bool get isStarted => _isStarted;
 
+  bool _isDisposed = false;
+  bool get isDisposed => _isDisposed;
+
   @mustCallSuper
-  FutureOr<void> start() async {
+  Future<void> start() async {
     if (_isStarted) {
-      return;
+      throw StateError('Service already started');
     }
 
     _isStarted = true;
     await startService();
   }
 
-  FutureOr<void> startService();
+  @override
+  Future<void> dispose() async {
+    if (!_isStarted) return;
+
+    if (_isDisposed) {
+      throw StateError('Service already disposed');
+    }
+
+    _isDisposed = true;
+    await disposeService();
+  }
+
+  Future<void> startService();
+  Future<void> disposeService() async {}
 }
 
 abstract class ScheduledService extends StartableService {
@@ -48,5 +64,5 @@ abstract class ScheduledService extends StartableService {
     _wasInterrupted = true;
   }
 
-  FutureOr<void> onSchedule();
+  Future<void> onSchedule();
 }

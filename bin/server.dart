@@ -234,9 +234,8 @@ class Server {
       httpClient.close();
       await Future.wait([
         data.save(),
-        sendPendingFeedback(),
-        closeMailServer(),
         httpServer.close(),
+        ...services.map((service) => service.dispose()),
       ]);
     } finally {
       // Wait so users can read exit messages

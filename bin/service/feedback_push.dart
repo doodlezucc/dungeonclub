@@ -17,6 +17,11 @@ class FeedbackPushService extends ScheduledService {
     await sendPendingFeedback();
   }
 
+  @override
+  Future<void> dispose() async {
+    await sendPendingFeedback();
+  }
+
   Future<bool> sendPendingFeedback() async {
     if (pendingFeedback.isNotEmpty) {
       return _sendFeedbackMail();
