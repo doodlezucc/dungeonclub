@@ -31,6 +31,11 @@ class AutoSaveService extends ScheduledService {
     _createBackupDirectories();
   }
 
+  @override
+  Future<void> onSchedule() async {
+    await tryZipAndSave();
+  }
+
   Future<void> _createBackupDirectories() async {
     await _backupDaily.create(recursive: true);
     await _backupWeeks.create(recursive: true);
@@ -73,11 +78,6 @@ class AutoSaveService extends ScheduledService {
 
     receive.close();
     isolate.kill();
-  }
-
-  @override
-  Future<void> onSchedule() async {
-    await tryZipAndSave();
   }
 }
 

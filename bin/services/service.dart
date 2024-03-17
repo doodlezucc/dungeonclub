@@ -48,6 +48,8 @@ abstract class ScheduledService extends StartableService {
 
   @override
   Future<void> startService() async {
+    await Future.delayed(interval);
+
     while (!_wasInterrupted) {
       try {
         await onSchedule();

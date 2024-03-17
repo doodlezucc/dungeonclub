@@ -96,16 +96,15 @@ void resetCurrentWorkingDir() {
 }
 
 class DungeonClubServer {
-  String get address => httpServerService.publicAddress;
+  final maintenanceSwitchService = MaintenanceSwitchService();
+  final mailService = MailService();
 
   late final ServerData data = ServerData(this);
-
-  late final FeedbackPushService feedbackPushService;
-  late final HttpServerService httpServerService;
-  late final MailService mailService;
-  late final MaintenanceSwitchService maintenanceSwitchService;
+  late final feedbackPushService = FeedbackPushService(mailService);
 
   late final List<Service> services;
+  late final HttpServerService httpServerService;
+  String get address => httpServerService.publicAddress;
 
   Future<void> start(List<String> args) async {
     print('Starting server...');
@@ -124,9 +123,9 @@ class DungeonClubServer {
       AccountRemovalService(serverData: data),
       AssetProviderService(),
       AutoSaveService(serverData: data),
-      mailService = MailService(),
-      feedbackPushService = FeedbackPushService(mailService),
-      maintenanceSwitchService = MaintenanceSwitchService(),
+      mailService,
+      maintenanceSwitchService,
+      feedbackPushService,
       httpServerService = HttpServerService(this, port: port),
     ];
 
