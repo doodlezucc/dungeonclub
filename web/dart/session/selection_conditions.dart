@@ -102,7 +102,7 @@ class SelectionConditions extends Component {
     } else {
       final tile = _activeConditionTiles[id]!;
       tile.htmlRoot.remove();
-      _activeConditionTiles.remove(tile);
+      _activeConditionTiles.remove(id);
     }
 
     _popupConditions[id]!.highlight = enable;
