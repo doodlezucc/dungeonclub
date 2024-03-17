@@ -20,7 +20,8 @@ import 'config.dart';
 import 'connections.dart';
 import 'data.dart';
 import 'entry_parser.dart';
-import 'mail.dart';
+import 'service/feedback_push.dart';
+import 'service/mail.dart';
 import 'service/account_removal.dart';
 import 'service/auto_save.dart';
 import 'service/maintenance_switch.dart';
@@ -121,7 +122,9 @@ class Server {
   late final List<Service> services = [
     AutoSaveService(serverData: data),
     AccountRemovalService(serverData: data),
-    maintenanceSwitch
+    maintenanceSwitch,
+    MailService(),
+    FeedbackPushService(),
   ];
 
   Future<void> start(List<String> args) async {
@@ -158,7 +161,6 @@ class Server {
     var servePort = httpServer.port;
     _address = _address?.trim() ?? 'http://${await _getNetworkIP()}:$servePort';
 
-    await initializeMailServer();
     _startServices();
 
     await createAssetPreview(IMAGE_TYPE_PC, tileSize: 240);

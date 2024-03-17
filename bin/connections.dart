@@ -13,7 +13,7 @@ import 'asset_provider.dart';
 import 'audio.dart';
 import 'controlled_resource.dart';
 import 'data.dart';
-import 'mail.dart';
+import 'service/mail.dart';
 import 'server.dart';
 
 const sendPings = false;
