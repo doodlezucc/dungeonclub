@@ -9,7 +9,7 @@ import 'package:dungeonclub/point_json.dart';
 import 'package:random_string/random_string.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import 'asset_provider.dart';
+import 'services/asset_provider.dart';
 import 'audio.dart';
 import 'controlled_resource.dart';
 import 'data.dart';

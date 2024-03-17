@@ -7,7 +7,7 @@ import 'limits.dart';
 import 'package:path/path.dart' as path;
 import 'package:random_string/random_string.dart';
 
-import 'asset_provider.dart';
+import 'services/asset_provider.dart';
 import 'data.dart';
 
 const ASSET_PREFIX = 'asset';

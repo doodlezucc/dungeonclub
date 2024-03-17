@@ -5,7 +5,7 @@ import 'package:dungeonclub/actions.dart';
 import 'package:image/image.dart' as image;
 import 'package:path/path.dart' as p;
 
-import 'services/service.dart';
+import 'service.dart';
 
 /// Assets are static images stored in "web/images/assets/".
 ///

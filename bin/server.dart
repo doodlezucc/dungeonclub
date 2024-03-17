@@ -13,7 +13,7 @@ import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_web_socket/shelf_web_socket.dart' as ws;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import 'asset_provider.dart';
+import 'services/asset_provider.dart';
 import 'audio.dart';
 import 'cli/mail_setup.dart';
 import 'config.dart';
