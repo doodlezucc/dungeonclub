@@ -2,12 +2,16 @@ import 'dart:async';
 
 import 'package:mailer/mailer.dart';
 
+import 'mail.dart';
 import 'service.dart';
 
 final pendingFeedback = <Feedback>[];
 
 class FeedbackPushService extends ScheduledService {
-  FeedbackPushService() : super(interval: Duration(minutes: 10));
+  final MailService mailService;
+
+  FeedbackPushService(this.mailService)
+      : super(interval: Duration(minutes: 10));
 
   @override
   Future<void> onSchedule() async {
@@ -22,20 +26,26 @@ class FeedbackPushService extends ScheduledService {
   }
 
   Future<bool> _sendFeedbackMail() async {
+    final connection = mailService.connection;
+    if (connection == null) {
+      return false;
+    }
+
     pendingFeedback.sort((a, b) => a.type.compareTo(b.type));
 
     final message = Message()
-      ..from = Address(MailCredentials.user, 'Dungeon Club')
-      ..recipients.add(MailCredentials.user)
+      ..from = mailService.connection!.systemAddress
+      ..recipients.add(mailService.connection!.systemAddress.mailAddress)
       ..subject = 'Feedback'
       ..text = '${pendingFeedback.length} new feedback letters:\n\n' +
           pendingFeedback.join('\n------------------------------------\n\n');
 
-    if (await sendMessage(message)) {
+    if (await connection.sendMessage(message)) {
       pendingFeedback.clear();
       return true;
+    } else {
+      return false;
     }
-    return false;
   }
 }
 

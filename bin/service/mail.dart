@@ -11,23 +11,24 @@ import 'package:path/path.dart' as path;
 import '../server.dart';
 import 'service.dart';
 
-final credFile = File('mail/gmail_credentials');
-
 class MailService extends StartableService {
-  SmtpServer? _smtpServer;
+  MailConnection? connection;
 
   @override
   Future<void> startService() async {
-    if (!await credFile.exists()) {
-      var exe = Environment.isCompiled
+    final enableMailService = await MailCredentials.credentialsFile.exists();
+
+    if (!enableMailService) {
+      final exeName = Environment.isCompiled
           ? path.basename(Platform.executable)
           : 'dart bin/server.dart';
 
       return print('Mailing system not enabled '
-          '(run "$exe mail" to walk through the activation process)');
+          '(run "$exeName mail" to walk through the activation process)');
+    } else {
+      final credentials = await MailCredentials.load();
+      connection = MailConnection(credentials);
     }
-
-    await MailCredentials.load();
   }
 
   Future<bool> sendVerifyCreationMail(String email, String code) {
@@ -54,13 +55,13 @@ class MailService extends StartableService {
     required String subject,
     required String layoutFile,
   }) async {
-    if (_smtpServer == null) return false;
+    if (connection == null) return false;
 
     var content = await File('mail/$layoutFile').readAsString();
     content = content.replaceAll('\$CODE', code);
 
     final message = Message()
-      ..from = Address(MailCredentials.user, 'Dungeon Club')
+      ..from = connection!.systemAddress
       ..recipients.add(email)
       ..subject = subject
       ..html = content
@@ -68,15 +69,32 @@ class MailService extends StartableService {
         ..location = Location.inline
         ..cid = '<logo>');
 
-    return sendMessage(message);
+    return connection!.sendMessage(message);
+  }
+
+  Future<void> closeMailServer() async {
+    await connection?.credentials.save();
+  }
+}
+
+class MailConnection {
+  final MailCredentials credentials;
+  SmtpServer _smtpServer;
+
+  Address get systemAddress => Address(credentials.user, 'Dungeon Club');
+
+  MailConnection(this.credentials) : _smtpServer = credentials.toServerConfig();
+
+  Future<void> _refreshCredentialsIfExpired() async {
+    if (await credentials.refreshIfExpired()) {
+      _smtpServer = credentials.toServerConfig();
+    }
   }
 
   Future<bool> sendMessage(Message message) async {
-    if (_smtpServer == null) return false;
-
     try {
-      await MailCredentials.refreshCredentials();
-      final sendReport = await send(message, _smtpServer!);
+      await _refreshCredentialsIfExpired();
+      final sendReport = await send(message, _smtpServer);
       print('Message sent: ' + sendReport.toString());
       return true;
     } on MailerException catch (e) {
@@ -94,64 +112,61 @@ class MailService extends StartableService {
       return false;
     }
   }
-
-  Future<void> closeMailServer() async {
-    if (_smtpServer == null) return;
-
-    await MailCredentials.save();
-  }
 }
 
 class MailCredentials {
-  static late String user;
-  static late auth.ClientId clientId;
-  static late auth.AccessCredentials creds;
+  static final credentialsFile = File('mail/gmail_credentials');
 
-  static Duration get untilExpiry =>
-      creds.accessToken.expiry.difference(DateTime.now()) -
+  final String user;
+  final auth.ClientId clientId;
+  auth.AccessCredentials _credentials;
+
+  auth.AccessToken get accessToken => _credentials.accessToken;
+
+  Duration get untilExpiry =>
+      _credentials.accessToken.expiry.difference(DateTime.now()) -
       Duration(minutes: 1);
 
-  static Future<void> configure(
-    String user,
-    auth.ClientId clientId,
-    auth.AccessCredentials creds,
-  ) async {
-    MailCredentials.user = user;
-    MailCredentials.clientId = clientId;
-    MailCredentials.creds = creds;
-  }
+  MailCredentials({
+    required this.user,
+    required this.clientId,
+    required auth.AccessCredentials credentials,
+  }) : _credentials = credentials;
 
-  static Future<void> refreshCredentials() async {
+  MailCredentials.fromJson(json)
+      : user = json['user'],
+        clientId = auth.ClientId.fromJson(json['client']),
+        _credentials = auth.AccessCredentials.fromJson(json['credentials']);
+
+  SmtpServer toServerConfig() => gmailSaslXoauth2(user, accessToken.data);
+
+  Future<bool> refreshIfExpired() async {
     if (untilExpiry.inMinutes <= 1) {
-      creds = await auth.refreshCredentials(clientId, creds, httpClient);
+      _credentials =
+          await auth.refreshCredentials(clientId, _credentials, httpClient);
+      return true;
     }
 
-    _resetSmtpConfig();
+    return false;
   }
 
-  static void _resetSmtpConfig() {
-    _smtpServer = gmailSaslXoauth2(user, creds.accessToken.data);
+  static Future<MailCredentials> load() async {
+    final json = jsonDecode(await credentialsFile.readAsString());
+
+    return MailCredentials.fromJson(json);
   }
 
-  static Future<void> load() async {
-    var json = jsonDecode(await credFile.readAsString());
-    await configure(
-      json['user'],
-      auth.ClientId.fromJson(json['client']),
-      auth.AccessCredentials.fromJson(json['credentials']),
-    );
-    await refreshCredentials();
-    print('Signed into mail OAuth client');
+  Future<void> save() async {
+    final json = toJson();
+    final jsonString = jsonEncode(json);
+
+    await credentialsFile.create(recursive: true);
+    await credentialsFile.writeAsString(jsonString);
   }
 
-  static Future<void> save() async {
-    var json = {
-      'user': user,
-      'client': clientId.toJson(),
-      'credentials': creds.toJson(),
-    };
-
-    await credFile.create(recursive: true);
-    await credFile.writeAsString(jsonEncode(json));
-  }
+  Map<String, dynamic> toJson() => {
+        'user': user,
+        'client': clientId.toJson(),
+        'credentials': _credentials.toJson(),
+      };
 }
