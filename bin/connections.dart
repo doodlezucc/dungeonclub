@@ -189,7 +189,7 @@ class Connection extends Socket {
         server.data.gameMeta.add(createdMeta..loadedGame = createdGame);
         account!.enteredGames.add(createdMeta);
 
-        final assetPath = await resolveIndexedAsset(
+        final assetPath = await AssetProviderService.resolveIndexedAsset(
           'asset/scene/',
           pickRandom: true,
         );

@@ -159,7 +159,7 @@ class AssetFile extends ResourceFile {
 
   static Future<AssetFile> parse(String filePath) async {
     if (filePath.startsWith(ASSET_UNRESOLVED_PREFIX)) {
-      final path = await resolveIndexedAsset(filePath);
+      final path = await AssetProviderService.resolveIndexedAsset(filePath);
 
       return tryAsSceneAsset(path);
     }

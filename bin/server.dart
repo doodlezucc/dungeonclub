@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:dungeonclub/actions.dart';
 import 'package:dungeonclub/environment.dart';
 import 'package:graceful/graceful.dart';
 import 'package:http/http.dart' as http;
@@ -122,8 +121,9 @@ class Server {
   late final maintenanceSwitchService = MaintenanceSwitchService();
 
   late final List<Service> services = [
-    AutoSaveService(serverData: data),
     AccountRemovalService(serverData: data),
+    AssetProviderService(),
+    AutoSaveService(serverData: data),
     feedbackPushService,
     maintenanceSwitchService,
     mailService,
@@ -164,10 +164,6 @@ class Server {
     _address = _address?.trim() ?? 'http://${await _getNetworkIP()}:$servePort';
 
     _startServices();
-
-    await createAssetPreview(IMAGE_TYPE_PC, tileSize: 240);
-    await createAssetPreview(IMAGE_TYPE_ENTITY, tileSize: 240);
-    await createAssetPreview(IMAGE_TYPE_SCENE, zoomIn: true);
 
     if (Environment.enableMusic) {
       await loadAmbience();
@@ -325,7 +321,11 @@ class Server {
 
     File? file;
     if (urlPath.startsWith('asset/')) {
-      final redirect = await resolveIndexedAsset(urlPath, fullPath: true);
+      final redirect = await AssetProviderService.resolveIndexedAsset(
+        urlPath,
+        fullPath: true,
+      );
+
       return Response.movedPermanently('/$redirect');
     }
 
