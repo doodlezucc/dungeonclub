@@ -6,7 +6,6 @@ import 'dart:isolate';
 import 'package:dungeonclub/environment.dart';
 import 'package:graceful/graceful.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as p;
 import 'package:path/path.dart' as path;
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as io;
@@ -104,8 +103,8 @@ void main(List<String> args, [SendPort? signalsToParent]) async {
 
 void resetCurrentWorkingDir() {
   var exe = Platform.script.toFilePath();
-  var root = p.dirname(exe);
-  if (p.extension(exe) == '.dart') root = p.dirname(root);
+  var root = path.dirname(exe);
+  if (path.extension(exe) == '.dart') root = path.dirname(root);
   Directory.current = root;
 }
 
@@ -270,7 +269,7 @@ class Server {
   }
 
   String? getMimeType(File f) {
-    switch (p.extension(f.path)) {
+    switch (path.extension(f.path)) {
       case '.html':
         return 'text/html';
       case '.css':
