@@ -17,13 +17,14 @@ import 'services/feedback_push.dart';
 import 'server.dart';
 
 const sendPings = false;
+const pingInterval = Duration(seconds: 15);
 
 final connections = <Connection>[];
 final activationCodes = <Connection, String>{};
 final resets = <Connection, PasswordReset>{};
 final tokenAccounts = <String, Account>{};
 
-void onConnect(Server server, WebSocketChannel ws) {
+void onConnect(DungeonClubServer server, WebSocketChannel ws) {
   print('New connection!');
   connections.add(Connection(server, ws));
 }
@@ -37,7 +38,7 @@ class PasswordReset {
 }
 
 class Connection extends Socket {
-  final Server server;
+  final DungeonClubServer server;
   final WebSocketChannel ws;
   final Stream broadcastStream;
   Timer? _pingTimer;
@@ -72,7 +73,7 @@ class Connection extends Socket {
     );
 
     if (sendPings) {
-      _pingTimer = Timer.periodic(wsPing, (timer) => send([99]));
+      _pingTimer = Timer.periodic(pingInterval, (timer) => send([99]));
     }
 
     if (server.maintenanceSwitchService.isShutownScheduled) {

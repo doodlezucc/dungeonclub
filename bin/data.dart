@@ -31,7 +31,7 @@ class ServerData {
   static final file = File(path.join(directory.path, 'data.json'));
   static bool _isInitialized = false;
 
-  final Server server;
+  final DungeonClubServer server;
   final accounts = <Account>[];
   final gameMeta = <GameMeta>[];
   final Random rng = Random();
