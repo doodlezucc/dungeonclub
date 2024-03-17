@@ -6,7 +6,7 @@ import 'package:dungeonclub/environment.dart';
 import 'package:path/path.dart' as p;
 import 'package:sass/sass.dart' as sass;
 
-import 'cli/entry_parser.dart';
+import 'util/entry_parser.dart';
 
 const BUILD_COPY_MUSIC = 'copy-music';
 const BUILD_ICONS = 'download-icons';

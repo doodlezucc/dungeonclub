@@ -13,20 +13,20 @@ import 'package:shelf/shelf_io.dart' as io;
 import 'package:shelf_web_socket/shelf_web_socket.dart' as ws;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-import 'services/asset_provider.dart';
 import 'audio.dart';
-import 'cli/mail_setup.dart';
 import 'config.dart';
 import 'connections.dart';
 import 'data.dart';
-import 'cli/entry_parser.dart';
+import 'services/account_removal.dart';
+import 'services/asset_provider.dart';
+import 'services/auto_save.dart';
 import 'services/feedback_push.dart';
 import 'services/mail.dart';
-import 'services/account_removal.dart';
-import 'services/auto_save.dart';
 import 'services/maintenance_switch.dart';
 import 'services/service.dart';
-import 'untaint.dart';
+import 'util/entry_parser.dart';
+import 'util/mail_setup.dart';
+import 'util/untaint.dart';
 
 const _hostname = '0.0.0.0';
 const githubUrl =
