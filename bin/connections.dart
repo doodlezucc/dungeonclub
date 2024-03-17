@@ -699,7 +699,7 @@ class Connection extends Socket {
           return;
         }
 
-        final playlist = collection.playlists.find(
+        final playlist = MusicProvider.collection.playlists.find(
           (pl) => pl.title == playlistName,
         );
 

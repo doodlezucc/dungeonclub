@@ -166,7 +166,7 @@ class Server {
     _startServices();
 
     if (Environment.enableMusic) {
-      await loadAmbience();
+      await MusicProvider.loadMusicPlaylists();
       print('Loaded music playlists');
     } else {
       print('Music playlists not enabled');
