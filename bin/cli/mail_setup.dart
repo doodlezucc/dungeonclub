@@ -4,7 +4,7 @@ import 'package:prompts/prompts.dart' as prompts;
 import 'package:googleapis_auth/auth_io.dart' as auth;
 
 import '../server.dart';
-import '../service/mail.dart';
+import '../services/mail.dart';
 
 Future<void> setupMailAuth() async {
   print('''

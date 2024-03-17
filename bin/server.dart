@@ -21,12 +21,12 @@ import 'config.dart';
 import 'connections.dart';
 import 'data.dart';
 import 'entry_parser.dart';
-import 'service/feedback_push.dart';
-import 'service/mail.dart';
-import 'service/account_removal.dart';
-import 'service/auto_save.dart';
-import 'service/maintenance_switch.dart';
-import 'service/service.dart';
+import 'services/feedback_push.dart';
+import 'services/mail.dart';
+import 'services/account_removal.dart';
+import 'services/auto_save.dart';
+import 'services/maintenance_switch.dart';
+import 'services/service.dart';
 import 'untaint.dart';
 
 const _hostname = '0.0.0.0';
