@@ -86,18 +86,18 @@ packages:
     dependency: transitive
     description:
       name: build_daemon
-      sha256: "5f02d73eb2ba16483e693f80bee4f088563a820e47d1027d4cdfe62b5bb43e65"
+      sha256: "0343061a33da9c5810b2d6cee51945127d8f4c060b7fbdd9d54917f0a3feaaa1"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "4.0.1"
   build_modules:
     dependency: transitive
     description:
       name: build_modules
-      sha256: "14a8e9bf4b1ae3f5d6c925c1386da59e818c68cc6f1f6fda991f7c6b74c6ebb9"
+      sha256: "9987d67a29081872e730468295fc565e9a2b377ca3673337c1d4e41d57c6cd7c"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.4"
+    version: "5.0.8"
   build_resolvers:
     dependency: transitive
     description:
@@ -126,10 +126,10 @@ packages:
     dependency: "direct dev"
     description:
       name: build_web_compilers
-      sha256: "49270bd113959ac061512d2bdf0046cf97395b88b04a6baed2b9b276c88559ec"
+      sha256: "9071a94aa67787cebdd9e76837c9d2af61fb5242db541244f6a0b6249afafb46"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.5"
+    version: "4.0.10"
   built_collection:
     dependency: transitive
     description:
@@ -230,10 +230,10 @@ packages:
     dependency: transitive
     description:
       name: dart_internal
-      sha256: "689dccc3d5f62affd339534cca548dce12b3a6b32f0f10861569d3025efc0567"
+      sha256: "17ad5e3da43df562bb98ca0d88e9f32aeb16c97ec33dee822b21c3b2d0875726"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.9"
+    version: "0.2.12"
   dart_style:
     dependency: transitive
     description:
@@ -766,4 +766,4 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.0.0 <3.3.0"
+  dart: ">=3.1.0 <3.6.0"
