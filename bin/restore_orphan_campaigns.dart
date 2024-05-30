@@ -2,8 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:prompts/prompts.dart' as prompts;
-
 import 'data.dart';
 import 'server.dart';
 
@@ -23,53 +21,66 @@ void main() async {
 
   final logFile = File('../TMP_CONFIDENTIAL/logs-out.log');
   final logContent = await logFile.readAsString();
-  final memoryGap = simulateLogsWithServerData(logContent, serverData);
+
+  final emailsInOrder =
+      await File('../TMP_CONFIDENTIAL/email-account-creation-order.txt')
+          .readAsLines();
+
+  final memoryGap =
+      await simulateLogsWithServerData(logContent, emailsInOrder, serverData);
 
   final encoder = JsonEncoder.withIndent('  ');
   await analysisFile.writeAsString(encoder.convert(memoryGap.toJson()));
   exit(0);
 }
 
-MemoryGapOperation simulateLogsWithServerData(
+Future<MemoryGapOperation> simulateLogsWithServerData(
   String logContent,
+  List<String> registeredEmailsDuringGap,
   ServerData serverData,
-) {
+) async {
   final gameOwnersBeforeCrash =
       Map.fromEntries(serverData.gameMeta.map((gameMeta) => MapEntry(
             gameMeta.id,
             gameMeta.owner.encryptedEmail.hash,
           )));
 
-  // return simulateLogsWithRecursiveKnowledge(logContent, gameOwnersBeforeCrash);
-  return simulateLogs(logContent, gameOwnersBeforeCrash: gameOwnersBeforeCrash);
+  return await simulateLogsWithRecursiveKnowledge(
+    logContent,
+    registeredEmailsDuringGap,
+    gameOwnersBeforeCrash,
+  );
 }
 
-MemoryGapOperation simulateLogsWithRecursiveKnowledge(
+Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
   String logContent,
+  List<String> registeredEmailsDuringGap,
   Map<String, String> gameOwnersBeforeCrash,
-) {
+) async {
   MemoryGapOperation previousResult = simulateLogs(
     logContent,
+    registeredEmailsDuringGap: registeredEmailsDuringGap,
     gameOwnersBeforeCrash: gameOwnersBeforeCrash,
   );
 
   while (true) {
     final result = simulateLogs(
       logContent,
+      registeredEmailsDuringGap: registeredEmailsDuringGap,
       gameOwnersBeforeCrash: gameOwnersBeforeCrash,
       gameOwnersLastIteration: previousResult.singleSuspectOwners,
     );
 
-    final previousSingleSuspectGames =
-        previousResult.singleSuspectOwners.keys.toSet();
-    final newSingleSuspectGames = result.singleSuspectOwners.keys.toSet();
+    final differenceUnknown =
+        previousResult.countUnknown() - result.countUnknown();
+    final differenceKnown = result.countKnown() - previousResult.countKnown();
 
-    final newlyFoundGames =
-        newSingleSuspectGames.difference(previousSingleSuspectGames);
+    print(
+        '\n\Took out ${differenceUnknown} suspects with recursion, got ${differenceKnown} known owners');
 
-    print('\n\nFound ${newlyFoundGames.length} new games with recursion');
+    await Future.delayed(Duration(seconds: 3));
 
-    if (newlyFoundGames.isEmpty) {
+    if (differenceUnknown == 0 && differenceKnown == 0) {
       return result;
     }
 
@@ -79,6 +90,7 @@ MemoryGapOperation simulateLogsWithRecursiveKnowledge(
 
 MemoryGapOperation simulateLogs(
   String logContent, {
+  required List<String> registeredEmailsDuringGap,
   Map<String, String> gameOwnersBeforeCrash = const {},
   Map<String, String> gameOwnersLastIteration = const {},
 }) {
@@ -109,6 +121,7 @@ MemoryGapOperation simulateLogs(
   final gameOwnerSuspects = <String, List<Probability>>{};
 
   final synonymousAccounts = <String, String>{};
+  int registrationCounter = 0;
 
   final loginTimes = <String, DateTime>{};
   var activeConnections = 1;
@@ -171,15 +184,12 @@ MemoryGapOperation simulateLogs(
     }
 
     if (newAccountActivationCode != null) {
-      final relevantLines = extractWholeLine(logContent, match);
-      print(relevantLines);
-      printLog('NEW ACCOUNT REGISTERED, Code: $newAccountActivationCode');
+      String emailAddress = registeredEmailsDuringGap[registrationCounter];
+      registrationCounter++;
 
-      if (relevantLines.split('\n').length > 2) {
-        print('NOTE: this one was previously skipped :(');
-      }
+      printLog(
+          'NEW ACCOUNT REGISTERED, Code: $newAccountActivationCode -> $emailAddress');
 
-      String emailAddress = prompts.get("Real email address");
       suspects.add(emailAddress);
       loginTimes[emailAddress] = time;
 
@@ -368,6 +378,14 @@ class MemoryGapOperation {
         'singleSuspectOwners': singleSuspectOwners,
         'multipleSuspectOwners': multipleSuspectOwners,
       };
+
+  int countUnknown() {
+    return multipleSuspectOwners.values.expand((element) => element).length;
+  }
+
+  int countKnown() {
+    return singleSuspectOwners.length;
+  }
 }
 
 String extractWholeLine(String logContent, RegExpMatch match) {
