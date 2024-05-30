@@ -32,8 +32,6 @@ void main() async {
 
 MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
   // BEFORE CRASH
-  final accountsExistingBeforeCrash =
-      serverData.accounts.map((e) => e.encryptedEmail.hash).toSet();
   final gameOwnersBeforeCrash =
       Map.fromEntries(serverData.gameMeta.map((gameMeta) => MapEntry(
             gameMeta.id,
@@ -195,8 +193,6 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
       .removeWhere((key, value) => gameOwnersBeforeCrash.containsKey(key));
   gameOwnerSuspects
       .removeWhere((key, value) => gameOwnersBeforeCrash.containsKey(key));
-  loginTimes
-      .removeWhere((key, value) => accountsExistingBeforeCrash.contains(key));
 
   //
 
