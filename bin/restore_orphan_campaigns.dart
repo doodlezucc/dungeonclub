@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:prompts/prompts.dart' as prompts;
+
 import 'data.dart';
 import 'server.dart';
 
@@ -12,37 +14,20 @@ class Probability {
   Probability(this.owner, this.score);
 }
 
-const unknownUser = '<NEW UNKNOWN>';
+final analysisFile = File('../TMP_CONFIDENTIAL/recovery-info.json');
 
 void main() async {
   final mockServer = Server();
   final serverData = mockServer.data;
   await serverData.init();
 
-  final logFile = File('logs-out.log');
+  final logFile = File('../TMP_CONFIDENTIAL/logs-out.log');
   final logContent = await logFile.readAsString();
   final memoryGap = iterateLogs(logContent, serverData);
-
-  final analysisFile = File('recovery-info.json');
-
-  // final operationJson = await analysisFile.readAsString();
-  // final memoryGap = MemoryGapOperation.fromJson(jsonDecode(operationJson));
 
   final encoder = JsonEncoder.withIndent('  ');
   await analysisFile.writeAsString(encoder.convert(memoryGap.toJson()));
   exit(0);
-}
-
-Future<void> linkWithBackup(MemoryGapOperation memoryGap) async {
-  final mockServer = Server();
-  final serverData = mockServer.data;
-  await serverData.init();
-
-  final accountsExistingBeforeCrash =
-      serverData.accounts.map((acc) => acc.encryptedEmail.hash).toSet();
-
-  memoryGap.relevantAccounts.removeWhere(
-      (accountHash) => accountsExistingBeforeCrash.contains(accountHash));
 }
 
 MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
@@ -55,7 +40,7 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
             gameMeta.owner.encryptedEmail.hash,
           )));
 
-  // Group  1: New account activated
+  // Group  1: New account activated with <code>
   // Group  2: Log in with <account>
   // Group  3: Game creation with <name>
   // Group  4: Game creation with <id>
@@ -66,7 +51,7 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
   // Group  9: Game <id> was renamed
   // Group 10: Game was renamed to <name>
   final regex = RegExp(
-    r'(New account activated!)|(?:Connection logged in with account (\S+))|(?:gameCreateNew.+?(?:"name":"(.*?[^\\]?)".+?)? (\S+) \(\-\))|(?: (\S+) \(-\) joined)|(?:gameDelete.*?"id":"(\S+)")|( New connection)|( Lost connection)|(?:"action":"gameEdit"[^\n]+"id":"(\S+)","data":{"name":"(.*?[^\\]?)")',
+    r'(?:"code":"(.{5})"}}\n\S+ New account activated!)|(?:Connection logged in with account (\S+))|(?:gameCreateNew.+?(?:"name":"(.*?[^\\]?)".+?)? (\S+) \(\-\))|(?: (\S+) \(-\) joined)|(?:gameDelete.*?"id":"(\S+)")|( New connection)|( Lost connection)|(?:"action":"gameEdit"[^\n]+"id":"(\S+)","data":{"name":"(.*?[^\\]?)")',
     dotAll: true,
   );
   final matches = regex.allMatches(logContent);
@@ -78,6 +63,8 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
   final gameOwners = Map.of(gameOwnersBeforeCrash);
   final gameOwnerSuspects = <String, List<Probability>>{};
 
+  final synonymousAccounts = <String, String>{};
+
   final loginTimes = <String, DateTime>{};
   var activeConnections = 1;
   var loggedInUsersSinceCheckpoint = 0;
@@ -87,7 +74,8 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
     final timeString = extractTimestamp(logContent, match);
     final time = DateTime.parse(timeString);
 
-    final isNewAccount = match[1] != null;
+    final newAccountActivationCode = match[1];
+
     final loggedInAccount = match[2];
     final createdGameName = match[3];
     final createdGameID = match[4];
@@ -105,10 +93,11 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
         final guessedOwner = gameOwners[gameID];
         final newOwner = suspects.first;
 
-        if (guessedOwner != null &&
-            guessedOwner != newOwner &&
-            guessedOwner != unknownUser) {
-          throw 'Colliding game owners on game $gameID, already set to $guessedOwner';
+        if (guessedOwner != null && guessedOwner != newOwner) {
+          print(
+              '\nColliding game owners on game $gameID, already set to $guessedOwner\n');
+
+          synonymousAccounts[newOwner] = guessedOwner;
         }
 
         gameOwners[gameID] = newOwner;
@@ -136,10 +125,11 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
       print('$timeString - $msg');
     }
 
-    if (isNewAccount) {
-      printLog('NEW ACCOUNT REGISTERED');
-      suspects.add(unknownUser);
-      loginTimes[unknownUser] = time;
+    if (newAccountActivationCode != null) {
+      printLog('NEW ACCOUNT REGISTERED, Code: $newAccountActivationCode');
+      String emailAddress = prompts.get("Real email address");
+      suspects.add(emailAddress);
+      loginTimes[emailAddress] = time;
 
       loggedInUsersSinceCheckpoint =
           min(loggedInUsersSinceCheckpoint + 1, suspects.length);
@@ -201,6 +191,15 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
 
   // REMOVE PREVIOUSLY KNOWN MAPPINGS
 
+  gameOwners
+      .removeWhere((key, value) => gameOwnersBeforeCrash.containsKey(key));
+  gameOwnerSuspects
+      .removeWhere((key, value) => gameOwnersBeforeCrash.containsKey(key));
+  loginTimes
+      .removeWhere((key, value) => accountsExistingBeforeCrash.contains(key));
+
+  //
+
   for (var entry in gameOwnerSuspects.entries.toList()) {
     final gameID = entry.key;
     final probabilities = entry.value;
@@ -259,23 +258,12 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
     oldGameRenames: Map.fromEntries(gameNames.keys
         .where((gameID) => !createdGames.contains(gameID))
         .map((gameID) => MapEntry(gameID, gameNames[gameID]))),
-    relevantAccounts: loginTimes.keys
-        .where((account) =>
-            account != unknownUser &&
-            !accountsExistingBeforeCrash.contains(account))
-        .toList(),
+    relevantAccounts: loginTimes.keys.toList(),
+    synonymousAccounts: synonymousAccounts,
     createdGameIDNames: Map.fromEntries(
         createdGames.map((gameID) => MapEntry(gameID, gameNames[gameID]))),
-    unclaimedGameIDs: createdGames
-        .where((gameID) => gameOwners[gameID] == unknownUser)
-        .followedBy(gameOwnerSuspects.entries
-            .where((entry) => entry.value
-                .any((probability) => probability.owner == unknownUser))
-            .map((entry) => entry.key))
-        .toList(),
     singleSuspectOwners: Map.fromEntries(createdGames
-        .where((gameID) =>
-            gameOwners.containsKey(gameID) && gameOwners[gameID] != unknownUser)
+        .where((gameID) => gameOwners.containsKey(gameID))
         .map((gameID) => MapEntry(gameID, gameOwners[gameID]!))),
     multipleSuspectOwners: Map.fromEntries(createdGames
         .where((gameID) => gameOwnerSuspects.containsKey(gameID))
@@ -284,7 +272,6 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
               gameOwnerSuspects[gameID]!
                   .map((probability) => probability.owner)
                   .toSet()
-                  .where((owner) => owner != unknownUser)
                   .toList(),
             ))),
   );
@@ -295,9 +282,9 @@ class MemoryGapOperation {
   final Map<String, String?> oldGameRenames;
 
   final List<String> relevantAccounts;
+  final Map<String, String> synonymousAccounts;
   final Map<String, String?> createdGameIDNames;
 
-  final List<String> unclaimedGameIDs;
   final Map<String, String> singleSuspectOwners;
   final Map<String, List<String>> multipleSuspectOwners;
 
@@ -305,8 +292,8 @@ class MemoryGapOperation {
     required this.deletedGameIDs,
     required this.oldGameRenames,
     required this.relevantAccounts,
+    required this.synonymousAccounts,
     required this.createdGameIDNames,
-    required this.unclaimedGameIDs,
     required this.singleSuspectOwners,
     required this.multipleSuspectOwners,
   });
@@ -315,8 +302,8 @@ class MemoryGapOperation {
           deletedGameIDs: List.from(json['deletedGameIDs']),
           oldGameRenames: Map.from(json['oldGameRenames']),
           relevantAccounts: List.from(json['relevantAccounts']),
+          synonymousAccounts: Map.from(json['synonymousAccounts']),
           createdGameIDNames: Map.from(json['createdGameIDNames']),
-          unclaimedGameIDs: List.from(json['unclaimedGameIDs']),
           singleSuspectOwners: Map.from(json['singleSuspectOwners']),
           multipleSuspectOwners: (json['multipleSuspectOwners'] as Map)
               .map((key, value) => MapEntry(key, List<String>.from(value))),
@@ -326,8 +313,8 @@ class MemoryGapOperation {
         'deletedGameIDs': deletedGameIDs,
         'oldGameRenames': oldGameRenames,
         'relevantAccounts': relevantAccounts,
+        'synonymousAccounts': synonymousAccounts,
         'createdGameIDNames': createdGameIDNames,
-        'unclaimedGameIDs': unclaimedGameIDs,
         'singleSuspectOwners': singleSuspectOwners,
         'multipleSuspectOwners': multipleSuspectOwners,
       };
