@@ -5,13 +5,6 @@ import 'dart:math';
 import 'data.dart';
 import 'server.dart';
 
-class Probability {
-  String owner;
-  double score;
-
-  Probability(this.owner, this.score);
-}
-
 final analysisFile = File('../TMP_CONFIDENTIAL/recovery-info.json');
 
 void main() async {
@@ -45,10 +38,14 @@ Future<MemoryGapOperation> simulateLogsWithServerData(
             gameMeta.owner.encryptedEmail.hash,
           )));
 
+  final accountHashes =
+      serverData.accounts.map((acc) => acc.encryptedEmail.hash).toSet();
+
   return await simulateLogsWithRecursiveKnowledge(
     logContent,
     registeredEmailsDuringGap,
     gameOwnersBeforeCrash,
+    accountHashes,
   );
 }
 
@@ -56,20 +53,29 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
   String logContent,
   List<String> registeredEmailsDuringGap,
   Map<String, String> gameOwnersBeforeCrash,
+  Set<String> accountHashesBeforeCrash,
 ) async {
   MemoryGapOperation previousResult = simulateLogs(
     logContent,
     registeredEmailsDuringGap: registeredEmailsDuringGap,
     gameOwnersBeforeCrash: gameOwnersBeforeCrash,
+    accountHashesBeforeCrash: accountHashesBeforeCrash,
   );
 
-  while (true) {
+  String previousResultJson = jsonEncode(previousResult.toJson());
+
+  int iterationsLeft = 1000;
+
+  while (iterationsLeft > 0) {
     final result = simulateLogs(
       logContent,
       registeredEmailsDuringGap: registeredEmailsDuringGap,
       gameOwnersBeforeCrash: gameOwnersBeforeCrash,
-      gameOwnersLastIteration: previousResult.singleSuspectOwners,
+      accountHashesBeforeCrash: accountHashesBeforeCrash,
+      lastIteration: previousResult,
     );
+
+    iterationsLeft--;
 
     final differenceUnknown =
         previousResult.countUnknown() - result.countUnknown();
@@ -78,21 +84,27 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
     print(
         '\n\Took out ${differenceUnknown} suspects with recursion, got ${differenceKnown} known owners');
 
-    await Future.delayed(Duration(seconds: 3));
+    String resultJson = jsonEncode(result.toJson());
 
-    if (differenceUnknown == 0 && differenceKnown == 0) {
-      return result;
+    if (resultJson != previousResultJson) {
+      print('Computed different results -> Run next iteration');
+      await Future.delayed(Duration(seconds: 3));
+      iterationsLeft = 2;
     }
 
     previousResult = result;
+    previousResultJson = resultJson;
   }
+
+  return previousResult;
 }
 
 MemoryGapOperation simulateLogs(
   String logContent, {
   required List<String> registeredEmailsDuringGap,
   Map<String, String> gameOwnersBeforeCrash = const {},
-  Map<String, String> gameOwnersLastIteration = const {},
+  Set<String> accountHashesBeforeCrash = const {},
+  MemoryGapOperation? lastIteration,
 }) {
   // Group  1: New account activated with <code>
   // Group  2: Log in with <account>
@@ -115,13 +127,19 @@ MemoryGapOperation simulateLogs(
   final gameNames = <String, String>{};
 
   final gameOwners = {
-    ...gameOwnersLastIteration,
+    ...lastIteration?.singleSuspectOwners ?? {},
     ...gameOwnersBeforeCrash,
   };
-  final gameOwnerSuspects = <String, List<Probability>>{};
+  final gameOwnerSuspects = <String, Map<String, double>>{};
 
-  final synonymousAccounts = <String, String>{};
+  final hashToEmailMap = {
+    ...lastIteration?.synonymousAccounts ?? {},
+  };
   int registrationCounter = 0;
+
+  String resolveSynonym(String key) {
+    return hashToEmailMap[key] ?? '$key';
+  }
 
   final loginTimes = <String, DateTime>{};
   var activeConnections = 1;
@@ -151,27 +169,37 @@ MemoryGapOperation simulateLogs(
         final guessedOwner = gameOwners[gameID];
         final newOwner = suspects.first;
 
-        if (guessedOwner != null && guessedOwner != newOwner) {
+        if (guessedOwner != null &&
+            guessedOwner != newOwner &&
+            !newOwner.contains('@')) {
           print(
               '\nColliding game owners on game $gameID, already set to $guessedOwner\n');
 
-          synonymousAccounts[newOwner] = guessedOwner;
+          hashToEmailMap[newOwner] = guessedOwner;
+          suspects.remove(newOwner);
+        } else {
+          gameOwners[gameID] = newOwner;
         }
-
-        gameOwners[gameID] = newOwner;
       } else {
         final probability = loggedInUsersSinceCheckpoint / suspects.length;
 
-        final gameSuspectList = gameOwnerSuspects.putIfAbsent(gameID, () => []);
-        gameSuspectList.addAll(suspects.map((owner) {
-          final secondsLoggedIn = time.difference(loginTimes[owner]!).inSeconds;
+        final gameSuspectMap = gameOwnerSuspects.putIfAbsent(gameID, () => {});
+
+        for (var suspect in suspects) {
+          final secondsLoggedIn =
+              time.difference(loginTimes[suspect]!).inSeconds;
 
           final multiplier =
               11 - 10 * (secondsLoggedIn / (60 * 60 * 6)).clamp(0, 1);
 
-          return Probability(owner, multiplier * probability);
-        }));
-        // throw 'multiple possible gms';
+          final score = multiplier * probability;
+
+          gameSuspectMap.update(
+            suspect,
+            (value) => value + score,
+            ifAbsent: () => score,
+          );
+        }
       }
 
       if (gameOwners.containsKey(gameID)) {
@@ -196,9 +224,10 @@ MemoryGapOperation simulateLogs(
       loggedInUsersSinceCheckpoint =
           min(loggedInUsersSinceCheckpoint + 1, suspects.length);
     } else if (loggedInAccount != null) {
-      printLog(loggedInAccount + ' logged in');
-      suspects.add(loggedInAccount);
-      loginTimes[loggedInAccount] = time;
+      final loggedInEmailOrAccountHash = resolveSynonym(loggedInAccount);
+      printLog(loggedInEmailOrAccountHash + ' logged in');
+      suspects.add(loggedInEmailOrAccountHash);
+      loginTimes[loggedInEmailOrAccountHash] = time;
 
       loggedInUsersSinceCheckpoint =
           min(loggedInUsersSinceCheckpoint + 1, suspects.length);
@@ -260,23 +289,55 @@ MemoryGapOperation simulateLogs(
 
   //
 
-  for (var entry in gameOwnerSuspects.entries.toList()) {
+  final multipleSuspectOwners = Map.fromEntries(createdGames
+      .where((gameID) => gameOwnerSuspects.containsKey(gameID))
+      .map((gameID) => MapEntry(
+            gameID,
+            gameOwnerSuspects[gameID]!.keys.toSet(),
+          )));
+
+  final emailSynonyms = findEmailSynonyms(
+    multipleSuspectOwners.values.toSet(),
+    registeredEmailsDuringGap.toSet(),
+  );
+
+  // Not interested in accounts which don't have a single game
+  final emailToSingleHash = Map.fromEntries(emailSynonyms.entries
+      .where((entry) => entry.value.length == 1)
+      .map((e) => MapEntry(e.key, e.value.first))
+      .where((entry) {
+    final accountHash = entry.value;
+
+    // only keep hashes (not raw emails) which have not existed before the gap
+    return !accountHash.contains('@') &&
+        !accountHashesBeforeCrash.contains(accountHash);
+  }));
+
+  for (var emailToHashEntry in emailToSingleHash.entries) {
+    final email = emailToHashEntry.key;
+    final hash = emailToHashEntry.value;
+
+    if (hashToEmailMap.containsKey(hash)) {
+      print('what do in duplicate situation');
+    } else {
+      hashToEmailMap[hash] = email;
+    }
+  }
+
+  for (var entry in multipleSuspectOwners.entries.toList()) {
     final gameID = entry.key;
-    final probabilities = entry.value;
+    final possibleOwners = entry.value;
 
-    final uniqueOwners = probabilities.fold<Set<String>>(
-      {},
-      (setOfOwners, probability) => setOfOwners..add(probability.owner),
-    );
-
-    if (uniqueOwners.length == 1) {
+    if (possibleOwners.length == 1) {
+      multipleSuspectOwners.remove(gameID);
       gameOwnerSuspects.remove(gameID);
-      gameOwners[gameID] = uniqueOwners.first;
+      gameOwners[gameID] = resolveSynonym(possibleOwners.first);
     }
   }
 
   for (var uniqueGame in gameOwners.keys) {
-    if (gameOwnerSuspects.remove(uniqueGame) != null) {
+    if (multipleSuspectOwners.remove(uniqueGame) != null) {
+      gameOwnerSuspects.remove(uniqueGame);
       print('Cleaned up suspects for $uniqueGame, found a unique owner');
     }
   }
@@ -291,21 +352,15 @@ MemoryGapOperation simulateLogs(
 
   for (var createdGame in createdGames) {
     if (gameOwnerSuspects.containsKey(createdGame)) {
-      final weightedSuspects = gameOwnerSuspects[createdGame]!
-          .fold<Map<String, Probability>>({}, (map, probability) {
-        map.putIfAbsent(
-            probability.owner, () => Probability(probability.owner, 0))
-          ..score += probability.score;
-        return map;
-      });
+      final weightedSuspects = gameOwnerSuspects[createdGame]!;
 
-      final sortedSuspects = weightedSuspects.values.toList()
-        ..sort((a, b) => b.score.compareTo(a.score));
+      final sortedSuspects = weightedSuspects.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
 
       print(' - $createdGame is owned by one of the following');
       for (var probability in sortedSuspects) {
         print(
-            '    - ${probability.score.toStringAsFixed(2)} : ${probability.owner}');
+            '    - ${probability.value.toStringAsFixed(2).padLeft(6)} : ${probability.key}');
       }
     }
   }
@@ -319,22 +374,40 @@ MemoryGapOperation simulateLogs(
         .where((gameID) => !createdGames.contains(gameID))
         .map((gameID) => MapEntry(gameID, gameNames[gameID]))),
     relevantAccounts: loginTimes.keys.toList(),
-    synonymousAccounts: synonymousAccounts,
+    synonymousAccounts: hashToEmailMap,
     createdGameIDNames: Map.fromEntries(
         createdGames.map((gameID) => MapEntry(gameID, gameNames[gameID]))),
     singleSuspectOwners: Map.fromEntries(createdGames
         .where((gameID) => gameOwners.containsKey(gameID))
         .map((gameID) => MapEntry(gameID, gameOwners[gameID]!))),
-    multipleSuspectOwners: Map.fromEntries(createdGames
-        .where((gameID) => gameOwnerSuspects.containsKey(gameID))
-        .map((gameID) => MapEntry(
-              gameID,
-              gameOwnerSuspects[gameID]!
-                  .map((probability) => probability.owner)
-                  .toSet()
-                  .toList(),
-            ))),
+    multipleSuspectOwners: multipleSuspectOwners
+        .map((key, value) => MapEntry(key, value.toList())),
   );
+}
+
+Map<String, Set<String>> findEmailSynonyms(
+    Set<Set<String>> suspectGroups, Set<String> emails) {
+  return {
+    for (String email in emails) email: findSynonymsOf(email, suspectGroups)
+  };
+}
+
+Set<String> findSynonymsOf(String target, Set<Set<String>> groups) {
+  final relevantGroups =
+      groups.where((group) => group.contains(target)).toSet();
+
+  if (relevantGroups.isEmpty) return {};
+
+  var itemsAlwaysInTheSameRoom = relevantGroups.first;
+
+  // skip first because that's what we use for initialization
+  for (var relevantGroup in relevantGroups.skip(1)) {
+    itemsAlwaysInTheSameRoom =
+        itemsAlwaysInTheSameRoom.intersection(relevantGroup);
+  }
+
+  itemsAlwaysInTheSameRoom.remove(target);
+  return itemsAlwaysInTheSameRoom;
 }
 
 class MemoryGapOperation {
@@ -380,7 +453,10 @@ class MemoryGapOperation {
       };
 
   int countUnknown() {
-    return multipleSuspectOwners.values.expand((element) => element).length;
+    return multipleSuspectOwners.values
+        .expand((element) => element)
+        .toSet()
+        .length;
   }
 
   int countKnown() {
