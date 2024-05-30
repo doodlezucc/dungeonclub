@@ -23,21 +23,65 @@ void main() async {
 
   final logFile = File('../TMP_CONFIDENTIAL/logs-out.log');
   final logContent = await logFile.readAsString();
-  final memoryGap = iterateLogs(logContent, serverData);
+  final memoryGap = simulateLogsWithServerData(logContent, serverData);
 
   final encoder = JsonEncoder.withIndent('  ');
   await analysisFile.writeAsString(encoder.convert(memoryGap.toJson()));
   exit(0);
 }
 
-MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
-  // BEFORE CRASH
+MemoryGapOperation simulateLogsWithServerData(
+  String logContent,
+  ServerData serverData,
+) {
   final gameOwnersBeforeCrash =
       Map.fromEntries(serverData.gameMeta.map((gameMeta) => MapEntry(
             gameMeta.id,
             gameMeta.owner.encryptedEmail.hash,
           )));
 
+  // return simulateLogsWithRecursiveKnowledge(logContent, gameOwnersBeforeCrash);
+  return simulateLogs(logContent, gameOwnersBeforeCrash: gameOwnersBeforeCrash);
+}
+
+MemoryGapOperation simulateLogsWithRecursiveKnowledge(
+  String logContent,
+  Map<String, String> gameOwnersBeforeCrash,
+) {
+  MemoryGapOperation previousResult = simulateLogs(
+    logContent,
+    gameOwnersBeforeCrash: gameOwnersBeforeCrash,
+  );
+
+  while (true) {
+    final result = simulateLogs(
+      logContent,
+      gameOwnersBeforeCrash: gameOwnersBeforeCrash,
+      gameOwnersLastIteration: previousResult.singleSuspectOwners,
+    );
+
+    final previousSingleSuspectGames =
+        previousResult.singleSuspectOwners.keys.toSet();
+    final newSingleSuspectGames = result.singleSuspectOwners.keys.toSet();
+
+    final newlyFoundGames =
+        newSingleSuspectGames.difference(previousSingleSuspectGames);
+
+    print('\n\nFound ${newlyFoundGames.length} new games with recursion');
+
+    if (newlyFoundGames.isEmpty) {
+      return result;
+    }
+
+    previousResult = result;
+  }
+}
+
+MemoryGapOperation simulateLogs(
+  String logContent, {
+  Map<String, String> gameOwnersBeforeCrash = const {},
+  Map<String, String> gameOwnersLastIteration = const {},
+}) {
   // Group  1: New account activated with <code>
   // Group  2: Log in with <account>
   // Group  3: Game creation with <name>
@@ -49,7 +93,7 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
   // Group  9: Game <id> was renamed
   // Group 10: Game was renamed to <name>
   final regex = RegExp(
-    r'(?:"code":"(.{5})"}}\n\S+ New account activated!)|(?:Connection logged in with account (\S+))|(?:gameCreateNew.+?(?:"name":"(.*?[^\\]?)".+?)? (\S+) \(\-\))|(?: (\S+) \(-\) joined)|(?:gameDelete.*?"id":"(\S+)")|( New connection)|( Lost connection)|(?:"action":"gameEdit"[^\n]+"id":"(\S+)","data":{"name":"(.*?[^\\]?)")',
+    r'(?:"code":"(.{5})"}}[^{]+? New account activated!)|(?:Connection logged in with account (\S+))|(?:gameCreateNew.+?(?:"name":"(.*?[^\\]?)".+?)? (\S+) \(\-\))|(?: (\S+) \(-\) joined)|(?:gameDelete.*?"id":"(\S+)")|( New connection)|( Lost connection)|(?:"action":"gameEdit"[^\n]+"id":"(\S+)","data":{"name":"(.*?[^\\]?)")',
     dotAll: true,
   );
   final matches = regex.allMatches(logContent);
@@ -58,7 +102,10 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
   final deletedOldGames = <String>{};
   final gameNames = <String, String>{};
 
-  final gameOwners = Map.of(gameOwnersBeforeCrash);
+  final gameOwners = {
+    ...gameOwnersLastIteration,
+    ...gameOwnersBeforeCrash,
+  };
   final gameOwnerSuspects = <String, List<Probability>>{};
 
   final synonymousAccounts = <String, String>{};
@@ -124,7 +171,14 @@ MemoryGapOperation iterateLogs(String logContent, ServerData serverData) {
     }
 
     if (newAccountActivationCode != null) {
+      final relevantLines = extractWholeLine(logContent, match);
+      print(relevantLines);
       printLog('NEW ACCOUNT REGISTERED, Code: $newAccountActivationCode');
+
+      if (relevantLines.split('\n').length > 2) {
+        print('NOTE: this one was previously skipped :(');
+      }
+
       String emailAddress = prompts.get("Real email address");
       suspects.add(emailAddress);
       loginTimes[emailAddress] = time;
