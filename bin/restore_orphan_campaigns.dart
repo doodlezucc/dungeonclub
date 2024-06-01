@@ -19,8 +19,15 @@ void main() async {
       await File('../TMP_CONFIDENTIAL/email-account-creation-order.txt')
           .readAsLines();
 
-  final memoryGap =
-      await simulateLogsWithServerData(logContent, emailsInOrder, serverData);
+  final Map initialConnectionsJson = jsonDecode(
+      await File('../TMP_CONFIDENTIAL/initial-connections.json')
+          .readAsString());
+
+  final initialConnections = initialConnectionsJson
+      .map((key, value) => MapEntry('$key', Set<String>.from(value)));
+
+  final memoryGap = await simulateLogsWithServerData(
+      logContent, emailsInOrder, initialConnections, serverData);
 
   final encoder = JsonEncoder.withIndent('  ');
   await analysisFile.writeAsString(encoder.convert(memoryGap.toJson()));
@@ -30,6 +37,7 @@ void main() async {
 Future<MemoryGapOperation> simulateLogsWithServerData(
   String logContent,
   List<String> registeredEmailsDuringGap,
+  Map<String, Set<String>> initialConnectedGamePCs,
   ServerData serverData,
 ) async {
   final gameOwnersBeforeCrash =
@@ -44,6 +52,7 @@ Future<MemoryGapOperation> simulateLogsWithServerData(
   return await simulateLogsWithRecursiveKnowledge(
     logContent,
     registeredEmailsDuringGap,
+    initialConnectedGamePCs,
     gameOwnersBeforeCrash,
     accountHashes,
   );
@@ -52,12 +61,14 @@ Future<MemoryGapOperation> simulateLogsWithServerData(
 Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
   String logContent,
   List<String> registeredEmailsDuringGap,
+  Map<String, Set<String>> initialConnectedGamePCs,
   Map<String, String> gameOwnersBeforeCrash,
   Set<String> accountHashesBeforeCrash,
 ) async {
   MemoryGapOperation previousResult = simulateLogs(
     logContent,
     registeredEmailsDuringGap: registeredEmailsDuringGap,
+    initialConnectedGamePCs: initialConnectedGamePCs,
     gameOwnersBeforeCrash: gameOwnersBeforeCrash,
     accountHashesBeforeCrash: accountHashesBeforeCrash,
   );
@@ -70,6 +81,7 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
     final result = simulateLogs(
       logContent,
       registeredEmailsDuringGap: registeredEmailsDuringGap,
+      initialConnectedGamePCs: initialConnectedGamePCs,
       gameOwnersBeforeCrash: gameOwnersBeforeCrash,
       accountHashesBeforeCrash: accountHashesBeforeCrash,
       lastIteration: previousResult,
@@ -88,9 +100,10 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
 
     if (resultJson != previousResultJson) {
       print('Computed different results -> Run next iteration');
-      await Future.delayed(Duration(seconds: 3));
       iterationsLeft = 2;
     }
+
+    await Future.delayed(Duration(seconds: 3));
 
     previousResult = result;
     previousResultJson = resultJson;
@@ -102,6 +115,7 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
 MemoryGapOperation simulateLogs(
   String logContent, {
   required List<String> registeredEmailsDuringGap,
+  required Map<String, Set<String>> initialConnectedGamePCs,
   Map<String, String> gameOwnersBeforeCrash = const {},
   Set<String> accountHashesBeforeCrash = const {},
   MemoryGapOperation? lastIteration,
@@ -116,8 +130,12 @@ MemoryGapOperation simulateLogs(
   // Group  8: Websocket disconnected
   // Group  9: Game <id> was renamed
   // Group 10: Game was renamed to <name>
+
+  // Group 11: Game left or joined by <pc>
+  // Group 12: Game <id> left or joined
+  // Group 13: Some game left by any or joined by non-GM
   final regex = RegExp(
-    r'(?:"code":"(.{5})"}}[^{]+? New account activated!)|(?:Connection logged in with account (\S+))|(?:gameCreateNew.+?(?:"name":"(.*?[^\\]?)".+?)? (\S+) \(\-\))|(?: (\S+) \(-\) joined)|(?:gameDelete.*?"id":"(\S+)")|( New connection)|( Lost connection)|(?:"action":"gameEdit"[^\n]+"id":"(\S+)","data":{"name":"(.*?[^\\]?)")',
+    r'(?:"code":"(.{5})"}}[^{]+? New account activated!)|(?:Connection logged in with account (\S+))|(?:gameCreateNew.+?(?:"name":"(.*?[^\\]?)".+?)? (\S+) \(\-\))|(?: (\S+) \(-\) joined)|(?:gameDelete.*?"id":"(\S+)")|( New connection)|( Lost connection)|(?:"action":"gameEdit"[^\n]+"id":"(\S+)","data":{"name":"(.*?[^\\]?)")|(?: (\S+) \((\S)\) (joined|left))',
     dotAll: true,
   );
   final matches = regex.allMatches(logContent);
@@ -141,9 +159,16 @@ MemoryGapOperation simulateLogs(
     return hashToEmailMap[key] ?? '$key';
   }
 
+  final gameConnectedPCs = <String, Set<String>>{
+    ...initialConnectedGamePCs
+        .map((key, value) => MapEntry(key, Set.of(value))),
+  };
+  int connectionsInGames() =>
+      gameConnectedPCs.values.fold<int>(0, (sum, game) => sum + game.length);
+
   final loginTimes = <String, DateTime>{};
-  var activeConnections = 1;
-  var loggedInUsersSinceCheckpoint = 0;
+  var activeConnections = 3;
+  var loggedInUsersSinceCheckpoint = 2;
   final suspects = <String>{};
 
   for (var match in matches) {
@@ -163,6 +188,24 @@ MemoryGapOperation simulateLogs(
 
     final editedGameID = match[9];
     final editedGameName = match[10];
+
+    final gameJoinOrLeaveID = match[11];
+    final gameJoinOrLeavePC = match[12];
+    final gameJoinOrLeave = match[13];
+
+    void joinLeaveEvent(bool add, String gameID, String pc) {
+      final pcs = gameConnectedPCs.putIfAbsent(gameID, () => {});
+
+      if (add) {
+        if (!pcs.add(pc)) {
+          print('already added');
+        }
+      } else {
+        if (!pcs.remove(pc)) {
+          print('already removed');
+        }
+      }
+    }
 
     void gmEvent(String gameID) {
       if (suspects.length == 1) {
@@ -190,13 +233,13 @@ MemoryGapOperation simulateLogs(
               time.difference(loginTimes[suspect]!).inSeconds;
 
           final multiplier =
-              11 - 10 * (secondsLoggedIn / (60 * 60 * 6)).clamp(0, 1);
+              pow(1 - (secondsLoggedIn / (60 * 60 * 6)).clamp(0, 1), 2);
 
           final score = multiplier * probability;
 
           gameSuspectMap.update(
             suspect,
-            (value) => value + score,
+            (value) => value * score,
             ifAbsent: () => score,
           );
         }
@@ -236,6 +279,7 @@ MemoryGapOperation simulateLogs(
         throw 'no game name on creation';
       }
 
+      joinLeaveEvent(true, createdGameID, '-');
       print(extractWholeLine(logContent, match));
       printLog('Created game $createdGameID with name $createdGameName');
       createdGames.add(createdGameID);
@@ -244,13 +288,14 @@ MemoryGapOperation simulateLogs(
     } else if (joinedGameID != null) {
       printLog('Joined game $joinedGameID');
       gmEvent(joinedGameID);
+      joinLeaveEvent(true, joinedGameID, '-');
       loggedInUsersSinceCheckpoint--;
-      if (loggedInUsersSinceCheckpoint == 0) {
+
+      if (loggedInUsersSinceCheckpoint < 0) {
+        loggedInUsersSinceCheckpoint = 0;
+      } else if (loggedInUsersSinceCheckpoint == 0) {
         print('0 accounts could create or join anything right now');
         suspects.clear();
-      }
-      if (loggedInUsersSinceCheckpoint < 0) {
-        throw 'what';
       }
     } else if (deletedGameID != null) {
       printLog('Deleted game $deletedGameID');
@@ -265,18 +310,29 @@ MemoryGapOperation simulateLogs(
       activeConnections++;
     } else if (isWsDisconnect) {
       activeConnections--;
-
-      if (activeConnections == 0) {
-        printLog(' > checkpoint <');
-        suspects.clear();
-      } else if (activeConnections < 0) {
-        throw 'somethings fishy';
+    } else if (gameJoinOrLeave != null) {
+      if (gameJoinOrLeave == 'joined') {
+        joinLeaveEvent(true, gameJoinOrLeaveID!, gameJoinOrLeavePC!);
+      } else {
+        joinLeaveEvent(false, gameJoinOrLeaveID!, gameJoinOrLeavePC!);
       }
     } else if (editedGameID != null && editedGameName != null) {
       gameNames[editedGameID] = editedGameName;
     } else {
       final srcString = logContent.substring(match.start, match.end);
       throw 'Unhandled match $srcString';
+    }
+
+    final connectionsWhichCouldDoSomething =
+        activeConnections - connectionsInGames();
+
+    if (connectionsWhichCouldDoSomething < -1) {
+      throw 'huh';
+    }
+
+    if (connectionsWhichCouldDoSomething == 0) {
+      printLog(' > checkpoint <');
+      suspects.clear();
     }
   }
 
@@ -360,7 +416,7 @@ MemoryGapOperation simulateLogs(
       print(' - $createdGame is owned by one of the following');
       for (var probability in sortedSuspects) {
         print(
-            '    - ${probability.value.toStringAsFixed(2).padLeft(6)} : ${probability.key}');
+            '    - ${probability.value.toStringAsFixed(3).padLeft(5)} : ${probability.key}');
       }
     }
   }
