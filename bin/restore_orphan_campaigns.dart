@@ -7,6 +7,18 @@ import 'server.dart';
 
 final analysisFile = File('../TMP_CONFIDENTIAL/recovery-info.json');
 
+class SuspiciousLogIn {
+  final int secondBeforeOpeningGame;
+
+  /// Value from 0 to 1 indicating how likely it is that THIS user is responsible for opening the game
+  final double probability;
+
+  SuspiciousLogIn({
+    required this.secondBeforeOpeningGame,
+    required this.probability,
+  });
+}
+
 void main() async {
   final mockServer = Server();
   final serverData = mockServer.data;
@@ -148,7 +160,7 @@ MemoryGapOperation simulateLogs(
     ...lastIteration?.singleSuspectOwners ?? {},
     ...gameOwnersBeforeCrash,
   };
-  final gameOwnerSuspects = <String, Map<String, double>>{};
+  final gameOwnerProbabilites = <String, Map<String, List<SuspiciousLogIn>>>{};
 
   final hashToEmailMap = {
     ...lastIteration?.synonymousAccounts ?? {},
@@ -168,7 +180,6 @@ MemoryGapOperation simulateLogs(
 
   final loginTimes = <String, DateTime>{};
   var activeConnections = 3;
-  var loggedInUsersSinceCheckpoint = 2;
   final suspects = <String>{};
 
   for (var match in matches) {
@@ -223,25 +234,25 @@ MemoryGapOperation simulateLogs(
         } else {
           gameOwners[gameID] = newOwner;
         }
-      } else {
-        final probability = loggedInUsersSinceCheckpoint / suspects.length;
+      } else if (!gameOwners.containsKey(gameID)) {
+        final probability = 1 / suspects.length;
 
-        final gameSuspectMap = gameOwnerSuspects.putIfAbsent(gameID, () => {});
+        final gameSuspectMap =
+            gameOwnerProbabilites.putIfAbsent(gameID, () => {});
+        gameSuspectMap.removeWhere((key, value) =>
+            accountHashesBeforeCrash.contains(key) && !suspects.contains(key));
 
         for (var suspect in suspects) {
           final secondsLoggedIn =
               time.difference(loginTimes[suspect]!).inSeconds;
 
-          final multiplier =
-              pow(1 - (secondsLoggedIn / (60 * 60 * 6)).clamp(0, 1), 2);
+          final gameSuspectDurationsUntilGameAction =
+              gameSuspectMap.putIfAbsent(suspect, () => []);
 
-          final score = multiplier * probability;
-
-          gameSuspectMap.update(
-            suspect,
-            (value) => value * score,
-            ifAbsent: () => score,
-          );
+          gameSuspectDurationsUntilGameAction.add(SuspiciousLogIn(
+            secondBeforeOpeningGame: secondsLoggedIn,
+            probability: probability,
+          ));
         }
       }
 
@@ -263,17 +274,11 @@ MemoryGapOperation simulateLogs(
 
       suspects.add(emailAddress);
       loginTimes[emailAddress] = time;
-
-      loggedInUsersSinceCheckpoint =
-          min(loggedInUsersSinceCheckpoint + 1, suspects.length);
     } else if (loggedInAccount != null) {
       final loggedInEmailOrAccountHash = resolveSynonym(loggedInAccount);
       printLog(loggedInEmailOrAccountHash + ' logged in');
       suspects.add(loggedInEmailOrAccountHash);
       loginTimes[loggedInEmailOrAccountHash] = time;
-
-      loggedInUsersSinceCheckpoint =
-          min(loggedInUsersSinceCheckpoint + 1, suspects.length);
     } else if (createdGameID != null) {
       if (createdGameName == null) {
         throw 'no game name on creation';
@@ -289,14 +294,6 @@ MemoryGapOperation simulateLogs(
       printLog('Joined game $joinedGameID');
       gmEvent(joinedGameID);
       joinLeaveEvent(true, joinedGameID, '-');
-      loggedInUsersSinceCheckpoint--;
-
-      if (loggedInUsersSinceCheckpoint < 0) {
-        loggedInUsersSinceCheckpoint = 0;
-      } else if (loggedInUsersSinceCheckpoint == 0) {
-        print('0 accounts could create or join anything right now');
-        suspects.clear();
-      }
     } else if (deletedGameID != null) {
       printLog('Deleted game $deletedGameID');
       final wasNewlyCreated = createdGames.remove(deletedGameID);
@@ -340,20 +337,20 @@ MemoryGapOperation simulateLogs(
 
   gameOwners
       .removeWhere((key, value) => gameOwnersBeforeCrash.containsKey(key));
-  gameOwnerSuspects
+  gameOwnerProbabilites
       .removeWhere((key, value) => gameOwnersBeforeCrash.containsKey(key));
 
   //
 
-  final multipleSuspectOwners = Map.fromEntries(createdGames
-      .where((gameID) => gameOwnerSuspects.containsKey(gameID))
+  final gameOwnerSuspects = Map.fromEntries(createdGames
+      .where((gameID) => gameOwnerProbabilites.containsKey(gameID))
       .map((gameID) => MapEntry(
             gameID,
-            gameOwnerSuspects[gameID]!.keys.toSet(),
+            gameOwnerProbabilites[gameID]!.keys.toSet(),
           )));
 
   final emailSynonyms = findEmailSynonyms(
-    multipleSuspectOwners.values.toSet(),
+    gameOwnerSuspects.values.toSet(),
     registeredEmailsDuringGap.toSet(),
   );
 
@@ -380,23 +377,66 @@ MemoryGapOperation simulateLogs(
     }
   }
 
-  for (var entry in multipleSuspectOwners.entries.toList()) {
-    final gameID = entry.key;
-    final possibleOwners = entry.value;
+  void cleanUpSingleSuspects() {
+    for (var entry in gameOwnerSuspects.entries.toList()) {
+      final gameID = entry.key;
+      final possibleOwners = entry.value;
 
-    if (possibleOwners.length == 1) {
-      multipleSuspectOwners.remove(gameID);
-      gameOwnerSuspects.remove(gameID);
-      gameOwners[gameID] = resolveSynonym(possibleOwners.first);
+      if (possibleOwners.length == 1) {
+        gameOwnerSuspects.remove(gameID);
+        gameOwnerProbabilites.remove(gameID);
+        gameOwners[gameID] = resolveSynonym(possibleOwners.first);
+      }
+    }
+  }
+
+  cleanUpSingleSuspects();
+
+  final gameOwnerScores = <String, Map<String, double>>{};
+  for (var createdGame in createdGames) {
+    if (gameOwnerProbabilites.containsKey(createdGame)) {
+      final suspectLoginMap = gameOwnerProbabilites[createdGame]!;
+
+      final medianDurationPerSuspect =
+          suspectLoginMap.map((suspect, loginList) => MapEntry(
+                suspect,
+                median(
+                    loginList.map((e) => e.secondBeforeOpeningGame).toList()),
+              ));
+
+      final ownerScores = <String, double>{};
+      for (var entry in suspectLoginMap.entries.toList()) {
+        final suspect = entry.key;
+        final loginList = entry.value;
+
+        final durationScore =
+            (medianDurationPerSuspect[suspect]! / (60 * 60 * 6)).clamp(0, 1);
+
+        final factor = pow(1 - durationScore, 2).toDouble();
+
+        if (factor <= 0.1) {
+          gameOwnerSuspects[createdGame]!.remove(suspect);
+          gameOwnerProbabilites[createdGame]!.remove(suspect);
+          continue;
+        }
+
+        ownerScores[suspect] = factor * loginList.length;
+      }
+
+      if (ownerScores.length != 1) {
+        gameOwnerScores[createdGame] = ownerScores;
+      }
     }
   }
 
   for (var uniqueGame in gameOwners.keys) {
-    if (multipleSuspectOwners.remove(uniqueGame) != null) {
-      gameOwnerSuspects.remove(uniqueGame);
+    if (gameOwnerSuspects.remove(uniqueGame) != null) {
+      gameOwnerProbabilites.remove(uniqueGame);
       print('Cleaned up suspects for $uniqueGame, found a unique owner');
     }
   }
+
+  cleanUpSingleSuspects();
 
   print('\n${createdGames.length} CREATED GAMES: ' + createdGames.join(', '));
 
@@ -406,18 +446,17 @@ MemoryGapOperation simulateLogs(
     }
   }
 
-  for (var createdGame in createdGames) {
-    if (gameOwnerSuspects.containsKey(createdGame)) {
-      final weightedSuspects = gameOwnerSuspects[createdGame]!;
+  for (var entry in gameOwnerScores.entries) {
+    final createdGame = entry.key;
+    final weightedDurationPerSuspect = entry.value;
 
-      final sortedSuspects = weightedSuspects.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
+    final sortedSuspects = weightedDurationPerSuspect.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
 
-      print(' - $createdGame is owned by one of the following');
-      for (var probability in sortedSuspects) {
-        print(
-            '    - ${probability.value.toStringAsFixed(3).padLeft(5)} : ${probability.key}');
-      }
+    print(' - $createdGame is owned by one of the following');
+    for (var probability in sortedSuspects) {
+      print(
+          '    - ${probability.value.toStringAsFixed(3).padLeft(5)} : ${probability.key}');
     }
   }
 
@@ -436,8 +475,8 @@ MemoryGapOperation simulateLogs(
     singleSuspectOwners: Map.fromEntries(createdGames
         .where((gameID) => gameOwners.containsKey(gameID))
         .map((gameID) => MapEntry(gameID, gameOwners[gameID]!))),
-    multipleSuspectOwners: multipleSuspectOwners
-        .map((key, value) => MapEntry(key, value.toList())),
+    multipleSuspectOwners:
+        gameOwnerSuspects.map((key, value) => MapEntry(key, value.toList())),
   );
 }
 
@@ -464,6 +503,17 @@ Set<String> findSynonymsOf(String target, Set<Set<String>> groups) {
 
   itemsAlwaysInTheSameRoom.remove(target);
   return itemsAlwaysInTheSameRoom;
+}
+
+double median(List<int> a) {
+  a.sort();
+
+  final middle = a.length ~/ 2;
+  if (a.length % 2 == 1) {
+    return a[middle].toDouble();
+  } else {
+    return (a[middle - 1] + a[middle]) / 2.0;
+  }
 }
 
 class MemoryGapOperation {
