@@ -38,8 +38,17 @@ void main() async {
   final initialConnections = initialConnectionsJson
       .map((key, value) => MapEntry('$key', Set<String>.from(value)));
 
+  final humanResolvedOwners = Map<String, String>.from(jsonDecode(
+      await File('../TMP_CONFIDENTIAL/resolved-game-owners.json')
+          .readAsString()));
+
   final memoryGap = await simulateLogsWithServerData(
-      logContent, emailsInOrder, initialConnections, serverData);
+    logContent,
+    emailsInOrder,
+    initialConnections,
+    humanResolvedOwners,
+    serverData,
+  );
 
   final encoder = JsonEncoder.withIndent('  ');
   await analysisFile.writeAsString(encoder.convert(memoryGap.toJson()));
@@ -50,6 +59,7 @@ Future<MemoryGapOperation> simulateLogsWithServerData(
   String logContent,
   List<String> registeredEmailsDuringGap,
   Map<String, Set<String>> initialConnectedGamePCs,
+  Map<String, String> humanResolvedOwners,
   ServerData serverData,
 ) async {
   final gameOwnersBeforeCrash =
@@ -65,6 +75,7 @@ Future<MemoryGapOperation> simulateLogsWithServerData(
     logContent,
     registeredEmailsDuringGap,
     initialConnectedGamePCs,
+    humanResolvedOwners,
     gameOwnersBeforeCrash,
     accountHashes,
   );
@@ -74,6 +85,7 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
   String logContent,
   List<String> registeredEmailsDuringGap,
   Map<String, Set<String>> initialConnectedGamePCs,
+  Map<String, String> humanResolvedOwners,
   Map<String, String> gameOwnersBeforeCrash,
   Set<String> accountHashesBeforeCrash,
 ) async {
@@ -81,6 +93,7 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
     logContent,
     registeredEmailsDuringGap: registeredEmailsDuringGap,
     initialConnectedGamePCs: initialConnectedGamePCs,
+    humanResolvedOwners: humanResolvedOwners,
     gameOwnersBeforeCrash: gameOwnersBeforeCrash,
     accountHashesBeforeCrash: accountHashesBeforeCrash,
   );
@@ -94,6 +107,7 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
       logContent,
       registeredEmailsDuringGap: registeredEmailsDuringGap,
       initialConnectedGamePCs: initialConnectedGamePCs,
+      humanResolvedOwners: humanResolvedOwners,
       gameOwnersBeforeCrash: gameOwnersBeforeCrash,
       accountHashesBeforeCrash: accountHashesBeforeCrash,
       lastIteration: previousResult,
@@ -128,6 +142,7 @@ MemoryGapOperation simulateLogs(
   String logContent, {
   required List<String> registeredEmailsDuringGap,
   required Map<String, Set<String>> initialConnectedGamePCs,
+  required Map<String, String> humanResolvedOwners,
   Map<String, String> gameOwnersBeforeCrash = const {},
   Set<String> accountHashesBeforeCrash = const {},
   MemoryGapOperation? lastIteration,
@@ -158,6 +173,7 @@ MemoryGapOperation simulateLogs(
 
   final gameOwners = {
     ...lastIteration?.singleSuspectOwners ?? {},
+    ...humanResolvedOwners,
     ...gameOwnersBeforeCrash,
   };
   final gameOwnerProbabilites = <String, Map<String, List<SuspiciousLogIn>>>{};
@@ -299,6 +315,9 @@ MemoryGapOperation simulateLogs(
       final wasNewlyCreated = createdGames.remove(deletedGameID);
 
       if (wasNewlyCreated) {
+        gameOwners.remove(deletedGameID);
+        gameOwnerProbabilites.remove(deletedGameID);
+        gameNames.remove(deletedGameID);
         print('(ignore this one)');
       } else {
         deletedOldGames.add(deletedGameID);
@@ -342,15 +361,11 @@ MemoryGapOperation simulateLogs(
 
   //
 
-  final gameOwnerSuspects = Map.fromEntries(createdGames
-      .where((gameID) => gameOwnerProbabilites.containsKey(gameID))
-      .map((gameID) => MapEntry(
-            gameID,
-            gameOwnerProbabilites[gameID]!.keys.toSet(),
-          )));
+  Map<String, Set<String>> getGameOwnerSuspects() => gameOwnerProbabilites
+      .map((key, value) => MapEntry(key, value.keys.toSet()));
 
   final emailSynonyms = findEmailSynonyms(
-    gameOwnerSuspects.values.toSet(),
+    getGameOwnerSuspects().values.toSet(),
     registeredEmailsDuringGap.toSet(),
   );
 
@@ -378,12 +393,11 @@ MemoryGapOperation simulateLogs(
   }
 
   void cleanUpSingleSuspects() {
-    for (var entry in gameOwnerSuspects.entries.toList()) {
+    for (var entry in getGameOwnerSuspects().entries.toList()) {
       final gameID = entry.key;
       final possibleOwners = entry.value;
 
       if (possibleOwners.length == 1) {
-        gameOwnerSuspects.remove(gameID);
         gameOwnerProbabilites.remove(gameID);
         gameOwners[gameID] = resolveSynonym(possibleOwners.first);
       }
@@ -415,7 +429,6 @@ MemoryGapOperation simulateLogs(
         final factor = pow(1 - durationScore, 2).toDouble();
 
         if (factor <= 0.1) {
-          gameOwnerSuspects[createdGame]!.remove(suspect);
           gameOwnerProbabilites[createdGame]!.remove(suspect);
           continue;
         }
@@ -429,14 +442,13 @@ MemoryGapOperation simulateLogs(
     }
   }
 
+  cleanUpSingleSuspects();
+
   for (var uniqueGame in gameOwners.keys) {
-    if (gameOwnerSuspects.remove(uniqueGame) != null) {
-      gameOwnerProbabilites.remove(uniqueGame);
+    if (gameOwnerProbabilites.remove(uniqueGame) != null) {
       print('Cleaned up suspects for $uniqueGame, found a unique owner');
     }
   }
-
-  cleanUpSingleSuspects();
 
   print('\n${createdGames.length} CREATED GAMES: ' + createdGames.join(', '));
 
@@ -475,8 +487,8 @@ MemoryGapOperation simulateLogs(
     singleSuspectOwners: Map.fromEntries(createdGames
         .where((gameID) => gameOwners.containsKey(gameID))
         .map((gameID) => MapEntry(gameID, gameOwners[gameID]!))),
-    multipleSuspectOwners:
-        gameOwnerSuspects.map((key, value) => MapEntry(key, value.toList())),
+    multipleSuspectOwners: getGameOwnerSuspects()
+        .map((key, value) => MapEntry(key, value.toList())),
   );
 }
 
