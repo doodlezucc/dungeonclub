@@ -42,11 +42,15 @@ void main() async {
       await File('../TMP_CONFIDENTIAL/resolved-game-owners.json')
           .readAsString()));
 
+  final humanResolvedHashes = Map<String, String>.from(jsonDecode(
+      await File('../TMP_CONFIDENTIAL/resolved-hash-map.json').readAsString()));
+
   final memoryGap = await simulateLogsWithServerData(
     logContent,
     emailsInOrder,
     initialConnections,
     humanResolvedOwners,
+    humanResolvedHashes,
     serverData,
   );
 
@@ -60,6 +64,7 @@ Future<MemoryGapOperation> simulateLogsWithServerData(
   List<String> registeredEmailsDuringGap,
   Map<String, Set<String>> initialConnectedGamePCs,
   Map<String, String> humanResolvedOwners,
+  Map<String, String> humanResolvedHashes,
   ServerData serverData,
 ) async {
   final gameOwnersBeforeCrash =
@@ -76,6 +81,7 @@ Future<MemoryGapOperation> simulateLogsWithServerData(
     registeredEmailsDuringGap,
     initialConnectedGamePCs,
     humanResolvedOwners,
+    humanResolvedHashes,
     gameOwnersBeforeCrash,
     accountHashes,
   );
@@ -86,6 +92,7 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
   List<String> registeredEmailsDuringGap,
   Map<String, Set<String>> initialConnectedGamePCs,
   Map<String, String> humanResolvedOwners,
+  Map<String, String> humanResolvedHashes,
   Map<String, String> gameOwnersBeforeCrash,
   Set<String> accountHashesBeforeCrash,
 ) async {
@@ -94,6 +101,7 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
     registeredEmailsDuringGap: registeredEmailsDuringGap,
     initialConnectedGamePCs: initialConnectedGamePCs,
     humanResolvedOwners: humanResolvedOwners,
+    humanResolvedHashes: humanResolvedHashes,
     gameOwnersBeforeCrash: gameOwnersBeforeCrash,
     accountHashesBeforeCrash: accountHashesBeforeCrash,
   );
@@ -108,6 +116,7 @@ Future<MemoryGapOperation> simulateLogsWithRecursiveKnowledge(
       registeredEmailsDuringGap: registeredEmailsDuringGap,
       initialConnectedGamePCs: initialConnectedGamePCs,
       humanResolvedOwners: humanResolvedOwners,
+      humanResolvedHashes: humanResolvedHashes,
       gameOwnersBeforeCrash: gameOwnersBeforeCrash,
       accountHashesBeforeCrash: accountHashesBeforeCrash,
       lastIteration: previousResult,
@@ -143,6 +152,7 @@ MemoryGapOperation simulateLogs(
   required List<String> registeredEmailsDuringGap,
   required Map<String, Set<String>> initialConnectedGamePCs,
   required Map<String, String> humanResolvedOwners,
+  required Map<String, String> humanResolvedHashes,
   Map<String, String> gameOwnersBeforeCrash = const {},
   Set<String> accountHashesBeforeCrash = const {},
   MemoryGapOperation? lastIteration,
@@ -180,11 +190,20 @@ MemoryGapOperation simulateLogs(
 
   final hashToEmailMap = {
     ...lastIteration?.synonymousAccounts ?? {},
+    ...humanResolvedHashes,
   };
   int registrationCounter = 0;
+  final hashToEmailSuspects = <String, Map<String, DateTime>>{};
 
   String resolveSynonym(String key) {
     return hashToEmailMap[key] ?? '$key';
+  }
+
+  Set<String> getUnresolvedEmailsUntilThisPoint() {
+    return registeredEmailsDuringGap
+        .take(registrationCounter)
+        .where((email) => !hashToEmailMap.containsValue(email))
+        .toSet();
   }
 
   final gameConnectedPCs = <String, Set<String>>{
@@ -194,6 +213,7 @@ MemoryGapOperation simulateLogs(
   int connectionsInGames() =>
       gameConnectedPCs.values.fold<int>(0, (sum, game) => sum + game.length);
 
+  final registrationDates = <String, TimeRange>{};
   final loginTimes = <String, DateTime>{};
   var activeConnections = 3;
   final suspects = <String>{};
@@ -289,11 +309,38 @@ MemoryGapOperation simulateLogs(
           'NEW ACCOUNT REGISTERED, Code: $newAccountActivationCode -> $emailAddress');
 
       suspects.add(emailAddress);
+      registrationDates[emailAddress] = TimeRange(time);
       loginTimes[emailAddress] = time;
     } else if (loggedInAccount != null) {
       final loggedInEmailOrAccountHash = resolveSynonym(loggedInAccount);
       printLog(loggedInEmailOrAccountHash + ' logged in');
       suspects.add(loggedInEmailOrAccountHash);
+
+      if (!accountHashesBeforeCrash.contains(loggedInAccount)) {
+        // This might be a lost account
+        if (!hashToEmailMap.containsKey(loggedInAccount)) {
+          final unresolvedHashes = suspects
+              .where((susHash) =>
+                  !accountHashesBeforeCrash.contains(susHash) &&
+                  !susHash.contains('@'))
+              .toSet();
+
+          final unresolvedEmails = getUnresolvedEmailsUntilThisPoint();
+
+          if (unresolvedHashes.length == 1 && unresolvedEmails.length == 1) {
+            hashToEmailMap[loggedInAccount] = unresolvedEmails.first;
+          } else if (!loginTimes.containsKey(loggedInAccount)) {
+            // FIRST LOGIN OF THIS ACCOUNT
+            final emailLastSeenMap =
+                hashToEmailSuspects.putIfAbsent(loggedInAccount, () => {});
+
+            for (var email in unresolvedEmails) {
+              emailLastSeenMap[email] = time;
+            }
+          }
+        }
+      }
+
       loginTimes[loggedInEmailOrAccountHash] = time;
     } else if (createdGameID != null) {
       if (createdGameName == null) {
@@ -349,6 +396,10 @@ MemoryGapOperation simulateLogs(
     if (connectionsWhichCouldDoSomething == 0) {
       printLog(' > checkpoint <');
       suspects.clear();
+
+      for (var registrationTimeRange in registrationDates.values) {
+        registrationTimeRange.maximum ??= time;
+      }
     }
   }
 
@@ -392,13 +443,42 @@ MemoryGapOperation simulateLogs(
     }
   }
 
+  final interestingSuspects = <String, Map<String, List<SuspiciousLogIn>>>{};
+
+  // Hash is not associated with any game and can be safely discarded
+  hashToEmailSuspects.removeWhere((hash, _) => !gameOwners.containsValue(hash));
+
+  // Remove 1-to-1 findings
+  hashToEmailSuspects
+      .removeWhere((hash, _) => hashToEmailMap.containsKey(hash));
+  hashToEmailSuspects.values.forEach((possibleEmails) =>
+      possibleEmails.removeWhere(
+          (possibleEmail, _) => hashToEmailMap.containsValue(possibleEmail)));
+
+  final hashToEmailSuspectDurations = hashToEmailSuspects.map(
+    (hash, possibleEmails) =>
+        MapEntry(hash, possibleEmails.map((email, lastSeen) {
+      final timeRange = registrationDates[email]!;
+
+      final durationRange =
+          DurationRange(lastSeen.difference(timeRange.minimum));
+
+      final registrationLogOff = timeRange.maximum;
+      if (registrationLogOff != null) {
+        durationRange.minimum = lastSeen.difference(registrationLogOff);
+      }
+
+      return MapEntry(email, durationRange);
+    })),
+  );
+
   void cleanUpSingleSuspects() {
     for (var entry in getGameOwnerSuspects().entries.toList()) {
       final gameID = entry.key;
       final possibleOwners = entry.value;
 
       if (possibleOwners.length == 1) {
-        gameOwnerProbabilites.remove(gameID);
+        interestingSuspects[gameID] = gameOwnerProbabilites.remove(gameID)!;
         gameOwners[gameID] = resolveSynonym(possibleOwners.first);
       }
     }
@@ -590,4 +670,30 @@ String extractWholeLine(String logContent, RegExpMatch match) {
 String extractTimestamp(String logContent, RegExpMatch match) {
   final lineStart = logContent.lastIndexOf("\n", match.start) + 1;
   return logContent.substring(lineStart, lineStart + 19);
+}
+
+class TimeRange {
+  final DateTime minimum;
+  DateTime? maximum;
+
+  TimeRange(this.minimum);
+}
+
+class DurationRange {
+  final Duration maximum;
+  Duration? minimum;
+
+  DurationRange(this.maximum);
+
+  @override
+  String toString() => '${format(minimum)} - ${format(maximum)}';
+
+  static String format(Duration? d) {
+    if (d == null) return 'N/A';
+
+    String asString = '$d';
+
+    // Strip milliseconds
+    return asString.substring(0, asString.lastIndexOf('.'));
+  }
 }
