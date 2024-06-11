@@ -437,7 +437,7 @@ MemoryGapOperation simulateLogs(
     final hash = emailToHashEntry.value;
 
     if (hashToEmailMap.containsKey(hash)) {
-      print('what do in duplicate situation');
+      throw 'what do in duplicate situation';
     } else {
       hashToEmailMap[hash] = email;
     }
@@ -455,22 +455,11 @@ MemoryGapOperation simulateLogs(
       possibleEmails.removeWhere(
           (possibleEmail, _) => hashToEmailMap.containsValue(possibleEmail)));
 
-  final hashToEmailSuspectDurations = hashToEmailSuspects.map(
-    (hash, possibleEmails) =>
-        MapEntry(hash, possibleEmails.map((email, lastSeen) {
-      final timeRange = registrationDates[email]!;
-
-      final durationRange =
-          DurationRange(lastSeen.difference(timeRange.minimum));
-
-      final registrationLogOff = timeRange.maximum;
-      if (registrationLogOff != null) {
-        durationRange.minimum = lastSeen.difference(registrationLogOff);
-      }
-
-      return MapEntry(email, durationRange);
-    })),
-  );
+  for (var entry in gameOwners.entries.toList()) {
+    if (hashToEmailMap.containsKey(entry.value)) {
+      gameOwners[entry.key] = hashToEmailMap[entry.value]!;
+    }
+  }
 
   void cleanUpSingleSuspects() {
     for (var entry in getGameOwnerSuspects().entries.toList()) {
