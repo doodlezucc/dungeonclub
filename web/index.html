@@ -1033,7 +1033,7 @@
 			<div class="roster"></div>
 		</div>
 
-		<div class="panel" id="registerPanel">
+		<div class="panel account-managing-panel" id="registerPanel">
 			<h2>Sign Up</h2>
 			<button class="close">
 				<i class="fas fa-times"></i>
@@ -1091,7 +1091,64 @@
 			</section>
 		</div>
 
-		<div class="panel" id="resetPanel">
+		<div class="panel account-managing-panel" id="restoreAccountPanel">
+			<h2>Restore Account</h2>
+			<button class="close">
+				<i class="fas fa-times"></i>
+			</button>
+
+			<section class="credentials">
+				<form action="javascript:void(0);">
+					<table>
+						<tr>
+							<td>Email address</td>
+							<td><input type="email" class="email" autocomplete="email" readonly disabled></td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<p>Your password must consist of at least 7 characters.</p>
+							</td>
+						</tr>
+						<tr>
+							<td>Password</td>
+							<td>
+								<input type="password" class="password" autocomplete="new-password"
+									placeholder="New password...">
+							</td>
+						</tr>
+						<tr>
+							<td>Password (again)</td>
+							<td><input type="password" class="confirm" autocomplete="new-password"
+									placeholder="Confirm new password..."></td>
+						</tr>
+					</table>
+
+					<p>
+						Due to a software bug, accounts created in the last 3 months were unregistered on the server.
+					</p>
+					<p>
+						By re-registering, ownership to your campaigns will be automatically restored!
+					</p>
+
+					<p class="bad"></p>
+					<button type="submit" class="send big">Regain Access</button>
+				</form>
+			</section>
+
+			<section class="activate">
+				<p>
+					A confirmation code was sent to <span class="email-reader"></span>.
+					Enter it below to re-activate your account.
+				</p>
+
+				<input type="text" class="code" maxlength="5" placeholder="CODE">
+
+				<p class="bad"></p>
+				<button class="activate-code big">Activate Account</button>
+			</section>
+		</div>
+
+		<div class="panel account-managing-panel" id="resetPanel">
 			<h2>Reset Password</h2>
 			<button class="close">
 				<i class="fas fa-times"></i>

@@ -3,6 +3,8 @@ const ACCOUNT_ACTIVATE = 'accountActivate';
 const ACCOUNT_LOGIN = 'accountLogin';
 const ACCOUNT_RESET_PASSWORD = 'accountResetPassword';
 const ACCOUNT_RESET_PASSWORD_ACTIVATE = 'accountResetPasswordActivate';
+const ACCOUNT_RESTORE = 'accountRestore';
+const ACCOUNT_RESTORE_ACTIVATE = 'accountRestoreActivate';
 
 const GAME_CREATE_NEW = 'gameCreateNew';
 const GAME_EDIT = 'gameEdit';

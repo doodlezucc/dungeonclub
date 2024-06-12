@@ -72,10 +72,10 @@ class CodePanel {
     _cancelButton = _panel.queryDom('button.close');
   }
 
-  Future<void> display() async {
+  Future<void> display({String? defaultEmailAddress}) async {
     overlayVisible = true;
     _loginButton.classes.add('disabled');
-    _emailInput.value = '';
+    _emailInput.value = defaultEmailAddress ?? '';
     _passwordInput.value = '';
     _confirmInput.value = '';
     _errorText1.text = '';
@@ -94,6 +94,8 @@ class CodePanel {
 
         // Yes. I actually DO have to use "== true"!
         // moveOn can be a string. Checkmate.
+        //
+        // Edit: In retrospect, this is depressingly hacky.
         if (moveOn == true) {
           _emailReader.text = _emailInput.value;
           _activateButton.disabled = true;

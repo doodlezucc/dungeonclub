@@ -7,6 +7,7 @@ import 'package:dungeonclub/iterable_extension.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 
+import 'dart/account_recovery/recovery_flow.dart';
 import 'dart/communication.dart';
 import 'dart/home.dart' as home;
 import 'dart/html_helpers.dart';
@@ -50,6 +51,8 @@ void main() async {
   _homeUrl = dirname(window.location.href);
   await home.init();
   processUrlPath();
+
+  AccountRecoveryFlow.checkUrlForAction();
 }
 
 void applyMobileStyling() {
