@@ -14,6 +14,7 @@ import 'audio.dart';
 import 'controlled_resource.dart';
 import 'data.dart';
 import 'mail.dart';
+import 'recovery_handler.dart';
 import 'server.dart';
 
 const sendPings = false;
@@ -59,6 +60,8 @@ class Connection extends Socket {
         }
         activationCodes.remove(this);
         resets.remove(this);
+        RecoveryHandler.activationCodes.remove(this);
+
         _game?.connect(this, false);
         connections.remove(this);
         _pingTimer?.cancel();
@@ -166,11 +169,18 @@ class Connection extends Socket {
         final acc = server.data.getAccount(reset.email)!;
 
         acc.setPassword(reset.password);
+        RecoveryHandler.onEmailPasswordManuallySet(reset.email);
 
         resets.remove(this);
         tokenAccounts.removeWhere((s, a) => a == acc);
         print('Password changed!');
         return loginAccount(acc);
+
+      case a.ACCOUNT_RESTORE:
+        return handleEventRestore(params);
+
+      case a.ACCOUNT_RESTORE_ACTIVATE:
+        return handleEventRestoreActivate(params);
 
       case a.GAME_CREATE_NEW:
         _requireLogin();

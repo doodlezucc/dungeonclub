@@ -23,6 +23,7 @@ import 'connections.dart';
 import 'data.dart';
 import 'mail.dart';
 import 'maintenance.dart';
+import 'recovery_handler.dart';
 import 'untaint.dart';
 
 const _hostname = '0.0.0.0';
@@ -160,6 +161,7 @@ class Server {
 
     await initializeMailServer();
     autoSaver.init();
+    RecoveryHandler.init();
     maintainer.autoCheckForFile();
     accountMaintainer.autoCheckForFile();
 
@@ -229,6 +231,7 @@ class Server {
         sendPendingFeedback(),
         closeMailServer(),
         httpServer.close(),
+        RecoveryHandler.save(),
       ]);
     } finally {
       // Wait so users can read exit messages
