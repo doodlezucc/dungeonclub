@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:crypt/crypt.dart';
 import 'package:dungeonclub/iterable_extension.dart';
+import 'package:random_string/random_string.dart';
 
 import 'data.dart';
 import 'restore_orphan_campaigns.dart';
@@ -27,6 +28,9 @@ void main(List<String> args) async {
   await File('../TMP_CONFIDENTIAL/restorer-effects.json')
       .writeAsString(jsonEncode(result.toJson()));
 
+  await File('database/unrecovered-emails-UNCHECKED.json').writeAsString(
+      jsonEncode(result.lostEmailsWithRestoredGames.keys.toList()));
+
   await serverData.save();
   exit(0);
 }
@@ -38,6 +42,9 @@ class Restorer {
 
   late RestorerResult _result;
   late final _placeholderAccount = PlaceholderAccount(serverData);
+  bool _isPlaceholderAccountAdded = false;
+
+  final Map<String, Account> _registeredAccountsWithRandomPassword = {};
 
   Restorer(this.memoryGap, this.recreatedAccountCrypts, this.serverData);
 
@@ -101,6 +108,21 @@ class Restorer {
     }
   }
 
+  Account _registerAccountWithRandomPassword(String email) {
+    final password = randomString(16);
+    final newAccount = Account(serverData, email, password);
+
+    serverData.accounts.add(newAccount);
+    return newAccount;
+  }
+
+  Account _findAccountWithRandomPWForEmail(String email) {
+    return _registeredAccountsWithRandomPassword.putIfAbsent(
+      email,
+      () => _registerAccountWithRandomPassword(email),
+    );
+  }
+
   Future<void> createLostGameMetas() async {
     for (var entry in memoryGap.createdGameIDNames.entries) {
       final gameID = entry.key;
@@ -128,7 +150,7 @@ class Restorer {
 
             _result.push(owner, gameRestoredEffect);
           } else {
-            owner = _placeholderAccount;
+            owner = _findAccountWithRandomPWForEmail(ownerHashOrEmail);
             print('Game belongs to account which has been lost'
                 ' (user must recreate their account)');
 
@@ -136,11 +158,17 @@ class Restorer {
           }
         } else {
           owner = _placeholderAccount;
+          if (!_isPlaceholderAccountAdded) {
+            _isPlaceholderAccountAdded = true;
+            serverData.accounts.add(_placeholderAccount);
+          }
         }
 
         final meta = OrphanGameMeta(serverData, owner, gameID);
-        meta.name = gameName;
+        final baseGameName = gameName.trim().isEmpty ? 'Untitled' : gameName;
+        meta.name = '$baseGameName (restored)';
 
+        owner.enteredGames.add(meta);
         serverData.gameMeta.add(meta);
       } else {
         print('Unable to create orphan campaign $gameID (no name given)');
@@ -153,13 +181,29 @@ mixin RestorerEffect {
   Map<String, dynamic> toJson() => {
         'type': runtimeType.toString(),
       };
+
+  static final _restorerEffectConstructors = {
+    StaleGameUnlinkEffect: StaleGameUnlinkEffect.fromJson,
+    GameRenameEffect: StaleGameUnlinkEffect.fromJson,
+    GameRestoredEffect: GameRestoredEffect.fromJson,
+  }.map((type, ctor) => MapEntry(type.toString(), ctor));
+
+  static RestorerEffect parse(dynamic json) {
+    final type = json['type'];
+
+    final constructFromJson = _restorerEffectConstructors[type]!;
+    return constructFromJson(json);
+  }
 }
 
-class GameEffect with RestorerEffect {
+abstract class GameEffect with RestorerEffect {
   final String gameID;
   final String gameName;
 
   GameEffect({required this.gameID, required this.gameName});
+  GameEffect.fromJson(json)
+      : gameID = json['gameID'],
+        gameName = json['gameName'];
 
   @override
   Map<String, dynamic> toJson() => {
@@ -171,14 +215,17 @@ class GameEffect with RestorerEffect {
 
 class StaleGameUnlinkEffect extends GameEffect {
   StaleGameUnlinkEffect({required super.gameID, required super.gameName});
+  StaleGameUnlinkEffect.fromJson(json) : super.fromJson(json);
 }
 
 class GameRenameEffect extends GameEffect {
   GameRenameEffect({required super.gameID, required super.gameName});
+  GameRenameEffect.fromJson(json) : super.fromJson(json);
 }
 
 class GameRestoredEffect extends GameEffect {
   GameRestoredEffect({required super.gameID, required super.gameName});
+  GameRestoredEffect.fromJson(json) : super.fromJson(json);
 }
 
 class RestorerResult {
@@ -200,6 +247,20 @@ class RestorerResult {
             (key, value) => MapEntry(key.encryptedEmail.toString(), value)),
         'lostEmailsWithRestoredGames': lostEmailsWithRestoredGames,
       };
+}
+
+class PlainRestorerResult {
+  final Map<Crypt, List<RestorerEffect>> affectedAccounts;
+  final Map<String, List<GameRestoredEffect>> lostEmailsWithRestoredGames;
+
+  PlainRestorerResult.fromJson(Map<String, dynamic> json)
+      : affectedAccounts = Map.from(json['affectedAccounts'])
+            .map((accountCrypt, effectJsons) => MapEntry(
+                  Crypt(accountCrypt),
+                  (effectJsons as Iterable).map(RestorerEffect.parse).toList(),
+                )),
+        lostEmailsWithRestoredGames =
+            Map.from(json['lostEmailWithRestoredGames']);
 }
 
 class PlaceholderCrypt implements Crypt {
