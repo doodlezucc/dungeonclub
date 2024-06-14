@@ -23,12 +23,14 @@ import 'audio.dart';
 import 'connections.dart';
 import 'controlled_resource.dart';
 import 'playing_histogram.dart';
+import 'restore_changes.dart';
 import 'server.dart';
 import 'versioning.dart';
 
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
-  static final directory = Directory(path.join(DungeonClubConfig.databasePath, "database"));
+  static final directory =
+      Directory(path.join(DungeonClubConfig.databasePath, "database"));
   static final file = File(path.join(directory.path, 'data.json'));
   static bool _isInitialized = false;
 
@@ -83,7 +85,13 @@ class ServerData {
 
     accounts.clear();
     accounts.addAll(List.from(json['accounts']).map(
-      (j) => Account.fromJson(this, j),
+      (j) {
+        if (j['email'] == PlaceholderCrypt.HASH) {
+          return PlaceholderAccount(this);
+        } else {
+          return Account.fromJson(this, j);
+        }
+      },
     ));
     print('Loaded ${accounts.length} accounts');
 

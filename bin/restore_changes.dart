@@ -254,13 +254,19 @@ class PlainRestorerResult {
   final Map<String, List<GameRestoredEffect>> lostEmailsWithRestoredGames;
 
   PlainRestorerResult.fromJson(Map<String, dynamic> json)
-      : affectedAccounts = Map.from(json['affectedAccounts'])
-            .map((accountCrypt, effectJsons) => MapEntry(
-                  Crypt(accountCrypt),
-                  (effectJsons as Iterable).map(RestorerEffect.parse).toList(),
-                )),
+      : affectedAccounts = Map.from(json['affectedAccounts']).map(
+          (accountCrypt, effectJsons) => MapEntry(
+            Crypt(accountCrypt),
+            (effectJsons as Iterable).map(RestorerEffect.parse).toList(),
+          ),
+        ),
         lostEmailsWithRestoredGames =
-            Map.from(json['lostEmailWithRestoredGames']);
+            Map.from(json['lostEmailsWithRestoredGames']).map(
+          (key, effectJsons) => MapEntry(
+            key,
+            (effectJsons as Iterable).map(GameRestoredEffect.fromJson).toList(),
+          ),
+        );
 }
 
 class PlaceholderCrypt implements Crypt {
