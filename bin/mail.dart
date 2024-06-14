@@ -79,16 +79,19 @@ Future<bool> sendResetPasswordMail(String email, String code) {
   );
 }
 
-Future<bool> sendMailWithCode({
+Future<bool> sendMail({
   required String email,
-  required String code,
   required String subject,
   required String layoutFile,
+  String Function(String html)? modifyHtml,
 }) async {
   if (_smtpServer == null) return false;
 
   var content = await File('mail/$layoutFile').readAsString();
-  content = content.replaceAll('\$CODE', code);
+
+  if (modifyHtml != null) {
+    content = modifyHtml(content);
+  }
 
   final message = Message()
     ..from = Address(MailCredentials.user, 'Dungeon Club')
@@ -101,6 +104,19 @@ Future<bool> sendMailWithCode({
 
   return _sendMessage(message);
 }
+
+Future<bool> sendMailWithCode({
+  required String email,
+  required String code,
+  required String subject,
+  required String layoutFile,
+}) =>
+    sendMail(
+      email: email,
+      subject: subject,
+      layoutFile: layoutFile,
+      modifyHtml: (html) => html.replaceAll('\$CODE', code),
+    );
 
 Future<bool> _sendFeedbackMail() async {
   if (_smtpServer == null) return false;
