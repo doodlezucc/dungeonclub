@@ -6,6 +6,7 @@ import 'package:dungeonclub/iterable_extension.dart';
 import 'package:random_string/random_string.dart';
 
 import 'data.dart';
+import 'recovery_handler.dart';
 import 'restore_orphan_campaigns.dart';
 import 'server.dart';
 
@@ -282,30 +283,6 @@ class PlainRestorerResult {
         );
 }
 
-class PlaceholderCrypt implements Crypt {
-  static const HASH = 'PLACEHOLDER';
-
-  @override
-  String get hash => HASH;
-
-  @override
-  String toString() => HASH;
-
-  @override
-  bool match(String value) {
-    return value == HASH;
-  }
-
-  @override
-  int? get rounds => throw UnimplementedError();
-
-  @override
-  String get salt => throw UnimplementedError();
-
-  @override
-  String get type => throw UnimplementedError();
-}
-
 class OrphanGameMeta extends GameMeta {
   final String _id;
 
@@ -313,25 +290,4 @@ class OrphanGameMeta extends GameMeta {
   String get id => _id;
 
   OrphanGameMeta(super.data, super.owner, this._id) : super.create();
-}
-
-class PlaceholderAccount extends Account {
-  PlaceholderAccount(ServerData data)
-      : super(data, 'INVALID_EMAIL', 'INVALID_PASSWORD');
-
-  @override
-  final Crypt encryptedEmail = PlaceholderCrypt();
-
-  @override
-  Crypt encryptedPassword = PlaceholderCrypt();
-
-  @override
-  Future<void> delete() {
-    throw UnimplementedError();
-  }
-
-  @override
-  void setPassword(String password) {
-    throw UnimplementedError();
-  }
 }

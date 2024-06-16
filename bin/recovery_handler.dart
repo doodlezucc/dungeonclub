@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypt/crypt.dart';
+
 import 'connections.dart';
+import 'data.dart';
 import 'mail.dart';
 
 class RecoveryHandler {
@@ -76,5 +79,50 @@ extension RecoveryConnectionExtension on Connection {
     tokenAccounts.removeWhere((s, a) => a == acc);
     print('An account has been restored! Yay!');
     return loginAccount(acc);
+  }
+}
+
+class PlaceholderCrypt implements Crypt {
+  static const HASH = 'PLACEHOLDER';
+
+  @override
+  String get hash => HASH;
+
+  @override
+  String toString() => HASH;
+
+  @override
+  bool match(String value) {
+    return value == HASH;
+  }
+
+  @override
+  int? get rounds => throw UnimplementedError();
+
+  @override
+  String get salt => throw UnimplementedError();
+
+  @override
+  String get type => throw UnimplementedError();
+}
+
+class PlaceholderAccount extends Account {
+  PlaceholderAccount(ServerData data)
+      : super(data, 'INVALID_EMAIL', 'INVALID_PASSWORD');
+
+  @override
+  final Crypt encryptedEmail = PlaceholderCrypt();
+
+  @override
+  Crypt encryptedPassword = PlaceholderCrypt();
+
+  @override
+  Future<void> delete() {
+    throw UnimplementedError();
+  }
+
+  @override
+  void setPassword(String password) {
+    throw UnimplementedError();
   }
 }

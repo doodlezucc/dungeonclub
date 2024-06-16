@@ -23,7 +23,7 @@ import 'audio.dart';
 import 'connections.dart';
 import 'controlled_resource.dart';
 import 'playing_histogram.dart';
-import 'restore_changes.dart';
+import 'recovery_handler.dart';
 import 'server.dart';
 import 'versioning.dart';
 
