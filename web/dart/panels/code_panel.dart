@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:dungeonclub/actions.dart';
+import 'package:dungeonclub/comms.dart';
 
 import '../../main.dart';
 import '../communication.dart';
@@ -112,18 +113,19 @@ class CodePanel {
       _activateButton.onClick.listen((event) async {
         _activateButton.disabled = true;
         _errorText2.text = '';
-        var account = await socket.request(actionVerify, {
-          'code': _codeInput.value,
-        });
-        _activateButton.disabled = false;
 
-        if (account == null) {
-          _errorText2.text = 'Invalid code!';
-          return;
+        try {
+          final account = await socket.request(actionVerify, {
+            'code': _codeInput.value,
+          });
+
+          user.onActivate(account);
+          closer.complete();
+        } on ResponseError catch (err) {
+          _errorText2.text = err.errorMessage;
+        } finally {
+          _activateButton.disabled = false;
         }
-
-        user.onActivate(account);
-        closer.complete();
       }),
       _cancelButton.onClick.listen((event) => closer.complete()),
     ];
