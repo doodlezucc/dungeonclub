@@ -24,8 +24,13 @@ class AutoSaver {
     await _backupWeeks.create(recursive: true);
 
     while (true) {
-      await Future.delayed(Duration(minutes: 3));
-      await tryZipAndSave();
+      await Future.delayed(Duration(seconds: 3));
+
+      try {
+        await tryZipAndSave();
+      } catch (err) {
+        stderr.writeln(err);
+      }
     }
   }
 
@@ -35,18 +40,18 @@ class AutoSaver {
     var weekday = date.weekday;
 
     if (weekday != bufferedWeekday) {
-      bufferedWeekday = weekday;
-
       if (weekday == weeklySaveDay) {
         var yyyy = date.year;
         var mm = date.month.toString().padLeft(2, '0');
         var dd = date.day.toString().padLeft(2, '0');
 
-        return zipTo(p.join(_backupWeeks.path, '$yyyy-$mm-$dd.zip'));
+        await zipTo(p.join(_backupWeeks.path, '$yyyy-$mm-$dd.zip'));
       } else {
-        return zipTo(p.join(_backupDaily.path, 'weekday$weekday.zip'),
+        await zipTo(p.join(_backupDaily.path, 'weekday$weekday.zip'),
             force: true, includeImages: true);
       }
+
+      bufferedWeekday = weekday;
     }
   }
 
