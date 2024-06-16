@@ -194,6 +194,8 @@ mixin RestorerEffect {
     final constructFromJson = _restorerEffectConstructors[type]!;
     return constructFromJson(json);
   }
+
+  String get summary;
 }
 
 abstract class GameEffect with RestorerEffect {
@@ -216,16 +218,27 @@ abstract class GameEffect with RestorerEffect {
 class StaleGameUnlinkEffect extends GameEffect {
   StaleGameUnlinkEffect({required super.gameID, required super.gameName});
   StaleGameUnlinkEffect.fromJson(json) : super.fromJson(json);
+
+  @override
+  String get summary =>
+      'The stale, deleted campaign "$gameName" will no longer show up.';
 }
 
 class GameRenameEffect extends GameEffect {
   GameRenameEffect({required super.gameID, required super.gameName});
   GameRenameEffect.fromJson(json) : super.fromJson(json);
+
+  @override
+  String get summary => '''A campaign's name was updated to "$gameName".''';
 }
 
 class GameRestoredEffect extends GameEffect {
   GameRestoredEffect({required super.gameID, required super.gameName});
   GameRestoredEffect.fromJson(json) : super.fromJson(json);
+
+  @override
+  String get summary =>
+      'The vanished campaign "$gameName" has been restored and is back on your account.';
 }
 
 class RestorerResult {

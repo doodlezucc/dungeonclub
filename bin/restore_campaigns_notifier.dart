@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:crypt/crypt.dart';
 import 'package:dungeonclub/iterable_extension.dart';
 
-// import 'mail.dart';
+import 'mail.dart';
 import 'restore_changes.dart';
 import 'restore_in_parallel.dart';
 import 'restore_orphan_campaigns.dart';
@@ -73,6 +73,17 @@ Future<void> _sendMailNotifyingAboutAutomaticallyRestoredGames(
   List<RestorerEffect> effects,
 ) async {
   print('notify $email about $effects');
+
+  final listOfRestorations = effects.map((e) => e.summary);
+  final summaryHtml =
+      listOfRestorations.map((summary) => ' - $summary').join('\n<br>\n');
+
+  await sendMail(
+    email: email,
+    subject: 'Your Account has been Repaired',
+    layoutFile: 'notification_campaigns_repaired.html',
+    modifyHtml: (html) => html.replaceAll('\$SUMMARY', summaryHtml),
+  );
 }
 
 Future<void> loadMemoryGapReportForEmailIdentification() async {
