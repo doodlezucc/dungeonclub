@@ -12,15 +12,27 @@ import 'restore_orphan_campaigns.dart';
 import 'server.dart';
 
 void main(List<String> args) async {
-  // final emailLookupJson =
-  //     await File('../TMP_CONFIDENTIAL/recovered-emails.json').readAsString();
-  // final hashToEmailLookup =
-  //     Map<String, String?>.from(jsonDecode(emailLookupJson));
-
   await sendAllMails();
 }
 
 Future<void> sendAllMails() async {
+  await MailCredentials.load();
+
+  final emailLookupJson =
+      await File('../TMP_CONFIDENTIAL/recovered-emails.json').readAsString();
+  final hashToEmailLookup =
+      Map<String, String?>.from(jsonDecode(emailLookupJson));
+
+  final recreatedEmailToCryptLookupJson =
+      await File('../TMP_CONFIDENTIAL/recreated-account-hashes.json')
+          .readAsString();
+  final recreatedEmailToCryptLookup =
+      Map<String, String>.from(jsonDecode(recreatedEmailToCryptLookupJson));
+
+  final recreatedHashToEmailLookup = recreatedEmailToCryptLookup
+      .map((key, value) => MapEntry(Crypt(value).hash, key));
+  hashToEmailLookup.addAll(recreatedHashToEmailLookup);
+
   final reportFile = File('../TMP_CONFIDENTIAL/restorer-effects.json');
   final report =
       PlainRestorerResult.fromJson(jsonDecode(await reportFile.readAsString()));
@@ -29,11 +41,8 @@ Future<void> sendAllMails() async {
     final accountEmail = lostAccountInfo.key;
     final restoredGames = lostAccountInfo.value;
 
-    final emailTainted =
-        accountEmail.substring(0, 4) + '***' + accountEmail.substring(8);
-
     await _sendMailToLostAccountForRecovery(
-      emailTainted,
+      accountEmail,
       restoredGames,
     );
   }
@@ -42,10 +51,10 @@ Future<void> sendAllMails() async {
     final accountCrypt = affectedOldAccountInfo.key;
     final effects = affectedOldAccountInfo.value;
 
-    final accountEmail = 'Email of account $accountCrypt';
+    final accountEmail = hashToEmailLookup[accountCrypt.hash];
 
     await _sendMailNotifyingAboutAutomaticallyRestoredGames(
-      accountEmail,
+      accountEmail!,
       effects,
     );
   }
@@ -57,26 +66,26 @@ Future<void> _sendMailToLostAccountForRecovery(
 ) async {
   print('notify $email for recovery');
 
-  // final emailInUrl = Uri.encodeQueryComponent(email);
-  // final recoveryUrl = 'https://dungeonclub.net/home?recover=$emailInUrl';
+  final emailInUrl = Uri.encodeQueryComponent(email);
+  final recoveryUrl = 'https://dungeonclub.net/home?recover=$emailInUrl';
 
-  // await sendMail(
-  //   email: email,
-  //   subject: 'Recovery of your Account',
-  //   layoutFile: 'notification_lost_account.html',
-  //   modifyHtml: (html) => html.replaceAll('\$URL', recoveryUrl),
-  // );
+  await sendMail(
+    email: email,
+    subject: 'Recovery of your Account',
+    layoutFile: 'notification_lost_account.html',
+    modifyHtml: (html) => html.replaceAll('\$URL', recoveryUrl),
+  );
 }
 
 Future<void> _sendMailNotifyingAboutAutomaticallyRestoredGames(
   String email,
   List<RestorerEffect> effects,
 ) async {
-  print('notify $email about $effects');
-
-  final listOfRestorations = effects.map((e) => e.summary);
+  final listOfRestorations = effects.map((e) => e.summary).toList();
   final summaryHtml =
       listOfRestorations.map((summary) => ' - $summary').join('\n<br>\n');
+
+  print('notify $email about $listOfRestorations');
 
   await sendMail(
     email: email,
