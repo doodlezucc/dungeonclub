@@ -110,10 +110,13 @@ class CodePanel {
         }
       }),
       _activateButton.onClick.listen((event) async {
+        _activateButton.disabled = true;
         _errorText2.text = '';
         var account = await socket.request(actionVerify, {
           'code': _codeInput.value,
         });
+        _activateButton.disabled = false;
+
         if (account == null) {
           _errorText2.text = 'Invalid code!';
           return;
