@@ -51,10 +51,11 @@ class Restorer {
 
   Future<RestorerResult> run() async {
     _result = RestorerResult();
+
+    await createLostGameMetas();
     await unlinkDeletedOldGames();
     await applyRenamesToExistentGames();
 
-    await createLostGameMetas();
     return _result;
   }
 
@@ -82,12 +83,16 @@ class Restorer {
 
       final game = serverData.gameMeta.find((e) => e.id == gameID);
       if (game != null) {
-        print('Renaming $gameID from "${game.name}" to "$newName"');
-        _result.push(
-          game.owner,
-          GameRenameEffect(gameID: gameID, gameName: newName),
-        );
-        game.name = newName;
+        if (game.name != newName) {
+          print('Renaming $gameID from "${game.name}" to "$newName"');
+          _result.push(
+            game.owner,
+            GameRenameEffect(gameID: gameID, gameName: newName),
+          );
+          game.name = newName;
+        } else {
+          print('Skipping identical rename');
+        }
       } else {
         print('Unable to rename $gameID');
       }
@@ -185,7 +190,7 @@ mixin RestorerEffect {
 
   static final _restorerEffectConstructors = {
     StaleGameUnlinkEffect: StaleGameUnlinkEffect.fromJson,
-    GameRenameEffect: StaleGameUnlinkEffect.fromJson,
+    GameRenameEffect: GameRenameEffect.fromJson,
     GameRestoredEffect: GameRestoredEffect.fromJson,
   }.map((type, ctor) => MapEntry(type.toString(), ctor));
 
