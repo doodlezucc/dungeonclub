@@ -36,7 +36,8 @@ Future<Map<String, String>> findRecreatedAccountsNewCrypts(
   await parallelize<FinderParams, Crypt?>(
     findRecreatedAccountCryptIsolate,
     emailAccounts
-        .map((email) => FinderParams(email: email, accounts: allAccounts)),
+        .map((email) => FinderParams(email: email, accounts: allAccounts))
+        .toList(),
     onComputed: (params, result) {
       if (result != null) {
         map[params.email] = result.toString();
