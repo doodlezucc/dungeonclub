@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:crypt/crypt.dart';
 import 'package:dungeonclub/iterable_extension.dart';
@@ -16,8 +17,10 @@ void main(List<String> args) async {
   final serverData = server.data;
   await serverData.init();
 
-  findRecreatedAccountsNewCrypts(
+  final result = await findRecreatedAccountsNewCrypts(
       memoryGap.relevantAccounts.toSet(), serverData);
+  await File('../TMP_CONFIDENTIAL/recreated-account-hashes.json')
+      .writeAsString(jsonEncode(result));
 }
 
 Future<Map<String, String>> findRecreatedAccountsNewCrypts(
