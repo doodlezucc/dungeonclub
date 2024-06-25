@@ -1,25 +1,19 @@
-<script lang="ts">
-	export let expand = false;
+<script lang="ts" context="module">
+	const minZoom = -1;
+	const maxZoom = 3;
+	const zoomStep = 0.25;
 
 	type Position = {
 		x: number;
 		y: number;
 	};
 
-	$: position = { x: 0, y: 0 };
-	$: zoom = 0;
-
-	$: isPanning = false;
-	$: pointerOrigin = { x: 0, y: 0 };
-
-	$: scale = Math.exp(zoom);
-
-	let dimensions = {
-		width: 1,
-		height: 1
+	type Dimensions = {
+		width: number;
+		height: number;
 	};
 
-	function clampToBounds(position: Position) {
+	function clampToBounds(position: Position, dimensions: Dimensions) {
 		const maxX = dimensions.width / 2;
 		const maxY = dimensions.height / 2;
 		const minX = -maxX;
@@ -35,6 +29,27 @@
 
 		return { x, y };
 	}
+
+	function clampZoom(zoom: number) {
+		return Math.min(Math.max(zoom, minZoom), maxZoom);
+	}
+</script>
+
+<script lang="ts">
+	export let expand = false;
+
+	$: position = { x: 0, y: 0 };
+	$: zoom = 0;
+
+	$: isPanning = false;
+	$: pointerOrigin = { x: 0, y: 0 };
+
+	$: scale = Math.exp(zoom);
+
+	let dimensions = {
+		width: 1,
+		height: 1
+	};
 
 	function startPanning(ev: PointerEvent) {
 		ev.preventDefault();
@@ -56,10 +71,13 @@
 			y: (ev.screenY - pointerOrigin.y) / scale
 		};
 
-		position = clampToBounds({
-			x: position.x + offset.x,
-			y: position.y + offset.y
-		});
+		position = clampToBounds(
+			{
+				x: position.x + offset.x,
+				y: position.y + offset.y
+			},
+			dimensions
+		);
 		pointerOrigin = {
 			x: ev.screenX,
 			y: ev.screenY
@@ -74,7 +92,7 @@
 		const deltaClamped = sign * Math.min(Math.abs(delta), clamp);
 		const deltaNormalized = deltaClamped / clamp;
 
-		zoom -= 0.5 * deltaNormalized;
+		zoom = clampZoom(zoom - zoomStep * deltaNormalized);
 	}
 </script>
 
