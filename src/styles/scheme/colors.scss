@@ -2,17 +2,20 @@ body {
 	--color-primary: #ffb77c;
 	--color-primary-disabled: hsl(39, 60%, 60%);
 
-	--color-dark: #38312c;
-	--color-light: #ffffff;
-	--color-light2: #fff1d6;
-
-	--color-background: #1a1717;
-
-	--color-button-text: #ddd;
-	--color-selected: #ccc;
-	--color-header: #2e2926;
-	--color-separator: #614f4a;
+	--color-shade-darkest: #1a1717;
+	--color-shade-dark: #38312c;
+	--color-shade-pale: #fff1d6;
+	--color-shade-light: #ffffff;
 
 	--color-good: #62ffa9;
 	--color-bad: #ff7676;
+}
+
+body {
+	--color-background: var(--color-shade-darkest);
+	--color-text: var(--color-shade-light);
+	--color-text-pale: var(--color-shade-pale);
+
+	--color-container: var(--color-shade-dark);
+	--color-separator: var(--color-shade-pale);
 }

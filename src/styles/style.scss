@@ -4,7 +4,30 @@ body {
 	@extend %font-paragraph;
 
 	background-color: var(--color-background);
+	color: var(--color-text);
+
 	margin: 0;
+	min-height: 100vh;
+
+	display: flex;
+	flex-direction: column;
+}
+
+.row,
+.column {
+	display: flex;
+}
+
+.row {
+	flex-direction: row;
+}
+
+.column {
+	flex-direction: column;
+}
+
+.expand {
+	flex: 1;
 }
 
 h1,
