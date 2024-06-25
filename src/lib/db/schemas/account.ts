@@ -1,5 +1,6 @@
-import { Schema, model } from 'mongoose';
+import { Schema } from 'mongoose';
 import { CampaignSchema, type ICampaign } from './campaign';
+import { model } from './util/model-reloading';
 
 export interface IAccount {
 	email: string;

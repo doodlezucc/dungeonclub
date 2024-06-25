@@ -1,7 +1,8 @@
-import { Schema, Types, model } from 'mongoose';
+import { Schema, Types } from 'mongoose';
 import { PlayerSchema, type IPlayer } from './player';
 import { SceneSchema, type IScene } from './scene';
 import { CustomTokenDefinitionSchema, type ICustomTokenDefinition } from './token-definition';
+import { model } from './util/model-reloading';
 
 export interface ICampaign {
 	owner: Types.ObjectId;

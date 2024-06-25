@@ -1,7 +1,8 @@
-import { Schema, model } from 'mongoose';
+import { Schema } from 'mongoose';
 import { RectSchema, type IRect } from './compounds/rect';
-import { AssetType, type Asset } from './compounds/types';
 import { TokenSchema, type IToken } from './token';
+import { model } from './util/model-reloading';
+import { AssetType, type Asset } from './util/types';
 
 export interface ISceneGrid {
 	bounds: IRect;

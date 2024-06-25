@@ -1,12 +1,18 @@
 <script lang="ts">
+	import type { ICampaign } from '$lib/db/schemas/campaign';
 	import Overlay from '$lib/kit/layout/Overlay.svelte';
 	import PanView, { type Dimensions, type Position } from '$lib/kit/PanView.svelte';
-	import { setContext } from 'svelte';
+	import { getContext, setContext } from 'svelte';
 	import BattleMap from './BattleMap.svelte';
 	import Grid from './Grid.svelte';
 	import Token from './grid/Token.svelte';
 
-	const cellsPerRow = 9;
+	const session = getContext('session');
+	const campaign: ICampaign = session.campaign;
+
+	const scene = campaign.scenes[0];
+	const grid = scene.grid;
+	const cellsPerRow = grid.cellsPerRow;
 
 	let position: Position;
 	let zoom: number;
