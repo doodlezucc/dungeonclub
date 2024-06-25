@@ -3,12 +3,12 @@
 	const maxZoom = 3;
 	const zoomStep = 0.25;
 
-	type Position = {
+	export type Position = {
 		x: number;
 		y: number;
 	};
 
-	type Dimensions = {
+	export type Dimensions = {
 		width: number;
 		height: number;
 	};
@@ -101,13 +101,11 @@
 <div
 	class="pan-view"
 	class:expand
-	bind:clientWidth={dimensions.width}
-	bind:clientHeight={dimensions.height}
 	on:pointerdown={startPanning}
 	on:mousewheel={handleMouseWheel}
 	style="--x: {position.x}; --y: {position.y}; --scale: {scale};"
 >
-	<div class="panned">
+	<div class="panned" bind:clientWidth={dimensions.width} bind:clientHeight={dimensions.height}>
 		<slot></slot>
 	</div>
 </div>
@@ -123,7 +121,7 @@
 
 	.panned {
 		display: flex;
-		flex: 1;
+		align-self: center;
 
 		transform: translate(calc(var(--x) * 1px), calc(var(--y) * 1px));
 		scale: var(--scale);

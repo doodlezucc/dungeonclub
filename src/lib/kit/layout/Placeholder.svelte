@@ -1,8 +1,14 @@
 <script lang="ts">
+	import type { Dimensions } from '../PanView.svelte';
+
 	export let expand = false;
+	export let size: Dimensions | undefined = undefined;
 </script>
 
-<div class:expand>
+<div
+	class:expand
+	style={size ? `--width: ${size.width}px; --height: ${size.height}px;` : undefined}
+>
 	PLACEHOLDER
 	{#if $$slots.default}
 		<br />
@@ -31,5 +37,8 @@
 		text-align: center;
 		align-items: center;
 		justify-content: center;
+
+		width: var(--width);
+		height: var(--height);
 	}
 </style>

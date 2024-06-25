@@ -1,10 +1,21 @@
 <script lang="ts">
-	import Placeholder from '$lib/kit/layout/Placeholder.svelte';
+	import Overlay from '$lib/kit/layout/Overlay.svelte';
 	import PanView from '$lib/kit/PanView.svelte';
-
-	let transform = { x: 0, y: 0, zoom: 1 };
+	import BattleMap from './BattleMap.svelte';
+	import Grid from './Grid.svelte';
 </script>
 
 <PanView expand>
-	<Placeholder expand>Grid</Placeholder>
+	<div class="board">
+		<BattleMap />
+		<Overlay><Grid /></Overlay>
+	</div>
 </PanView>
+
+<style>
+	.board {
+		position: relative;
+		display: flex;
+		align-self: center;
+	}
+</style>
