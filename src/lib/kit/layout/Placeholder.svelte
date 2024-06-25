@@ -1,14 +1,23 @@
-<script>
-	import Container from './Container.svelte';
-
+<script lang="ts">
 	export let expand = false;
 </script>
 
-<div class:expand>PLACEHOLDER</div>
+<div class:expand>
+	PLACEHOLDER
+	{#if $$slots.default}
+		<br />
+		(<slot></slot>)
+	{/if}
+</div>
 
 <style lang="scss">
 	@function thin-line($direction) {
-		@return linear-gradient(to $direction, transparent 49.9%, #fffa 50%, transparent 50.1%);
+		@return linear-gradient(
+			to $direction,
+			transparent calc(50% - 1px),
+			#fffa 50%,
+			transparent calc(50% + 1px)
+		);
 	}
 
 	div {

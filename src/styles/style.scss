@@ -73,8 +73,8 @@ button {
 	border: 4px solid transparent;
 	box-sizing: border-box;
 
-	background-color: var(--color-light);
-	color: var(--color-primary);
+	background-color: var(--color-button);
+	color: var(--color-text);
 
 	font: inherit;
 	font-weight: bold;
@@ -84,19 +84,19 @@ button {
 }
 
 button:disabled {
-	background-color: var(--color-light2);
-	color: var(--color-primary-disabled);
+	background-color: var(--color-button-disabled);
+	color: var(--color-button-disabled-text);
 }
 
 button:enabled {
 	cursor: pointer;
 
 	&:hover {
-		background-color: var(--color-light2);
+		background-color: var(--color-button-hover);
 	}
 
 	&:active {
-		border-color: var(--color-light);
+		border-color: var(--color-button-active-outline);
 	}
 }
 

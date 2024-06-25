@@ -1,7 +1,8 @@
 <script lang="ts">
-	import Container from './Container.svelte';
+	import Container, { type Gap } from './Container.svelte';
 
 	export let expand = false;
+	export let gap: Gap | undefined = undefined;
 </script>
 
-<Container direction="row" {expand}><slot /></Container>
+<Container direction="row" {expand} {gap}><slot /></Container>

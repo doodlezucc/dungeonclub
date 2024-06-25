@@ -3,6 +3,7 @@ body {
 	--color-primary-disabled: hsl(39, 60%, 60%);
 
 	--color-shade-darkest: #1a1717;
+	--color-shade-darker: #2b2420;
 	--color-shade-dark: #38312c;
 	--color-shade-pale: #fff1d6;
 	--color-shade-light: #ffffff;
@@ -18,4 +19,13 @@ body {
 
 	--color-container: var(--color-shade-dark);
 	--color-separator: var(--color-shade-pale);
+
+	--color-button: var(--color-shade-dark);
+	--color-button-text: var(--color-text);
+
+	--color-button-hover: var(--color-shade-darker);
+	--color-button-active-outline: var(--color-shade-dark);
+
+	--color-button-disabled: var(--color-shade-dark);
+	--color-button-disabled-text: var(--color-shade-dark);
 }

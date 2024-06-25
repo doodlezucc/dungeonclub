@@ -1,5 +1,10 @@
 <script>
-	import Placeholder from '../../kit/layout/Placeholder.svelte';
+	import Column from '$lib/kit/layout/Column.svelte';
+	import AudioPlayer from './sidebar/AudioPlayer.svelte';
+	import Chat from './sidebar/Chat.svelte';
 </script>
 
-<Placeholder />
+<Column>
+	<AudioPlayer />
+	<Chat />
+</Column>
