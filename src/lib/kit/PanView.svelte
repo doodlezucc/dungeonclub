@@ -1,13 +1,40 @@
 <script lang="ts">
 	export let expand = false;
 
-	$: isPanning = false;
+	type Position = {
+		x: number;
+		y: number;
+	};
+
 	$: position = { x: 0, y: 0 };
 	$: zoom = 0;
 
+	$: isPanning = false;
+	$: pointerOrigin = { x: 0, y: 0 };
+
 	$: scale = Math.exp(zoom);
 
-	$: pointerOrigin = { x: 0, y: 0 };
+	let dimensions = {
+		width: 1,
+		height: 1
+	};
+
+	function clampToBounds(position: Position) {
+		const maxX = dimensions.width / 2;
+		const maxY = dimensions.height / 2;
+		const minX = -maxX;
+		const minY = -maxY;
+
+		let { x, y } = position;
+
+		if (x < minX) x = minX;
+		else if (x > maxX) x = maxX;
+
+		if (y < minY) y = minY;
+		else if (y > maxY) y = maxY;
+
+		return { x, y };
+	}
 
 	function startPanning(ev: PointerEvent) {
 		ev.preventDefault();
@@ -29,10 +56,10 @@
 			y: (ev.screenY - pointerOrigin.y) / scale
 		};
 
-		position = {
+		position = clampToBounds({
 			x: position.x + offset.x,
 			y: position.y + offset.y
-		};
+		});
 		pointerOrigin = {
 			x: ev.screenX,
 			y: ev.screenY
@@ -51,13 +78,14 @@
 	}
 </script>
 
-<svelte:document on:pointerup={stopPanning} />
+<svelte:document on:pointermove={handlePointerMove} on:pointerup={stopPanning} />
 
 <div
 	class="pan-view"
 	class:expand
+	bind:clientWidth={dimensions.width}
+	bind:clientHeight={dimensions.height}
 	on:pointerdown={startPanning}
-	on:pointermove={handlePointerMove}
 	on:mousewheel={handleMouseWheel}
 	style="--x: {position.x}; --y: {position.y}; --scale: {scale};"
 >
