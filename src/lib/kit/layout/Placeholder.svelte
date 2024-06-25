@@ -7,6 +7,7 @@
 
 <div
 	class:expand
+	class:disable-margin={!!size}
 	style={size ? `--width: ${size.width}px; --height: ${size.height}px;` : undefined}
 >
 	PLACEHOLDER
@@ -32,6 +33,7 @@
 		outline-offset: 2px;
 		margin: 6px;
 		padding: 2em;
+		box-sizing: border-box;
 
 		display: flex;
 		text-align: center;
@@ -40,5 +42,10 @@
 
 		width: var(--width);
 		height: var(--height);
+	}
+
+	.disable-margin {
+		margin: 0;
+		outline-offset: 0;
 	}
 </style>

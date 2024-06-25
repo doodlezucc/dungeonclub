@@ -38,8 +38,8 @@
 <script lang="ts">
 	export let expand = false;
 
-	$: position = { x: 0, y: 0 };
-	$: zoom = 0;
+	export let position = { x: 0, y: 0 };
+	export let zoom = 0;
 
 	$: isPanning = false;
 	$: pointerOrigin = { x: 0, y: 0 };
