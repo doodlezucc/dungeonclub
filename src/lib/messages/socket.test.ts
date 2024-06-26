@@ -1,6 +1,12 @@
 import { expect, it } from 'vitest';
-import type { Payload, Response } from './handling';
-import type { MessageName } from './messages';
+import { type Payload, type Response } from './handling';
+import type {
+	AllMessages,
+	ClientHandledMessages,
+	ClientSentMessages,
+	ServerHandledMessages,
+	ServerSentMessages
+} from './messages';
 import { MessageSocket } from './socket';
 
 it('sends and receives', async () => {
@@ -20,11 +26,13 @@ it('sends and receives', async () => {
 				y: 2.5
 			}
 		}
-	} as Response<'tokenCreate'>);
+	} as Response<AllMessages, 'tokenCreate'>);
 });
 
-class TestClient extends MessageSocket {
-	protected async processMessage<T extends MessageName>(): Promise<Response<T>> {
+class TestClient extends MessageSocket<ClientHandledMessages, ClientSentMessages> {
+	protected async processMessage<T extends keyof ClientHandledMessages>(): Promise<
+		Response<ClientHandledMessages, T>
+	> {
 		throw 'Message processing not implemented on client side';
 	}
 
@@ -33,22 +41,22 @@ class TestClient extends MessageSocket {
 	}
 }
 
-class TestServer extends MessageSocket {
-	protected async processMessage<T extends MessageName>(
+class TestServer extends MessageSocket<ServerHandledMessages, ServerSentMessages> {
+	protected async processMessage<T extends keyof ServerHandledMessages>(
 		name: T,
-		payload: Payload<T>
-	): Promise<Response<T>> {
+		payload: Payload<ServerHandledMessages, T>
+	): Promise<Response<ServerHandledMessages, T>> {
 		console.log(`server processes ${name} with payload`, payload);
 
 		if (name === 'tokenCreate') {
-			const request = payload as Payload<'tokenCreate'>;
+			const request = payload as Payload<AllMessages, 'tokenCreate'>;
 
 			return {
 				token: {
 					label: 'Test Label',
 					position: request.position
 				}
-			} as Response<'tokenCreate'> as Response<T>;
+			} as Response<AllMessages, 'tokenCreate'> as Response<ServerHandledMessages, T>;
 		}
 
 		throw 'Message not implemented';

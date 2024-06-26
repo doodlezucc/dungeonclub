@@ -1,7 +1,7 @@
 import type { ICampaign } from '$lib/db/schemas/campaign';
 import type { SendMessage } from '$lib/messages/codec';
 import type { MessageSender, Payload, Response } from '$lib/messages/handling';
-import type { MessageName } from '$lib/messages/messages';
+import type { ServerSentMessages } from '$lib/messages/messages';
 import type { HydratedDocument } from 'mongoose';
 import type { WebSocket } from 'ws';
 import { serverMessageHandler } from './socket';
@@ -14,7 +14,7 @@ export class Session {
 	}
 }
 
-export class Connection implements MessageSender {
+export class Connection implements MessageSender<ServerSentMessages> {
 	private static utf8 = new TextDecoder('UTF-8');
 	private webSocket: WebSocket;
 
@@ -30,20 +30,23 @@ export class Connection implements MessageSender {
 		});
 	}
 
-	handle<T extends MessageName>(message: SendMessage<T>): Promise<Response<T>> {
+	handle(message: SendMessage<unknown>): Promise<Response<unknown, never>> {
 		const { name, payload } = message;
 
 		return serverMessageHandler.handle(name, payload, { dispatcher: this });
 	}
 
-	send<T extends MessageName>(name: T, payload: Payload<T>): void {
+	send<T extends keyof ServerSentMessages>(name: T, payload: Payload<ServerSentMessages, T>): void {
 		console.log(`[server -> ${this}] ${name} with payload: ${payload}`);
 	}
 
-	async request<T extends MessageName>(name: T, payload: Payload<T>): Promise<Response<T>> {
+	async request<T extends keyof ServerSentMessages>(
+		name: T,
+		payload: Payload<ServerSentMessages, T>
+	): Promise<Response<ServerSentMessages, T>> {
 		console.log(`[server -> ${this}] REQUEST ${name} with payload: ${payload}`);
 		await new Promise((res) => setTimeout(res, 1000));
 
-		return {} as Response<T>;
+		return {} as Response<ServerSentMessages, T>;
 	}
 }

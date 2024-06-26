@@ -1,9 +1,9 @@
 import type { IPosition } from '$lib/db/schemas/compounds/position';
 import type { IToken } from '$lib/db/schemas/token';
-import type { ID, RequestMessage } from './messages';
+import type { DefineRequestWithPublicResponse, DefineSendAndForward, ID } from './messages';
 
 export interface TokensMessageCategory {
-	tokenCreate: RequestMessage<
+	tokenCreate: DefineRequestWithPublicResponse<
 		{
 			tokenDefinition: ID;
 			position: IPosition;
@@ -13,8 +13,8 @@ export interface TokensMessageCategory {
 		}
 	>;
 
-	tokenMove: {
+	tokenMove: DefineSendAndForward<{
 		id: ID;
 		position: IPosition;
-	};
+	}>;
 }

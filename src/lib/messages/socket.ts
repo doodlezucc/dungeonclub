@@ -1,12 +1,11 @@
 import { MessageCodec, type AnyMessage, type ResponseMessage } from './codec';
 import type { Payload, Response } from './handling';
-import type { MessageName } from './messages';
 
-type ChannelCallback<T extends MessageName> = (response: Response<T>) => void;
-type ChannelCallbackMap = Map<number, ChannelCallback<MessageName>>;
+type ChannelCallback<S, T extends keyof S> = (response: Response<S, T>) => void;
+type ChannelCallbackMap<S> = Map<number, ChannelCallback<S, keyof S>>;
 
-export abstract class MessageSocket {
-	private readonly activeChannelCallbacks: ChannelCallbackMap = new Map();
+export abstract class MessageSocket<HANDLED, SENT> {
+	private readonly activeChannelCallbacks: ChannelCallbackMap<HANDLED> = new Map();
 
 	private findUnusedChannel(): number {
 		const countActiveChannels = this.activeChannelCallbacks.size;
@@ -20,11 +19,16 @@ export abstract class MessageSocket {
 		return countActiveChannels;
 	}
 
-	public async request<T extends MessageName>(name: T, payload: Payload<T>): Promise<Response<T>> {
+	public async request<T extends keyof SENT>(
+		name: T,
+		payload: Payload<SENT, T>
+	): Promise<Response<SENT, T>> {
 		return new Promise((resolve) => {
 			const channel = this.findUnusedChannel();
 
-			this.activeChannelCallbacks.set(channel, (response) => resolve(response as Response<T>));
+			this.activeChannelCallbacks.set(channel, (response) =>
+				resolve(response as Response<SENT, T>)
+			);
 
 			this.sendMessage({
 				name,
@@ -34,7 +38,7 @@ export abstract class MessageSocket {
 		});
 	}
 
-	private handleResponse(response: ResponseMessage<MessageName>) {
+	private handleResponse(response: ResponseMessage<keyof HANDLED>) {
 		const { channel, response: payload } = response;
 
 		const triggerCallback = this.activeChannelCallbacks.get(channel);
@@ -67,7 +71,7 @@ export abstract class MessageSocket {
 		}
 	}
 
-	public send<T extends MessageName>(name: T, payload: Payload<T>) {
+	public send<T extends keyof SENT>(name: T, payload: Payload<SENT, T>) {
 		this.sendMessage({
 			name,
 			payload
@@ -84,9 +88,9 @@ export abstract class MessageSocket {
 		this.handleIncomingMessage(incoming);
 	}
 
-	protected abstract processMessage<T extends MessageName>(
+	protected abstract processMessage<T extends keyof HANDLED>(
 		name: T,
-		payload: Payload<T>
-	): Promise<Response<T>>;
+		payload: Payload<HANDLED, T>
+	): Promise<Response<HANDLED, T>>;
 	protected abstract sendOutgoingMessage(encodedMessage: string): void;
 }
