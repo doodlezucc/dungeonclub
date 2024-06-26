@@ -1,3 +1,4 @@
-import * as db from '$lib/db/mongodb';
+import { Server } from '$lib/server/server';
 
-await db.connect();
+export const server = new Server();
+await server.start();

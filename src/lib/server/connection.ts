@@ -2,6 +2,7 @@ import type { ICampaign } from '$lib/db/schemas/campaign';
 import type { MessageSender, Payload, Response } from '$lib/messages/handling';
 import type { MessageName } from '$lib/messages/messages';
 import type { HydratedDocument } from 'mongoose';
+import type { WebSocket } from 'ws';
 import { serverMessageHandler } from './socket';
 
 export class Session {
@@ -13,7 +14,19 @@ export class Session {
 }
 
 export class Connection implements MessageSender {
+	private static decoder = new TextDecoder('UTF-8');
+	private webSocket: WebSocket;
+
 	session?: Session;
+
+	constructor(webSocket: WebSocket) {
+		this.webSocket = webSocket;
+
+		webSocket.on('message', (data: Buffer) => {
+			const dataAsString = Connection.decoder.decode(data);
+			console.log('RECEIVED', dataAsString);
+		});
+	}
 
 	handle<T extends MessageName>(name: T, payload: Payload<T>): Promise<Response<T>> {
 		return serverMessageHandler.handle(name, payload, { dispatcher: this });
