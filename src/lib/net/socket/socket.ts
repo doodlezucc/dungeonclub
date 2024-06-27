@@ -9,7 +9,7 @@ import {
 } from './codec';
 import type { Payload, Response, ResponseObject } from './handling';
 
-type ChannelCallback<S, T extends keyof S> = (response: Response<S, T>) => void;
+type ChannelCallback<S, T extends keyof S> = (response: ResponseMessage<S, T>) => void;
 type ChannelCallbackMap<S> = Map<number, ChannelCallback<S, keyof S>>;
 
 interface Props {
@@ -65,12 +65,18 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		name: T,
 		payload: Payload<SENT, T>
 	): Promise<Response<SENT, T>> {
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			const channel = this.findUnusedChannel();
 
-			this.activeChannelCallbacks.set(channel, (response) =>
-				resolve(response as Response<SENT, T>)
-			);
+			this.activeChannelCallbacks.set(channel, (responseMessage) => {
+				const { error, response: payload } = responseMessage;
+
+				if (error || !payload) {
+					reject('Request failed: ' + error);
+				} else {
+					resolve(payload);
+				}
+			});
 
 			this.sendMessage({
 				name,
@@ -81,14 +87,14 @@ export abstract class MessageSocket<HANDLED, SENT> {
 	}
 
 	private handleResponse(response: ResponseMessage<SENT, keyof SENT>) {
-		const { channel, response: payload } = response;
+		const { channel } = response;
 
 		const triggerCallback = this.activeChannelCallbacks.get(channel);
 
 		if (triggerCallback) {
 			this.activeChannelCallbacks.delete(channel);
 
-			triggerCallback(payload);
+			triggerCallback(response);
 		} else {
 			console.error(`No callback registered for response channel ${channel}`);
 		}
@@ -97,39 +103,51 @@ export abstract class MessageSocket<HANDLED, SENT> {
 	private async handleMessage(message: SendMessage<HANDLED, keyof HANDLED>) {
 		const { name, payload, channel } = message;
 
-		const result = (await this.processMessage(name, payload)) as Response<HANDLED, keyof HANDLED>;
+		try {
+			const result = (await this.processMessage(name, payload)) as Response<HANDLED, keyof HANDLED>;
 
-		let responsePayload = result;
+			let responsePayload = result;
 
-		if (result && typeof result === 'object') {
-			const multiResponse = responsePayload as IForward<unknown> | IResponse<unknown>;
+			if (result && typeof result === 'object') {
+				const multiResponse = responsePayload as IForward<unknown> | IResponse<unknown>;
 
-			if ('forwardedPayload' in multiResponse) {
-				const { forwardedPayload } = multiResponse;
+				if ('forwardedPayload' in multiResponse) {
+					const { forwardedPayload } = multiResponse;
 
-				console.log('forward to other players', forwardedPayload);
+					console.log('forward to other players', forwardedPayload);
+				}
+				if ('response' in multiResponse) {
+					responsePayload = multiResponse.response as Response<HANDLED, keyof HANDLED>;
+				}
 			}
-			if ('response' in multiResponse) {
-				responsePayload = multiResponse.response as Response<HANDLED, keyof HANDLED>;
-			}
-		}
 
-		if (channel !== undefined) {
-			// Communication partner wants to receive a response on this channel
-			this.sendMessage({
-				channel,
-				response: responsePayload
-			} as AnyResponseMessage);
+			if (channel !== undefined) {
+				// Communication partner wants to receive a response on this channel
+				this.sendMessage({
+					channel,
+					response: responsePayload
+				} as AnyResponseMessage);
+			}
+		} catch (err) {
+			console.error('Error while processing message <', name, '>', payload);
+			console.error(err);
+
+			if (channel !== undefined) {
+				this.sendMessage({
+					channel,
+					error: `${err}`
+				} as AnyResponseMessage);
+			}
 		}
 	}
 
 	private async handleIncomingMessage(
 		incoming: ResponseMessage<SENT, keyof SENT> | SendMessage<HANDLED, keyof HANDLED>
 	) {
-		if ('response' in incoming) {
-			this.handleResponse(incoming);
-		} else {
+		if ('payload' in incoming) {
 			return this.handleMessage(incoming);
+		} else {
+			this.handleResponse(incoming);
 		}
 	}
 

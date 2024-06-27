@@ -9,7 +9,7 @@
 
 		const clientSocket = new ClientSocket();
 		const response = await clientSocket.request('login', {
-			email: 'example@email.com',
+			email: 'example@email.co',
 			password: 'mypassword'
 		});
 

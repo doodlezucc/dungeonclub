@@ -20,8 +20,12 @@ export class ServerMessageHandler extends MessageHandler<ServerHandledMessages, 
 
 			const account = await Account.findOne({ email, password });
 
+			if (!account) {
+				throw 'No account with this email and password exists';
+			}
+
 			return {
-				campaigns: account!.campaigns
+				campaigns: account.campaigns
 			};
 		}
 	};

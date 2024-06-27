@@ -10,7 +10,8 @@ export type SendMessage<SCOPE, T extends keyof SCOPE> = {
 };
 
 export type ResponseMessage<SCOPE, T extends keyof SCOPE> = {
-	response: Response<SCOPE, T>;
+	response?: Response<SCOPE, T>;
+	error?: unknown;
 	channel: number;
 };
 
