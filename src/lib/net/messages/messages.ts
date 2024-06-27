@@ -1,3 +1,4 @@
+import type { AccountMessageCategory } from './account';
 import type { TokensMessageCategory } from './tokens';
 
 export interface IMessage<P> {
@@ -20,12 +21,13 @@ export interface IForward<F> {
 export interface DefineSend<P, F> extends IMessageForServer<P>, IForward<F> {}
 export type DefineSendAndForward<P> = DefineSend<P, P>;
 
-export interface DefineRequest<P, R, F> extends IMessageForServer<P>, IResponse<R>, IForward<F> {}
+export interface DefinePrivateRequest<P, R> extends IMessageForServer<P>, IResponse<R> {}
+export interface DefineRequest<P, R, F> extends DefinePrivateRequest<P, R>, IForward<F> {}
 export type DefineRequestWithPublicResponse<P, R> = DefineRequest<P, R, R>;
 
 export type ID = string;
 
-export type AllMessages = TokensMessageCategory;
+export type AllMessages = TokensMessageCategory & AccountMessageCategory;
 
 export type PickMessages<T> = {
 	[K in keyof AllMessages as AllMessages[K] extends T ? K : never]: AllMessages[K];

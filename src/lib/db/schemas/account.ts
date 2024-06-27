@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Schema, type HydratedDocument } from 'mongoose';
 import { CampaignSchema, type ICampaign } from './campaign';
 import { modelWithHierarchy, type DocumentArray } from './util';
 
@@ -14,9 +14,11 @@ export const AccountSchema = new Schema<IAccount>({
 	campaigns: [CampaignSchema]
 });
 
-export const Account = modelWithHierarchy<
+export type HydratedAccount = HydratedDocument<
 	IAccount,
 	{
 		campaigns: DocumentArray<ICampaign>;
 	}
->('Account', AccountSchema);
+>;
+
+export const Account = modelWithHierarchy<HydratedAccount>('Account', AccountSchema);

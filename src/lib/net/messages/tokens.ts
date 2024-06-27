@@ -1,5 +1,5 @@
-import type { IPosition } from '$lib/compounds/position';
-import type { IToken } from '$lib/db/schemas/token';
+import type { IPosition } from '$lib/compounds';
+import type { IToken } from '$lib/db/schemas';
 import type { DefineRequestWithPublicResponse, DefineSendAndForward, ID } from './messages';
 
 export interface TokensMessageCategory {

@@ -1,4 +1,4 @@
-import { CustomTokenDefinition, Token } from '$lib/db/schemas';
+import { Account, CustomTokenDefinition, Token } from '$lib/db/schemas';
 import {
 	MessageHandler,
 	publicResponse,
@@ -6,6 +6,7 @@ import {
 	type ServerHandledMessages,
 	type TokensMessageCategory
 } from '$lib/net';
+import type { AccountMessageCategory } from '$lib/net/messages/account';
 import { Connection } from './connection';
 
 export interface HandlerOptions {
@@ -13,6 +14,18 @@ export interface HandlerOptions {
 }
 
 export class ServerMessageHandler extends MessageHandler<ServerHandledMessages, HandlerOptions> {
+	account: CategoryHandlers<AccountMessageCategory, ServerHandledMessages, HandlerOptions> = {
+		handleLogin: async (payload) => {
+			const { email, password } = payload;
+
+			const account = await Account.findOne({ email, password });
+
+			return {
+				campaigns: account!.campaigns
+			};
+		}
+	};
+
 	tokens: CategoryHandlers<TokensMessageCategory, ServerHandledMessages, HandlerOptions> = {
 		handleTokenCreate: async (payload, { dispatcher }) => {
 			const token = await Token.create({
