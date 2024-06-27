@@ -1,3 +1,4 @@
+import type { AllMessages, IForward, IResponse } from '$lib/messages';
 import {
 	MessageCodec,
 	type AnyMessage,
@@ -7,7 +8,6 @@ import {
 	type SendMessage
 } from './codec';
 import type { Payload, Response, ResponseObject } from './handling';
-import type { AllMessages, IForward, IResponse } from './messages';
 
 type ChannelCallback<S, T extends keyof S> = (response: Response<S, T>) => void;
 type ChannelCallbackMap<S> = Map<number, ChannelCallback<S, keyof S>>;

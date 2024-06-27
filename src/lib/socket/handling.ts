@@ -1,5 +1,4 @@
-import type { IForward, IMessage, IResponse } from './messages';
-import type { TokensMessageCategory } from './tokens';
+import type { IForward, IMessage, IResponse, TokensMessageCategory } from '$lib/messages';
 
 export type AsPayload<T> = T extends IMessage<infer P> ? P : never;
 export type Payload<S, T extends keyof S> = AsPayload<S[T]>;

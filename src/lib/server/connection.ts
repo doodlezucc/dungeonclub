@@ -1,7 +1,6 @@
 import type { ICampaign } from '$lib/db/schemas/campaign';
-import type { SendMessage } from '$lib/messages/codec';
-import type { MessageSender, Payload, Response } from '$lib/messages/handling';
-import type { ServerHandledMessages, ServerSentMessages } from '$lib/messages/messages';
+import type { ServerHandledMessages, ServerSentMessages } from '$lib/messages';
+import type { MessageSender, Payload, Response, SendMessage } from '$lib/socket';
 import type { HydratedDocument } from 'mongoose';
 import type { WebSocket } from 'ws';
 import { serverMessageHandler } from './socket';
