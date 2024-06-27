@@ -1,5 +1,5 @@
+import { RectSchema, type IRect } from '$lib/compounds';
 import { Schema } from 'mongoose';
-import { RectSchema, type IRect } from './compounds/rect';
 import { TokenSchema, type IToken } from './token';
 import { AssetType, modelWithHierarchy, type Asset, type DocumentArray } from './util';
 

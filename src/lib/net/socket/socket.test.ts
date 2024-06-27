@@ -4,7 +4,7 @@ import type {
 	ClientSentMessages,
 	ServerHandledMessages,
 	ServerSentMessages
-} from '$lib/messages';
+} from '$lib/net';
 import { expect, it } from 'vitest';
 import { publicResponse, type Payload, type Response, type ResponseObject } from './handling';
 import { MessageSocket } from './socket';

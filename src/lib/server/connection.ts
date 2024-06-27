@@ -1,7 +1,12 @@
-import type { HydratedCampaign } from '$lib/db/schemas/campaign';
-import { type IScene } from '$lib/db/schemas/scene';
-import type { ServerHandledMessages, ServerSentMessages } from '$lib/messages';
-import type { MessageSender, Payload, Response, SendMessage } from '$lib/socket';
+import type { HydratedCampaign, IScene } from '$lib/db/schemas';
+import type {
+	MessageSender,
+	Payload,
+	Response,
+	SendMessage,
+	ServerHandledMessages,
+	ServerSentMessages
+} from '$lib/net';
 import type { WebSocket } from 'ws';
 import { serverMessageHandler } from './socket';
 

@@ -1,7 +1,11 @@
-import { Token } from '$lib/db/schemas/token';
-import { CustomTokenDefinition } from '$lib/db/schemas/token-definition';
-import type { ServerHandledMessages, TokensMessageCategory } from '$lib/messages';
-import { MessageHandler, publicResponse, type CategoryHandlers } from '$lib/socket';
+import { CustomTokenDefinition, Token } from '$lib/db/schemas';
+import {
+	MessageHandler,
+	publicResponse,
+	type CategoryHandlers,
+	type ServerHandledMessages,
+	type TokensMessageCategory
+} from '$lib/net';
 import { Connection } from './connection';
 
 export interface HandlerOptions {

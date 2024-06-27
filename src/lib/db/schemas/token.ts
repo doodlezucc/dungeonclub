@@ -1,5 +1,5 @@
+import { PositionSchema, type IPosition } from '$lib/compounds';
 import { Schema, Types } from 'mongoose';
-import { PositionSchema, type IPosition } from './compounds/position';
 import { model } from './util';
 
 export interface IToken {

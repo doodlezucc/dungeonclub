@@ -1,4 +1,4 @@
-import type { AllMessages, IForward, IResponse } from '$lib/messages';
+import type { AllMessages, IForward, IResponse } from '$lib/net';
 import {
 	MessageCodec,
 	type AnyMessage,

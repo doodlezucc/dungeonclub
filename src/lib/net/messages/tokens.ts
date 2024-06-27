@@ -1,4 +1,4 @@
-import type { IPosition } from '$lib/db/schemas/compounds/position';
+import type { IPosition } from '$lib/compounds/position';
 import type { IToken } from '$lib/db/schemas/token';
 import type { DefineRequestWithPublicResponse, DefineSendAndForward, ID } from './messages';
 
