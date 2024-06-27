@@ -1,4 +1,4 @@
-import type { AllMessages, IForward, IResponse } from '$lib/net';
+import type { IForward, IResponse } from '$lib/net';
 import {
 	MessageCodec,
 	type AnyMessage,
@@ -12,8 +12,42 @@ import type { Payload, Response, ResponseObject } from './handling';
 type ChannelCallback<S, T extends keyof S> = (response: Response<S, T>) => void;
 type ChannelCallbackMap<S> = Map<number, ChannelCallback<S, keyof S>>;
 
+interface Props {
+	unready: boolean;
+}
+const defaultProps: Props = {
+	unready: false
+};
+
 export abstract class MessageSocket<HANDLED, SENT> {
 	private readonly activeChannelCallbacks: ChannelCallbackMap<SENT> = new Map();
+
+	private readonly readyEvent: Promise<void>;
+	private resolveReadyState?: () => void;
+	private isReady: boolean = false;
+
+	constructor(props?: Partial<Props>) {
+		const { unready } = {
+			...defaultProps,
+			...props
+		};
+
+		if (unready) {
+			this.readyEvent = new Promise<void>((resolve) => {
+				this.resolveReadyState = resolve;
+			});
+		} else {
+			this.isReady = true;
+			this.readyEvent = Promise.resolve();
+		}
+	}
+
+	protected markAsReady() {
+		this.isReady = true;
+		if (this.resolveReadyState) {
+			this.resolveReadyState();
+		}
+	}
 
 	private findUnusedChannel(): number {
 		const countActiveChannels = this.activeChannelCallbacks.size;
@@ -83,7 +117,6 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		if (channel !== undefined) {
 			// Communication partner wants to receive a response on this channel
 			this.sendMessage({
-				name,
 				channel,
 				response: responsePayload
 			} as AnyResponseMessage);
@@ -100,15 +133,19 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		}
 	}
 
-	public send(name: keyof AllMessages, payload: Payload<AllMessages, keyof AllMessages>) {
+	public send(name: keyof SENT, payload: Payload<SENT, keyof SENT>) {
 		this.sendMessage({
 			name,
 			payload
-		});
+		} as AnyMessage);
 	}
 
-	private sendMessage(message: AnyMessage) {
-		const encodedMessage = MessageCodec.encode(message);
+	private async sendMessage(message: AnyMessage) {
+		if (!this.isReady) {
+			await this.readyEvent;
+		}
+
+		const encodedMessage = MessageCodec.encode(message as AnyMessage);
 		this.sendOutgoingMessage(encodedMessage);
 	}
 

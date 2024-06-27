@@ -1,27 +1,19 @@
 <script>
-	import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
+	import { ClientSocket } from '$lib/client/socket';
 
 	import Content from '$lib/kit/Content.svelte';
 	import { onMount } from 'svelte';
 
-	function connectWebSocket() {
+	async function connectWebSocket() {
 		console.log('connecting websocket');
 
-		const ws = new WebSocket(PUBLIC_WEBSOCKET_URL);
-		ws.addEventListener('open', (ev) => {
-			console.log('Connection opened!');
+		const clientSocket = new ClientSocket();
+		const response = await clientSocket.request('login', {
+			email: 'example@email.com',
+			password: 'mypassword'
+		});
 
-			ws.send('hello world');
-		});
-		ws.addEventListener('message', (ev) => {
-			console.log('Message received!', ev.data);
-		});
-		ws.addEventListener('error', (ev) => {
-			console.error('WebSocket error!', ev);
-		});
-		ws.addEventListener('close', (ev) => {
-			console.log('Connection closed!', ev);
-		});
+		console.log('received response', response);
 	}
 
 	onMount(() => {

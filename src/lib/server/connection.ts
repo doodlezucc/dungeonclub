@@ -1,14 +1,13 @@
 import type { HydratedCampaign, IScene } from '$lib/db/schemas';
-import type {
-	MessageSender,
-	Payload,
-	Response,
-	SendMessage,
-	ServerHandledMessages,
-	ServerSentMessages
+import {
+	MessageSocket,
+	type Payload,
+	type ResponseObject,
+	type ServerHandledMessages,
+	type ServerSentMessages
 } from '$lib/net';
 import type { WebSocket } from 'ws';
-import { serverRequestHandler } from './socket';
+import { serverMessageHandler } from './socket';
 
 export class Session {
 	campaign: HydratedCampaign;
@@ -22,41 +21,32 @@ export class Session {
 	}
 }
 
-export class Connection implements MessageSender<ServerSentMessages> {
+export class Connection extends MessageSocket<ServerHandledMessages, ServerSentMessages> {
 	private static utf8 = new TextDecoder('UTF-8');
 	private webSocket: WebSocket;
 
 	session?: Session;
 
 	constructor(webSocket: WebSocket) {
+		super();
 		this.webSocket = webSocket;
 
 		webSocket.on('message', (data: Buffer) => {
 			const dataAsString = Connection.utf8.decode(data);
-
-			console.log('RECEIVED', dataAsString);
+			this.receiveIncomingMessage(dataAsString);
 		});
 	}
 
-	handle<T extends keyof ServerHandledMessages>(
-		message: SendMessage<ServerHandledMessages, T>
-	): Promise<Response<ServerHandledMessages, T>> {
-		const { name, payload } = message;
-
-		return serverRequestHandler.handle(name, payload, { dispatcher: this });
-	}
-
-	send<T extends keyof ServerSentMessages>(name: T, payload: Payload<ServerSentMessages, T>): void {
-		console.log(`[server -> ${this}] ${name} with payload: ${payload}`);
-	}
-
-	async request<T extends keyof ServerSentMessages>(
+	protected processMessage<T extends keyof ServerHandledMessages>(
 		name: T,
-		payload: Payload<ServerSentMessages, T>
-	): Promise<Response<ServerSentMessages, T>> {
-		console.log(`[server -> ${this}] REQUEST ${name} with payload: ${payload}`);
-		await new Promise((res) => setTimeout(res, 1000));
+		payload: Payload<ServerHandledMessages, T>
+	): Promise<ResponseObject<ServerHandledMessages, T>> {
+		return serverMessageHandler.handle<T>(name, payload, {
+			dispatcher: this
+		});
+	}
 
-		return {} as Response<ServerSentMessages, T>;
+	protected sendOutgoingMessage(encodedMessage: string): void {
+		this.webSocket.send(encodedMessage);
 	}
 }

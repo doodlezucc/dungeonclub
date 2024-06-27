@@ -57,7 +57,7 @@ export abstract class MessageHandler<HANDLED, OPTIONS> {
 		name: T,
 		payload: Payload<HANDLED, T>,
 		options: OPTIONS
-	): Promise<Response<HANDLED, T>> {
+	): Promise<ResponseObject<HANDLED, T>> {
 		const nameCapitalized = name.substring(0, 1).toUpperCase() + name.substring(1);
 		const handlerName = `handle${nameCapitalized}`;
 
@@ -68,7 +68,7 @@ export abstract class MessageHandler<HANDLED, OPTIONS> {
 		handlerName: HandlerName<T>,
 		payload: Payload<HANDLED, T>,
 		options: OPTIONS
-	): Promise<Response<HANDLED, T>> {
+	): Promise<ResponseObject<HANDLED, T>> {
 		const handlerNameCasted = handlerName as keyof CategoryHandlers<unknown, HANDLED, OPTIONS>;
 
 		for (const handlerCategory of this.allHandlers) {
@@ -76,7 +76,7 @@ export abstract class MessageHandler<HANDLED, OPTIONS> {
 				const handle = handlerCategory[handlerNameCasted] as (
 					payload: Payload<HANDLED, T>,
 					options: OPTIONS
-				) => Promise<Response<HANDLED, T>>;
+				) => Promise<ResponseObject<HANDLED, T>>;
 
 				return handle(payload, options);
 			}
@@ -84,11 +84,6 @@ export abstract class MessageHandler<HANDLED, OPTIONS> {
 
 		throw 'Unhandled message ' + handlerName;
 	}
-}
-
-export interface MessageSender<SENT> {
-	send<T extends keyof SENT>(name: T, payload: Payload<SENT, T>): void;
-	request<T extends keyof SENT>(name: T, payload: Payload<SENT, T>): Promise<Response<SENT, T>>;
 }
 
 export function publicResponse<R>(response: R) {

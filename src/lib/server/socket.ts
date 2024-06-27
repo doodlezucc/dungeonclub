@@ -13,7 +13,7 @@ export interface HandlerOptions {
 	dispatcher: Connection;
 }
 
-export class ServerRequestHandler extends MessageHandler<ServerHandledMessages, HandlerOptions> {
+export class ServerMessageHandler extends MessageHandler<ServerHandledMessages, HandlerOptions> {
 	account: CategoryHandlers<AccountMessageCategory, ServerHandledMessages, HandlerOptions> = {
 		handleLogin: async (payload) => {
 			const { email, password } = payload;
@@ -54,4 +54,4 @@ export class ServerRequestHandler extends MessageHandler<ServerHandledMessages, 
 	};
 }
 
-export const serverRequestHandler = new ServerRequestHandler();
+export const serverMessageHandler = new ServerMessageHandler();
