@@ -1,61 +1,18 @@
-import { Account, CustomTokenDefinition, Token } from '$lib/db/schemas';
-import {
-	MessageHandler,
-	publicResponse,
-	type AccountMessageCategory,
-	type CategoryHandlers,
-	type ServerHandledMessages,
-	type TokensMessageCategory
-} from '$lib/net';
+import { MessageHandler, type CategoryHandlers, type ServerHandledMessages } from '$lib/net';
 import { Connection } from './connection';
+import { accountHandler } from './handlers/account';
+import { tokensHandler } from './handlers/tokens';
 
 export interface HandlerOptions {
 	dispatcher: Connection;
 }
 
+export type CategoryHandler<C> = CategoryHandlers<C, ServerHandledMessages, HandlerOptions>;
+
 export class ServerMessageHandler extends MessageHandler<ServerHandledMessages, HandlerOptions> {
-	account: CategoryHandlers<AccountMessageCategory, ServerHandledMessages, HandlerOptions> = {
-		handleLogin: async (payload) => {
-			const { email, password } = payload;
+	account = accountHandler;
 
-			const account = await Account.findOne({ email, password });
-
-			if (!account) {
-				throw 'No account with this email and password exists';
-			}
-
-			return {
-				campaigns: account.campaigns
-			};
-		}
-	};
-
-	tokens: CategoryHandlers<TokensMessageCategory, ServerHandledMessages, HandlerOptions> = {
-		handleTokenCreate: async (payload, { dispatcher }) => {
-			const token = await Token.create({
-				definition: await CustomTokenDefinition.findById(payload.tokenDefinition),
-				position: payload.position
-			});
-
-			await dispatcher.session?.campaign?.updateOne({
-				$push: {
-					'scenes.0.tokens': token
-				}
-			});
-
-			return publicResponse({
-				token
-			});
-		},
-
-		handleTokenMove: async (payload) => {
-			console.log('move token', payload);
-
-			return {
-				forwardedResponse: payload
-			};
-		}
-	};
+	tokens = tokensHandler;
 }
 
 export const serverMessageHandler = new ServerMessageHandler();

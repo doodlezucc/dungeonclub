@@ -11,4 +11,12 @@ export interface AccountMessageCategory {
 			campaigns: ICampaign[];
 		}
 	>;
+
+	accountCreate: DefinePrivateRequest<
+		{
+			email: string;
+			password: string;
+		},
+		true
+	>;
 }

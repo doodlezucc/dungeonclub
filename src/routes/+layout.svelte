@@ -1,8 +1,11 @@
 <script>
 	import '../styles/style.scss';
 	import Header from './Header.svelte';
+	import SocketProvider from './SocketProvider.svelte';
 </script>
 
-<Header />
+<SocketProvider>
+	<Header />
 
-<slot />
+	<slot />
+</SocketProvider>

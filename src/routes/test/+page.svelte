@@ -1,26 +1,29 @@
-<script>
-	import { ClientSocket } from '$lib/client/socket';
-
+<script lang="ts">
+	import Button from '$lib/kit/Button.svelte';
 	import Content from '$lib/kit/Content.svelte';
-	import { onMount } from 'svelte';
-
-	async function connectWebSocket() {
-		console.log('connecting websocket');
-
-		const clientSocket = new ClientSocket();
-		const response = await clientSocket.request('login', {
-			email: 'example@email.co',
-			password: 'mypassword'
-		});
-
-		console.log('received response', response);
-	}
-
-	onMount(() => {
-		connectWebSocket();
-	});
+	import { socket } from '$lib/stores';
 </script>
 
 <Content>
 	<h1>Test Area</h1>
+
+	<Button
+		on:click={() =>
+			$socket.request('accountCreate', {
+				email: 'newaccount@email.com',
+				password: 'newpassword'
+			})}
+	>
+		Create Account</Button
+	>
+
+	<Button
+		on:click={() =>
+			$socket.request('login', {
+				email: 'newaccount@email.com',
+				password: 'newpassword'
+			})}
+	>
+		Login
+	</Button>
 </Content>
