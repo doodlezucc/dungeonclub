@@ -2,18 +2,18 @@ import { Account, CustomTokenDefinition, Token } from '$lib/db/schemas';
 import {
 	MessageHandler,
 	publicResponse,
+	type AccountMessageCategory,
 	type CategoryHandlers,
 	type ServerHandledMessages,
 	type TokensMessageCategory
 } from '$lib/net';
-import type { AccountMessageCategory } from '$lib/net/messages/account';
 import { Connection } from './connection';
 
 export interface HandlerOptions {
 	dispatcher: Connection;
 }
 
-export class ServerMessageHandler extends MessageHandler<ServerHandledMessages, HandlerOptions> {
+export class ServerRequestHandler extends MessageHandler<ServerHandledMessages, HandlerOptions> {
 	account: CategoryHandlers<AccountMessageCategory, ServerHandledMessages, HandlerOptions> = {
 		handleLogin: async (payload) => {
 			const { email, password } = payload;
@@ -54,4 +54,4 @@ export class ServerMessageHandler extends MessageHandler<ServerHandledMessages, 
 	};
 }
 
-export const serverMessageHandler = new ServerMessageHandler();
+export const serverRequestHandler = new ServerRequestHandler();

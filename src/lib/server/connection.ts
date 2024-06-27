@@ -8,7 +8,7 @@ import type {
 	ServerSentMessages
 } from '$lib/net';
 import type { WebSocket } from 'ws';
-import { serverMessageHandler } from './socket';
+import { serverRequestHandler } from './socket';
 
 export class Session {
 	campaign: HydratedCampaign;
@@ -43,7 +43,7 @@ export class Connection implements MessageSender<ServerSentMessages> {
 	): Promise<Response<ServerHandledMessages, T>> {
 		const { name, payload } = message;
 
-		return serverMessageHandler.handle(name, payload, { dispatcher: this });
+		return serverRequestHandler.handle(name, payload, { dispatcher: this });
 	}
 
 	send<T extends keyof ServerSentMessages>(name: T, payload: Payload<ServerSentMessages, T>): void {

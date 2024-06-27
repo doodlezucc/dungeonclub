@@ -60,39 +60,43 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		}
 	}
 
+	private async handleMessage(message: SendMessage<HANDLED, keyof HANDLED>) {
+		const { name, payload, channel } = message;
+
+		const result = (await this.processMessage(name, payload)) as Response<HANDLED, keyof HANDLED>;
+
+		let responsePayload = result;
+
+		if (result && typeof result === 'object') {
+			const multiResponse = responsePayload as IForward<unknown> | IResponse<unknown>;
+
+			if ('forwardedPayload' in multiResponse) {
+				const { forwardedPayload } = multiResponse;
+
+				console.log('forward to other players', forwardedPayload);
+			}
+			if ('response' in multiResponse) {
+				responsePayload = multiResponse.response as Response<HANDLED, keyof HANDLED>;
+			}
+		}
+
+		if (channel !== undefined) {
+			// Communication partner wants to receive a response on this channel
+			this.sendMessage({
+				name,
+				channel,
+				response: responsePayload
+			} as AnyResponseMessage);
+		}
+	}
+
 	private async handleIncomingMessage(
 		incoming: ResponseMessage<SENT, keyof SENT> | SendMessage<HANDLED, keyof HANDLED>
 	) {
 		if ('response' in incoming) {
 			this.handleResponse(incoming);
 		} else {
-			const { name, payload, channel } = incoming;
-
-			const result = (await this.processMessage(name, payload)) as Response<HANDLED, keyof HANDLED>;
-
-			let responsePayload = result;
-
-			if (result && typeof result === 'object') {
-				const multiResponse = responsePayload as IForward<unknown> | IResponse<unknown>;
-
-				if ('forwardedPayload' in multiResponse) {
-					const { forwardedPayload } = multiResponse;
-
-					console.log('forward to other players', forwardedPayload);
-				}
-				if ('response' in multiResponse) {
-					responsePayload = multiResponse.response as Response<HANDLED, keyof HANDLED>;
-				}
-			}
-
-			if (channel !== undefined) {
-				// Communication partner wants to receive a response on this channel
-				this.sendMessage({
-					name,
-					channel,
-					response: responsePayload
-				} as AnyResponseMessage);
-			}
+			return this.handleMessage(incoming);
 		}
 	}
 

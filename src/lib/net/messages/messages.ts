@@ -33,15 +33,19 @@ export type PickMessages<T> = {
 	[K in keyof AllMessages as AllMessages[K] extends T ? K : never]: AllMessages[K];
 };
 export type PickForwardedMessages<S> = {
-	[K in keyof S as S[K] extends IForward<unknown> ? K : never]: S[K] extends IForward<infer F>
-		? F
+	[K in keyof S as S[K] extends IForward<unknown> ? K : never]: S[K] extends IForward<unknown>
+		? MarkedAsEvent
 		: S[K];
+};
+
+export type MarkedAsEvent = {
+	forwarded: true;
 };
 
 export type ServerSentMessages = PickMessages<IMessageForClient<unknown>>;
 export type ServerHandledMessages = PickMessages<IMessageForServer<unknown>>;
 
 export type ClientSentMessages = ServerHandledMessages;
-export type ClientHandledMessages = PickMessages<IMessageForClient<unknown>> & ClientHandledEvents;
+export type ClientHandledMessages = ServerSentMessages & ClientHandledEvents;
 
 export type ClientHandledEvents = PickForwardedMessages<ClientSentMessages>;

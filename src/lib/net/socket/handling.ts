@@ -1,4 +1,10 @@
-import type { IForward, IMessage, IResponse, TokensMessageCategory } from '../messages';
+import type {
+	IForward,
+	IMessage,
+	IResponse,
+	MarkedAsEvent,
+	TokensMessageCategory
+} from '../messages';
 import type { AccountMessageCategory } from '../messages/account';
 
 export type AsPayload<T> = T extends IMessage<infer P> ? P : never;
@@ -21,16 +27,21 @@ export type ResponseObject<S, T extends keyof S> = AsResponseObject<S[T]>;
 export type AsResponse<T> = T extends IResponse<infer R> ? R : void;
 export type Response<S, T extends keyof S> = AsResponse<S[T]>;
 
+export type AsForwarded<T> = T extends IForward<infer F> ? F : void;
+export type Forwarded<S, T extends keyof S> = AsForwarded<S[T]>;
+
 export type PickStringKeysOfIntersection<A, B> = Pick<A, keyof A & keyof B & string>;
 export type StringKeysOf<A, B> = keyof PickStringKeysOfIntersection<A, B>;
 
+export type EventHandlerName<K extends string> = `on${Capitalize<K>}`;
 export type HandlerName<K extends string> = `handle${Capitalize<K>}`;
 
 export type CategoryHandlers<CATEGORY, HANDLED, OPTIONS> = {
-	[K in StringKeysOf<CATEGORY, HANDLED> as HandlerName<K>]: (
-		payload: Payload<CATEGORY, K>,
-		options: OPTIONS
-	) => Promise<ResponseObject<CATEGORY, K>>;
+	[K in StringKeysOf<CATEGORY, HANDLED> as HANDLED[K] extends MarkedAsEvent
+		? EventHandlerName<K>
+		: HandlerName<K>]: HANDLED[K] extends MarkedAsEvent
+		? (payload: Forwarded<CATEGORY, K>, options: OPTIONS) => void
+		: (payload: Payload<CATEGORY, K>, options: OPTIONS) => Promise<ResponseObject<CATEGORY, K>>;
 };
 
 export abstract class MessageHandler<HANDLED, OPTIONS> {
