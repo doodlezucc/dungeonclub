@@ -5,7 +5,6 @@ import { CustomTokenDefinitionSchema, type ICustomTokenDefinition } from './toke
 import { modelWithHierarchy, type DocumentArray } from './util';
 
 export interface ICampaign {
-	owner: Types.ObjectId;
 	id: string;
 	name: string;
 
@@ -17,7 +16,6 @@ export interface ICampaign {
 }
 
 export const CampaignSchema = new Schema<ICampaign>({
-	owner: { type: Schema.Types.ObjectId, ref: 'Account', required: true },
 	id: { type: String, required: true },
 	name: { type: String, default: 'Untitled Campaign' },
 	players: [PlayerSchema],

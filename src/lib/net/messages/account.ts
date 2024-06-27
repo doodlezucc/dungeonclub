@@ -19,4 +19,11 @@ export interface AccountMessageCategory {
 		},
 		true
 	>;
+
+	campaignCreate: DefinePrivateRequest<
+		{
+			name: string;
+		},
+		ICampaign
+	>;
 }
