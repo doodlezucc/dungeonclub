@@ -27,14 +27,19 @@ export type ID = string;
 
 export type AllMessages = TokensMessageCategory;
 
-export type Scope<T> = Record<string, T>;
-
-export type PickMessages<S> = {
-	[K in keyof AllMessages as AllMessages[K] extends S ? K : never]: AllMessages[K];
+export type PickMessages<T> = {
+	[K in keyof AllMessages as AllMessages[K] extends T ? K : never]: AllMessages[K];
+};
+export type PickForwardedMessages<S> = {
+	[K in keyof S as S[K] extends IForward<unknown> ? K : never]: S[K] extends IForward<infer F>
+		? F
+		: S[K];
 };
 
+export type ServerSentMessages = PickMessages<IMessageForClient<unknown>>;
 export type ServerHandledMessages = PickMessages<IMessageForServer<unknown>>;
-export type ClientHandledMessages = PickMessages<IMessageForClient<unknown>>;
 
-export type ServerSentMessages = ClientHandledMessages;
 export type ClientSentMessages = ServerHandledMessages;
+export type ClientHandledMessages = PickMessages<IMessageForClient<unknown>> & ClientHandledEvents;
+
+export type ClientHandledEvents = PickForwardedMessages<ClientSentMessages>;
