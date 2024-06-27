@@ -1,8 +1,10 @@
 <script lang="ts">
-	import type { ICampaign } from '$lib/db/schemas/campaign';
+	import type { ICampaign } from '$lib/db/schemas';
 	import Overlay from '$lib/kit/layout/Overlay.svelte';
 	import PanView, { type Dimensions, type Position } from '$lib/kit/PanView.svelte';
+
 	import { getContext, setContext } from 'svelte';
+
 	import BattleMap from './BattleMap.svelte';
 	import Grid from './Grid.svelte';
 	import Token from './grid/Token.svelte';

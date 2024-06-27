@@ -1,5 +1,5 @@
 <script>
-	import Content from '../kit/Content.svelte';
+	import Content from '$lib/kit/Content.svelte';
 </script>
 
 <header>

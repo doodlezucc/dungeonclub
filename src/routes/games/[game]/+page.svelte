@@ -1,8 +1,10 @@
 <script lang="ts">
-	import BoardView from '$lib/components/session/BoardView.svelte';
-	import Sidebar from '$lib/components/session/Sidebar.svelte';
 	import Row from '$lib/kit/layout/Row.svelte';
+
 	import { setContext } from 'svelte';
+
+	import BoardView from './BoardView.svelte';
+	import Sidebar from './Sidebar.svelte';
 
 	export let data;
 
