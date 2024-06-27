@@ -1,23 +1,26 @@
 import type { TokensMessageCategory } from './tokens';
 
-export interface IMessageForServer<P> {
+export interface IMessage<P> {
+	payload: P;
+}
+export interface IMessageForServer<P> extends IMessage<P> {
 	payloadForServer: P;
 }
-export interface IMessageForClient<P> {
+export interface IMessageForClient<P> extends IMessage<P> {
 	payloadForClient: P;
 }
 export interface IResponse<R> {
 	response: R;
 }
 
-export interface DefineSend<P, F> extends IMessageForServer<P> {
-	forward: F;
+export interface IForward<F> {
+	forwardedPayload: F;
 }
+
+export interface DefineSend<P, F> extends IMessageForServer<P>, IForward<F> {}
 export type DefineSendAndForward<P> = DefineSend<P, P>;
 
-export interface DefineRequest<P, R, F> extends IMessageForServer<P>, IResponse<R> {
-	forward: F;
-}
+export interface DefineRequest<P, R, F> extends IMessageForServer<P>, IResponse<R>, IForward<F> {}
 export type DefineRequestWithPublicResponse<P, R> = DefineRequest<P, R, R>;
 
 export type ID = string;

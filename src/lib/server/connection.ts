@@ -1,7 +1,7 @@
 import type { ICampaign } from '$lib/db/schemas/campaign';
 import type { SendMessage } from '$lib/messages/codec';
 import type { MessageSender, Payload, Response } from '$lib/messages/handling';
-import type { ServerSentMessages } from '$lib/messages/messages';
+import type { ServerHandledMessages, ServerSentMessages } from '$lib/messages/messages';
 import type { HydratedDocument } from 'mongoose';
 import type { WebSocket } from 'ws';
 import { serverMessageHandler } from './socket';
@@ -30,7 +30,9 @@ export class Connection implements MessageSender<ServerSentMessages> {
 		});
 	}
 
-	handle(message: SendMessage<unknown>): Promise<Response<unknown, never>> {
+	handle<T extends keyof ServerHandledMessages>(
+		message: SendMessage<ServerHandledMessages, T>
+	): Promise<Response<ServerHandledMessages, T>> {
 		const { name, payload } = message;
 
 		return serverMessageHandler.handle(name, payload, { dispatcher: this });

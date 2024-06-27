@@ -1,20 +1,23 @@
 import type { Payload, Response } from './handling';
-import type { MessageName } from './messages';
+import type { AllMessages } from './messages';
 
-export type SendMessage<T extends MessageName> = {
+export type SendMessage<SCOPE, T extends keyof SCOPE> = {
 	name: T;
-	payload: Payload<T>;
+	payload: Payload<SCOPE, T>;
 
 	/** If passed, this message is expected to receive a response marked with an identical channel value. */
 	channel?: number;
 };
 
-export type ResponseMessage<T extends MessageName> = {
-	response: Response<T>;
+export type ResponseMessage<SCOPE, T extends keyof SCOPE> = {
+	response: Response<SCOPE, T>;
 	channel: number;
 };
 
-export type AnyMessage = SendMessage<MessageName> | ResponseMessage<MessageName>;
+export type AnySendMessage = SendMessage<AllMessages, keyof AllMessages>;
+export type AnyResponseMessage = ResponseMessage<AllMessages, keyof AllMessages>;
+
+export type AnyMessage = AnySendMessage | AnyResponseMessage;
 
 export class MessageCodec {
 	static encode(message: AnyMessage): string {

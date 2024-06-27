@@ -1,8 +1,22 @@
-import type { IMessageForServer, IResponse } from './messages';
+import type { IForward, IMessage, IResponse } from './messages';
 import type { TokensMessageCategory } from './tokens';
 
-export type AsPayload<T> = T extends IMessageForServer<infer P> ? P : never;
+export type AsPayload<T> = T extends IMessage<infer P> ? P : never;
 export type Payload<S, T extends keyof S> = AsPayload<S[T]>;
+
+export type AsResponseObject<T> = T extends IForward<infer F> & IResponse<infer R>
+	? {
+			forwardedResponse: F;
+			response: R;
+		}
+	: T extends IForward<infer F>
+		? {
+				forwardedResponse: F;
+			}
+		: T extends IResponse<infer R>
+			? R
+			: void;
+export type ResponseObject<S, T extends keyof S> = AsResponseObject<S[T]>;
 
 export type AsResponse<T> = T extends IResponse<infer R> ? R : void;
 export type Response<S, T extends keyof S> = AsResponse<S[T]>;
@@ -16,7 +30,7 @@ export type CategoryHandlers<CATEGORY, HANDLED, OPTIONS> = {
 	[K in StringKeysOf<CATEGORY, HANDLED> as HandlerName<K>]: (
 		payload: Payload<CATEGORY, K>,
 		options: OPTIONS
-	) => Promise<Response<CATEGORY, K>>;
+	) => Promise<ResponseObject<CATEGORY, K>>;
 };
 
 export abstract class MessageHandler<HANDLED, OPTIONS> {
@@ -63,4 +77,11 @@ export abstract class MessageHandler<HANDLED, OPTIONS> {
 export interface MessageSender<SENT> {
 	send<T extends keyof SENT>(name: T, payload: Payload<SENT, T>): void;
 	request<T extends keyof SENT>(name: T, payload: Payload<SENT, T>): Promise<Response<SENT, T>>;
+}
+
+export function publicResponse<R>(response: R) {
+	return {
+		forwardedResponse: response,
+		response: response
+	};
 }
