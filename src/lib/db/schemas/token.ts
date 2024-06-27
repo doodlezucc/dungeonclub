@@ -1,6 +1,6 @@
 import { Schema, Types } from 'mongoose';
 import { PositionSchema, type IPosition } from './compounds/position';
-import { model } from './util/model-reloading';
+import { model } from './util';
 
 export interface IToken {
 	definition: Types.ObjectId;

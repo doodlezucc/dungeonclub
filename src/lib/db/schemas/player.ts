@@ -1,9 +1,9 @@
-import { Schema } from 'mongoose';
+import { Schema, Types } from 'mongoose';
 import { PlayerTokenDefinitionSchema, type IPlayerTokenDefinition } from './token-definition';
-import { model } from './util/model-reloading';
-import { AssetType, type Asset } from './util/types';
+import { AssetType, model, type Asset } from './util';
 
 export interface IPlayer {
+	_id: Types.ObjectId;
 	avatar?: Asset;
 	name: string;
 	tokenDefinition: IPlayerTokenDefinition;

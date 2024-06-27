@@ -1,15 +1,19 @@
-import type { ICampaign } from '$lib/db/schemas/campaign';
+import type { HydratedCampaign } from '$lib/db/schemas/campaign';
+import { type IScene } from '$lib/db/schemas/scene';
 import type { ServerHandledMessages, ServerSentMessages } from '$lib/messages';
 import type { MessageSender, Payload, Response, SendMessage } from '$lib/socket';
-import type { HydratedDocument } from 'mongoose';
 import type { WebSocket } from 'ws';
 import { serverMessageHandler } from './socket';
 
 export class Session {
-	campaign: HydratedDocument<ICampaign>;
+	campaign: HydratedCampaign;
 
-	constructor(campaign: HydratedDocument<ICampaign>) {
+	constructor(campaign: HydratedCampaign) {
 		this.campaign = campaign;
+	}
+
+	get activeScene(): IScene | null {
+		return this.campaign.scenes.id(this.campaign.activeScene);
 	}
 }
 

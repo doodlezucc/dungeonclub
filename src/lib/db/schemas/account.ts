@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { CampaignSchema, type ICampaign } from './campaign';
-import { model } from './util/model-reloading';
+import { modelWithHierarchy, type DocumentArray } from './util';
 
 export interface IAccount {
 	email: string;
@@ -14,4 +14,9 @@ export const AccountSchema = new Schema<IAccount>({
 	campaigns: [CampaignSchema]
 });
 
-export const Account = model('Account', AccountSchema);
+export const Account = modelWithHierarchy<
+	IAccount,
+	{
+		campaigns: DocumentArray<ICampaign>;
+	}
+>('Account', AccountSchema);

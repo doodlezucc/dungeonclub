@@ -1,6 +1,5 @@
 import { Schema } from 'mongoose';
-import { model } from './util/model-reloading';
-import { AssetType, type Asset } from './util/types';
+import { AssetType, model, type Asset } from './util';
 
 export interface ITokenDefinition {
 	size: number;

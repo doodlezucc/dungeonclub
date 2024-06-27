@@ -1,8 +1,7 @@
 import { Schema } from 'mongoose';
 import { RectSchema, type IRect } from './compounds/rect';
 import { TokenSchema, type IToken } from './token';
-import { model } from './util/model-reloading';
-import { AssetType, type Asset } from './util/types';
+import { AssetType, modelWithHierarchy, type Asset, type DocumentArray } from './util';
 
 export interface ISceneGrid {
 	bounds: IRect;
@@ -41,4 +40,9 @@ export const SceneSchema = new Schema<IScene>({
 	tokens: [TokenSchema]
 });
 
-export const Scene = model('Scene', SceneSchema);
+export const Scene = modelWithHierarchy<
+	IScene,
+	{
+		tokens: DocumentArray<IToken>;
+	}
+>('Scene', SceneSchema);

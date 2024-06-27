@@ -1,8 +1,8 @@
-import { Schema, Types } from 'mongoose';
+import { Schema, Types, type HydratedDocument } from 'mongoose';
 import { PlayerSchema, type IPlayer } from './player';
 import { SceneSchema, type IScene } from './scene';
 import { CustomTokenDefinitionSchema, type ICustomTokenDefinition } from './token-definition';
-import { model } from './util/model-reloading';
+import { modelWithHierarchy, type DocumentArray } from './util';
 
 export interface ICampaign {
 	owner: Types.ObjectId;
@@ -26,4 +26,13 @@ export const CampaignSchema = new Schema<ICampaign>({
 	activeScene: { type: Schema.Types.ObjectId, ref: 'Scene' }
 });
 
-export const Campaign = model('Campaign', CampaignSchema);
+export type HydratedCampaign = HydratedDocument<
+	ICampaign,
+	{
+		players: DocumentArray<IPlayer>;
+		customTokens: DocumentArray<ICustomTokenDefinition>;
+		scenes: DocumentArray<IScene>;
+	}
+>;
+
+export const Campaign = modelWithHierarchy<HydratedCampaign>('Campaign', CampaignSchema);
