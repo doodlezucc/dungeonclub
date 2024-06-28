@@ -2,10 +2,17 @@
 	import { session } from '$lib/client/socket';
 	import Align from '$lib/kit/layout/Align.svelte';
 	import Stack from '$lib/kit/layout/Stack.svelte';
+	import { onMount } from 'svelte';
 	import BoardSelection from './board-selection/BoardSelection.svelte';
 	import Board from './board/Board.svelte';
 	import BoardTools from './board/BoardTools.svelte';
 	import TokenPalette from './board/TokenPalette.svelte';
+
+	$: showBoardSelection = false;
+
+	onMount(() => {
+		showBoardSelection = true;
+	});
 </script>
 
 <Stack expand>
@@ -21,7 +28,9 @@
 		<TokenPalette />
 	</Align>
 
-	<Align alignment="center">
-		<BoardSelection />
-	</Align>
+	{#if showBoardSelection}
+		<Align alignment="center">
+			<BoardSelection />
+		</Align>
+	{/if}
 </Stack>

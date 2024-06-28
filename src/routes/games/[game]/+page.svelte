@@ -1,8 +1,9 @@
 <script lang="ts">
 	import Row from '$lib/kit/layout/Row.svelte';
-	import { socket } from '$lib/stores';
 	import { onMount } from 'svelte';
 
+	import { Session } from '$lib/client/session';
+	import { session } from '$lib/client/socket';
 	import BoardView from './BoardView.svelte';
 	import Sidebar from './Sidebar.svelte';
 
@@ -12,7 +13,7 @@
 
 	onMount(() => {
 		if (campaign) {
-			$socket.enterSession(campaign);
+			$session = new Session(campaign);
 		}
 	});
 </script>

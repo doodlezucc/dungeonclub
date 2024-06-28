@@ -1,25 +1,8 @@
 <script lang="ts">
-	import { account } from '$lib/client/socket';
-	import Row from '$lib/kit/layout/Row.svelte';
 	import Text from '$lib/kit/Text.svelte';
-	import { flip } from 'svelte/animate';
-	import { fly } from 'svelte/transition';
-	import CampaignCard from './CampaignCard.svelte';
-	import CampaignCreateButton from './CampaignCreateButton.svelte';
-
-	$: campaigns = $account?.campaigns ?? [];
+	import CampaignCollection from './CampaignCollection.svelte';
 </script>
 
 <Text style="display">Your Campaigns</Text>
 
-<Row gap="normal" wrap>
-	{#each [...campaigns, null] as campaign, index (campaign?.id)}
-		<div animate:flip in:fly|global={{ y: 30, delay: 200 + index * 50 }}>
-			{#if campaign}
-				<CampaignCard bind:snippet={campaign} />
-			{:else}
-				<CampaignCreateButton />
-			{/if}
-		</div>
-	{/each}
-</Row>
+<CampaignCollection />

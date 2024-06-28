@@ -1,5 +1,4 @@
 import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
-import type { ICampaign } from '$lib/db/schemas';
 import {
 	MessageSocket,
 	type ClientHandledMessages,
@@ -45,10 +44,6 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 		account.set(new Account(emailAddress, response.account.campaigns));
 
 		return response;
-	}
-
-	async enterSession(campaign: ICampaign) {
-		session.set(new Session(campaign));
 	}
 
 	protected processMessage<T extends keyof ClientHandledMessages>(): Promise<
