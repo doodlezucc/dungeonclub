@@ -1,11 +1,8 @@
 <script>
 	import { account } from '$lib/client/socket';
 	import Content from '$lib/kit/Content.svelte';
-	import Row from '$lib/kit/layout/Row.svelte';
 	import { onMount } from 'svelte';
-	import { fly, slide } from 'svelte/transition';
-	import AccountContent from './AccountContent.svelte';
-	import LoginForm from './LoginForm.svelte';
+	import CampaignCard from './CampaignCard.svelte';
 
 	$: isLoggedIn = !!$account;
 
@@ -14,14 +11,27 @@
 	onMount(() => (isMounted = true));
 </script>
 
-<Content>
-	{#if !isLoggedIn && isMounted}
-		<div in:fly={{ y: 50, duration: 800 }} out:slide>
-			<Row justify="center">
-				<LoginForm />
-			</Row>
-		</div>
-	{:else if isMounted}
-		<AccountContent></AccountContent>
-	{/if}
-</Content>
+<main>
+	<Content>
+		<!-- {#if !isLoggedIn && isMounted}
+			<div in:fly={{ y: 50, duration: 800 }} out:slide>
+				<Row justify="center">
+					<LoginForm />
+				</Row>
+			</div>
+		{:else if isMounted}
+			<AccountContent></AccountContent>
+		{/if} -->
+
+		<CampaignCard snippet={{ id: 'id', name: 'Short', createdAt: new Date() }} />
+		<CampaignCard
+			snippet={{ id: 'id', name: 'A long name, akin to a lorem ipsum', createdAt: new Date() }}
+		/>
+	</Content>
+</main>
+
+<style>
+	main {
+		padding: 2em 0;
+	}
+</style>

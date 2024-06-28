@@ -26,9 +26,11 @@
 <script lang="ts">
 	export let style: TextStyle = 'body';
 
+	export let id: string | undefined = undefined;
+
 	$: styleDefinition = textStyles[style];
 </script>
 
-<svelte:element this={styleDefinition.tag} class={styleDefinition.className}>
+<svelte:element this={styleDefinition.tag} class={styleDefinition.className} {id}>
 	<slot />
 </svelte:element>

@@ -110,6 +110,33 @@ button {
 			outline-color: var(--color-button-active-outline);
 		}
 	}
+
+	&.icon {
+		$size: 1.5em;
+
+		font-size: 20px;
+		padding: 0;
+		width: $size;
+		height: $size;
+		border-radius: 50%;
+		outline-width: 0.15em;
+		outline-offset: -1px;
+
+		&:hover {
+			background-color: var(--color-button-hover);
+			outline-color: var(--color-button-hover);
+			outline-width: 0.5em;
+		}
+		&:active {
+			background-color: var(--color-button-active);
+			outline-color: var(--color-button-active);
+		}
+
+		&:focus-visible {
+			outline: 0.15em solid var(--color-button-active-outline);
+			outline-offset: 0.25em;
+		}
+	}
 }
 
 [role='button'] {

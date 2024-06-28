@@ -33,7 +33,7 @@
 	}
 </script>
 
-<Container margin="big">
+<Container margin="big" padding="big">
 	<Column align="center">
 		<h2 aria-label="">Sign in to Dungeon Club</h2>
 
