@@ -6,6 +6,8 @@
 	export let name: string;
 	export let label: string;
 
+	export let placeholder: string;
+
 	export let type: HTMLInputTypeAttribute | undefined = undefined;
 	export let required: boolean | undefined = undefined;
 	export let autocomplete: 'email' | 'current-password' | 'new-password' | undefined = undefined;
@@ -19,7 +21,15 @@
 
 <label>
 	{label}
-	<input {name} {autocomplete} {required} aria-required={required} bind:value use:applyType />
+	<input
+		{name}
+		{placeholder}
+		{autocomplete}
+		{required}
+		aria-required={required}
+		bind:value
+		use:applyType
+	/>
 </label>
 
 <style>

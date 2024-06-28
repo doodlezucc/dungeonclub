@@ -8,6 +8,7 @@ import {
 
 export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSentMessages> {
 	private readonly webSocket: WebSocket;
+	private _accountEmail?: string;
 
 	constructor() {
 		super({ unready: true });
@@ -27,6 +28,25 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 			console.log('Connection closed!', ev);
 		});
 		this.webSocket = ws;
+	}
+
+	async logIn(emailAddress: string, password: string) {
+		const response = await this.request('login', {
+			email: emailAddress,
+			password: password
+		});
+
+		this._accountEmail = emailAddress;
+
+		return response;
+	}
+
+	get accountEmail() {
+		return this._accountEmail;
+	}
+
+	get isLoggedIn() {
+		return !!this._accountEmail;
 	}
 
 	protected processMessage<T extends keyof ClientHandledMessages>(): Promise<

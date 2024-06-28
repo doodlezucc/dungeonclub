@@ -105,12 +105,13 @@ input {
 	@extend %transitions-playful;
 	@include rounded();
 
-	padding: 0.5em 2em;
-	border: 2px solid var(--color-separator);
+	padding: 0.5em 0.8em;
+	border: 2px solid var(--color-input-outline);
 	box-sizing: border-box;
 
-	background-color: var(--color-button);
+	background-color: var(--color-input-background);
 	color: var(--color-text);
 
 	font: inherit;
+	min-width: 300px;
 }

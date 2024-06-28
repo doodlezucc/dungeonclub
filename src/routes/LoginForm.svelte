@@ -1,43 +1,80 @@
-<script>
+<script lang="ts">
 	import Button from '$lib/kit/Button.svelte';
 	import Input from '$lib/kit/Input.svelte';
 	import Column from '$lib/kit/layout/Column.svelte';
+	import Container from '$lib/kit/layout/Container.svelte';
+	import { RequestError } from '$lib/net';
 	import { socket } from '$lib/stores';
+	import { fly } from 'svelte/transition';
 
 	$: emailAddress = '';
 	$: password = '';
 
-	async function login() {
-		const response = await $socket.request('login', {
-			email: emailAddress,
-			password: password
-		});
+	$: errorReason = '';
 
-		console.log('Logged in, your campaigns:', response);
+	$: {
+		if (emailAddress && password) {
+			errorReason = '';
+		}
+	}
+
+	async function login() {
+		try {
+			const response = await $socket.logIn(emailAddress, password);
+
+			console.log('Logged in, your campaigns:', response);
+		} catch (err) {
+			if (!(err instanceof RequestError)) throw err;
+
+			errorReason = `${err.message}`;
+		}
 	}
 </script>
 
-<Column align="center">
-	<h2>Log In</h2>
+<Container>
+	<Column align="center">
+		<h2 aria-label="">Sign in to Dungeon Club</h2>
 
-	<form on:submit={() => false}>
-		<Input label="Email" name="email" type="email" autocomplete="email" bind:value={emailAddress} />
-		<Input
-			label="Password"
-			name="password"
-			type="password"
-			autocomplete="current-password"
-			bind:value={password}
-		/>
+		<form action="javascript:void(0);" on:submit={() => false}>
+			<Input
+				label="Email Address"
+				placeholder="Email..."
+				name="email"
+				type="email"
+				autocomplete="email"
+				bind:value={emailAddress}
+			/>
+			<Input
+				label="Password"
+				placeholder="Password..."
+				name="password"
+				type="password"
+				autocomplete="current-password"
+				bind:value={password}
+			/>
 
-		<Button type="submit" on:click={login} raised>Log In</Button>
-	</form>
-</Column>
+			{#if errorReason}
+				<span class="error" aria-live="polite" in:fly={{ y: 20 }}>{errorReason}</span>
+			{/if}
+
+			<Button type="submit" on:click={login} raised>Log In</Button>
+		</form>
+	</Column>
+</Container>
 
 <style>
+	h2 {
+		color: var(--color-primary);
+		margin: 0 0 1.5em 0;
+	}
+
 	form {
 		display: grid;
-		gap: 2em;
+		gap: 1.5em;
 		max-width: 500px;
+	}
+
+	.error {
+		color: var(--color-bad);
 	}
 </style>

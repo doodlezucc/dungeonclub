@@ -72,7 +72,7 @@ export abstract class MessageSocket<HANDLED, SENT> {
 				const { error, response: payload } = responseMessage;
 
 				if (error || !payload) {
-					reject('Request failed: ' + error);
+					reject(new RequestError(error ?? 'No payload in response'));
 				} else {
 					resolve(payload);
 				}
@@ -179,4 +179,11 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		payload: Payload<HANDLED, T>
 	): Promise<ResponseObject<HANDLED, T>>;
 	protected abstract sendOutgoingMessage(encodedMessage: string): void;
+}
+
+export class RequestError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'RequestError';
+	}
 }
