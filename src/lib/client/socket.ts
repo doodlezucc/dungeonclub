@@ -6,8 +6,9 @@ import {
 	type ResponseObject
 } from '$lib/net';
 import { writable } from 'svelte/store';
+import { Account } from './account';
 
-export const isLoggedIn = writable(false);
+export const account = writable<Account | null>(null);
 
 export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSentMessages> {
 	private readonly webSocket: WebSocket;
@@ -40,7 +41,16 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 		});
 
 		this._accountEmail = emailAddress;
-		isLoggedIn.set(true);
+		account.set(
+			new Account(
+				emailAddress,
+				response.campaigns.map(({ id, name, createdAt }) => ({
+					id,
+					name,
+					createdAt
+				}))
+			)
+		);
 
 		return response;
 	}

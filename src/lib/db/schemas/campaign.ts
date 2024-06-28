@@ -2,9 +2,9 @@ import { Schema, Types, type HydratedDocument } from 'mongoose';
 import { PlayerSchema, type IPlayer } from './player';
 import { SceneSchema, type IScene } from './scene';
 import { CustomTokenDefinitionSchema, type ICustomTokenDefinition } from './token-definition';
-import { modelWithHierarchy, type DocumentArray } from './util';
+import { modelWithHierarchy, type DocumentArray, type Timestamped } from './util';
 
-export interface ICampaign {
+export interface ICampaign extends Timestamped {
 	id: string;
 	name: string;
 

@@ -1,13 +1,13 @@
 <script>
+	import { account } from '$lib/client/socket';
 	import Content from '$lib/kit/Content.svelte';
 	import Row from '$lib/kit/layout/Row.svelte';
 	import { onMount } from 'svelte';
-	import { fly } from 'svelte/transition';
+	import { fly, slide } from 'svelte/transition';
 	import AccountContent from './AccountContent.svelte';
 	import LoginForm from './LoginForm.svelte';
 
-	// $: showLoginForm = !$isLoggedIn;
-	$: showLoginForm = false;
+	$: isLoggedIn = !!$account;
 
 	$: isMounted = false;
 
@@ -15,17 +15,13 @@
 </script>
 
 <Content>
-	<h1>Home!</h1>
-
-	<Row justify="center">
-		{#if showLoginForm && isMounted}
-			<div transition:fly={{ y: 50, duration: 800 }}>
+	{#if !isLoggedIn && isMounted}
+		<div in:fly={{ y: 50, duration: 800 }} out:slide>
+			<Row justify="center">
 				<LoginForm />
-			</div>
-		{/if}
-	</Row>
-
-	{#if isMounted}
+			</Row>
+		</div>
+	{:else if isMounted}
 		<AccountContent></AccountContent>
 	{/if}
 </Content>

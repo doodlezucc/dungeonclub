@@ -78,6 +78,7 @@ button {
 	@include rounded();
 
 	outline: 0.25em solid transparent;
+	border: none;
 	box-sizing: border-box;
 
 	background-color: var(--color-button);

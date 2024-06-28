@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-	export type TextStyle = 'heading' | 'subtitle' | 'body';
+	export type TextStyle = 'display' | 'heading' | 'subtitle' | 'body';
 
 	export type TextStyleDefinition = {
 		tag: string;
@@ -7,6 +7,9 @@
 	};
 
 	export const textStyles: Record<TextStyle, TextStyleDefinition> = {
+		display: {
+			tag: 'h1'
+		},
 		heading: {
 			tag: 'h2'
 		},
