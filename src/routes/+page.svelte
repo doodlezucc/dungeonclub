@@ -4,8 +4,8 @@
 	import Row from '$lib/kit/layout/Row.svelte';
 	import { onMount } from 'svelte';
 	import { fly, slide } from 'svelte/transition';
-	import AccountContent from './AccountContent.svelte';
-	import LoginForm from './LoginForm.svelte';
+	import AccountContent from './home/AccountContent.svelte';
+	import LoginForm from './home/LoginForm.svelte';
 
 	$: isLoggedIn = !!$account;
 
