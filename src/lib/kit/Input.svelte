@@ -11,6 +11,7 @@
 	export let type: HTMLInputTypeAttribute | undefined = undefined;
 	export let required: boolean | undefined = undefined;
 	export let autocomplete: 'email' | 'current-password' | 'new-password' | undefined = undefined;
+	export let autofocus: boolean | undefined = undefined;
 
 	function applyType(node: HTMLInputElement) {
 		if (type !== undefined) {
@@ -25,6 +26,7 @@
 		{name}
 		{placeholder}
 		{autocomplete}
+		tabindex={autofocus ? 0 : undefined}
 		{required}
 		aria-required={required}
 		bind:value

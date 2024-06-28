@@ -14,6 +14,8 @@ body {
 }
 
 body {
+	--color-modal-background: #fff4;
+
 	--color-background: var(--color-shade-darkest);
 	--color-text: var(--color-shade-light);
 	--color-text-pale: var(--color-shade-pale);
@@ -28,6 +30,7 @@ body {
 	--color-button-disabled: var(--color-shade-dark);
 	--color-button-text: var(--color-text);
 	--color-button-disabled-text: var(--color-shade-dark);
+	--border-button: 0.15em solid var(--color-shade-mid);
 
 	--action-color-button: var(--color-primary);
 	--action-color-button-hover: var(--color-shade-mid);
@@ -35,6 +38,7 @@ body {
 	--action-color-button-disabled: var(--color-shade-dark);
 	--action-color-button-text: var(--color-on-primary);
 	--action-color-button-disabled-text: var(--color-shade-dark);
+	--action-border-button: none;
 
 	--icon-color-button: transparent;
 	--icon-color-button-hover: var(--color-shade-mid);
@@ -42,6 +46,7 @@ body {
 	--icon-color-button-disabled: var(--color-shade-dark);
 	--icon-color-button-text: var(--color-text);
 	--icon-color-button-disabled-text: var(--color-shade-dark);
+	--icon-border-button: none;
 
 	--color-input-background: var(--color-shade-darkest);
 	--color-input-outline: var(--color-shade-mid);
@@ -54,6 +59,7 @@ button.action {
 	--color-button-disabled: var(--action-color-button-disabled);
 	--color-button-text: var(--action-color-button-text);
 	--color-button-disabled-text: var(--action-color-button-disabled-text);
+	--border-button: var(--action-border-button);
 }
 
 button.icon {
@@ -64,4 +70,5 @@ button.icon {
 	--color-button-disabled: var(--icon-color-button-disabled);
 	--color-button-text: var(--icon-color-button-text);
 	--color-button-disabled-text: var(--icon-color-button-disabled-text);
+	--border-button: var(--icon-border-button);
 }
