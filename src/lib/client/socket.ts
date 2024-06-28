@@ -8,12 +8,13 @@ import {
 } from '$lib/net';
 import { writable } from 'svelte/store';
 import { Account } from './account';
+import { Session } from './session';
 
 export const account = writable<Account | null>(null);
+export const session = writable<Session | null>(null);
 
 export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSentMessages> {
 	private readonly webSocket: WebSocket;
-	private _accountEmail?: string;
 
 	constructor() {
 		super({ unready: true });
@@ -41,18 +42,13 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 			password: password
 		});
 
-		this._accountEmail = emailAddress;
 		account.set(new Account(emailAddress, response.account.campaigns));
 
 		return response;
 	}
 
-	get accountEmail() {
-		return this._accountEmail;
-	}
-
 	async enterSession(campaign: ICampaign) {
-		alert('join session ' + campaign);
+		session.set(new Session(campaign));
 	}
 
 	protected processMessage<T extends keyof ClientHandledMessages>(): Promise<

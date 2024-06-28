@@ -1,4 +1,5 @@
 <script>
+	import { session } from '$lib/client/socket';
 	import Align from '$lib/kit/layout/Align.svelte';
 	import Stack from '$lib/kit/layout/Stack.svelte';
 	import Board from './board/Board.svelte';
@@ -7,7 +8,9 @@
 </script>
 
 <Stack expand>
-	<Board />
+	{#if $session?.visibleScene}
+		<Board />
+	{/if}
 
 	<Align alignment="top-left" margin="normal">
 		<BoardTools />
