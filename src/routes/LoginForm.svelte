@@ -11,6 +11,7 @@
 	$: password = '';
 
 	$: errorReason = '';
+	$: errorKey = 0;
 
 	$: {
 		if (emailAddress && password) {
@@ -27,6 +28,7 @@
 			if (!(err instanceof RequestError)) throw err;
 
 			errorReason = `${err.message}`;
+			errorKey++;
 		}
 	}
 </script>
@@ -53,9 +55,9 @@
 				bind:value={password}
 			/>
 
-			{#if errorReason}
+			{#key errorKey}
 				<span class="error" aria-live="polite" in:fly={{ y: 20 }}>{errorReason}</span>
-			{/if}
+			{/key}
 
 			<Button type="submit" on:click={login} raised>Log In</Button>
 		</form>

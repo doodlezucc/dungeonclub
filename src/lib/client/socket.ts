@@ -5,6 +5,9 @@ import {
 	type ClientSentMessages,
 	type ResponseObject
 } from '$lib/net';
+import { writable } from 'svelte/store';
+
+export const isLoggedIn = writable(false);
 
 export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSentMessages> {
 	private readonly webSocket: WebSocket;
@@ -37,16 +40,13 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 		});
 
 		this._accountEmail = emailAddress;
+		isLoggedIn.set(true);
 
 		return response;
 	}
 
 	get accountEmail() {
 		return this._accountEmail;
-	}
-
-	get isLoggedIn() {
-		return !!this._accountEmail;
 	}
 
 	protected processMessage<T extends keyof ClientHandledMessages>(): Promise<
