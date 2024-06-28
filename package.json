@@ -36,6 +36,7 @@
 	"dependencies": {
 		"@types/ws": "^8.5.10",
 		"mongoose": "^8.4.3",
+		"svelte-time": "^0.9.0",
 		"ws": "^8.17.1"
 	}
 }

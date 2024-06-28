@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
 	export type FlexDirection = 'column' | 'row';
-	export type Gap = 'normal';
+	export type Gap = 'normal' | 'big';
 
 	export type FlexAlign = 'start' | 'center' | 'end';
 	export type FlexJustify =
@@ -22,19 +22,16 @@
 	export let expand = false;
 </script>
 
-<div
-	class={direction}
-	class:gap-normal={gap === 'normal'}
-	class:expand
-	data-align={align}
-	data-justify={justify}
->
+<div class={direction} class:expand data-align={align} data-justify={justify} data-gap={gap}>
 	<slot />
 </div>
 
 <style>
-	.gap-normal {
+	[data-gap='normal'] {
 		gap: 0.3em;
+	}
+	[data-gap='big'] {
+		gap: 0.8em;
 	}
 
 	[data-align='start'] {
