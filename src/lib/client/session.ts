@@ -1,9 +1,9 @@
-import type { ICampaign, IScene } from '$lib/db/schemas';
+import type { IBoard, ICampaign } from '$lib/db/schemas';
 
 export class Session {
 	campaign: ICampaign;
 
-	visibleScene?: IScene;
+	visibleBoard?: IBoard;
 
 	constructor(campaign: ICampaign) {
 		this.campaign = campaign;

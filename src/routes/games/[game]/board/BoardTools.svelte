@@ -4,6 +4,6 @@
 </script>
 
 <Column gap="normal">
-	<Button raised>Edit Scene</Button>
+	<Button raised>Edit Board</Button>
 	<Button raised>Roll Dice</Button>
 </Column>

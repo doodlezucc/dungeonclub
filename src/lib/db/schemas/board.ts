@@ -9,12 +9,12 @@ import {
 	type Hydrated
 } from './util';
 
-export interface ISceneGrid {
+export interface IBoardGrid {
 	bounds: IRect;
 	cellsPerRow: number;
 }
 
-export const SceneGridSchema = new Schema<ISceneGrid>(
+export const BoardGridSchema = new Schema<IBoardGrid>(
 	{
 		bounds: { type: RectSchema, required: true },
 		cellsPerRow: { type: Number, required: true }
@@ -22,17 +22,17 @@ export const SceneGridSchema = new Schema<ISceneGrid>(
 	{ _id: false }
 );
 
-export interface IScene {
+export interface IBoard {
 	background: Asset;
-	grid: ISceneGrid;
+	grid: IBoardGrid;
 
 	tokens: IToken[];
 }
 
-export const SceneSchema = new Schema<IScene>({
+export const BoardSchema = new Schema<IBoard>({
 	background: { type: AssetType, required: true },
 	grid: {
-		type: SceneGridSchema,
+		type: BoardGridSchema,
 		default: {
 			cellsPerRow: 20,
 			bounds: {
@@ -46,11 +46,11 @@ export const SceneSchema = new Schema<IScene>({
 	tokens: [TokenSchema]
 });
 
-export type HydratedScene = Hydrated<
-	IScene,
+export type HydratedBoard = Hydrated<
+	IBoard,
 	{
 		tokens: DocumentArray<IToken>;
 	}
 >;
 
-export const Scene = modelWithHierarchy<HydratedScene>('Scene', SceneSchema);
+export const Board = modelWithHierarchy<HydratedBoard>('Board', BoardSchema);

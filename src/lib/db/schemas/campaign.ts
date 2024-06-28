@@ -1,6 +1,6 @@
 import { Schema, Types, type HydratedDocument } from 'mongoose';
+import { BoardSchema, type IBoard } from './board';
 import { PlayerSchema, type IPlayer } from './player';
-import { SceneSchema, type IScene } from './scene';
 import { CustomTokenDefinitionSchema, type ICustomTokenDefinition } from './token-definition';
 import { modelWithHierarchy, type DocumentArray, type Timestamped } from './util';
 
@@ -11,8 +11,8 @@ export interface ICampaign extends Timestamped {
 	players: IPlayer[];
 	customTokens: ICustomTokenDefinition[];
 
-	scenes: IScene[];
-	activeScene: Types.ObjectId;
+	boards: IBoard[];
+	activeBoard: Types.ObjectId;
 }
 
 export const CampaignSchema = new Schema<ICampaign>({
@@ -20,8 +20,8 @@ export const CampaignSchema = new Schema<ICampaign>({
 	name: { type: String, default: 'Untitled Campaign' },
 	players: [PlayerSchema],
 	customTokens: [CustomTokenDefinitionSchema],
-	scenes: [SceneSchema],
-	activeScene: { type: Schema.Types.ObjectId, ref: 'Scene' }
+	boards: [BoardSchema],
+	activeBoard: { type: Schema.Types.ObjectId, ref: 'Board' }
 });
 
 export type HydratedCampaign = HydratedDocument<
@@ -29,7 +29,7 @@ export type HydratedCampaign = HydratedDocument<
 	{
 		players: DocumentArray<IPlayer>;
 		customTokens: DocumentArray<ICustomTokenDefinition>;
-		scenes: DocumentArray<IScene>;
+		boards: DocumentArray<IBoard>;
 	}
 >;
 

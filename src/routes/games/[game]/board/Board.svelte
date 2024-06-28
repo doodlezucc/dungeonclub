@@ -1,23 +1,21 @@
 <script lang="ts">
-	import type { ICampaign } from '$lib/db/schemas';
 	import Overlay from '$lib/kit/layout/Overlay.svelte';
 	import PanView, { type Dimensions, type Position } from '$lib/kit/PanView.svelte';
 
-	import { getContext, setContext } from 'svelte';
+	import { setContext } from 'svelte';
 
+	import { session } from '$lib/client/socket';
 	import BattleMap from './BattleMap.svelte';
 	import Grid from './Grid.svelte';
 	import Token from './grid/Token.svelte';
 
-	const session = getContext('session');
-	const campaign: ICampaign = session.campaign;
+	const board = $session!.visibleBoard!;
 
-	const scene = campaign.scenes[0];
-	const grid = scene.grid;
+	const grid = board.grid;
 	const cellsPerRow = grid.cellsPerRow;
 
-	let position: Position;
-	let zoom: number;
+	let position: Position = { x: 0, y: 0 };
+	let zoom: number = 0;
 
 	const dimensions: Dimensions = { width: 600, height: 400 };
 

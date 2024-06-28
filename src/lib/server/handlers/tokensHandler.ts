@@ -4,14 +4,14 @@ import type { CategoryHandler } from '../socket';
 
 export const tokensHandler: CategoryHandler<TokensMessageCategory> = {
 	handleTokenCreate: async (payload, { dispatcher }) => {
-		const scene = dispatcher.sessionAsOwner.visibleScene;
+		const board = dispatcher.sessionAsOwner.visibleBoard;
 
 		const token = await Token.create({
 			definition: await CustomTokenDefinition.findById(payload.tokenDefinition),
 			position: payload.position
 		});
 
-		await scene.updateOne({
+		await board.updateOne({
 			$push: {
 				tokens: token
 			}

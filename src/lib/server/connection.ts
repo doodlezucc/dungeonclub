@@ -1,4 +1,4 @@
-import type { HydratedCampaign, HydratedScene, IAccount } from '$lib/db/schemas';
+import type { HydratedBoard, HydratedCampaign, IAccount } from '$lib/db/schemas';
 import {
 	MessageSocket,
 	type Payload,
@@ -13,31 +13,31 @@ import { serverMessageHandler } from './socket';
 export class Session {
 	readonly campaign: HydratedCampaign;
 	readonly isGM: boolean;
-	private _visibleScene?: HydratedScene;
+	private _visibleBoard?: HydratedBoard;
 
 	constructor(campaign: HydratedCampaign, isGM: boolean) {
 		this.campaign = campaign;
 		this.isGM = isGM;
 	}
 
-	get activeSceneOrNull() {
-		return this.campaign.scenes.id(this.campaign.activeScene) as HydratedScene | null;
+	get activeBoardOrNull() {
+		return this.campaign.boards.id(this.campaign.activeBoard) as HydratedBoard | null;
 	}
 
-	get activeScene() {
-		const result = this.activeSceneOrNull;
+	get activeBoard() {
+		const result = this.activeBoardOrNull;
 
-		if (!result) throw 'No active scene set in campaign';
+		if (!result) throw 'No active board set in campaign';
 
 		return result;
 	}
 
-	get visibleScene() {
-		if (!this._visibleScene) {
-			this._visibleScene = this.activeScene;
+	get visibleBoard() {
+		if (!this._visibleBoard) {
+			this._visibleBoard = this.activeBoard;
 		}
 
-		return this._visibleScene;
+		return this._visibleBoard;
 	}
 }
 
