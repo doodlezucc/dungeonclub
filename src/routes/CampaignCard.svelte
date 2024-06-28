@@ -2,8 +2,6 @@
 </script>
 
 <script lang="ts">
-	import type { CampaignSnippet } from '$lib/client/account';
-
 	import Button from '$lib/kit/Button.svelte';
 	import IconButton from '$lib/kit/IconButton.svelte';
 	import Center from '$lib/kit/layout/Center.svelte';
@@ -12,6 +10,7 @@
 	import Row from '$lib/kit/layout/Row.svelte';
 	import type { ModalContext } from '$lib/kit/ModalProvider.svelte';
 	import Text from '$lib/kit/Text.svelte';
+	import type { CampaignSnippet } from '$lib/net/snippets/campaign';
 	import { getContext } from 'svelte';
 	import Time from 'svelte-time/Time.svelte';
 	import CampaignEditDialog from './CampaignEditDialog.svelte';

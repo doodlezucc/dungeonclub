@@ -41,16 +41,7 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 		});
 
 		this._accountEmail = emailAddress;
-		account.set(
-			new Account(
-				emailAddress,
-				response.campaigns.map(({ id, name, createdAt }) => ({
-					id,
-					name,
-					createdAt
-				}))
-			)
-		);
+		account.set(new Account(emailAddress, response.account.campaigns));
 
 		return response;
 	}

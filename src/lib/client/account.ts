@@ -1,3 +1,5 @@
+import type { CampaignSnippet } from '$lib/net/snippets/campaign';
+
 export class Account {
 	email: string;
 	campaigns: CampaignSnippet[];
@@ -6,10 +8,4 @@ export class Account {
 		this.email = email;
 		this.campaigns = campaigns;
 	}
-}
-
-export interface CampaignSnippet {
-	id: string;
-	name: string;
-	createdAt: Date;
 }

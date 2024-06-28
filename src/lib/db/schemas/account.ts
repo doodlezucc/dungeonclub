@@ -1,24 +1,16 @@
-import { Schema, type HydratedDocument } from 'mongoose';
-import { CampaignSchema, type ICampaign } from './campaign';
-import { modelWithHierarchy, type DocumentArray } from './util';
+import { Schema, Types } from 'mongoose';
+import { model } from './util';
 
 export interface IAccount {
 	email: string;
 	password: string;
-	campaigns: ICampaign[];
+	campaigns: Types.ObjectId[];
 }
 
 export const AccountSchema = new Schema<IAccount>({
 	email: { type: String, required: true },
 	password: { type: String, required: true },
-	campaigns: [CampaignSchema]
+	campaigns: [{ type: Types.ObjectId, ref: 'Campaign' }]
 });
 
-export type HydratedAccount = HydratedDocument<
-	IAccount,
-	{
-		campaigns: DocumentArray<ICampaign>;
-	}
->;
-
-export const Account = modelWithHierarchy<HydratedAccount>('Account', AccountSchema);
+export const Account = model('Account', AccountSchema);

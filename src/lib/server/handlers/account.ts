@@ -1,4 +1,4 @@
-import { Account, Campaign } from '$lib/db/schemas';
+import { Account, Campaign, type ICampaign } from '$lib/db/schemas';
 import type { AccountMessageCategory } from '$lib/net';
 import type { CategoryHandler } from '../socket';
 
@@ -8,7 +8,9 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 			throw 'Already logged in';
 		}
 
-		const account = await Account.findOne({ email, password });
+		const account = await Account.findOne({ email, password })
+			.populate('campaigns', ['id', 'name', 'createdAt'])
+			.exec();
 
 		if (!account) {
 			throw 'No account with this email and password exists';
@@ -17,7 +19,17 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 		dispatcher.onLogIn(account);
 
 		return {
-			campaigns: account.campaigns
+			account: {
+				email,
+				campaigns: account.campaigns.map((ref) => {
+					const { id, name, createdAt } = ref as unknown as ICampaign;
+					return {
+						id,
+						name,
+						createdAt
+					};
+				})
+			}
 		};
 	},
 
@@ -51,6 +63,28 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 		});
 
 		return newCampaign;
+	},
+
+	handleCampaignEdit: async ({ id, name }, { dispatcher }) => {
+		const campaign = await Campaign.findOne({ id });
+
+		if (!campaign) {
+			throw 'Campaign not found';
+		}
+
+		const isOwnedByAccount = dispatcher.loggedInAccount.campaigns.some((owned) =>
+			owned._id.equals(campaign._id)
+		);
+
+		if (!isOwnedByAccount) {
+			throw 'This campaign is not owned by your account';
+		}
+
+		await campaign.updateOne({
+			$set: { name }
+		});
+
+		return true;
 	}
 };
 
