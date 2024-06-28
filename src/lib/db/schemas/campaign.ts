@@ -15,14 +15,17 @@ export interface ICampaign extends Timestamped {
 	activeBoard: Types.ObjectId;
 }
 
-export const CampaignSchema = new Schema<ICampaign>({
-	id: { type: String, required: true },
-	name: { type: String, default: 'Untitled Campaign' },
-	players: [PlayerSchema],
-	customTokens: [CustomTokenDefinitionSchema],
-	boards: [BoardSchema],
-	activeBoard: { type: Schema.Types.ObjectId, ref: 'Board' }
-});
+export const CampaignSchema = new Schema<ICampaign>(
+	{
+		id: { type: String, required: true },
+		name: { type: String, default: 'Untitled Campaign' },
+		players: [PlayerSchema],
+		customTokens: [CustomTokenDefinitionSchema],
+		boards: [BoardSchema],
+		activeBoard: { type: Schema.Types.ObjectId, ref: 'Board' }
+	},
+	{ timestamps: true }
+);
 
 export type HydratedCampaign = HydratedDocument<
 	ICampaign,
