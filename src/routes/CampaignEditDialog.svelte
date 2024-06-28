@@ -4,6 +4,7 @@
 	import Dialog from '$lib/kit/Dialog.svelte';
 	import Input from '$lib/kit/Input.svelte';
 	import type { ModalContext } from '$lib/kit/ModalProvider.svelte';
+	import { socket } from '$lib/stores';
 	import { getContext, onMount } from 'svelte';
 
 	export let campaign: CampaignSnippet;
@@ -16,15 +17,27 @@
 
 	const modal = getContext<ModalContext>('modal');
 
-	function save() {
-		modal.pop({
-			...campaign,
-			name
-		});
+	async function save() {
+		try {
+			await $socket.request('campaignEdit', {
+				name
+			});
+
+			modal.pop({
+				...campaign,
+				name
+			});
+		} catch (err) {
+			modal.displayError(err);
+		}
 	}
 </script>
 
 <Dialog title="Edit Campaign">
+	<Input label="Campaign Name" name="Campaign Name" placeholder="Name..." bind:value={name} />
+	<Input label="Campaign Name" name="Campaign Name" placeholder="Name..." bind:value={name} />
+	<Input label="Campaign Name" name="Campaign Name" placeholder="Name..." bind:value={name} />
+	<Input label="Campaign Name" name="Campaign Name" placeholder="Name..." bind:value={name} />
 	<Input label="Campaign Name" name="Campaign Name" placeholder="Name..." bind:value={name} />
 
 	<svelte:fragment slot="actions">

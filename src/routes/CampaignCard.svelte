@@ -30,8 +30,8 @@
 		});
 
 		if (result) {
-			console.log('RESULT', result);
 			snippet = result;
+			console.log('RESULT', result);
 		}
 	}
 </script>

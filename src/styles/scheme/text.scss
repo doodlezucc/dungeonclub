@@ -13,3 +13,18 @@
 .subtitle {
 	color: var(--color-shade-pale);
 }
+
+pre {
+	font-family: 'Fira Mono', monospace;
+}
+
+.code {
+	font-size: 1em;
+	background-color: var(--color-shade-darkest);
+	outline: 0.25em solid var(--color-shade-darkest);
+	border-radius: 4px;
+}
+
+.error {
+	color: var(--color-bad);
+}

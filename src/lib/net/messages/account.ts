@@ -26,4 +26,11 @@ export interface AccountMessageCategory {
 		},
 		ICampaign
 	>;
+
+	campaignEdit: DefinePrivateRequest<
+		{
+			name: string;
+		},
+		true
+	>;
 }
