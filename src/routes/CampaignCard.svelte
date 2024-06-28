@@ -10,12 +10,12 @@
 	import Row from '$lib/kit/layout/Row.svelte';
 	import type { ModalContext } from '$lib/kit/ModalProvider.svelte';
 	import Text from '$lib/kit/Text.svelte';
-	import type { CampaignSnippet } from '$lib/net/snippets/campaign';
+	import type { CampaignCardSnippet } from '$lib/net/snippets/campaign';
 	import { getContext } from 'svelte';
 	import Time from 'svelte-time/Time.svelte';
 	import CampaignEditDialog from './CampaignEditDialog.svelte';
 
-	export let snippet: CampaignSnippet;
+	export let snippet: CampaignCardSnippet;
 
 	$: id = snippet.id;
 	$: name = snippet.name;
@@ -24,8 +24,8 @@
 	const modal = getContext<ModalContext>('modal');
 
 	async function editCampaign() {
-		const result: CampaignSnippet | undefined = await modal.display(CampaignEditDialog, {
-			campaign: snippet
+		const result: CampaignCardSnippet | undefined = await modal.display(CampaignEditDialog, {
+			...snippet
 		});
 
 		if (result) {

@@ -1,10 +1,10 @@
-import type { CampaignSnippet } from '$lib/net/snippets/campaign';
+import type { CampaignCardSnippet } from '$lib/net/snippets/campaign';
 
 export class Account {
 	email: string;
-	campaigns: CampaignSnippet[];
+	campaigns: CampaignCardSnippet[];
 
-	constructor(email: string, campaigns: CampaignSnippet[]) {
+	constructor(email: string, campaigns: CampaignCardSnippet[]) {
 		this.email = email;
 		this.campaigns = campaigns;
 	}

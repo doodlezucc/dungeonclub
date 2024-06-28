@@ -5,6 +5,7 @@
 	import { flip } from 'svelte/animate';
 	import { fly } from 'svelte/transition';
 	import CampaignCard from './CampaignCard.svelte';
+	import CampaignCreateButton from './CampaignCreateButton.svelte';
 
 	$: campaigns = $account?.campaigns ?? [];
 </script>
@@ -12,9 +13,13 @@
 <Text style="display">Your Campaigns</Text>
 
 <Row gap="normal" wrap>
-	{#each campaigns as campaign, index (campaign.id)}
+	{#each [...campaigns, null] as campaign, index (campaign?.id)}
 		<div animate:flip in:fly|global={{ y: 30, delay: 200 + index * 50 }}>
-			<CampaignCard bind:snippet={campaign} />
+			{#if campaign}
+				<CampaignCard bind:snippet={campaign} />
+			{:else}
+				<CampaignCreateButton />
+			{/if}
 		</div>
 	{/each}
 </Row>

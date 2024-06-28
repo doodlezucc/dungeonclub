@@ -3,31 +3,31 @@
 	import Dialog from '$lib/kit/Dialog.svelte';
 	import Input from '$lib/kit/Input.svelte';
 	import type { ModalContext } from '$lib/kit/ModalProvider.svelte';
-	import type { CampaignSnippet } from '$lib/net/snippets/campaign';
 	import { socket } from '$lib/stores';
-	import { getContext, onMount } from 'svelte';
+	import { getContext } from 'svelte';
 
-	export let campaign: CampaignSnippet;
-
-	$: name = '';
-
-	onMount(() => {
-		name = campaign.name;
-	});
+	export let id: string | undefined = undefined;
+	export let name: string;
 
 	const modal = getContext<ModalContext>('modal');
 
 	async function save() {
 		try {
-			await $socket.request('campaignEdit', {
-				id: campaign.id,
+			const commonSettings = {
 				name
-			});
+			};
 
-			modal.pop({
-				...campaign,
-				name
-			});
+			let result;
+			if (id) {
+				result = await $socket.request('campaignEdit', {
+					id: id,
+					...commonSettings
+				});
+			} else {
+				result = await $socket.request('campaignCreate', commonSettings);
+			}
+
+			modal.pop(result);
 		} catch (err) {
 			modal.displayError(err);
 		}

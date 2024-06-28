@@ -1,5 +1,6 @@
 import type { ICampaign } from '$lib/db/schemas';
 import type { AccountSnippet } from '../snippets/account';
+import type { CampaignCardSnippet } from '../snippets/campaign';
 import type { DefinePrivateRequest } from './messages';
 
 export interface AccountMessageCategory {
@@ -33,6 +34,6 @@ export interface AccountMessageCategory {
 			id: string;
 			name: string;
 		},
-		true
+		CampaignCardSnippet
 	>;
 }

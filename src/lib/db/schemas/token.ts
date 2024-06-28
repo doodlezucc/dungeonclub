@@ -1,4 +1,4 @@
-import { PositionSchema, type IPosition } from '$lib/compounds';
+import { PositionSchema, type IPosition } from '$lib/net/compounds';
 import { Schema, Types } from 'mongoose';
 import { model } from './util';
 

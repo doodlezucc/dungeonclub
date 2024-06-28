@@ -1,7 +1,7 @@
 import { MessageHandler, type CategoryHandlers, type ServerHandledMessages } from '$lib/net';
 import { Connection } from './connection';
-import { accountHandler } from './handlers/account';
-import { tokensHandler } from './handlers/tokens';
+import { accountHandler } from './handlers/accountHandler';
+import { tokensHandler } from './handlers/tokensHandler';
 
 export interface HandlerOptions {
 	dispatcher: Connection;

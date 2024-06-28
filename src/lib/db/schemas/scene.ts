@@ -1,4 +1,4 @@
-import { RectSchema, type IRect } from '$lib/compounds';
+import { RectSchema, type IRect } from '$lib/net/compounds';
 import { Schema } from 'mongoose';
 import { TokenSchema, type IToken } from './token';
 import {

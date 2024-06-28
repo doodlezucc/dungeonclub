@@ -1,4 +1,5 @@
 import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
+import type { ICampaign } from '$lib/db/schemas';
 import {
 	MessageSocket,
 	type ClientHandledMessages,
@@ -48,6 +49,10 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 
 	get accountEmail() {
 		return this._accountEmail;
+	}
+
+	async enterSession(campaign: ICampaign) {
+		alert('join session ' + campaign);
 	}
 
 	protected processMessage<T extends keyof ClientHandledMessages>(): Promise<

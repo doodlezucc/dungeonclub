@@ -59,7 +59,7 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 		});
 
 		await account.updateOne({
-			$push: { campaigns: newCampaign }
+			$push: { campaigns: newCampaign._id }
 		});
 
 		return newCampaign;
@@ -84,10 +84,30 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 			$set: { name }
 		});
 
-		return true;
+		return {
+			id,
+			name,
+			createdAt: campaign.createdAt
+		};
 	}
 };
 
 function generateCampaignID() {
-	return 'testcampaign';
+	const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+	const digits = '0123456789';
+
+	const pool = [uppercase, lowercase, digits].join('');
+
+	function randomCharacter() {
+		return pool[Math.floor(Math.random() * pool.length)];
+	}
+
+	let result = '';
+
+	for (let i = 0; i < 5; i++) {
+		result += randomCharacter();
+	}
+
+	return result;
 }
