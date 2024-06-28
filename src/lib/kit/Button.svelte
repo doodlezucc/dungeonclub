@@ -1,8 +1,9 @@
 <script lang="ts">
-	export let disabled: boolean = false;
 	export let raised: boolean = false;
+	export let disabled: boolean = false;
+	export let type: HTMLButtonElement['type'] | undefined = undefined;
 </script>
 
-<button on:click {disabled} class:raised>
+<button on:click class:raised {disabled} {type}>
 	<slot />
 </button>

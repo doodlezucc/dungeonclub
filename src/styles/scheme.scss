@@ -1,2 +1,6 @@
-@use 'scheme/colors.scss';
-@use 'scheme/fonts.scss';
+@use 'scheme/colors' as *;
+@use 'scheme/fonts' as *;
+
+@mixin rounded() {
+	border-radius: 0.5em;
+}
