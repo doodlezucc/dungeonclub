@@ -36,21 +36,28 @@ h3 {
 	@extend %font-heading;
 }
 
+@function cubic-out($duration, $aria-duration) {
+	@return $duration cubic-bezier(0.165, 0.84, 0.44, 1), outline $aria-duration;
+}
+
 %transitions-playful {
-	transition: 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+	transition: cubic-out(0.5s, 0.3s);
 
 	&:hover {
-		transition-duration: 0.2s;
+		transition: cubic-out(0.2s, 0.1s);
 	}
 
-	&:active {
-		transition-duration: 0.05s;
+	&:active,
+	&:focus-visible {
+		transition: cubic-out(0.05s, 0.1s);
 	}
 }
 
-@mixin raise($strength, $max: 6px) {
-	box-shadow: 0 ($strength * $max) 0 #0005;
-	transform: translateY($max * (1 - $strength));
+@mixin raise($strength, $max: 6px, $padding-horizontal: 2.5em, $padding-vertical: 0.8em) {
+	box-shadow: 0 (-$strength * $max) 0 #0005 inset;
+	margin-top: $max * (1 - $strength);
+
+	padding: $padding-vertical $padding-horizontal calc($padding-vertical + $strength * $max);
 }
 
 .raised {
@@ -70,35 +77,42 @@ button {
 	@extend %transitions-playful;
 	@include rounded();
 
-	padding: 0.5em 2em;
-	border: 4px solid transparent;
+	outline: 0.25em solid transparent;
 	box-sizing: border-box;
 
 	background-color: var(--color-button);
-	color: var(--color-text);
+	color: var(--color-button-text);
 
+	display: block;
 	font: inherit;
+	text-align: center;
+	text-decoration: none;
 	font-weight: bold;
 	text-transform: uppercase;
 	font-size: 0.9em;
 	letter-spacing: 0.08em;
-}
 
-button:disabled {
-	background-color: var(--color-button-disabled);
-	color: var(--color-button-disabled-text);
-}
-
-button:enabled {
-	cursor: pointer;
-
-	&:hover {
-		background-color: var(--color-button-hover);
+	&:disabled {
+		background-color: var(--color-button-disabled);
+		color: var(--color-button-disabled-text);
 	}
 
-	&:active {
-		border-color: var(--color-button-active-outline);
+	&:not(:disabled) {
+		cursor: pointer;
+
+		&:hover {
+			background-color: var(--color-button-hover);
+		}
+
+		&:active,
+		&:focus-visible {
+			outline-color: var(--color-button-active-outline);
+		}
 	}
+}
+
+[role='button'] {
+	@extend button;
 }
 
 input {

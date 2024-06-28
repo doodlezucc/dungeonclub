@@ -13,7 +13,7 @@
 	];
 </script>
 
-<Row gap="normal">
+<Row gap="normal" wrap>
 	{#each campaigns as campaign, index (campaign.id)}
 		<div animate:flip transition:fly|global={{ y: 30, delay: index * 50 }}>
 			<CampaignCard {...campaign} />

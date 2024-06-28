@@ -20,18 +20,30 @@
 	export let justify: FlexJustify | undefined = undefined;
 
 	export let expand = false;
+	export let wrap = false;
 </script>
 
-<div class={direction} class:expand data-align={align} data-justify={justify} data-gap={gap}>
+<div
+	class={direction}
+	class:expand
+	data-align={align}
+	data-justify={justify}
+	data-gap={gap}
+	data-wrap={wrap ? 1 : undefined}
+>
 	<slot />
 </div>
 
 <style>
 	[data-gap='normal'] {
-		gap: 0.3em;
+		gap: 0.4em;
 	}
 	[data-gap='big'] {
 		gap: 0.8em;
+	}
+
+	[data-wrap] {
+		flex-wrap: wrap;
 	}
 
 	[data-align='start'] {
