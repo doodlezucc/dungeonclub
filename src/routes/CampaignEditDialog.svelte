@@ -4,7 +4,6 @@
 	import Dialog from '$lib/kit/Dialog.svelte';
 	import Input from '$lib/kit/Input.svelte';
 	import type { ModalContext } from '$lib/kit/ModalProvider.svelte';
-	import Text from '$lib/kit/Text.svelte';
 	import { getContext, onMount } from 'svelte';
 
 	export let campaign: CampaignSnippet;
@@ -16,15 +15,19 @@
 	});
 
 	const modal = getContext<ModalContext>('modal');
+
+	function save() {
+		modal.pop({
+			...campaign,
+			name
+		});
+	}
 </script>
 
 <Dialog title="Edit Campaign">
-	<Text>This is text!</Text>
-
 	<Input label="Campaign Name" name="Campaign Name" placeholder="Name..." bind:value={name} />
 
 	<svelte:fragment slot="actions">
-		<Button raised>Cancel</Button>
-		<Button type="submit" raised highlight on:click={() => modal.pop(true)}>Save</Button>
+		<Button type="submit" raised highlight on:click={save}>Save</Button>
 	</svelte:fragment>
 </Dialog>

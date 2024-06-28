@@ -5,7 +5,7 @@
 			props: PROPS
 		) => Promise<T>;
 
-		pop: <T>(result: T) => void;
+		pop: <T>(result?: T) => void;
 	};
 
 	interface Modal<T, PROPS extends Record<string, any>> {

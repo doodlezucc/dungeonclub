@@ -14,7 +14,7 @@
 <Row gap="normal" wrap>
 	{#each campaigns as campaign, index (campaign.id)}
 		<div animate:flip in:fly|global={{ y: 30, delay: 200 + index * 50 }}>
-			<CampaignCard snippet={campaign} />
+			<CampaignCard bind:snippet={campaign} />
 		</div>
 	{/each}
 </Row>

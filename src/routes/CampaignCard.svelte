@@ -25,11 +25,14 @@
 	const modal = getContext<ModalContext>('modal');
 
 	async function editCampaign() {
-		const result = await modal.display(CampaignEditDialog, {
+		const result: CampaignSnippet | undefined = await modal.display(CampaignEditDialog, {
 			campaign: snippet
 		});
 
-		console.log('RESULT', result);
+		if (result) {
+			console.log('RESULT', result);
+			snippet = result;
+		}
 	}
 </script>
 

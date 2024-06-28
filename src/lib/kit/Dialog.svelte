@@ -8,6 +8,8 @@
 	import Text from './Text.svelte';
 
 	export let title: string;
+	export let disableCloseButton: boolean = false;
+	export let closeButtonResult: unknown = undefined;
 
 	const modal = getContext<ModalContext>('modal');
 
@@ -49,7 +51,7 @@
 			}
 		}
 
-		focusable()[1]?.focus();
+		focusable()[disableCloseButton ? 0 : 1]?.focus();
 
 		node.addEventListener('keydown', handleKeydown);
 
@@ -73,7 +75,9 @@
 		<Row justify="space-between" align="center">
 			<Text id="dialogTitle" style="heading">{title}</Text>
 
-			<IconButton label="Close" icon="close" on:click={closeDialog} />
+			{#if !disableCloseButton}
+				<IconButton label="Close" icon="close" on:click={() => modal.pop(closeButtonResult)} />
+			{/if}
 		</Row>
 	</header>
 
@@ -104,8 +108,12 @@
 		padding: 1em;
 	}
 
+	.actions {
+		padding-top: 0;
+	}
+
 	.content {
-		padding: 2em 2em;
+		padding: 2em;
 	}
 
 	:global(dialog > .content > :first-child) {
