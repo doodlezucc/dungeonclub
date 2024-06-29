@@ -57,6 +57,8 @@ model Campaign {
   templates        TokenTemplate[]
   boards           Board[]
 
+  selectedBoardId String?
+
   audioSfxWeather SfxWeather @default(NONE)
   audioSfxCrowd   SfxCrowd   @default(NONE)
 
