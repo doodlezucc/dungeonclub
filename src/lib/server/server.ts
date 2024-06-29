@@ -1,11 +1,13 @@
 import { PrismaClient } from '@prisma/client';
 import type { WebSocket } from 'ws';
+import { AssetManager } from './asset-manager';
 import { Connection } from './connection';
 import { IWebSocketManager, setupWebSocketServer } from './web-socket-server';
 
 export const prisma = new PrismaClient();
 
 export class Server {
+	readonly assetManager = new AssetManager();
 	readonly webSocketManager = new WebSocketManager();
 	readonly connections: Connection[] = [];
 
@@ -36,3 +38,5 @@ class WebSocketManager extends IWebSocketManager {
 		this.connections = this.connections.filter((conn) => conn !== connection);
 	}
 }
+
+export const server = new Server();

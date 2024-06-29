@@ -1,3 +1,4 @@
+import { DISABLE_PERMISSIONS } from '$env/static/private';
 import {
 	MessageSocket,
 	type Payload,
@@ -81,6 +82,7 @@ export class Connection extends MessageSocket<ServerHandledMessages, ServerSentM
 	get sessionAsOwner() {
 		const result = this.session;
 
+		if (DISABLE_PERMISSIONS) return result;
 		if (!result.isGM) throw 'Not in a session as GM';
 
 		return result;

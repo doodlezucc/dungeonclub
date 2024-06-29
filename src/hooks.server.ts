@@ -1,4 +1,3 @@
-import { Server } from '$lib/server/server';
+import { server } from '$lib/server/server';
 
-export const server = new Server();
 await server.start();

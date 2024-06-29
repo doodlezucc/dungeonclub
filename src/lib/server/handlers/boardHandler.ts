@@ -24,7 +24,7 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 
 		return await prisma.board.findFirstOrThrow({
 			where: {
-				campaign: campaign,
+				campaignId: campaign.id,
 				id: payload.id
 			},
 			include: {

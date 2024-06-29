@@ -14,11 +14,17 @@ datasource db {
 }
 
 model Asset {
-  id   String @id @default(uuid())
-  path String
+  id String @id @default(uuid())
+
+  path     String
+  fileType AssetType
 
   TokenTemplate TokenTemplate?
   Board         Board?
+}
+
+enum AssetType {
+  IMAGE
 }
 
 model Account {

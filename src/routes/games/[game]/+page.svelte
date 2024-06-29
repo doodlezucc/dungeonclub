@@ -9,7 +9,7 @@
 	import Sidebar from './Sidebar.svelte';
 
 	onMount(async () => {
-		const campaign = await $socket.request('campaignHost', { id: 'ddPlp' });
+		const campaign = await $socket.request('campaignJoin', { id: 'ddPlp' });
 
 		if (campaign) {
 			$session = new Session(campaign);
