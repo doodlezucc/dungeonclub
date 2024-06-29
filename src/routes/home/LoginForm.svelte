@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { rest } from '$lib/client/socket';
 	import Button from '$lib/kit/Button.svelte';
 	import Input from '$lib/kit/Input.svelte';
 	import Column from '$lib/kit/layout/Column.svelte';
@@ -25,8 +24,6 @@
 			const response = await $socket.logIn(emailAddress, password);
 
 			console.log('Logged in, response:', response);
-
-			$rest.get('/campaigns/mine/boards/someboardID');
 		} catch (err) {
 			if (!(err instanceof RequestError)) throw err;
 

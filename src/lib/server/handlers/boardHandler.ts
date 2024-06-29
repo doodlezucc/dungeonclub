@@ -3,22 +3,6 @@ import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
 
 export const boardHandler: CategoryHandler<BoardMessageCategory> = {
-	handleBoardCreate: async (payload, { dispatcher }) => {
-		const campaign = dispatcher.sessionAsOwner.campaign;
-
-		const board = await prisma.board.create({
-			data: {
-				campaignId: campaign.id,
-				mapImageId: 'assetid'
-			},
-			include: {
-				tokens: true
-			}
-		});
-
-		return board;
-	},
-
 	handleBoardView: async (payload, { dispatcher }) => {
 		const campaign = dispatcher.session.campaign;
 

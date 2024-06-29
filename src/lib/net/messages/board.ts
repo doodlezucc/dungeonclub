@@ -8,13 +8,6 @@ import type {
 } from './messages';
 
 export interface BoardMessageCategory {
-	boardCreate: DefinePrivateRequest<
-		{
-			name?: string;
-		},
-		BoardSnippet
-	>;
-
 	boardView: DefinePrivateRequest<
 		{
 			id: UUID;

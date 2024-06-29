@@ -1,17 +1,19 @@
 <script lang="ts">
+	import { rest } from '$lib/client/socket';
 	import Button from '$lib/kit/Button.svelte';
 	import Collection from '$lib/kit/Collection.svelte';
 	import Column from '$lib/kit/layout/Column.svelte';
 	import Container from '$lib/kit/layout/Container.svelte';
 	import Text from '$lib/kit/Text.svelte';
 	import type { BoardPreviewSnippet } from '$lib/net/snippets/board';
-	import { socket } from '$lib/stores';
 	import BoardPreview from './BoardPreview.svelte';
 
 	export let boardSnippets: BoardPreviewSnippet[] = [];
 
 	async function createNewBoard() {
-		const response = await $socket.request('boardCreate', {});
+		const response = await $rest.post('/campaigns/ddPlp/boards', {
+			body: 'thisisnowconsidereddata'
+		});
 		console.log(response);
 	}
 </script>
