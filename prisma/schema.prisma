@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Asset {
+  id   String @id @default(uuid())
+  path String
+
+  TokenTemplate TokenTemplate?
+  Board         Board?
+}
+
+model Account {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  createdAt DateTime   @default(now())
+  campaigns Campaign[]
+}
+
+model Campaign {
+  id        String   @id
+  owner     Account  @relation(fields: [ownerId], references: [id])
+  ownerId   String
+  createdAt DateTime @default(now())
+
+  playerCharacters PlayerCharacter[]
+  templates        TokenTemplate[]
+  boards           Board[]
+
+  audioSfxWeather SfxWeather
+  audioSfxCrowd   SfxCrowd
+
+  audioEffectInside Float @default(0)
+}
+
+model PlayerCharacter {
+  id String @id @default(uuid())
+
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId String
+
+  tokenTemplate   TokenTemplate @relation(fields: [tokenTemplateId], references: [id])
+  tokenTemplateId String        @unique
+}
+
+model TokenTemplate {
+  id String @id @default(uuid())
+
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId String
+
+  player PlayerCharacter?
+
+  avatar   Asset?  @relation(fields: [avatarId], references: [id])
+  avatarId String? @unique
+
+  name String
+
+  size Int @default(1)
+
+  instances Token[]
+}
+
+model Board {
+  id String @id @default(uuid())
+
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId String
+
+  mapImage   Asset  @relation(fields: [mapImageId], references: [id])
+  mapImageId String @unique
+
+  gridCellsPerRow   Int      @default(20)
+  gridPaddingTop    Float    @default(0)
+  gridPaddingBottom Float    @default(0)
+  gridPaddingLeft   Float    @default(0)
+  gridPaddingRight  Float    @default(0)
+  gridType          GridType @default(SQUARE)
+
+  tokens          Token[]
+  initiativeOrder InitiativeOrder?
+}
+
+enum GridType {
+  SQUARE
+  HEX_HORIZONTAL
+  HEX_VERTICAL
+  NONE
+}
+
+model Token {
+  id String @id @default(uuid())
+
+  board   Board  @relation(fields: [boardId], references: [id])
+  boardId String
+
+  template   TokenTemplate @relation(fields: [templateId], references: [id])
+  templateId String
+
+  label String @default("")
+  x     Float
+  y     Float
+  size  Int?
+
+  invisible  Boolean @default(false)
+  conditions Int[]
+
+  initiativeEntry InitiativeEntry?
+}
+
+model InitiativeOrder {
+  id Int @id @default(autoincrement())
+
+  board   Board  @relation(fields: [boardId], references: [id])
+  boardId String @unique
+
+  entries InitiativeEntry[]
+}
+
+model InitiativeEntry {
+  order   InitiativeOrder @relation(fields: [orderId], references: [id])
+  orderId Int
+
+  token   Token  @relation(fields: [tokenId], references: [id])
+  tokenId String @unique
+}
+
+enum SfxWeather {
+  NONE
+  RAIN
+  STORM
+}
+
+enum SfxCrowd {
+  NONE
+  TAVERN
+  MARKETPLACE
+}
