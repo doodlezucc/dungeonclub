@@ -23,6 +23,7 @@ export const BoardGridSchema = new Schema<IBoardGrid>(
 );
 
 export interface IBoard {
+	name: string;
 	background: Asset;
 	grid: IBoardGrid;
 
@@ -30,6 +31,7 @@ export interface IBoard {
 }
 
 export const BoardSchema = new Schema<IBoard>({
+	name: { type: String, default: '' },
 	background: { type: AssetType, required: true },
 	grid: {
 		type: BoardGridSchema,

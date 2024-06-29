@@ -3,7 +3,7 @@ import { PlayerTokenDefinitionSchema, type IPlayerTokenDefinition } from './toke
 import { AssetType, model, type Asset } from './util';
 
 export interface IPlayer {
-	_id: Types.ObjectId;
+	_id?: Types.ObjectId;
 	avatar?: Asset;
 	name: string;
 	tokenDefinition: IPlayerTokenDefinition;

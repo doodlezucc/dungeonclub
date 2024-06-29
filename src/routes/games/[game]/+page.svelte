@@ -4,14 +4,13 @@
 
 	import { Session } from '$lib/client/session';
 	import { session } from '$lib/client/socket';
+	import { socket } from '$lib/stores';
 	import BoardView from './BoardView.svelte';
 	import Sidebar from './Sidebar.svelte';
 
-	export let data;
+	onMount(async () => {
+		const campaign = await $socket.request('campaignHost', { id: 't78kb' });
 
-	$: campaign = data.campaign;
-
-	onMount(() => {
 		if (campaign) {
 			$session = new Session(campaign);
 		}

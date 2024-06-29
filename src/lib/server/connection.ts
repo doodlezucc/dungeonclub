@@ -90,6 +90,10 @@ export class Connection extends MessageSocket<ServerHandledMessages, ServerSentM
 		this._account = account;
 	}
 
+	onEnterSession(session: Session) {
+		this._session = session;
+	}
+
 	protected processMessage<T extends keyof ServerHandledMessages>(
 		name: T,
 		payload: Payload<ServerHandledMessages, T>

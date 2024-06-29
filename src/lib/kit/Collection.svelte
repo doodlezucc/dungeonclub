@@ -1,10 +1,4 @@
-<script lang="ts" context="module">
-	export type CollectionItem = {
-		id: any;
-	};
-</script>
-
-<script lang="ts" generics="T extends CollectionItem">
+<script lang="ts" generics="T">
 	import Row from '$lib/kit/layout/Row.svelte';
 	import { flip } from 'svelte/animate';
 	import { fly } from 'svelte/transition';
@@ -15,7 +9,7 @@
 </script>
 
 <Row gap="normal" wrap>
-	{#each modifiedItems as item, index (item?.id)}
+	{#each modifiedItems as item, index (item)}
 		<div animate:flip in:fly|global={{ y: 30, delay: 200 + index * 50 }}>
 			{#if item}
 				<slot {item} />

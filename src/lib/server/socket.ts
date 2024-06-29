@@ -1,7 +1,8 @@
 import { MessageHandler, type CategoryHandlers, type ServerHandledMessages } from '$lib/net';
 import { Connection } from './connection';
 import { accountHandler } from './handlers/accountHandler';
-import { tokensHandler } from './handlers/tokensHandler';
+import { boardHandler } from './handlers/boardHandler';
+import { campaignHandler } from './handlers/campaignHandler';
 
 export interface HandlerOptions {
 	dispatcher: Connection;
@@ -11,8 +12,8 @@ export type CategoryHandler<C> = CategoryHandlers<C, ServerHandledMessages, Hand
 
 export class ServerMessageHandler extends MessageHandler<ServerHandledMessages, HandlerOptions> {
 	account = accountHandler;
-
-	tokens = tokensHandler;
+	board = boardHandler;
+	campaign = campaignHandler;
 }
 
 export const serverMessageHandler = new ServerMessageHandler();

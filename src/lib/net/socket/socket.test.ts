@@ -19,12 +19,12 @@ it('sends and receives', async () => {
 	});
 
 	expect(response).toEqual({
-		token: {
-			label: 'Test Label',
-			position: {
-				x: 0.5,
-				y: 2.5
-			}
+		uuid: 'new uuid',
+		definition: 'someTokenDefId',
+		label: 'Test Label',
+		position: {
+			x: 0.5,
+			y: 2.5
 		}
 	} as Response<AllMessages, 'tokenCreate'>);
 });
@@ -50,13 +50,13 @@ class TestServer extends MessageSocket<_ServerHandled, ServerSentMessages> {
 	): Promise<ResponseObject<_ServerHandled, T>> {
 		console.log(`server processes ${name} with payload`, payload);
 
-		const request = payload;
+		const { position, tokenDefinition } = payload;
 
 		return publicResponse(<Response<_ServerHandled, 'tokenCreate'>>{
-			token: {
-				label: 'Test Label',
-				position: request.position
-			}
+			uuid: 'new uuid',
+			position: position,
+			definition: tokenDefinition,
+			label: 'Test Label'
 		}) as ResponseObject<_ServerHandled, T>;
 	}
 

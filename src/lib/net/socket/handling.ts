@@ -1,11 +1,12 @@
 import type {
+	AccountMessageCategory,
+	BoardMessageCategory,
+	CampaignMessageCategory,
 	IForward,
 	IMessage,
 	IResponse,
-	MarkedAsEvent,
-	TokensMessageCategory
+	MarkedAsEvent
 } from '../messages';
-import type { AccountMessageCategory } from '../messages/account';
 
 export type AsPayload<T> = T extends IMessage<infer P> ? P : never;
 export type Payload<S, T extends keyof S> = AsPayload<S[T]>;
@@ -45,12 +46,13 @@ export type CategoryHandlers<CATEGORY, HANDLED, OPTIONS> = {
 };
 
 export abstract class MessageHandler<HANDLED, OPTIONS> {
-	abstract tokens: CategoryHandlers<TokensMessageCategory, HANDLED, OPTIONS>;
 	abstract account: CategoryHandlers<AccountMessageCategory, HANDLED, OPTIONS>;
+	abstract board: CategoryHandlers<BoardMessageCategory, HANDLED, OPTIONS>;
+	abstract campaign: CategoryHandlers<CampaignMessageCategory, HANDLED, OPTIONS>;
 
 	private _allHandlers: CategoryHandlers<unknown, HANDLED, OPTIONS>[] | undefined;
 	get allHandlers() {
-		return (this._allHandlers ??= [this.tokens, this.account]);
+		return (this._allHandlers ??= [this.account, this.board, this.campaign]);
 	}
 
 	handle<T extends keyof HANDLED & string>(

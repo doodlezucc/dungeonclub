@@ -1,5 +1,8 @@
 import type { AccountMessageCategory } from './account';
-import type { TokensMessageCategory } from './tokens';
+import type { BoardMessageCategory } from './board';
+import type { CampaignMessageCategory } from './campaign';
+
+export type AllMessages = AccountMessageCategory & BoardMessageCategory & CampaignMessageCategory;
 
 export interface IMessage<P> {
 	payload: P;
@@ -25,9 +28,7 @@ export interface DefinePrivateRequest<P, R> extends IMessageForServer<P>, IRespo
 export interface DefineRequest<P, R, F> extends DefinePrivateRequest<P, R>, IForward<F> {}
 export type DefineRequestWithPublicResponse<P, R> = DefineRequest<P, R, R>;
 
-export type ID = string;
-
-export type AllMessages = TokensMessageCategory & AccountMessageCategory;
+export type UUID = string;
 
 export type PickMessages<T> = {
 	[K in keyof AllMessages as AllMessages[K] extends T ? K : never]: AllMessages[K];
