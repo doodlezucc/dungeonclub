@@ -28,12 +28,23 @@ enum AssetType {
 }
 
 model Account {
-  id       String @id @default(uuid())
-  email    String @unique
-  password String
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
 
-  createdAt DateTime   @default(now())
+  tokenInfo AccessToken?
+  token     String?      @unique
+
   campaigns Campaign[]
+}
+
+model AccessToken {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  account   Account @relation(fields: [id], references: [token])
+  accountId String  @unique
 }
 
 model Campaign {
