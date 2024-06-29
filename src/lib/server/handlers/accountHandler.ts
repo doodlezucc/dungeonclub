@@ -14,6 +14,7 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 				password: password
 			},
 			include: {
+				tokenInfo: true,
 				campaigns: {
 					select: {
 						id: true,
@@ -29,10 +30,19 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 			}
 		});
 
+		const tokenInfo =
+			account.tokenInfo ??
+			(await prisma.accessToken.create({
+				data: {
+					accountId: account.id
+				}
+			}));
+
 		dispatcher.onLogIn(account);
 
 		return {
 			account: {
+				accessToken: tokenInfo.id,
 				email,
 				campaigns: account.campaigns
 			}
@@ -51,11 +61,18 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 			}
 		});
 
+		const accessToken = await prisma.accessToken.create({
+			data: {
+				accountId: account.id
+			}
+		});
+
 		console.log('Created account', account);
 		dispatcher.onLogIn(account);
 
 		return {
 			account: {
+				accessToken: accessToken.id,
 				email,
 				campaigns: []
 			}

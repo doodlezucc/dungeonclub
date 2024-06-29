@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit';
+import { error, fail } from '@sveltejs/kit';
 import { prisma } from './server';
 
 export async function authorizedEndpoint(
@@ -29,7 +29,15 @@ export async function authorizedEndpoint(
 	try {
 		return await requirement(validToken.accountId);
 	} catch (err) {
-		console.error(err);
-		throw error(403);
+		if (err && typeof err === 'object' && 'code' in err) {
+			const errorCode = `${err.code}`;
+
+			switch (errorCode) {
+				case '2025':
+					throw error(404, `${err}`);
+			}
+		}
+
+		throw fail(500, { error: err });
 	}
 }

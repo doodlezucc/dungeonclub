@@ -34,7 +34,6 @@ model Account {
   createdAt DateTime @default(now())
 
   tokenInfo AccessToken?
-  token     String?      @unique
 
   campaigns Campaign[]
 }
@@ -43,7 +42,7 @@ model AccessToken {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 
-  account   Account @relation(fields: [id], references: [token])
+  account   Account @relation(fields: [accountId], references: [id])
   accountId String  @unique
 }
 
