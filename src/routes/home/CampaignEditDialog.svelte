@@ -14,7 +14,8 @@
 	async function save() {
 		try {
 			const commonSettings = {
-				name
+				name,
+				playerCharacters: []
 			};
 
 			let result;

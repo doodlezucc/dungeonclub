@@ -5,7 +5,6 @@
 	import { goto } from '$app/navigation';
 	import { Session } from '$lib/client/session';
 	import { account, session } from '$lib/client/socket';
-	import type { ICampaign } from '$lib/db/schemas';
 	import Button from '$lib/kit/Button.svelte';
 	import Collection from '$lib/kit/Collection.svelte';
 	import IconButton from '$lib/kit/IconButton.svelte';
@@ -15,7 +14,7 @@
 	import Row from '$lib/kit/layout/Row.svelte';
 	import type { ModalContext } from '$lib/kit/ModalProvider.svelte';
 	import Text from '$lib/kit/Text.svelte';
-	import type { CampaignCardSnippet } from '$lib/net/snippets/campaign';
+	import type { CampaignCardSnippet, CampaignSnippet } from '$lib/net/snippets/campaign';
 	import { getContext } from 'svelte';
 	import Time from 'svelte-time/Time.svelte';
 	import CampaignEditDialog from './CampaignEditDialog.svelte';
@@ -35,7 +34,7 @@
 	}
 
 	async function createCampaign() {
-		const result: ICampaign | undefined = await modal.display(CampaignEditDialog, {
+		const result: CampaignSnippet | undefined = await modal.display(CampaignEditDialog, {
 			name: ''
 		});
 

@@ -1,10 +1,10 @@
-import type { IBoard } from '$lib/db/schemas';
+import type { BoardSnippet } from '$lib/net/snippets/board';
 import type { CampaignSnippet } from '$lib/net/snippets/campaign';
 
 export class Session {
 	campaign: CampaignSnippet;
 
-	visibleBoard?: IBoard;
+	visibleBoard?: BoardSnippet;
 
 	constructor(campaign: CampaignSnippet) {
 		this.campaign = campaign;

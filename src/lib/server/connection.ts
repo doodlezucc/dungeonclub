@@ -1,4 +1,3 @@
-import type { HydratedBoard, HydratedCampaign, IAccount } from '$lib/db/schemas';
 import {
 	MessageSocket,
 	type Payload,
@@ -6,22 +5,23 @@ import {
 	type ServerHandledMessages,
 	type ServerSentMessages
 } from '$lib/net';
-import type { HydratedDocument } from 'mongoose';
+import type { Account, Board, Campaign } from '@prisma/client';
 import type { WebSocket } from 'ws';
 import { serverMessageHandler } from './socket';
 
 export class Session {
-	readonly campaign: HydratedCampaign;
+	readonly campaign: Campaign;
 	readonly isGM: boolean;
-	private _visibleBoard?: HydratedBoard;
+	private _visibleBoard?: Board;
 
-	constructor(campaign: HydratedCampaign, isGM: boolean) {
+	constructor(campaign: Campaign, isGM: boolean) {
 		this.campaign = campaign;
 		this.isGM = isGM;
 	}
 
 	get activeBoardOrNull() {
-		return this.campaign.boards.id(this.campaign.activeBoard) as HydratedBoard | null;
+		return null;
+		// return this.campaign.boards.id(this.campaign.activeBoard) as HydratedBoard | null;
 	}
 
 	get activeBoard() {
@@ -45,7 +45,7 @@ export class Connection extends MessageSocket<ServerHandledMessages, ServerSentM
 	private static utf8 = new TextDecoder('UTF-8');
 	private webSocket: WebSocket;
 
-	private _account?: HydratedDocument<IAccount>;
+	private _account?: Account;
 	private _session?: Session;
 
 	constructor(webSocket: WebSocket) {
@@ -86,7 +86,7 @@ export class Connection extends MessageSocket<ServerHandledMessages, ServerSentM
 		return result;
 	}
 
-	onLogIn(account: HydratedDocument<IAccount>) {
+	onLogIn(account: Account) {
 		this._account = account;
 	}
 

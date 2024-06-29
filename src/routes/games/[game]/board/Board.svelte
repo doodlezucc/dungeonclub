@@ -1,23 +1,23 @@
 <script lang="ts">
 	import Overlay from '$lib/kit/layout/Overlay.svelte';
-	import PanView, { type Dimensions, type Position } from '$lib/kit/PanView.svelte';
+	import PanView from '$lib/kit/PanView.svelte';
 
 	import { setContext } from 'svelte';
 
 	import { session } from '$lib/client/socket';
+	import type { Position, Size } from '$lib/compounds';
 	import BattleMap from './BattleMap.svelte';
 	import Grid from './Grid.svelte';
 	import Token from './grid/Token.svelte';
 
 	const board = $session!.visibleBoard!;
 
-	const grid = board.grid;
-	const cellsPerRow = grid.cellsPerRow;
+	const cellsPerRow = board.gridCellsPerRow;
 
 	let position: Position = { x: 0, y: 0 };
 	let zoom: number = 0;
 
-	const dimensions: Dimensions = { width: 600, height: 400 };
+	const dimensions: Size = { width: 600, height: 400 };
 
 	$: cellSize = dimensions.width / cellsPerRow;
 
@@ -31,7 +31,7 @@
 
 <PanView expand bind:position bind:zoom>
 	<div class="board" style="--cell-size: {cellSize}px">
-		<BattleMap {dimensions} />
+		<BattleMap size={dimensions} />
 
 		<Overlay>
 			<Grid />

@@ -22,8 +22,10 @@ model Asset {
 }
 
 model Account {
-  id        String     @id @default(uuid())
-  email     String     @unique
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+
   createdAt DateTime   @default(now())
   campaigns Campaign[]
 }
@@ -32,14 +34,15 @@ model Campaign {
   id        String   @id
   owner     Account  @relation(fields: [ownerId], references: [id])
   ownerId   String
+  name      String
   createdAt DateTime @default(now())
 
   playerCharacters PlayerCharacter[]
   templates        TokenTemplate[]
   boards           Board[]
 
-  audioSfxWeather SfxWeather
-  audioSfxCrowd   SfxCrowd
+  audioSfxWeather SfxWeather @default(NONE)
+  audioSfxCrowd   SfxCrowd   @default(NONE)
 
   audioEffectInside Float @default(0)
 }
@@ -77,6 +80,8 @@ model Board {
 
   campaign   Campaign @relation(fields: [campaignId], references: [id])
   campaignId String
+
+  name String @default("Untitled Board")
 
   mapImage   Asset  @relation(fields: [mapImageId], references: [id])
   mapImageId String @unique

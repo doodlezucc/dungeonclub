@@ -1,14 +1,15 @@
-import * as db from '$lib/db/mongodb';
+import { PrismaClient } from '@prisma/client';
 import type { WebSocket } from 'ws';
 import { Connection } from './connection';
 import { IWebSocketManager, setupWebSocketServer } from './web-socket-server';
+
+export const prisma = new PrismaClient();
 
 export class Server {
 	readonly webSocketManager = new WebSocketManager();
 	readonly connections: Connection[] = [];
 
 	async start() {
-		await db.connect();
 		this.webSocketManager.start();
 	}
 }

@@ -1,19 +1,11 @@
 <script lang="ts" context="module">
+	import type { Position, Size } from '$lib/compounds';
+
 	const minZoom = -1;
 	const maxZoom = 3;
 	const zoomStep = 0.25;
 
-	export type Position = {
-		x: number;
-		y: number;
-	};
-
-	export type Dimensions = {
-		width: number;
-		height: number;
-	};
-
-	function clampToBounds(position: Position, dimensions: Dimensions) {
+	function clampToBounds(position: Position, dimensions: Size) {
 		const maxX = dimensions.width / 2;
 		const maxY = dimensions.height / 2;
 		const minX = -maxX;

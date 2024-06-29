@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Position } from '$lib/kit/PanView.svelte';
+	import type { Position } from '$lib/compounds';
 
 	export let position: Position;
 

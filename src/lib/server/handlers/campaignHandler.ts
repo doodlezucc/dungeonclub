@@ -1,101 +1,79 @@
-import { Campaign } from '$lib/db/schemas';
 import type { CampaignMessageCategory } from '$lib/net';
 import { Session } from '../connection';
+import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
 
 export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	handleCampaignCreate: async ({ name }, { dispatcher }) => {
 		const account = dispatcher.loggedInAccount;
 
-		const newCampaign = await Campaign.create({
-			name,
-			id: generateCampaignID()
-		});
-
-		await account.updateOne({
-			$push: { campaigns: newCampaign._id }
+		const newCampaign = await prisma.campaign.create({
+			data: {
+				ownerId: account.id,
+				name,
+				id: generateCampaignID()
+			},
+			include: {
+				boards: true,
+				playerCharacters: true,
+				templates: true
+			}
 		});
 
 		return newCampaign;
 	},
 
-	handleCampaignEdit: async ({ id, name, players }, { dispatcher }) => {
-		const campaign = await Campaign.findOne({ id });
-
-		if (!campaign) {
-			throw 'Campaign not found';
-		}
-
-		const isOwnedByAccount = dispatcher.loggedInAccount.campaigns.some((owned) =>
-			owned._id.equals(campaign._id)
-		);
-
-		if (!isOwnedByAccount) {
-			throw 'This campaign is not owned by your account';
-		}
-
-		// TODO: delete removed characters from DB, add new characters
-
-		await campaign.updateOne({
-			$set: { name }
+	handleCampaignEdit: async ({ id, name }, { dispatcher }) => {
+		const campaign = await prisma.campaign.update({
+			where: {
+				ownerId: dispatcher.loggedInAccount.id,
+				id: id
+			},
+			data: {
+				name: name
+				// TODO: delete removed characters from DB, add new characters
+			},
+			include: {
+				playerCharacters: true
+			}
 		});
 
-		return {
-			id,
-			name,
-			players,
-			createdAt: campaign.createdAt
-		};
+		return campaign;
 	},
 
 	handleCampaignHost: async ({ id }, { dispatcher }) => {
-		const campaign = await Campaign.findOne({ id });
-
-		if (!campaign) {
-			throw 'Campaign not found';
-		}
-
-		const isOwnedByAccount = dispatcher.loggedInAccount.campaigns.some((owned) =>
-			owned._id.equals(campaign._id)
-		);
-
-		if (!isOwnedByAccount) {
-			throw 'This campaign is not owned by your account';
-		}
+		const campaign = await prisma.campaign.findFirstOrThrow({
+			where: {
+				ownerId: dispatcher.loggedInAccount.id,
+				id: id
+			},
+			include: {
+				playerCharacters: true,
+				boards: true,
+				templates: true
+			}
+		});
 
 		dispatcher.onEnterSession(new Session(campaign, true));
 
-		return {
-			id,
-			name: campaign.name,
-			players: [],
-			boards: campaign.boards.map((board) => ({
-				uuid: board.id,
-				name: board.name
-			})),
-			createdAt: campaign.createdAt
-		};
+		return campaign;
 	},
 
 	handleCampaignJoin: async ({ id }, { dispatcher }) => {
-		const campaign = await Campaign.findOne({ id });
+		const campaign = await prisma.campaign.findFirstOrThrow({
+			where: {
+				id: id
+			},
+			include: {
+				playerCharacters: true,
+				boards: true,
+				templates: true
+			}
+		});
 
-		if (!campaign) {
-			throw 'Campaign not found';
-		}
+		dispatcher.onEnterSession(new Session(campaign, true));
 
-		dispatcher.onEnterSession(new Session(campaign, false));
-
-		return {
-			id,
-			name: campaign.name,
-			players: [],
-			boards: campaign.boards.map((board) => ({
-				uuid: board.id,
-				name: board.name
-			})),
-			createdAt: campaign.createdAt
-		};
+		return campaign;
 	}
 };
 

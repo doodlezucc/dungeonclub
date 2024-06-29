@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { Dimensions } from '../PanView.svelte';
+	import type { Size } from '$lib/compounds';
 
 	export let expand = false;
-	export let size: Dimensions | undefined = undefined;
+	export let size: Size | undefined = undefined;
 </script>
 
 <div

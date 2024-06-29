@@ -1,4 +1,3 @@
-import type { ICampaign } from '$lib/db/schemas';
 import type { CampaignCardSnippet, CampaignSnippet } from '../snippets/campaign';
 import type { DefinePrivateRequest, UUID } from './messages';
 
@@ -7,7 +6,7 @@ export interface CampaignMessageCategory {
 		{
 			name: string;
 		},
-		ICampaign
+		CampaignSnippet
 	>;
 
 	campaignEdit: DefinePrivateRequest<Omit<CampaignCardSnippet, 'createdAt'>, CampaignCardSnippet>;

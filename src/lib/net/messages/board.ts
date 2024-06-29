@@ -1,4 +1,4 @@
-import type { IPosition } from '../compounds';
+import type { Position } from '../../compounds';
 import type { BoardSnippet, TokenSnippet } from '../snippets/board';
 import type {
 	DefinePrivateRequest,
@@ -17,21 +17,21 @@ export interface BoardMessageCategory {
 
 	boardView: DefinePrivateRequest<
 		{
-			uuid: UUID;
+			id: UUID;
 		},
 		BoardSnippet
 	>;
 
 	tokenCreate: DefineRequestWithPublicResponse<
 		{
-			tokenDefinition: UUID;
-			position: IPosition;
+			tokenTemplate: UUID;
+			position: Position;
 		},
 		TokenSnippet
 	>;
 
 	tokenMove: DefineSendAndForward<{
 		id: UUID;
-		position: IPosition;
+		position: Position;
 	}>;
 }

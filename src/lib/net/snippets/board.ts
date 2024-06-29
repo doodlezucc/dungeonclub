@@ -1,15 +1,16 @@
 import type { UUID } from '../messages';
 
 export interface BoardPreviewSnippet {
-	uuid: UUID;
+	id: UUID;
 	name: string;
 }
 
 export interface BoardSnippet extends BoardPreviewSnippet {
 	tokens: TokenSnippet[];
+	gridCellsPerRow: number;
 }
 
 export interface TokenSnippet {
-	uuid: UUID;
-	definition: UUID;
+	id: UUID;
+	templateId: UUID;
 }

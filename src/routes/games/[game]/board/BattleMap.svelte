@@ -1,8 +1,8 @@
 <script lang="ts">
+	import type { Size } from '$lib/compounds';
 	import Placeholder from '$lib/kit/layout/Placeholder.svelte';
-	import type { Dimensions } from '$lib/kit/PanView.svelte';
 
-	export let dimensions: Dimensions;
+	export let size: Size;
 </script>
 
-<Placeholder size={dimensions}>Battle Map</Placeholder>
+<Placeholder {size}>Battle Map</Placeholder>
