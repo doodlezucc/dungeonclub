@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { GlobalThisWSS, type ExtendedGlobal } from 'svelte-ws-server';
+import { getWebSocketServer } from 'svelte-ws-server/src/web-socket-utils';
 import type { WebSocket } from 'ws';
 import { AssetManager } from './asset-manager';
 import { Connection } from './connection';
@@ -20,7 +20,7 @@ class WebSocketManager {
 	connections: Connection[] = [];
 
 	start() {
-		const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];
+		const wss = getWebSocketServer();
 		wss.on('connection', (socket) => this.onConnect(socket));
 	}
 

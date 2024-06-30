@@ -1,38 +1,41 @@
 import type { IncomingMessage } from 'http';
 import type { Duplex } from 'stream';
-import WebSocketBase, { WebSocket, WebSocketServer } from 'ws';
+import { WebSocketServer } from 'ws';
 
 // Adapted from https://github.com/suhaildawood/SvelteKit-integrated-WebSocket
 
-export const GlobalThisWSS = Symbol.for('sveltekit.wss');
-
-declare class ExtendedWebSocket extends WebSocket {
-	socketId: string;
-}
-
-export type { ExtendedWebSocket };
-
-export type ExtendedWebSocketServer = WebSocketBase.Server<typeof ExtendedWebSocket>;
+export const globalThisWSS = Symbol.for('sveltekit.wss');
 
 export type ExtendedGlobal = typeof globalThis & {
-	[GlobalThisWSS]: ExtendedWebSocketServer;
+	[globalThisWSS]: WebSocketServer;
 };
 
-export const onHttpServerUpgrade = (req: IncomingMessage, sock: Duplex, head: Buffer) => {
-	const url = req.url ?? '';
-	if (!url.endsWith('/websocket')) return;
+export function getWebSocketServer() {
+	return (globalThis as ExtendedGlobal)[globalThisWSS];
+}
 
-	const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];
+export function makeWebSocketUpgradeHandler(webSocketPath: string) {
+	function handleHttpUpgrade(req: IncomingMessage, sock: Duplex, head: Buffer) {
+		const pathName = req.url; // req.url only returns the URL path, e.g. "/", "/home" or "/websocket"
+		if (pathName !== webSocketPath) {
+			// Ignore any upgrade requests which don't match the specified path
+			return;
+		}
 
-	wss.handleUpgrade(req, sock, head, (ws) => {
-		wss.emit('connection', ws, req);
-	});
-};
+		const wss = getWebSocketServer();
+
+		wss.handleUpgrade(req, sock, head, (ws) => {
+			wss.emit('connection', ws, req);
+		});
+	}
+
+	return handleHttpUpgrade;
+}
 
 export const createWSSGlobalInstance = () => {
-	const wss = new WebSocketServer({ noServer: true }) as ExtendedWebSocketServer;
+	const wss = new WebSocketServer({ noServer: true });
 
-	(globalThis as ExtendedGlobal)[GlobalThisWSS] = wss;
+	(globalThis as ExtendedGlobal)[globalThisWSS] = wss;
 
 	return wss;
 };

@@ -1,9 +1,11 @@
-import { GlobalThisWSS, type ExtendedGlobal } from './web-socket-utils.js';
+import { globalThisWSS, type ExtendedGlobal } from './web-socket-utils.js';
+
+// Adapted from https://github.com/suhaildawood/SvelteKit-integrated-WebSocket
 
 let wssInitialized = false;
 export const setupWebsocketServer = () => {
 	if (wssInitialized) return;
-	const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];
+	const wss = (globalThis as ExtendedGlobal)[globalThisWSS];
 
 	if (wss !== undefined) {
 		const listeners = wss.listeners('connection');

@@ -19,8 +19,7 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 	constructor() {
 		super({ unready: true });
 
-		const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-		const ws = new WebSocket(`${protocol}//${window.location.host}/websocket`);
+		const ws = connectToWebSocketServer();
 
 		ws.addEventListener('open', () => {
 			console.log('Connection opened!');
@@ -60,4 +59,9 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 	protected sendOutgoingMessage(encodedMessage: string): void {
 		this.webSocket.send(encodedMessage);
 	}
+}
+
+function connectToWebSocketServer() {
+	const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+	return new WebSocket(`${protocol}//${window.location.host}/websocket`);
 }
