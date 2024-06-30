@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "Dungeon Club"
+		},
+		{
+			"path": "packages/component-library/src/lib",
+			"name": "UI Component Library"
+		}
+	],
+	"settings": {}
+}
