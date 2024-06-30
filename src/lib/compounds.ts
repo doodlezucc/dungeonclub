@@ -1,5 +1,3 @@
-import type { Position, Rect, Size } from "components/compounds";
+import type { Position, Rect, Size } from 'components/compounds';
 
-export type {
-	Position, Rect, Size
-};
+export type { Position, Rect, Size };

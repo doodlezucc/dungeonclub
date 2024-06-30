@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { socket } from '$lib/client/communication';
 	import { displayErrorDialog } from '$lib/client/components/modal';
-	import { socket } from '$lib/stores';
 	import { Button, Input } from 'components';
 	import { Dialog, type ModalContext } from 'components/modal';
 	import { getContext } from 'svelte';

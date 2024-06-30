@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { ClientSocket } from '$lib/client/socket';
-	import { socket } from '$lib/stores';
+	import { ClientSocket, socket } from '$lib/client/communication';
 
 	if (browser) {
 		socket.update((socket) => {

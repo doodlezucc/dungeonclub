@@ -1,12 +1,36 @@
 {
 	"folders": [
 		{
-			"path": ".",
-			"name": "Dungeon Club"
+			"name": "<root>",
+			"path": "."
 		},
 		{
-			"path": "packages/component-library/src/lib",
-			"name": "UI Component Library"
+			"name": "Web",
+			"path": "src/routes"
+		},
+		{
+			"name": "Web: Styling",
+			"path": "src/styles"
+		},
+		{
+			"name": "Web: Component Library",
+			"path": "packages/component-library/src/lib"
+		},
+		{
+			"name": "Web: Logic",
+			"path": "src/lib/client"
+		},
+		{
+			"name": "Server/Web Communication",
+			"path": "src/lib/net"
+		},
+		{
+			"name": "Server",
+			"path": "src/lib/server"
+		},
+		{
+			"name": "Database",
+			"path": "prisma"
 		}
 	],
 	"settings": {}

@@ -3,8 +3,8 @@
 
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Session } from '$lib/client/session';
-	import { account, session } from '$lib/client/socket';
+	import { account, session } from '$lib/client/communication';
+	import { Session } from '$lib/client/state';
 	import type { CampaignCardSnippet, CampaignSnippet } from '$lib/net/snippets/campaign';
 	import { Button, Collection, IconButton, Text } from 'components';
 	import { Center, Column, Container, Row } from 'components/layout';

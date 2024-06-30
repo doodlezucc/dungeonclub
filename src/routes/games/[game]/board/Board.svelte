@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { setContext } from 'svelte';
 
-	import { session } from '$lib/client/socket';
+	import { session } from '$lib/client/communication';
 	import type { Position, Size } from '$lib/compounds';
 	import { PanView } from 'components';
 	import { Overlay } from 'components/layout';

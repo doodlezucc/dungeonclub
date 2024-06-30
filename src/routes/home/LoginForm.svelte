@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { socket } from '$lib/client/communication';
 	import { RequestError } from '$lib/net';
-	import { socket } from '$lib/stores';
 	import { Button, Input } from 'components';
 	import { Column, Container } from 'components/layout';
 	import { fly } from 'svelte/transition';

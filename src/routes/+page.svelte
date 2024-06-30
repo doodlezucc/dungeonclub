@@ -1,5 +1,5 @@
 <script>
-	import { account } from '$lib/client/socket';
+	import { account } from '$lib/client/communication';
 	import { Content } from 'components';
 	import { Row } from 'components/layout';
 	import { onMount } from 'svelte';

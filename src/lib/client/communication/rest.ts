@@ -1,3 +1,4 @@
+import { readable } from 'svelte/store';
 import { account } from './socket';
 
 interface RequestOptions {
@@ -50,3 +51,5 @@ export class RestConnection {
 		return this.request('POST', endpoint, options);
 	}
 }
+
+export const rest = readable(new RestConnection());

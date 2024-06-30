@@ -1,5 +1,5 @@
 <script>
-	import { ModalProvider } from 'components';
+	import { ModalProvider } from 'components/modal';
 	import '../styles/style.scss';
 	import Header from './Header.svelte';
 	import SocketProvider from './SocketProvider.svelte';

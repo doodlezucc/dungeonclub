@@ -4,14 +4,14 @@ import {
 	type ClientSentMessages,
 	type ResponseObject
 } from '$lib/net';
-import { readable, writable } from 'svelte/store';
-import { Account } from './account';
-import { RestConnection } from './rest';
-import { Session } from './session';
+import { writable } from 'svelte/store';
+import { Account } from '../state/account';
+import { Session } from '../state/session';
 
 export const account = writable<Account | null>(null);
 export const session = writable<Session | null>(null);
-export const rest = readable(new RestConnection());
+
+export const socket = writable<ClientSocket>(undefined);
 
 export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSentMessages> {
 	private readonly webSocket: WebSocket;

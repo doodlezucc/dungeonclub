@@ -17,6 +17,8 @@
 </script>
 
 <script lang="ts">
+	import { browser } from '$app/environment';
+
 	import { setContext, SvelteComponent } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
@@ -42,16 +44,18 @@
 		});
 	}
 
-	setContext<ModalContext>('modal', {
-		display: display,
+	if (browser) {
+		setContext<ModalContext>('modal', {
+			display: display,
 
-		pop: (result) => {
-			const topModal = $stack.at(-1);
-			topModal?.callback(result);
+			pop: (result) => {
+				const topModal = $stack.at(-1);
+				topModal?.callback(result);
 
-			$stack = $stack.slice(0, $stack.length - 1);
-		}
-	});
+				$stack = $stack.slice(0, $stack.length - 1);
+			}
+		});
+	}
 </script>
 
 <slot />
