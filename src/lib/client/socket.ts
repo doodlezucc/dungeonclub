@@ -1,4 +1,3 @@
-import { PUBLIC_WEBSOCKET_URL } from '$env/static/public';
 import {
 	MessageSocket,
 	type ClientHandledMessages,
@@ -20,7 +19,9 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 	constructor() {
 		super({ unready: true });
 
-		const ws = new WebSocket(PUBLIC_WEBSOCKET_URL);
+		const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		const ws = new WebSocket(`${protocol}//${window.location.host}/websocket`);
+
 		ws.addEventListener('open', () => {
 			console.log('Connection opened!');
 			this.markAsReady();

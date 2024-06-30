@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import type { WebSocket } from 'ws';
 import { AssetManager } from './asset-manager';
 import { Connection } from './connection';
-import { IWebSocketManager, setupWebSocketServer } from './web-socket-server';
+import { GlobalThisWSS, type ExtendedGlobal } from './web-socket-utils';
 
 export const prisma = new PrismaClient();
 
@@ -16,11 +16,12 @@ export class Server {
 	}
 }
 
-class WebSocketManager extends IWebSocketManager {
+class WebSocketManager {
 	connections: Connection[] = [];
 
 	start() {
-		setupWebSocketServer();
+		const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];
+		wss.on('connection', (socket) => this.onConnect(socket));
 	}
 
 	onConnect(socket: WebSocket) {
