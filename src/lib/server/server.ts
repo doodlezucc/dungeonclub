@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
+import { GlobalThisWSS, type ExtendedGlobal } from 'svelte-ws-server';
 import type { WebSocket } from 'ws';
 import { AssetManager } from './asset-manager';
 import { Connection } from './connection';
-import { GlobalThisWSS, type ExtendedGlobal } from './web-socket-utils';
 
 export const prisma = new PrismaClient();
 

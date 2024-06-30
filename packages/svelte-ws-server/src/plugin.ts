@@ -1,9 +1,9 @@
 import type { Plugin } from 'vite';
-import { createWSSGlobalInstance, onHttpServerUpgrade } from '../lib/server/web-socket-utils';
+import { createWSSGlobalInstance, onHttpServerUpgrade } from './web-socket-utils.js';
 
 export function webSocketServer(): Plugin {
 	return {
-		name: 'integratedWebsocketServer',
+		name: 'Web Socket Server',
 		configureServer(server) {
 			createWSSGlobalInstance();
 			server.httpServer?.on('upgrade', onHttpServerUpgrade);

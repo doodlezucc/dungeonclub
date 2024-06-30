@@ -13,6 +13,7 @@
 		"format": "prettier --write .",
 		"generate": "prisma generate",
 		"hardsync": "prisma db push",
+		"preinstall": "cd packages/svelte-ws-server && npm run build",
 		"postinstall": "npm run generate"
 	},
 	"devDependencies": {
@@ -46,6 +47,7 @@
 	"type": "module",
 	"dependencies": {
 		"@prisma/client": "^5.16.1",
+		"svelte-ws-server": "file:packages/svelte-ws-server",
 		"ws": "^8.13.0"
 	}
 }

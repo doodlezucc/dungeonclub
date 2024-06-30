@@ -19,8 +19,8 @@ export type ExtendedGlobal = typeof globalThis & {
 };
 
 export const onHttpServerUpgrade = (req: IncomingMessage, sock: Duplex, head: Buffer) => {
-	const pathname = new URL(req.url!).pathname;
-	if (pathname !== '/websocket') return;
+	const url = req.url ?? '';
+	if (!url.endsWith('/websocket')) return;
 
 	const wss = (globalThis as ExtendedGlobal)[GlobalThisWSS];
 
