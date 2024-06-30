@@ -1,5 +1,5 @@
-import { createWSSGlobalInstance, onHttpServerUpgrade } from '$lib/server/web-socket-utils';
 import type { Plugin } from 'vite';
+import { createWSSGlobalInstance, onHttpServerUpgrade } from '../lib/server/web-socket-utils';
 
 export function webSocketServer(): Plugin {
 	return {
