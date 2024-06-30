@@ -25,6 +25,10 @@
 		"./compounds": {
 			"types": "./dist/compounds.d.ts",
 			"svelte": "./dist/compounds.js"
+		},
+		"./modal": {
+			"types": "./dist/modal/index.d.ts",
+			"svelte": "./dist/modal/index.js"
 		}
 	},
 	"files": [

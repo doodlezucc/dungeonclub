@@ -5,8 +5,6 @@
 			props: PROPS
 		) => Promise<T>;
 
-		displayError: (error: unknown) => Promise<void>;
-
 		pop: <T>(result?: T) => void;
 	};
 
@@ -22,7 +20,6 @@
 	import { setContext, SvelteComponent } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
-	import ErrorDialog from './ErrorDialog.svelte';
 
 	const stack = writable<Modal<any, any>[]>([]);
 
@@ -47,8 +44,6 @@
 
 	setContext<ModalContext>('modal', {
 		display: display,
-
-		displayError: (error: unknown) => display(ErrorDialog, { error }),
 
 		pop: (result) => {
 			const topModal = $stack.at(-1);

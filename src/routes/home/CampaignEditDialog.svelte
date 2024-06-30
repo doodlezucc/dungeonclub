@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { displayErrorDialog } from '$lib/client/components/modal';
 	import { socket } from '$lib/stores';
-	import { Button, Dialog, Input, type ModalContext } from 'components';
+	import { Button, Input } from 'components';
+	import { Dialog, type ModalContext } from 'components/modal';
 	import { getContext } from 'svelte';
 
 	export let id: string | undefined = undefined;
@@ -27,7 +29,7 @@
 
 			modal.pop(result);
 		} catch (err) {
-			modal.displayError(err);
+			displayErrorDialog(modal, err);
 		}
 	}
 </script>

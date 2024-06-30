@@ -6,8 +6,9 @@
 	import { Session } from '$lib/client/session';
 	import { account, session } from '$lib/client/socket';
 	import type { CampaignCardSnippet, CampaignSnippet } from '$lib/net/snippets/campaign';
-	import { Button, Collection, IconButton, Text, type ModalContext } from 'components';
+	import { Button, Collection, IconButton, Text } from 'components';
 	import { Center, Column, Container, Row } from 'components/layout';
+	import type { ModalContext } from 'components/modal';
 	import { getContext } from 'svelte';
 	import Time from 'svelte-time/Time.svelte';
 	import CampaignEditDialog from './CampaignEditDialog.svelte';

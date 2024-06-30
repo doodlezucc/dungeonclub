@@ -1,9 +1,7 @@
 <script lang="ts">
+	import { Button, Text } from 'components';
+	import { Dialog, type ModalContext } from 'components/modal';
 	import { getContext } from 'svelte';
-	import Button from './Button.svelte';
-	import Dialog from './Dialog.svelte';
-	import type { ModalContext } from './ModalProvider.svelte';
-	import Text from './Text.svelte';
 
 	export let error: unknown;
 

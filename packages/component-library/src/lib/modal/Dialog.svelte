@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
 	import { fly } from 'svelte/transition';
-	import IconButton from './IconButton.svelte';
-	import Row from './layout/Row.svelte';
-	import Separator from './layout/Separator.svelte';
+	import IconButton from '../IconButton.svelte';
+	import Row from '../layout/Row.svelte';
+	import Separator from '../layout/Separator.svelte';
+	import Text from '../Text.svelte';
 	import type { ModalContext } from './ModalProvider.svelte';
-	import Text from './Text.svelte';
 
 	export let title: string;
 	export let disableCloseButton: boolean = false;
