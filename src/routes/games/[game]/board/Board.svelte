@@ -1,11 +1,10 @@
 <script lang="ts">
-	import Overlay from '$lib/kit/layout/Overlay.svelte';
-	import PanView from '$lib/kit/PanView.svelte';
-
 	import { setContext } from 'svelte';
 
 	import { session } from '$lib/client/socket';
 	import type { Position, Size } from '$lib/compounds';
+	import { PanView } from 'components';
+	import { Overlay } from 'components/layout';
 	import BattleMap from './BattleMap.svelte';
 	import Grid from './Grid.svelte';
 	import Token from './grid/Token.svelte';

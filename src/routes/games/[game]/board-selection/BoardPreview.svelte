@@ -1,8 +1,6 @@
 <script lang="ts">
-	import Button from '$lib/kit/Button.svelte';
-	import Column from '$lib/kit/layout/Column.svelte';
-	import Container from '$lib/kit/layout/Container.svelte';
-	import Text from '$lib/kit/Text.svelte';
+	import { Button, Text } from 'components';
+	import { Column, Container } from 'components/layout';
 
 	export let name: string;
 </script>

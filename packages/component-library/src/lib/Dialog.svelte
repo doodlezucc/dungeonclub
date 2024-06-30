@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { getContext } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import IconButton from './IconButton.svelte';
 	import Row from './layout/Row.svelte';
@@ -12,13 +12,6 @@
 	export let closeButtonResult: unknown = undefined;
 
 	const modal = getContext<ModalContext>('modal');
-
-	const dispatch = createEventDispatcher();
-
-	function closeDialog() {
-		dispatch('close');
-		modal.pop(null);
-	}
 
 	export function trapFocus(node: HTMLElement) {
 		const previous = document.activeElement as HTMLElement | null;

@@ -1,7 +1,7 @@
 <script lang="ts" generics="T">
-	import Row from '$lib/kit/layout/Row.svelte';
 	import { flip } from 'svelte/animate';
 	import { fly } from 'svelte/transition';
+	import Row from './layout/Row.svelte';
 
 	export let items: Array<T>;
 

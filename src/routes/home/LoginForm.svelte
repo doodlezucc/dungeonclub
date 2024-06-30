@@ -1,10 +1,8 @@
 <script lang="ts">
-	import Button from '$lib/kit/Button.svelte';
-	import Input from '$lib/kit/Input.svelte';
-	import Column from '$lib/kit/layout/Column.svelte';
-	import Container from '$lib/kit/layout/Container.svelte';
 	import { RequestError } from '$lib/net';
 	import { socket } from '$lib/stores';
+	import { Button, Input } from 'components';
+	import { Column, Container } from 'components/layout';
 	import { fly } from 'svelte/transition';
 
 	$: emailAddress = '';

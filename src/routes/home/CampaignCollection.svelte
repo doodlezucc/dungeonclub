@@ -5,16 +5,9 @@
 	import { goto } from '$app/navigation';
 	import { Session } from '$lib/client/session';
 	import { account, session } from '$lib/client/socket';
-	import Button from '$lib/kit/Button.svelte';
-	import Collection from '$lib/kit/Collection.svelte';
-	import IconButton from '$lib/kit/IconButton.svelte';
-	import Center from '$lib/kit/layout/Center.svelte';
-	import Column from '$lib/kit/layout/Column.svelte';
-	import Container from '$lib/kit/layout/Container.svelte';
-	import Row from '$lib/kit/layout/Row.svelte';
-	import type { ModalContext } from '$lib/kit/ModalProvider.svelte';
-	import Text from '$lib/kit/Text.svelte';
 	import type { CampaignCardSnippet, CampaignSnippet } from '$lib/net/snippets/campaign';
+	import { Button, Collection, IconButton, Text, type ModalContext } from 'components';
+	import { Center, Column, Container, Row } from 'components/layout';
 	import { getContext } from 'svelte';
 	import Time from 'svelte-time/Time.svelte';
 	import CampaignEditDialog from './CampaignEditDialog.svelte';

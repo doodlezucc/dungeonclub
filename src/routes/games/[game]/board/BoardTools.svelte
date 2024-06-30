@@ -1,6 +1,6 @@
 <script>
-	import Button from '$lib/kit/Button.svelte';
-	import Column from '$lib/kit/layout/Column.svelte';
+	import { Button } from 'components';
+	import { Column } from 'components/layout';
 </script>
 
 <Column gap="normal">

@@ -1,9 +1,6 @@
 <script lang="ts">
-	import Button from '$lib/kit/Button.svelte';
-	import Dialog from '$lib/kit/Dialog.svelte';
-	import Input from '$lib/kit/Input.svelte';
-	import type { ModalContext } from '$lib/kit/ModalProvider.svelte';
 	import { socket } from '$lib/stores';
+	import { Button, Dialog, Input, type ModalContext } from 'components';
 	import { getContext } from 'svelte';
 
 	export let id: string | undefined = undefined;

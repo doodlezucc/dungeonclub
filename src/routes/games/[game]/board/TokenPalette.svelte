@@ -1,5 +1,5 @@
 <script>
-	import Placeholder from '$lib/kit/layout/Placeholder.svelte';
+	import { Placeholder } from 'components/layout';
 </script>
 
 <Placeholder>Token Palette</Placeholder>

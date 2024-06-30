@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { rest, session } from '$lib/client/socket';
-	import Button from '$lib/kit/Button.svelte';
-	import Collection from '$lib/kit/Collection.svelte';
-	import Column from '$lib/kit/layout/Column.svelte';
-	import Container from '$lib/kit/layout/Container.svelte';
-	import Text from '$lib/kit/Text.svelte';
+	import { Button, Collection, Text } from 'components';
+	import { Column, Container } from 'components/layout';
 	import BoardPreview from './BoardPreview.svelte';
 
 	$: boardSnippets = $session?.campaign.boards;

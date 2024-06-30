@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Text from '$lib/kit/Text.svelte';
+	import { Text } from 'components';
 	import CampaignCollection from './CampaignCollection.svelte';
 </script>
 

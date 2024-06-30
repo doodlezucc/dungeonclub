@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Row from '$lib/kit/layout/Row.svelte';
 	import { onMount } from 'svelte';
 
 	import { Session } from '$lib/client/session';
 	import { session } from '$lib/client/socket';
 	import { socket } from '$lib/stores';
+	import { Row } from 'components/layout';
 	import BoardView from './BoardView.svelte';
 	import Sidebar from './Sidebar.svelte';
 

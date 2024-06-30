@@ -1,7 +1,7 @@
 <script>
 	import { account } from '$lib/client/socket';
-	import Content from '$lib/kit/Content.svelte';
-	import Row from '$lib/kit/layout/Row.svelte';
+	import { Content } from 'components';
+	import { Row } from 'components/layout';
 	import { onMount } from 'svelte';
 	import { fly, slide } from 'svelte/transition';
 	import AccountContent from './home/AccountContent.svelte';

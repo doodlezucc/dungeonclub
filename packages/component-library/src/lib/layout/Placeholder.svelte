@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Size } from '$lib/compounds';
+	import type { Size } from '$lib/compounds.js';
 
 	export let expand = false;
 	export let size: Size | undefined = undefined;

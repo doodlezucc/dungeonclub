@@ -1,7 +1,6 @@
 <script>
 	import { session } from '$lib/client/socket';
-	import Align from '$lib/kit/layout/Align.svelte';
-	import Stack from '$lib/kit/layout/Stack.svelte';
+	import { Align, Stack } from 'components/layout';
 	import { onMount } from 'svelte';
 	import BoardSelection from './board-selection/BoardSelection.svelte';
 	import Board from './board/Board.svelte';

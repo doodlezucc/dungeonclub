@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-	import type { Position, Size } from '$lib/compounds';
+	import type { Position, Size } from '$lib/compounds.js';
 
 	const minZoom = -1;
 	const maxZoom = 3;
@@ -94,7 +94,7 @@
 	class="pan-view"
 	class:expand
 	on:pointerdown={startPanning}
-	on:mousewheel={handleMouseWheel}
+	on:wheel={handleMouseWheel}
 	style="--x: {position.x}; --y: {position.y}; --scale: {scale};"
 >
 	<div class="panned" bind:clientWidth={dimensions.width} bind:clientHeight={dimensions.height}>

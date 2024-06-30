@@ -1,10 +1,10 @@
 <script lang="ts" context="module">
 	export type Padding = 'big';
-	export type Margin = 'big';
+	export type ContainerMargin = 'big';
 </script>
 
 <script lang="ts">
-	export let margin: Margin | undefined = undefined;
+	export let margin: ContainerMargin | undefined = undefined;
 	export let padding: Padding | undefined = undefined;
 </script>
 

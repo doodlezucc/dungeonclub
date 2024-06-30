@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Size } from '$lib/compounds';
-	import Placeholder from '$lib/kit/layout/Placeholder.svelte';
+	import { Placeholder } from 'components/layout';
 
 	export let size: Size;
 </script>
