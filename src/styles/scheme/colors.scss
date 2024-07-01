@@ -52,6 +52,11 @@ body {
 	--color-input-outline: var(--color-shade-mid);
 }
 
+body {
+	background-color: var(--color-background);
+	color: var(--color-text);
+}
+
 button.action {
 	--color-button: var(--action-color-button);
 	--color-button-hover: var(--action-color-button-hover);

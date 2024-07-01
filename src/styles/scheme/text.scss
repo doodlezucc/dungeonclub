@@ -10,6 +10,16 @@
 	margin: 0;
 }
 
+body {
+	@extend %font-paragraph;
+}
+
+h1,
+h2,
+h3 {
+	@extend %font-heading;
+}
+
 .subtitle {
 	color: var(--color-shade-pale);
 }

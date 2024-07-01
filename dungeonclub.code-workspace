@@ -1,36 +1,28 @@
 {
 	"folders": [
 		{
-			"name": "<root>",
-			"path": "."
+			"name": "database",
+			"path": "prisma"
 		},
 		{
-			"name": "Web",
+			"name": "lib",
+			"path": "src/lib"
+		},
+		{
+			"name": "routes",
 			"path": "src/routes"
 		},
 		{
-			"name": "Web: Styling",
+			"name": "style",
 			"path": "src/styles"
 		},
 		{
-			"name": "Web: Component Library",
+			"name": "components",
 			"path": "packages/component-library/src/lib"
 		},
 		{
-			"name": "Web: Logic",
-			"path": "src/lib/client"
-		},
-		{
-			"name": "Server/Web Communication",
-			"path": "src/lib/net"
-		},
-		{
-			"name": "Server",
-			"path": "src/lib/server"
-		},
-		{
-			"name": "Database",
-			"path": "prisma"
+			"name": "<root>",
+			"path": "."
 		}
 	],
 	"settings": {}
