@@ -5,11 +5,7 @@ import {
 	type ResponseObject
 } from '$lib/net';
 import { writable } from 'svelte/store';
-import { Account } from '../state/account';
-import { Session } from '../state/session';
-
-export const account = writable<Account | null>(null);
-export const session = writable<Session | null>(null);
+import { Account, account } from '../state/account';
 
 export const socket = writable<ClientSocket>(undefined);
 

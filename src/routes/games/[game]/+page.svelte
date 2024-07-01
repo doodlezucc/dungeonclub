@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	import { session, socket } from '$lib/client/communication';
-	import { Session } from '$lib/client/state';
+	import { socket } from '$lib/client/communication';
+	import { session, Session } from '$lib/client/state';
 	import { Row } from 'components/layout';
 	import BoardView from './BoardView.svelte';
 	import Sidebar from './Sidebar.svelte';

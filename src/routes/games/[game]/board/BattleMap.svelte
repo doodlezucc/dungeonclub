@@ -2,7 +2,10 @@
 	import type { Size } from '$lib/compounds';
 	import { Placeholder } from 'components/layout';
 
-	export let size: Size;
+	export const size: Size = {
+		width: 600,
+		height: 400
+	};
 </script>
 
 <Placeholder {size}>Battle Map</Placeholder>

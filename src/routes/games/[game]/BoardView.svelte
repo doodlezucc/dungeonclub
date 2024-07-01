@@ -1,5 +1,5 @@
 <script>
-	import { session } from '$lib/client/communication';
+	import { session } from '$lib/client/state';
 	import { Align, Stack } from 'components/layout';
 	import { onMount } from 'svelte';
 	import BoardSelection from './board-selection/BoardSelection.svelte';

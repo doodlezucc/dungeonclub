@@ -1,5 +1,5 @@
 import { readable } from 'svelte/store';
-import { account } from './socket';
+import { account } from '../state';
 
 interface RequestOptions {
 	params?: Record<string, string>;

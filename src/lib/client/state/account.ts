@@ -1,4 +1,7 @@
 import type { CampaignCardSnippet } from '$lib/net/snippets/campaign';
+import { writable } from 'svelte/store';
+
+export const account = writable<Account | null>(null);
 
 export class Account {
 	accessToken: string;

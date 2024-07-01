@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import type { Size } from 'components/compounds';
 
-	const { cellsPerRow, dimensions } = getContext('board');
+	export let dimensions: Size;
+	export let cellsPerRow: number;
 
 	$: cellSize = dimensions.width / cellsPerRow;
 	$: numberOfRows = Math.floor(dimensions.height / cellSize);

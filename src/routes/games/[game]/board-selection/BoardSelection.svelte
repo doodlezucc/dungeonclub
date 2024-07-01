@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { rest, session } from '$lib/client/communication';
+	import { rest } from '$lib/client/communication';
+	import { session } from '$lib/client/state';
 	import { Button, Collection, Text } from 'components';
 	import { Column, Container } from 'components/layout';
 	import BoardPreview from './BoardPreview.svelte';
