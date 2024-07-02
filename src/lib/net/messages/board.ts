@@ -1,5 +1,5 @@
 import type { Position } from '../../compounds';
-import type { BoardSnippet, TokenSnippet } from '../snippets/board';
+import type { BoardSnippet, TokenSnippet } from '../snippets';
 import type {
 	DefinePrivateRequest,
 	DefineRequestWithPublicResponse,

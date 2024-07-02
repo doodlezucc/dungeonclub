@@ -22,10 +22,11 @@ it('sends and receives', async () => {
 		id: 'new uuid',
 		templateId: 'someTokenDefId',
 		label: 'Test Label',
-		position: {
-			x: 0.5,
-			y: 2.5
-		}
+		conditions: [],
+		invisible: false,
+		size: 1,
+		x: 0.5,
+		y: 2.5
 	} as Response<AllMessages, 'tokenCreate'>);
 });
 
@@ -54,9 +55,12 @@ class TestServer extends MessageSocket<_ServerHandled, ServerSentMessages> {
 
 		return publicResponse(<Response<_ServerHandled, 'tokenCreate'>>{
 			id: 'new uuid',
-			position: position,
 			templateId: tokenDefinition,
-			label: 'Test Label'
+			label: 'Test Label',
+			conditions: [],
+			invisible: false,
+			size: 1,
+			...position
 		}) as ResponseObject<_ServerHandled, T>;
 	}
 

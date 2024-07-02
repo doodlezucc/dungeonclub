@@ -1,24 +1,20 @@
 import type { CampaignMessageCategory } from '$lib/net';
-import { Session } from '../connection';
+import { SelectCampaign } from '../../net/snippets';
 import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
 
 export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	handleCampaignCreate: async ({ name }, { dispatcher }) => {
-		const account = dispatcher.loggedInAccount;
-
 		const newCampaign = await prisma.campaign.create({
 			data: {
-				ownerId: account.id,
+				ownerId: dispatcher.loggedInAccountId,
 				name,
 				id: generateCampaignID()
 			},
-			include: {
-				boards: true,
-				playerCharacters: true,
-				templates: true
-			}
+			select: SelectCampaign
 		});
+
+		dispatcher.enterSession(newCampaign.id, { isGM: true });
 
 		return newCampaign;
 	},
@@ -26,16 +22,14 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	handleCampaignEdit: async ({ id, name }, { dispatcher }) => {
 		const campaign = await prisma.campaign.update({
 			where: {
-				ownerId: dispatcher.loggedInAccount.id,
+				ownerId: dispatcher.loggedInAccountId,
 				id: id
 			},
 			data: {
 				name: name
 				// TODO: delete removed characters from DB, add new characters
 			},
-			include: {
-				playerCharacters: true
-			}
+			select: SelectCampaign
 		});
 
 		return campaign;
@@ -44,17 +38,13 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	handleCampaignHost: async ({ id }, { dispatcher }) => {
 		const campaign = await prisma.campaign.findFirstOrThrow({
 			where: {
-				ownerId: dispatcher.loggedInAccount.id,
+				ownerId: dispatcher.loggedInAccountId,
 				id: id
 			},
-			include: {
-				playerCharacters: true,
-				boards: true,
-				templates: true
-			}
+			select: SelectCampaign
 		});
 
-		dispatcher.onEnterSession(new Session(campaign, true));
+		dispatcher.enterSession(id, { isGM: true });
 
 		return campaign;
 	},
@@ -64,14 +54,10 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 			where: {
 				id: id
 			},
-			include: {
-				playerCharacters: true,
-				boards: true,
-				templates: true
-			}
+			select: SelectCampaign
 		});
 
-		dispatcher.onEnterSession(new Session(campaign, true));
+		dispatcher.enterSession(id, { isGM: false });
 
 		return campaign;
 	}

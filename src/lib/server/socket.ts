@@ -1,8 +1,8 @@
 import { MessageHandler, type CategoryHandlers, type ServerHandledMessages } from '$lib/net';
 import { Connection } from './connection';
-import { accountHandler } from './handlers/accountHandler';
-import { boardHandler } from './handlers/boardHandler';
-import { campaignHandler } from './handlers/campaignHandler';
+import { accountHandler } from './handlers/account-handler';
+import { boardHandler } from './handlers/board-handler';
+import { campaignHandler } from './handlers/campaign-handler';
 
 export interface HandlerOptions {
 	dispatcher: Connection;

@@ -1,3 +1,4 @@
+import { SelectBoard } from '$lib/net/snippets.js';
 import { authorizedEndpoint } from '$lib/server/rest.js';
 import { prisma, server } from '$lib/server/server.js';
 import { error, json } from '@sveltejs/kit';
@@ -20,7 +21,8 @@ export const POST = ({ params: { campaignId }, request }) =>
 			data: {
 				campaignId: campaignId,
 				mapImageId: asset.id
-			}
+			},
+			select: SelectBoard
 		});
 
 		return json(board);

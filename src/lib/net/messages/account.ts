@@ -1,4 +1,4 @@
-import type { AccountSnippet } from '../snippets/account';
+import type { AccountSnippet } from '../snippets';
 import type { DefinePrivateRequest } from './messages';
 
 export interface AccountMessageCategory {

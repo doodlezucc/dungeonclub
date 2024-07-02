@@ -6,17 +6,17 @@ import {
 	type ServerHandledMessages,
 	type ServerSentMessages
 } from '$lib/net';
-import type { Account, Board, Campaign } from '@prisma/client';
+import type { Board } from '@prisma/client';
 import type { WebSocket } from 'ws';
 import { serverMessageHandler } from './socket';
 
 export class Session {
-	readonly campaign: Campaign;
+	readonly campaignId: string;
 	readonly isGM: boolean;
 	private _visibleBoard?: Board;
 
-	constructor(campaign: Campaign, isGM: boolean) {
-		this.campaign = campaign;
+	constructor(campaignId: string, isGM: boolean) {
+		this.campaignId = campaignId;
 		this.isGM = isGM;
 	}
 
@@ -42,11 +42,15 @@ export class Session {
 	}
 }
 
+interface EnterSessionOptions {
+	isGM: boolean;
+}
+
 export class Connection extends MessageSocket<ServerHandledMessages, ServerSentMessages> {
 	private static utf8 = new TextDecoder('UTF-8');
 	private webSocket: WebSocket;
 
-	private _account?: Account;
+	private _accountId?: string;
 	private _session?: Session;
 
 	constructor(webSocket: WebSocket) {
@@ -59,18 +63,18 @@ export class Connection extends MessageSocket<ServerHandledMessages, ServerSentM
 		});
 	}
 
-	get account() {
-		return this._account;
+	get accountId() {
+		return this._accountId;
 	}
 
-	get loggedInAccount() {
-		if (!this._account) throw 'Not logged in';
+	get loggedInAccountId() {
+		if (!this._accountId) throw 'Not logged in';
 
-		return this._account;
+		return this._accountId;
 	}
 
 	get isLoggedIn() {
-		return this._account !== undefined;
+		return this._accountId !== undefined;
 	}
 
 	get session() {
@@ -88,12 +92,12 @@ export class Connection extends MessageSocket<ServerHandledMessages, ServerSentM
 		return result;
 	}
 
-	onLogIn(account: Account) {
-		this._account = account;
+	onLogIn(accountId: string) {
+		this._accountId = accountId;
 	}
 
-	onEnterSession(session: Session) {
-		this._session = session;
+	enterSession(campaignId: string, { isGM }: EnterSessionOptions) {
+		this._session = new Session(campaignId, isGM);
 	}
 
 	protected processMessage<T extends keyof ServerHandledMessages>(

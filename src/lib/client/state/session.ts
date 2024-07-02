@@ -1,5 +1,4 @@
-import type { BoardSnippet } from '$lib/net/snippets/board';
-import type { CampaignSnippet } from '$lib/net/snippets/campaign';
+import type { BoardSnippet, CampaignSnippet } from '$lib/net';
 import { writable } from 'svelte/store';
 
 export const session = writable<Session | null>(null);

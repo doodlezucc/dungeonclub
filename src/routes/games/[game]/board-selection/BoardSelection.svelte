@@ -8,9 +8,11 @@
 	$: boardSnippets = $session?.campaign.boards;
 
 	async function createNewBoard() {
-		const response = await $rest.post('/campaigns/ddPlp/boards', {
+		const response = await $rest.post(`/campaigns/${$session!.campaign.id}/boards`, {
 			body: 'thisisnowconsidereddata'
 		});
+
+		boardSnippets = [...(boardSnippets ?? []), response];
 		console.log(response);
 	}
 </script>

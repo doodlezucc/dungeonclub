@@ -1,4 +1,4 @@
-import type { AccountMessageCategory } from '$lib/net';
+import { SelectAccount, type AccountMessageCategory } from '$lib/net';
 import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
 
@@ -13,21 +13,7 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 				email: email,
 				password: password
 			},
-			include: {
-				tokenInfo: true,
-				campaigns: {
-					select: {
-						id: true,
-						name: true,
-						createdAt: true,
-						playerCharacters: {
-							include: {
-								tokenTemplate: true
-							}
-						}
-					}
-				}
-			}
+			select: SelectAccount
 		});
 
 		const tokenInfo =
@@ -38,12 +24,12 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 				}
 			}));
 
-		dispatcher.onLogIn(account);
+		dispatcher.onLogIn(account.id);
 
 		return {
 			account: {
 				accessToken: tokenInfo.id,
-				email,
+				id: account.id,
 				campaigns: account.campaigns
 			}
 		};
@@ -58,22 +44,26 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 			data: {
 				email,
 				password
-			}
+			},
+			select: SelectAccount
 		});
 
 		const accessToken = await prisma.accessToken.create({
 			data: {
 				accountId: account.id
+			},
+			select: {
+				id: true
 			}
 		});
 
-		console.log('Created account', account);
-		dispatcher.onLogIn(account);
+		dispatcher.onLogIn(account.id);
+
+		console.log('Created new account');
 
 		return {
 			account: {
 				accessToken: accessToken.id,
-				email,
 				campaigns: []
 			}
 		};

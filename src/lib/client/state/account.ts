@@ -1,4 +1,4 @@
-import type { CampaignCardSnippet } from '$lib/net/snippets/campaign';
+import type { CampaignCardSnippet } from '$lib/net';
 import { writable } from 'svelte/store';
 
 export const account = writable<Account | null>(null);

@@ -1,4 +1,4 @@
-import type { CampaignCardSnippet, CampaignSnippet } from '../snippets/campaign';
+import type { CampaignCardSnippet, CampaignSnippet } from '../snippets';
 import type { DefinePrivateRequest, UUID } from './messages';
 
 export interface CampaignMessageCategory {

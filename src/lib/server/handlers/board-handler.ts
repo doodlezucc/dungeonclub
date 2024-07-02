@@ -1,24 +1,18 @@
 import { publicResponse, type BoardMessageCategory } from '$lib/net';
+import { SelectBoard, SelectToken } from '../../net/snippets';
 import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
 
 export const boardHandler: CategoryHandler<BoardMessageCategory> = {
-	handleBoardView: async (payload, { dispatcher }) => {
-		const campaign = dispatcher.session.campaign;
+	handleBoardView: async ({ id: boardId }, { dispatcher }) => {
+		const campaignId = dispatcher.session.campaignId;
 
 		return await prisma.board.findFirstOrThrow({
 			where: {
-				campaignId: campaign.id,
-				id: payload.id
+				campaignId: campaignId,
+				id: boardId
 			},
-			include: {
-				tokens: true,
-				initiativeOrder: {
-					include: {
-						entries: true
-					}
-				}
-			}
+			select: SelectBoard
 		});
 	},
 
@@ -30,7 +24,8 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 				boardId: board.id,
 				templateId: payload.tokenTemplate,
 				...payload.position
-			}
+			},
+			select: SelectToken
 		});
 
 		return publicResponse(token);
