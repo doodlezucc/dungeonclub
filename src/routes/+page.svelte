@@ -1,7 +1,35 @@
 <script>
-	import Content from '$lib/components/Content.svelte';
+	import { account } from '$lib/client/state';
+	import { Content } from 'components';
+	import { Row } from 'components/layout';
+	import { onMount } from 'svelte';
+	import { fly, slide } from 'svelte/transition';
+	import AccountContent from './home/AccountContent.svelte';
+	import LoginForm from './home/LoginForm.svelte';
+
+	$: isLoggedIn = !!$account;
+
+	$: isMounted = false;
+
+	onMount(() => (isMounted = true));
 </script>
 
-<Content>
-	<h1>Home!</h1>
-</Content>
+<main>
+	<Content>
+		{#if !isLoggedIn && isMounted}
+			<div in:fly={{ y: 50, duration: 800 }} out:slide>
+				<Row justify="center">
+					<LoginForm />
+				</Row>
+			</div>
+		{:else if isMounted}
+			<AccountContent />
+		{/if}
+	</Content>
+</main>
+
+<style>
+	main {
+		padding: 2em 0;
+	}
+</style>

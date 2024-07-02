@@ -1,2 +1,22 @@
-@use 'scheme/colors.scss';
-@use 'scheme/fonts.scss';
+@use 'scheme/colors' as *;
+@use 'scheme/text' as *;
+
+@mixin rounded() {
+	border-radius: 0.5em;
+}
+
+.container {
+	@include rounded();
+	padding: 1em;
+	display: inline-block;
+	background-color: var(--color-container);
+	box-shadow: 0 0.5em 1em #000a;
+}
+
+.container[data-padding='big'] {
+	padding: 3em;
+}
+
+.container[data-margin='big'] {
+	margin: 3em;
+}

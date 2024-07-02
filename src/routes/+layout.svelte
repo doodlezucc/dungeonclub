@@ -1,10 +1,14 @@
 <script>
-	import Header from '$lib/components/Header.svelte';
+	import SocketProvider from '$lib/client/components/SocketProvider.svelte';
+	import { ModalProvider } from 'components/modal';
 	import '../styles/style.scss';
+	import Header from './Header.svelte';
 </script>
 
-<Header />
+<SocketProvider>
+	<ModalProvider>
+		<Header />
 
-<main>
-	<slot />
-</main>
+		<slot />
+	</ModalProvider>
+</SocketProvider>
