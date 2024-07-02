@@ -1,5 +1,5 @@
 {
-	"name": "svelte-it",
+	"name": "dungeonclub",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
@@ -13,7 +13,7 @@
 		"format": "prettier --write .",
 		"generate": "prisma generate",
 		"hardsync": "prisma db push",
-		"preinstall": "cd packages/svelte-ws-server && npm run build && cd ../component-library && npm run package",
+		"preinstall": "cd packages/svelte-ws-server && npm install && cd ../component-library && npm install",
 		"postinstall": "npm run generate"
 	},
 	"devDependencies": {
