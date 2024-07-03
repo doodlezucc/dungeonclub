@@ -8,6 +8,6 @@
 <Container>
 	<Column align="center">
 		<Text>{name}</Text>
-		<Button highlight>Edit</Button>
+		<Button highlight on:click>Edit</Button>
 	</Column>
 </Container>

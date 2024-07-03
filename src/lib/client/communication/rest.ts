@@ -30,6 +30,10 @@ export class RestConnection {
 			credentials: 'include'
 		});
 
+		if (response.status >= 400) {
+			throw `REST Error ${response.status}: ${response.statusText}`;
+		}
+
 		return await response.json();
 	}
 

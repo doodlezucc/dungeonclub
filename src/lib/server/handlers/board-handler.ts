@@ -7,13 +7,22 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 	handleBoardView: async ({ id: boardId }, { dispatcher }) => {
 		const campaignId = dispatcher.session.campaignId;
 
-		return await prisma.board.findFirstOrThrow({
+		const boardSnippet = await prisma.board.findFirstOrThrow({
 			where: {
 				campaignId: campaignId,
 				id: boardId
 			},
 			select: SelectBoard
 		});
+
+		await prisma.campaign.update({
+			where: { id: campaignId },
+			data: {
+				selectedBoardId: boardId
+			}
+		});
+
+		return boardSnippet;
 	},
 
 	handleTokenCreate: async (payload, { dispatcher }) => {

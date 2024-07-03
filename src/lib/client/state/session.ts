@@ -1,6 +1,7 @@
 import type { CampaignSnippet, GetPayload } from '$lib/net';
 import { derived } from 'svelte/store';
 import { getSocket } from '../communication';
+import { Board } from './board';
 import { WithState } from './with-state';
 
 export class Campaign extends WithState<CampaignSnippet> {
@@ -10,6 +11,10 @@ export class Campaign extends WithState<CampaignSnippet> {
 
 	onEnter(snippet: CampaignSnippet) {
 		this.set(snippet);
+
+		if (snippet.selectedBoard) {
+			Board.instance.load(snippet.selectedBoard);
+		}
 	}
 }
 
