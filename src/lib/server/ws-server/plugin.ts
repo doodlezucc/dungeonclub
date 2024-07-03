@@ -10,7 +10,7 @@ interface Options {
 	handledPath: string;
 }
 
-export function webSocketServer(options: Options): Plugin {
+export function webSocketServer(options: Options): Plugin<{}> {
 	const onHttpUpgrade = makeWebSocketUpgradeHandler(options.handledPath);
 
 	return {

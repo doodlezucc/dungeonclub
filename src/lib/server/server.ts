@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
-import { getWebSocketServer } from 'svelte-ws-server/src/web-socket-utils';
 import type { WebSocket } from 'ws';
 import { AssetManager } from './asset-manager';
 import { Connection } from './connection';
+import { getWebSocketServer } from './ws-server';
 
 export const prisma = new PrismaClient();
 

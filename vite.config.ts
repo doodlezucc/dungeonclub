@@ -1,7 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { webSocketServer } from 'svelte-ws-server';
 import { searchForWorkspaceRoot } from 'vite';
 import { defineConfig } from 'vitest/config';
+import { webSocketServer } from './src/lib/server/ws-server';
 
 export default defineConfig({
 	plugins: [

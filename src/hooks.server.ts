@@ -1,6 +1,6 @@
 import { server } from '$lib/server/server';
+import { setupWebsocketServer } from '$lib/server/ws-server';
 import type { Handle } from '@sveltejs/kit';
-import { setupWebsocketServer } from 'svelte-ws-server';
 
 export const handle = (async ({ event, resolve }) => {
 	setupWebsocketServer();

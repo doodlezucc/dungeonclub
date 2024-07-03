@@ -1,4 +1,4 @@
-import { globalThisWSS, type ExtendedGlobal } from './web-socket-utils.js';
+import { getWebSocketServer, globalThisWSS, type ExtendedGlobal } from './web-socket-utils.js';
 
 // Adapted from https://github.com/suhaildawood/SvelteKit-integrated-WebSocket
 
@@ -18,3 +18,5 @@ export const setupWebsocketServer = () => {
 
 	wssInitialized = true;
 };
+
+export { getWebSocketServer };

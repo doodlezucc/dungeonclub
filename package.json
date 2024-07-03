@@ -13,7 +13,7 @@
 		"format": "prettier --write .",
 		"generate": "prisma generate",
 		"hardsync": "prisma db push",
-		"preinstall": "cd packages/svelte-ws-server && npm install && cd ../component-library && npm install",
+		"preinstall": "cd packages/component-library && npm install",
 		"postinstall": "npm run generate"
 	},
 	"devDependencies": {
@@ -41,14 +41,13 @@
 		"tslib": "^2.4.1",
 		"typescript": "^5.0.0",
 		"typescript-eslint": "^8.0.0-alpha.20",
-		"vite": "^5.0.3",
+		"vite": "^5.0.11",
 		"vitest": "^1.2.0"
 	},
 	"type": "module",
 	"dependencies": {
 		"@prisma/client": "^5.16.1",
 		"components": "file:packages/component-library",
-		"svelte-ws-server": "file:packages/svelte-ws-server",
 		"ws": "^8.13.0"
 	}
 }
