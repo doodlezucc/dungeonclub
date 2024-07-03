@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { rest } from '$lib/client/communication';
-	import ErrorDialog from '$lib/client/components/ErrorDialog.svelte';
-	import { Board, sessionState } from '$lib/client/state';
+	import { rest } from 'client/communication';
+	import { Board, sessionState } from 'client/state';
 	import { Button, Collection } from 'components';
+	import { displayErrorDialog } from 'components/extensions/modal';
 	import { Dialog, type ModalContext } from 'components/modal';
 	import { getContext } from 'svelte';
 	import BoardPreview from './BoardPreview.svelte';
@@ -21,7 +21,7 @@
 			Board.instance.load(response);
 			modal.pop();
 		} catch (error) {
-			modal.display(ErrorDialog, { error });
+			displayErrorDialog(modal, error);
 		}
 	}
 

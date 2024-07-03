@@ -1,7 +1,7 @@
-import { SelectBoard } from '$lib/net/snippets.js';
-import { authorizedEndpoint } from '$lib/server/rest.js';
-import { prisma, server } from '$lib/server/server.js';
 import { error, json } from '@sveltejs/kit';
+import { authorizedEndpoint } from 'server/rest.js';
+import { prisma, server } from 'server/server.js';
+import { SelectBoard } from 'shared/snippets.js';
 
 export const POST = ({ params: { campaignId }, request }) =>
 	authorizedEndpoint(request, async (accountId) => {

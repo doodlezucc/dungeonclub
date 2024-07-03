@@ -3,11 +3,11 @@
 
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { accountState, Session } from '$lib/client/state';
-	import type { CampaignCardSnippet, CampaignSnippet } from '$lib/net';
+	import { accountState, Session } from 'client/state';
 	import { Button, Collection, IconButton, Text } from 'components';
 	import { Center, Column, Container, Row } from 'components/layout';
 	import type { ModalContext } from 'components/modal';
+	import type { CampaignCardSnippet, CampaignSnippet } from 'shared';
 	import { getContext } from 'svelte';
 	import Time from 'svelte-time/Time.svelte';
 	import CampaignEditDialog from './CampaignEditDialog.svelte';

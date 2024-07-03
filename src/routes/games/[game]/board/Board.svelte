@@ -6,8 +6,8 @@
 </script>
 
 <script lang="ts">
-	import { boardState } from '$lib/client/state/board';
 	import type { Position, Size } from '$lib/compounds';
+	import { boardState } from 'client/state/board';
 	import { PanView } from 'components';
 	import { Overlay } from 'components/layout';
 	import { setContext } from 'svelte';

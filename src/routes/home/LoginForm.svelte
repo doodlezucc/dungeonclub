@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Account } from '$lib/client/state';
-	import { RequestError } from '$lib/net';
+	import { Account } from 'client/state';
 	import { Button, Input } from 'components';
 	import { Column, Container } from 'components/layout';
+	import { RequestError } from 'shared';
 	import { fly } from 'svelte/transition';
 
 	$: emailAddress = '';

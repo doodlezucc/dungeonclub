@@ -6,7 +6,7 @@
 		},
 		{
 			"name": "lib",
-			"path": "src/lib"
+			"path": "src/lib/logic"
 		},
 		{
 			"name": "routes",
@@ -18,7 +18,7 @@
 		},
 		{
 			"name": "components",
-			"path": "packages/component-library/src/lib"
+			"path": "src/lib/components"
 		},
 		{
 			"name": "<root>",

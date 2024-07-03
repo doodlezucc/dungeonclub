@@ -1,5 +1,5 @@
 <script>
-	import SocketProvider from '$lib/client/components/SocketProvider.svelte';
+	import SocketProvider from 'components/extensions/SocketProvider.svelte';
 	import { ModalProvider } from 'components/modal';
 	import '../styles/style.scss';
 	import Header from './Header.svelte';

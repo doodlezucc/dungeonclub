@@ -1,7 +1,7 @@
-import { authorizedEndpoint } from '$lib/server/rest.js';
-import { prisma } from '$lib/server/server.js';
 import { json } from '@sveltejs/kit';
 import { error } from 'console';
+import { authorizedEndpoint } from 'server/rest.js';
+import { prisma } from 'server/server.js';
 
 export const GET = ({ request, params: { campaignId } }) =>
 	authorizedEndpoint(request, async (accountId) => {

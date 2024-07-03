@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { boardState, sessionState } from '$lib/client/state';
+	import { boardState, sessionState } from 'client/state';
 	import { Align, Stack } from 'components/layout';
 	import type { ModalContext } from 'components/modal';
 	import { getContext } from 'svelte';

@@ -1,5 +1,5 @@
 <script>
-	import { accountState } from '$lib/client/state';
+	import { accountState } from 'client/state';
 	import { Content } from 'components';
 	import { Row } from 'components/layout';
 	import { onMount } from 'svelte';

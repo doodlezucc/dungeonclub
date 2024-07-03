@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 
 	import { page } from '$app/stores';
-	import { Session } from '$lib/client/state';
+	import { Session } from 'client/state';
 	import { Row } from 'components/layout';
 	import BoardView from './BoardView.svelte';
 	import Sidebar from './Sidebar.svelte';

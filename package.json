@@ -13,7 +13,6 @@
 		"format": "prettier --write .",
 		"generate": "prisma generate",
 		"hardsync": "prisma db push",
-		"preinstall": "cd packages/component-library && npm install",
 		"postinstall": "npm run generate"
 	},
 	"devDependencies": {
@@ -47,7 +46,6 @@
 	"type": "module",
 	"dependencies": {
 		"@prisma/client": "^5.16.1",
-		"components": "file:packages/component-library",
 		"ws": "^8.13.0"
 	}
 }
