@@ -1,6 +1,9 @@
 import { DISABLE_PERMISSIONS } from '$env/static/private';
 import {
 	MessageSocket,
+	SelectBoard,
+	SelectCampaign,
+	type CampaignSnippet,
 	type Payload,
 	type ResponseObject,
 	type ServerHandledMessages,
@@ -8,6 +11,7 @@ import {
 } from '$lib/net';
 import type { Board } from '@prisma/client';
 import type { WebSocket } from 'ws';
+import { prisma } from './server';
 import { serverMessageHandler } from './socket';
 
 export class Session {
@@ -96,8 +100,31 @@ export class Connection extends MessageSocket<ServerHandledMessages, ServerSentM
 		this._accountId = accountId;
 	}
 
-	enterSession(campaignId: string, { isGM }: EnterSessionOptions) {
-		this._session = new Session(campaignId, isGM);
+	async enterSession(campaignId: string, { isGM }: EnterSessionOptions): Promise<CampaignSnippet> {
+		const campaign = await prisma.campaign.findUniqueOrThrow({
+			where: { id: campaignId },
+			select: {
+				...SelectCampaign,
+				selectedBoardId: true
+			}
+		});
+
+		const { selectedBoardId } = campaign;
+
+		if (!selectedBoardId) {
+			this._session = new Session(campaignId, isGM);
+			return campaign;
+		}
+
+		const selectedBoard = await prisma.board.findUniqueOrThrow({
+			where: { id: selectedBoardId },
+			select: SelectBoard
+		});
+
+		return {
+			...campaign,
+			selectedBoard: selectedBoard
+		};
 	}
 
 	protected processMessage<T extends keyof ServerHandledMessages>(

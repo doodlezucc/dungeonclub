@@ -79,7 +79,7 @@ export const SelectBoard = {
 		include: SelectInitiativeOrder
 	},
 	tokens: {
-		select: {}
+		select: SelectToken
 	}
 } satisfies Prisma.BoardSelect;
 export type BoardSnippet = Prisma.BoardGetPayload<{ select: typeof SelectBoard }>;
@@ -106,7 +106,9 @@ export const SelectCampaign = {
 		select: SelectTokenTemplate
 	}
 } satisfies Prisma.CampaignSelect;
-export type CampaignSnippet = Prisma.CampaignGetPayload<{ select: typeof SelectCampaign }>;
+export type CampaignSnippet = Prisma.CampaignGetPayload<{ select: typeof SelectCampaign }> & {
+	selectedBoard?: BoardSnippet;
+};
 
 export const SelectAccount = {
 	id: true,

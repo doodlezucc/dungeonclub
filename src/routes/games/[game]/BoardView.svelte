@@ -1,5 +1,5 @@
 <script>
-	import { session } from '$lib/client/state';
+	import { board } from '$lib/client/state';
 	import { Align, Stack } from 'components/layout';
 	import { onMount } from 'svelte';
 	import BoardSelection from './board-selection/BoardSelection.svelte';
@@ -15,7 +15,7 @@
 </script>
 
 <Stack expand>
-	{#if $session?.visibleBoard}
+	{#if $board}
 		<Board />
 	{/if}
 

@@ -1,26 +1,25 @@
 import type { CampaignMessageCategory } from '$lib/net';
-import { SelectCampaign } from '../../net/snippets';
+import { SelectCampaignCard } from '../../net/snippets';
 import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
 
 export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	handleCampaignCreate: async ({ name }, { dispatcher }) => {
-		const newCampaign = await prisma.campaign.create({
+		const campaignId = generateCampaignID();
+
+		await prisma.campaign.create({
 			data: {
 				ownerId: dispatcher.loggedInAccountId,
 				name,
-				id: generateCampaignID()
-			},
-			select: SelectCampaign
+				id: campaignId
+			}
 		});
 
-		dispatcher.enterSession(newCampaign.id, { isGM: true });
-
-		return newCampaign;
+		return dispatcher.enterSession(campaignId, { isGM: true });
 	},
 
 	handleCampaignEdit: async ({ id, name }, { dispatcher }) => {
-		const campaign = await prisma.campaign.update({
+		const campaignCard = await prisma.campaign.update({
 			where: {
 				ownerId: dispatcher.loggedInAccountId,
 				id: id
@@ -29,37 +28,31 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 				name: name
 				// TODO: delete removed characters from DB, add new characters
 			},
-			select: SelectCampaign
+			select: SelectCampaignCard
 		});
 
-		return campaign;
+		return campaignCard;
 	},
 
 	handleCampaignHost: async ({ id }, { dispatcher }) => {
-		const campaign = await prisma.campaign.findFirstOrThrow({
-			where: {
-				ownerId: dispatcher.loggedInAccountId,
-				id: id
-			},
-			select: SelectCampaign
+		const dispatcherAccount = await prisma.account.findUniqueOrThrow({
+			where: { id: dispatcher.loggedInAccountId },
+			select: {
+				campaigns: { select: { id: true } }
+			}
 		});
 
-		dispatcher.enterSession(id, { isGM: true });
+		const isOwner = dispatcherAccount.campaigns.some((campaign) => campaign.id === id);
 
-		return campaign;
+		if (!isOwner) {
+			throw 'You must be the owner of this campaign to be able to host';
+		}
+
+		return await dispatcher.enterSession(id, { isGM: true });
 	},
 
 	handleCampaignJoin: async ({ id }, { dispatcher }) => {
-		const campaign = await prisma.campaign.findFirstOrThrow({
-			where: {
-				id: id
-			},
-			select: SelectCampaign
-		});
-
-		dispatcher.enterSession(id, { isGM: false });
-
-		return campaign;
+		return await dispatcher.enterSession(id, { isGM: false });
 	}
 };
 
