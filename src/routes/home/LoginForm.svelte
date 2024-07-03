@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { socket } from '$lib/client/communication';
+	import { Account } from '$lib/client/state';
 	import { RequestError } from '$lib/net';
 	import { Button, Input } from 'components';
 	import { Column, Container } from 'components/layout';
@@ -19,9 +19,9 @@
 
 	async function login() {
 		try {
-			const response = await $socket.logIn(emailAddress, password);
+			await Account.logIn(emailAddress, password);
 
-			console.log('Logged in, response:', response);
+			console.log('Logged in');
 		} catch (err) {
 			if (!(err instanceof RequestError)) throw err;
 

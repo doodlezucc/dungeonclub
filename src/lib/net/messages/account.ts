@@ -7,9 +7,7 @@ export interface AccountMessageCategory {
 			email: string;
 			password: string;
 		},
-		{
-			account: AccountSnippet;
-		}
+		AccountSnippet
 	>;
 
 	accountCreate: DefinePrivateRequest<
@@ -17,8 +15,6 @@ export interface AccountMessageCategory {
 			email: string;
 			password: string;
 		},
-		{
-			account: AccountSnippet;
-		}
+		AccountSnippet
 	>;
 }

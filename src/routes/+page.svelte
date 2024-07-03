@@ -1,5 +1,5 @@
 <script>
-	import { account } from '$lib/client/state';
+	import { accountState } from '$lib/client/state';
 	import { Content } from 'components';
 	import { Row } from 'components/layout';
 	import { onMount } from 'svelte';
@@ -7,7 +7,7 @@
 	import AccountContent from './home/AccountContent.svelte';
 	import LoginForm from './home/LoginForm.svelte';
 
-	$: isLoggedIn = !!$account;
+	$: isLoggedIn = !!$accountState;
 
 	$: isMounted = false;
 

@@ -1,21 +1,15 @@
-import { writable } from 'svelte/store';
-
-export const board = writable<Board | null>(null);
-
-export class Board {
-	grid: BoardGrid;
-
-	constructor(grid: BoardGrid) {
-		this.grid = grid;
-	}
-}
-
-export interface BoardGridState {}
+import type { BoardSnippet } from '$lib/net';
+import { WithState } from './with-state';
 
 export class BoardGrid {
-	cellsPerRow: number;
-
-	constructor(cellsPerRow: number) {
-		this.cellsPerRow = cellsPerRow;
-	}
+	constructor(readonly board: Board) {}
 }
+
+export class Board extends WithState<BoardSnippet> {
+	static readonly instance = new Board();
+	static readonly state = this.instance.state;
+
+	readonly grid = new BoardGrid(this);
+}
+
+export const boardState = Board.state;

@@ -1,5 +1,5 @@
-import { readable } from 'svelte/store';
-import { account } from '../state';
+import { derived, readable } from 'svelte/store';
+import { accountState } from '../state';
 
 interface RequestOptions {
 	params?: Record<string, string>;
@@ -7,19 +7,9 @@ interface RequestOptions {
 }
 
 export class RestConnection {
-	private _accessToken: string | undefined;
+	static readonly instance = new RestConnection();
 
-	constructor() {
-		account.subscribe((account) => {
-			if (account) {
-				this._accessToken = account.accessToken;
-			}
-		});
-	}
-
-	get accessToken() {
-		return this._accessToken;
-	}
+	private readonly accessToken = derived(accountState, (acc) => acc?.accessToken);
 
 	private async request(method: string, endpoint: string, options?: RequestOptions) {
 		const endpointPath = `/api/v1${endpoint}`;
@@ -52,4 +42,4 @@ export class RestConnection {
 	}
 }
 
-export const rest = readable(new RestConnection());
+export const rest = readable(RestConnection.instance);

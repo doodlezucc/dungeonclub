@@ -1,5 +1,4 @@
-import type { AllMessages } from '../messages';
-import type { Payload, Response } from './handling';
+import type { AllMessages, Payload, Response } from '../messages';
 
 export type SendMessage<SCOPE, T extends keyof SCOPE> = {
 	name: T;

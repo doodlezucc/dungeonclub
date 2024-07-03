@@ -1,16 +1,19 @@
-import type { CampaignCardSnippet } from '$lib/net';
-import { writable } from 'svelte/store';
+import type { AccountSnippet } from '$lib/net';
+import { getSocket } from '../communication/socket'; // Avoid ../communication/index.ts to prevent cyclic dependency in ../communication/rest.ts
+import { WithState } from './with-state';
 
-export const account = writable<Account | null>(null);
+export class Account extends WithState<AccountSnippet> {
+	static readonly instance = new Account();
+	static readonly state = this.instance.state;
 
-export class Account {
-	accessToken: string;
-	email: string;
-	campaigns: CampaignCardSnippet[];
+	static async logIn(emailAddress: string, password: string) {
+		const response = await getSocket().request('login', {
+			email: emailAddress,
+			password: password
+		});
 
-	constructor(accessToken: string, email: string, campaigns: CampaignCardSnippet[]) {
-		this.accessToken = accessToken;
-		this.email = email;
-		this.campaigns = campaigns;
+		this.instance.set(response);
 	}
 }
+
+export const accountState = Account.state;

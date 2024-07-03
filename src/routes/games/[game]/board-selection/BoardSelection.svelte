@@ -1,19 +1,23 @@
 <script lang="ts">
-	import { rest } from '$lib/client/communication';
-	import { session } from '$lib/client/state';
+	import { rest, socket } from '$lib/client/communication';
+	import { sessionState } from '$lib/client/state';
 	import { Button, Collection, Text } from 'components';
 	import { Column, Container } from 'components/layout';
 	import BoardPreview from './BoardPreview.svelte';
 
-	$: boardSnippets = $session?.campaign.boards;
+	$: boardSnippets = $sessionState.campaign?.boards;
 
 	async function createNewBoard() {
-		const response = await $rest.post(`/campaigns/${$session!.campaign.id}/boards`, {
+		const response = await $rest.post(`/campaigns/${$sessionState.campaign!.id}/boards`, {
 			body: 'thisisnowconsidereddata'
 		});
 
 		boardSnippets = [...(boardSnippets ?? []), response];
 		console.log(response);
+	}
+
+	async function selectBoard(boardId: string) {
+		const board = await $socket.request('boardView', { id: boardId });
 	}
 </script>
 

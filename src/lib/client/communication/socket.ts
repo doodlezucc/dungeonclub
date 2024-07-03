@@ -4,16 +4,22 @@ import {
 	type ClientSentMessages,
 	type ResponseObject
 } from '$lib/net';
-import { writable } from 'svelte/store';
-import { Account, account } from '../state/account';
+import { readonly, writable } from 'svelte/store';
 
-export const socket = writable<ClientSocket>(undefined);
+const _socket = writable<ClientSocket>(undefined);
+export const socket = readonly(_socket);
+
+export const getSocket = () => ClientSocket.instance;
 
 export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSentMessages> {
+	public static instance: ClientSocket;
 	private readonly webSocket: WebSocket;
 
 	constructor() {
 		super({ unready: true });
+
+		ClientSocket.instance = this;
+		_socket.set(this);
 
 		const ws = connectToWebSocketServer();
 
@@ -31,19 +37,6 @@ export class ClientSocket extends MessageSocket<ClientHandledMessages, ClientSen
 			console.log('Connection closed!', ev);
 		});
 		this.webSocket = ws;
-	}
-
-	async logIn(emailAddress: string, password: string) {
-		const response = await this.request('login', {
-			email: emailAddress,
-			password: password
-		});
-
-		account.set(
-			new Account(response.account.accessToken, emailAddress, response.account.campaigns)
-		);
-
-		return response;
 	}
 
 	protected processMessage<T extends keyof ClientHandledMessages>(): Promise<

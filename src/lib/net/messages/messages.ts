@@ -50,3 +50,27 @@ export type ClientSentMessages = ServerHandledMessages;
 export type ClientHandledMessages = ServerSentMessages & ClientHandledEvents;
 
 export type ClientHandledEvents = PickForwardedMessages<ClientSentMessages>;
+
+export type AsPayload<T> = T extends IMessage<infer P> ? P : never;
+export type Payload<S, T extends keyof S> = AsPayload<S[T]>;
+export type GetPayload<T extends keyof AllMessages> = Payload<AllMessages, T>;
+
+export type AsResponseObject<T> = T extends IForward<infer F> & IResponse<infer R>
+	? {
+			forwardedResponse: F;
+			response: R;
+		}
+	: T extends IForward<infer F>
+		? {
+				forwardedResponse: F;
+			}
+		: T extends IResponse<infer R>
+			? R
+			: void;
+export type ResponseObject<S, T extends keyof S> = AsResponseObject<S[T]>;
+
+export type AsResponse<T> = T extends IResponse<infer R> ? R : void;
+export type Response<S, T extends keyof S> = AsResponse<S[T]>;
+
+export type AsForwarded<T> = T extends IForward<infer F> ? F : void;
+export type Forwarded<S, T extends keyof S> = AsForwarded<S[T]>;

@@ -1,12 +1,15 @@
+import { expect, it } from 'vitest';
 import type {
 	AllMessages,
 	ClientHandledMessages,
 	ClientSentMessages,
+	Payload,
+	Response,
+	ResponseObject,
 	ServerHandledMessages,
 	ServerSentMessages
-} from '$lib/net';
-import { expect, it } from 'vitest';
-import { publicResponse, type Payload, type Response, type ResponseObject } from './handling';
+} from '../messages';
+import { publicResponse } from './handling';
 import { MessageSocket } from './socket';
 
 it('sends and receives', async () => {

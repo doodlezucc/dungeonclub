@@ -6,7 +6,7 @@
 </script>
 
 <script lang="ts">
-	import { board } from '$lib/client/state/board';
+	import { boardState } from '$lib/client/state/board';
 	import type { Position, Size } from '$lib/compounds';
 	import { PanView } from 'components';
 	import { Overlay } from 'components/layout';
@@ -15,7 +15,7 @@
 	import Grid from './Grid.svelte';
 	import Token from './grid/Token.svelte';
 
-	const cellsPerRow = $board!.grid.cellsPerRow;
+	const cellsPerRow = $boardState!.gridCellsPerRow;
 
 	let position: Position = { x: 0, y: 0 };
 	let zoom: number = 0;

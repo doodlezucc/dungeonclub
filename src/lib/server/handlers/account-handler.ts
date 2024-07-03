@@ -27,11 +27,9 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 		dispatcher.onLogIn(account.id);
 
 		return {
-			account: {
-				accessToken: tokenInfo.id,
-				id: account.id,
-				campaigns: account.campaigns
-			}
+			accessToken: tokenInfo.id,
+			id: account.id,
+			campaigns: account.campaigns
 		};
 	},
 
@@ -62,10 +60,8 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 		console.log('Created new account');
 
 		return {
-			account: {
-				accessToken: accessToken.id,
-				campaigns: []
-			}
+			accessToken: accessToken.id,
+			campaigns: []
 		};
 	}
 };
