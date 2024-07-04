@@ -3,31 +3,52 @@ import { accountState } from '../state';
 
 interface RequestOptions {
 	params?: Record<string, string>;
-	body?: unknown;
+	body?: {
+		data: BodyInit;
+		contentType: string;
+	};
 }
 
 export class RestConnection {
 	static readonly instance = new RestConnection();
 
-	private readonly accessToken = derived(accountState, (acc) => acc?.accessToken);
+	private readonly _accessToken = derived(accountState, (acc) => acc?.accessToken);
+	private accessToken: string | undefined;
 
-	private async request(method: string, endpoint: string, options?: RequestOptions) {
+	constructor() {
+		this._accessToken.subscribe((token) => (this.accessToken = token));
+	}
+
+	private static pathTo(endpoint: string, params?: Record<string, string>): string {
 		const endpointPath = `/api/v1${endpoint}`;
-
 		let path = endpointPath;
 
-		if (options?.params) {
-			path += '?' + new URLSearchParams(options.params).toString();
+		if (params) {
+			path += '?' + new URLSearchParams(params).toString();
 		}
 
+		return path;
+	}
+
+	private async request(method: string, endpoint: string, options: RequestOptions = {}) {
+		const { params, body } = options;
+
+		const headers: HeadersInit = {};
+
+		if (this.accessToken) {
+			headers['Authorization'] = 'Bearer ' + this.accessToken;
+		}
+
+		if (body) {
+			headers['Content-Type'] = body.contentType;
+		}
+
+		const path = RestConnection.pathTo(endpoint, params);
 		const response = await fetch(path, {
-			method: method,
-			headers: this.accessToken
-				? {
-						Authorization: 'Bearer ' + this.accessToken
-					}
-				: undefined,
-			credentials: 'include'
+			method,
+			headers,
+			credentials: 'include',
+			body: body?.data
 		});
 
 		if (response.status >= 400) {

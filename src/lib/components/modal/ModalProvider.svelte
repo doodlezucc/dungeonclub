@@ -22,7 +22,6 @@
 	import { setContext, SvelteComponent } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
-	import FileUploadDialog from './FileUploadDialog.svelte';
 
 	const stack = writable<Modal<any, any>[]>([]);
 
@@ -67,10 +66,6 @@
 			<svelte:component this={modal.component} {...modal.props} />
 		</div>
 	{/each}
-
-	<div class="modal" aria-modal="true">
-		<FileUploadDialog />
-	</div>
 </div>
 
 <style>

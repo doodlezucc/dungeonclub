@@ -1,5 +1,8 @@
 <script lang="ts">
+	import Icon, { type IconID } from 'components/Icon.svelte';
 	import { createEventDispatcher } from 'svelte';
+
+	export let displayedIcon: IconID | undefined = undefined;
 
 	$: dragOver = false;
 	$: fileList = null as FileList | null;
@@ -49,9 +52,13 @@
 	class="drop-area"
 	class:drag-over={dragOver}
 >
-	<span>Drag & drop</span>
-	<br />
-	<span>or click to pick a file</span>
+	{#if displayedIcon}
+		<div class="upload-icon">
+			<Icon icon={displayedIcon} />
+		</div>
+	{/if}
+
+	<slot />
 </button>
 <input
 	bind:this={input}
@@ -63,23 +70,19 @@
 />
 
 <style lang="scss">
+	.upload-icon {
+		font-size: 3em;
+		opacity: 0.5;
+		margin-bottom: 0.1em;
+	}
+
 	.drop-area {
-		background-color: var(--color-background);
-		border-radius: 0;
-		border: 2px dashed var(--color-separator);
-		min-width: 5em;
-		min-height: 5em;
-		cursor: pointer;
-		padding: 2em 3em;
-		margin: 1em;
-		box-sizing: content-box;
-		transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+		border-style: dashed;
 
 		&:hover,
 		&:active,
 		&:focus-visible,
 		&.drag-over {
-			border-color: var(--color-text);
 			border-style: solid;
 			outline: 2px dashed var(--color-text);
 		}
@@ -87,17 +90,11 @@
 		&:hover,
 		&:focus-visible,
 		&.drag-over {
-			outline-offset: 0.5em;
-			padding: 2.5em 3.5em;
-			margin: 0.5em;
+			outline-offset: 6.9px;
 		}
 
 		&:active {
-			transition-duration: 0.2s;
-			background-color: var(--color-button);
-			outline-offset: 0.3em;
-			padding: 2em 3em;
-			margin: 1em;
+			outline-offset: 2.5px;
 		}
 
 		> * {
