@@ -121,6 +121,8 @@ export class Connection extends MessageSocket<ServerHandledMessages, ServerSentM
 			select: SelectBoard
 		});
 
+		this._session = new Session(campaignId, isGM);
+
 		return {
 			...campaign,
 			selectedBoard: selectedBoard

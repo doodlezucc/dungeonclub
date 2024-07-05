@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { rest } from 'client/communication';
 	import { Board, sessionState } from 'client/state';
-	import { Collection } from 'components';
+	import ArrangedCollection from 'components/ArrangedCollection.svelte';
 	import { displayErrorDialog } from 'components/extensions/modal';
 	import { Dialog, type ModalContext } from 'components/modal';
 	import FileUploader from 'components/upload/FileUploader.svelte';
@@ -39,14 +39,17 @@
 	}
 
 	async function selectBoard(boardId: string) {
-		await Board.instance.view(boardId);
+		await Board.instance.request({
+			boardId,
+			mode: 'edit'
+		});
 		modal.pop();
 	}
 </script>
 
 <Dialog title="Select Board">
 	{#if boardSnippets}
-		<Collection items={boardSnippets} let:item={snippet}>
+		<ArrangedCollection items={boardSnippets} let:item={snippet}>
 			<BoardPreview name={snippet.name} on:click={() => selectBoard(snippet.id)} />
 
 			<svelte:fragment slot="plus">
@@ -54,6 +57,6 @@
 					New Board
 				</FileUploader>
 			</svelte:fragment>
-		</Collection>
+		</ArrangedCollection>
 	{/if}
 </Dialog>

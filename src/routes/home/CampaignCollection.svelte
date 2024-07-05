@@ -40,11 +40,16 @@
 	}
 </script>
 
-<ArrangedCollection bind:items={campaigns} let:item={campaign} let:handle>
+<ArrangedCollection
+	customDragHandling
+	bind:items={campaigns}
+	let:item={campaign}
+	let:dragController
+>
 	<Container>
 		<Row gap="big" align="center" justify="space-between">
 			<h2>{campaign.name}</h2>
-			<DragHandle {handle} />
+			<DragHandle controller={dragController} />
 		</Row>
 		<Column gap="big">
 			<Text style="subtitle">Created <Time timestamp={campaign.createdAt} /></Text>

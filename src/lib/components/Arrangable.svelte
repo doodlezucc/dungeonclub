@@ -6,7 +6,9 @@
 
 	export let index: number;
 	export let state: DragState;
-	export let isDragging: boolean;
+	export let customDragHandling: boolean;
+
+	let isDragging = state.controller.isDragging;
 	let isAnyDragging = state.isAnyDragging;
 
 	$: mouseOffset = undefined as Position | undefined;
@@ -21,7 +23,7 @@
 
 	let container: HTMLElement;
 
-	$: if (!isDragging) {
+	$: if (!$isDragging) {
 		mouseOffset = undefined;
 		draggedCenter = center;
 	}
@@ -32,7 +34,7 @@
 			x: rect.left + rect.width / 2,
 			y: rect.top + rect.height / 2
 		};
-		if (!isDragging) {
+		if (!$isDragging) {
 			$visualCenter = center;
 		}
 		state.setItemCenter(center);
@@ -62,26 +64,37 @@
 	}
 
 	function handleMouseMove(ev: PointerEvent) {
-		if (isDragging) {
-			mouseOffset ??= {
-				x: ev.clientX - center!.x,
-				y: ev.clientY - center!.y
-			};
+		mouseOffset ??= {
+			x: ev.clientX - center!.x,
+			y: ev.clientY - center!.y
+		};
 
-			draggedCenter = {
-				x: ev.clientX - mouseOffset.x,
-				y: ev.clientY - mouseOffset.y
-			};
+		draggedCenter = {
+			x: ev.clientX - mouseOffset.x,
+			y: ev.clientY - mouseOffset.y
+		};
+	}
+
+	function onDragContainer(ev: DragEvent) {
+		ev.preventDefault();
+
+		if (!customDragHandling) {
+			state.controller.start();
 		}
 	}
 </script>
 
-<svelte:window on:pointermove={handleMouseMove} />
+<svelte:window on:pointermove={$isDragging ? handleMouseMove : undefined} />
 
-<div class="arrangable" role="listitem" draggable="true" on:dragstart={(ev) => ev.preventDefault()}>
-	<div class="ghost" class:dragging={isDragging} bind:this={container}></div>
-
-	<div style="translate: {visualOffset.x}px {visualOffset.y}px;">
+<div
+	class="arrangable"
+	class:dragging={$isDragging}
+	role="listitem"
+	draggable="true"
+	on:dragstart={onDragContainer}
+>
+	<div class="expand ghost" bind:this={container}></div>
+	<div class="expand" style="translate: {visualOffset.x}px {visualOffset.y}px;">
 		<slot />
 	</div>
 </div>
@@ -91,14 +104,22 @@
 		position: relative;
 	}
 
-	.ghost {
-		position: absolute;
+	.expand {
+		display: flex;
 		width: 100%;
 		height: 100%;
+	}
+
+	.ghost {
+		position: absolute;
 		outline: 1px solid transparent;
 	}
 
-	.ghost.dragging {
+	.dragging * {
+		pointer-events: none;
+	}
+
+	.dragging .ghost {
 		outline: 2px dashed white;
 	}
 </style>

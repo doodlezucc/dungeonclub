@@ -49,7 +49,7 @@
 	on:drop={handleDrop}
 	type="button"
 	aria-describedby="file-upload"
-	class="drop-area"
+	class="drop-area raised"
 	class:drag-over={dragOver}
 >
 	{#if displayedIcon}
@@ -78,24 +78,6 @@
 
 	.drop-area {
 		border-style: dashed;
-
-		&:hover,
-		&:active,
-		&:focus-visible,
-		&.drag-over {
-			border-style: solid;
-			outline: 2px dashed var(--color-text);
-		}
-
-		&:hover,
-		&:focus-visible,
-		&.drag-over {
-			outline-offset: 6.9px;
-		}
-
-		&:active {
-			outline-offset: 2.5px;
-		}
 
 		> * {
 			pointer-events: none;

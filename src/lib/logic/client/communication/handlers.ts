@@ -1,3 +1,4 @@
+import { Board } from 'client/state';
 import {
 	MessageHandler,
 	type AccountMessageCategory,
@@ -13,6 +14,10 @@ export class ClientRequestHandler extends MessageHandler<ClientHandledMessages, 
 	account: CategoryHandlers<AccountMessageCategory, ClientHandledMessages, Options> = {};
 
 	board: CategoryHandlers<BoardMessageCategory, ClientHandledMessages, Options> = {
+		onBoardPlay: (boardSnippet) => {
+			Board.instance.load(boardSnippet);
+		},
+
 		onTokenCreate: (payload) => {
 			console.log('onTokenCreate', payload);
 		},

@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { DragHandle } from './ArrangedCollection.svelte';
+	import type { DragController } from './ArrangedCollection.svelte';
 
 	import Icon from './Icon.svelte';
 
-	export let handle: DragHandle;
+	export let controller: DragController;
 </script>
 
-<button class="drag-handle" on:mousedown={handle.start} tabindex="-1">
+<button class="drag-handle" on:mousedown={controller.start} tabindex="-1">
 	<Icon icon="grip-vertical" />
 </button>
 

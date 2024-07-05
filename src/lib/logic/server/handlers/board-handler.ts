@@ -4,8 +4,20 @@ import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
 
 export const boardHandler: CategoryHandler<BoardMessageCategory> = {
-	handleBoardView: async ({ id: boardId }, { dispatcher }) => {
-		const campaignId = dispatcher.session.campaignId;
+	handleBoardEdit: async ({ id: boardId }, { dispatcher }) => {
+		const campaignId = dispatcher.sessionAsOwner.campaignId;
+
+		return await prisma.board.findFirstOrThrow({
+			where: {
+				campaignId: campaignId,
+				id: boardId
+			},
+			select: SelectBoard
+		});
+	},
+
+	handleBoardPlay: async ({ id: boardId }, { dispatcher }) => {
+		const campaignId = dispatcher.sessionAsOwner.campaignId;
 
 		const boardSnippet = await prisma.board.findFirstOrThrow({
 			where: {
@@ -22,7 +34,7 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 			}
 		});
 
-		return boardSnippet;
+		return publicResponse(boardSnippet);
 	},
 
 	handleTokenCreate: async (payload, { dispatcher }) => {

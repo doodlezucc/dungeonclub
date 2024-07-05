@@ -6,6 +6,11 @@ export class BoardGrid {
 	constructor(readonly board: Board) {}
 }
 
+export interface BoardSelectOptions {
+	boardId: string;
+	mode: 'edit' | 'play';
+}
+
 export class Board extends WithState<BoardSnippet> {
 	static readonly instance = new Board();
 	static readonly state = this.instance.state;
@@ -16,9 +21,16 @@ export class Board extends WithState<BoardSnippet> {
 		this.set(snippet);
 	}
 
-	async view(boardId: string) {
-		const board = await getSocket().request('boardView', { id: boardId });
-		this.load(board);
+	async request({ boardId, mode }: BoardSelectOptions) {
+		let snippet: BoardSnippet;
+
+		if (mode === 'edit') {
+			snippet = await getSocket().request('boardEdit', { id: boardId });
+		} else {
+			snippet = await getSocket().request('boardPlay', { id: boardId });
+		}
+
+		this.load(snippet);
 	}
 }
 

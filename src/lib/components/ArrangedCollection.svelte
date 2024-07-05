@@ -1,12 +1,13 @@
 <script lang="ts" context="module">
 	import type { Position } from './compounds';
 
-	export interface DragHandle {
+	export interface DragController {
 		start: () => void;
+		isDragging: Readable<boolean>;
 	}
 
 	export interface DragState {
-		handle: DragHandle;
+		controller: DragController;
 		center?: Position;
 		isAnyDragging: Readable<boolean>;
 		setItemCenter: (position: Position) => void;
@@ -21,6 +22,7 @@
 	import Row from './layout/Row.svelte';
 
 	export let items: Array<T>;
+	export let customDragHandling = false;
 
 	let draggedItem = writable<T | null>(null);
 	let isAnyDragging = derived(draggedItem, (dragged) => dragged != null);
@@ -46,7 +48,8 @@
 			setItemCenter: (center) => {
 				newState.center = center;
 			},
-			handle: {
+			controller: {
+				isDragging: derived(draggedItem, (activeItem) => activeItem == item),
 				start: () => {
 					$draggedItem = item;
 				}
@@ -116,11 +119,11 @@
 			{#if entry}
 				<Arrangable
 					{index}
-					isDragging={$draggedItem == entry[0]}
 					state={entry[1]}
+					{customDragHandling}
 					on:drag={(ev) => onDrag(entry, ev)}
 				>
-					<slot item={entry[0]} handle={entry[1].handle} this />
+					<slot item={entry[0]} dragController={entry[1].controller} this />
 				</Arrangable>
 			{:else}
 				<slot name="plus" />

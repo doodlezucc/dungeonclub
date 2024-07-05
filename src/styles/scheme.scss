@@ -10,13 +10,20 @@
 	padding: 1em;
 	display: inline-block;
 	background-color: var(--color-container);
-	box-shadow: 0 0.5em 1em #000a;
-}
 
-.container[data-padding='big'] {
-	padding: 3em;
-}
+	&[data-padding='big'] {
+		padding: 3em;
+	}
 
-.container[data-margin='big'] {
-	margin: 3em;
+	&[data-margin='big'] {
+		margin: 3em;
+	}
+
+	&[data-variant='elevated'] {
+		box-shadow: 0 0.5em 1em #000a;
+	}
+
+	&[data-variant='outlined'] {
+		border: 2px solid var(--color-separator);
+	}
 }
