@@ -17,14 +17,10 @@ model Asset {
   id String @id @default(uuid())
 
   path     String
-  fileType AssetType
+  mimeType String
 
   TokenTemplate TokenTemplate?
   Board         Board?
-}
-
-enum AssetType {
-  IMAGE
 }
 
 model Account {

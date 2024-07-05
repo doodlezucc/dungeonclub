@@ -1,11 +1,12 @@
 import type { CampaignMessageCategory } from 'shared';
 import { SelectCampaignCard } from '../../net/snippets';
+import { generateUniqueString } from '../generate-string';
 import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
 
 export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	handleCampaignCreate: async ({ name }, { dispatcher }) => {
-		const campaignId = generateCampaignID();
+		const campaignId = await generateCampaignID();
 
 		await prisma.campaign.create({
 			data: {
@@ -56,22 +57,16 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	}
 };
 
-function generateCampaignID() {
-	const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-	const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-	const digits = '0123456789';
+async function generateCampaignID() {
+	return generateUniqueString({
+		length: 5,
+		doesExist: async (id) => {
+			const existingCampaign = await prisma.campaign.findFirst({
+				where: { id: id },
+				select: null
+			});
 
-	const pool = [uppercase, lowercase, digits].join('');
-
-	function randomCharacter() {
-		return pool[Math.floor(Math.random() * pool.length)];
-	}
-
-	let result = '';
-
-	for (let i = 0; i < 5; i++) {
-		result += randomCharacter();
-	}
-
-	return result;
+			return existingCampaign != null;
+		}
+	});
 }
