@@ -1,7 +1,7 @@
 import type { Prisma } from '@prisma/client';
 
 export const SelectAsset = {
-	fileType: true,
+	mimeType: true,
 	path: true
 } satisfies Prisma.AssetSelect;
 

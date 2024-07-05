@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { rest } from 'client/communication';
 	import { Board, sessionState } from 'client/state';
-	import { Button, Collection } from 'components';
+	import { Collection } from 'components';
 	import { displayErrorDialog } from 'components/extensions/modal';
 	import { Dialog, type ModalContext } from 'components/modal';
+	import FileUploader from 'components/upload/FileUploader.svelte';
 	import { getContext } from 'svelte';
 	import BoardPreview from './BoardPreview.svelte';
 
@@ -11,14 +12,26 @@
 
 	const modal = getContext<ModalContext>('modal');
 
-	async function createNewBoard() {
-		try {
-			const response = await $rest.post(`/campaigns/${$sessionState.campaign!.id}/boards`, {
-				body: 'thisisnowconsidereddata'
-			});
+	async function createNewBoardsFromFiles(ev: CustomEvent<FileList>) {
+		const files = ev.detail;
 
-			boardSnippets = [...(boardSnippets ?? []), response];
-			Board.instance.load(response);
+		try {
+			for (const file of files) {
+				const isImage = file.type.startsWith('image/');
+
+				if (isImage) {
+					const response = await $rest.post(`/campaigns/${$sessionState.campaign!.id}/boards`, {
+						body: {
+							contentType: file.type,
+							data: await file.arrayBuffer()
+						}
+					});
+
+					boardSnippets = [...(boardSnippets ?? []), response];
+					Board.instance.load(response);
+				}
+			}
+
 			modal.pop();
 		} catch (error) {
 			displayErrorDialog(modal, error);
@@ -37,7 +50,9 @@
 			<BoardPreview name={snippet.name} on:click={() => selectBoard(snippet.id)} />
 
 			<svelte:fragment slot="plus">
-				<Button raised on:click={createNewBoard}>New Board</Button>
+				<FileUploader displayedIcon="file-image" on:change={createNewBoardsFromFiles}>
+					New Board
+				</FileUploader>
 			</svelte:fragment>
 		</Collection>
 	{/if}

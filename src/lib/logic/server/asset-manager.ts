@@ -1,7 +1,8 @@
 import type { Asset } from '@prisma/client';
+import { access, mkdir, writeFile } from 'fs/promises';
+import * as mime from 'mime-types';
+import { generateUniqueString } from './generate-string';
 import { prisma } from './server';
-
-import { mkdir, writeFile } from 'fs/promises';
 
 export class AssetManager {
 	readonly rootDirFromFrontend: string = '/user-media';
@@ -32,9 +33,32 @@ export class AssetManager {
 	}
 
 	async uploadAsset(request: Request): Promise<Asset> {
-		const buffer = await request.arrayBuffer();
+		const contentType = request.headers.get('Content-Type');
 
-		const fileName = 'myasset.png';
+		if (!contentType) {
+			throw 'Asset upload failed because Content-Type header is not set';
+		}
+
+		const fileExtension = mime.extension(contentType);
+		if (!fileExtension) {
+			throw 'Asset upload failed because MIME type could not be recognized';
+		}
+
+		const fileName = await generateUniqueString({
+			length: 8,
+			map: (id) => `${id}.${fileExtension}`,
+			doesExist: async (fileName) => {
+				try {
+					const pathToAsset = this.getPathToFile(fileName);
+					await access(pathToAsset);
+					return true;
+				} catch {
+					return false;
+				}
+			}
+		});
+
+		const buffer = await request.arrayBuffer();
 
 		const systemPath = this.getPathToFile(fileName);
 		await writeFile(systemPath, new Uint8Array(buffer));
@@ -43,7 +67,7 @@ export class AssetManager {
 
 		return await prisma.asset.create({
 			data: {
-				fileType: 'IMAGE',
+				mimeType: contentType,
 				path: fileName
 			}
 		});
