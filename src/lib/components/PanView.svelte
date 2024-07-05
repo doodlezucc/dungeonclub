@@ -33,6 +33,11 @@
 	export let position = { x: 0, y: 0 };
 	export let zoom = 0;
 
+	let elementView: EventTarget;
+	let elementContent: EventTarget;
+
+	$: elementsTriggeringPanEvent = [elementView, elementContent];
+
 	$: isPanning = false;
 	$: pointerOrigin = { x: 0, y: 0 };
 
@@ -43,11 +48,19 @@
 		height: 1
 	};
 
+	function isValidPanEventStarter(eventTarget: EventTarget | null) {
+		return eventTarget && elementsTriggeringPanEvent.includes(eventTarget);
+	}
+
 	function startPanning(ev: PointerEvent) {
-		ev.preventDefault();
 		if (!isPanning) {
-			pointerOrigin = { x: ev.screenX, y: ev.screenY };
-			isPanning = true;
+			const isMainMouseButton = ev.button == 0;
+
+			if (!isMainMouseButton || isValidPanEventStarter(ev.target)) {
+				ev.preventDefault();
+				pointerOrigin = { x: ev.screenX, y: ev.screenY };
+				isPanning = true;
+			}
 		}
 	}
 
@@ -91,14 +104,20 @@
 <svelte:document on:pointermove={handlePointerMove} on:pointerup={stopPanning} />
 
 <div
+	bind:this={elementView}
 	class="pan-view"
 	class:expand
 	on:pointerdown={startPanning}
 	on:wheel={handleMouseWheel}
 	style="--x: {position.x}; --y: {position.y}; --scale: {scale};"
 >
-	<div class="panned" bind:clientWidth={dimensions.width} bind:clientHeight={dimensions.height}>
-		<slot></slot>
+	<div
+		bind:this={elementContent}
+		class="panned"
+		bind:clientWidth={dimensions.width}
+		bind:clientHeight={dimensions.height}
+	>
+		<slot />
 	</div>
 </div>
 

@@ -53,5 +53,10 @@
 		position: relative;
 		display: flex;
 		align-self: center;
+		pointer-events: stroke;
+	}
+
+	.board {
+		pointer-events: none;
 	}
 </style>
