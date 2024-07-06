@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
 	export interface BoardContext {
-		dimensions: Size;
-		cellSize: number;
+		transformClientToGridSpace: (position: Position) => Position;
+		transformGridToClientSpace: (position: Position) => Position;
 	}
 </script>
 
@@ -17,22 +17,51 @@
 
 	const cellsPerRow = $boardState!.gridCellsPerRow;
 
-	let position: Position = { x: 0, y: 0 };
-	let zoom: number = 0;
+	$: position = <Position>{ x: 0, y: 0 };
+	$: zoom = 0;
 
 	$: dimensions = undefined as Size | undefined;
 
 	$: cellSize = (dimensions?.width ?? 0) / cellsPerRow;
 
-	if (dimensions) {
-		setContext('board', <BoardContext>{
-			cellSize: dimensions.width / cellsPerRow
-		});
+	let contentElement: HTMLElement;
+	$: cachedClientRect = undefined as DOMRect | undefined;
+
+	$: {
+		// Clear cached client rect when position or zoom change
+		if (position && zoom != undefined) {
+			cachedClientRect = undefined;
+		}
 	}
+
+	function getClientRect() {
+		return (cachedClientRect ??= contentElement.getBoundingClientRect());
+	}
+
+	function transformClientToGridSpace(clientPosition: Position): Position {
+		const rect = getClientRect();
+
+		const zoomFactor = Math.exp(zoom);
+		const factor = zoomFactor * cellSize;
+
+		return {
+			x: (clientPosition.x - rect.x) / factor,
+			y: (clientPosition.y - rect.y) / factor
+		};
+	}
+
+	function transformGridToClientSpace(position: Position): Position {
+		throw 'Not implemented';
+	}
+
+	setContext('board', <BoardContext>{
+		transformClientToGridSpace,
+		transformGridToClientSpace
+	});
 </script>
 
 <PanView expand bind:position bind:zoom>
-	<div class="board" style="--cell-size: {cellSize}px">
+	<div bind:this={contentElement} class="board" style="--cell-size: {cellSize}px">
 		<BattleMap bind:size={dimensions} />
 
 		{#if dimensions}

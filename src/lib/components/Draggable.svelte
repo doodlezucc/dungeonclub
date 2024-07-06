@@ -3,24 +3,21 @@
 	import type { Position } from './compounds';
 
 	export interface DraggableParams {
-		handleDragging: (mouseDelta: Position) => void;
+		handleDragging: (ev: MouseEvent) => void;
 		onDragToggle?: (isDragging: boolean) => void;
+		onDragStart?: (ev: DragEvent) => void;
 	}
 
 	export const draggable: Action<HTMLElement, DraggableParams> = (node, params) => {
 		node.draggable = true;
 
 		function handleGlobalMouseMove(ev: MouseEvent) {
-			console.log('drag update');
-			params.handleDragging({
-				x: ev.movementX,
-				y: ev.movementY
-			});
+			params.handleDragging(ev);
 		}
 
 		function handleDragStart(ev: DragEvent) {
-			console.log('drag start');
 			ev.preventDefault();
+			if (params.onDragStart) params.onDragStart(ev);
 			if (params.onDragToggle) params.onDragToggle(true);
 
 			window.addEventListener('mousemove', handleGlobalMouseMove);
@@ -28,7 +25,6 @@
 		}
 
 		function handleGlobalMouseUp() {
-			console.log('drag end');
 			if (params.onDragToggle) params.onDragToggle(false);
 
 			window.removeEventListener('mousemove', handleGlobalMouseMove);
@@ -63,10 +59,10 @@
 	role="presentation"
 	style="translate: {$visualOffset.x}px {$visualOffset.y}px;"
 	use:draggable={{
-		handleDragging: (mouseDelta) =>
+		handleDragging: (ev) =>
 			(offset = {
-				x: offset.x + mouseDelta.x,
-				y: offset.y + mouseDelta.y
+				x: offset.x + ev.movementX,
+				y: offset.y + ev.movementY
 			})
 	}}
 >

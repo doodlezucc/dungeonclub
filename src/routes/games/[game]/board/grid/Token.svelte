@@ -1,19 +1,49 @@
 <script lang="ts">
 	import type { Position } from '$lib/compounds';
 	import { draggable } from 'components/Draggable.svelte';
+	import { getContext } from 'svelte';
+	import { spring } from 'svelte/motion';
+	import type { BoardContext } from '../Board.svelte';
 
 	export let position: Position;
-
 	export let size: number = 1;
+
+	let originalPosition: Position;
+
+	let positionSpring = spring(position, {
+		damping: 0.7,
+		stiffness: 0.2
+	});
+
+	$: {
+		$positionSpring = position;
+	}
+
+	const { transformClientToGridSpace } = getContext<BoardContext>('board');
+
+	function onDragToggle(isDragging: boolean) {
+		if (isDragging) {
+			originalPosition = position;
+		}
+	}
+
+	function handleDragging(ev: MouseEvent) {
+		const transformed = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });
+
+		const rounded = {
+			x: Math.round(transformed.x),
+			y: Math.round(transformed.y)
+		};
+
+		position = rounded;
+	}
 </script>
 
 <div
 	class="token"
 	role="presentation"
-	use:draggable={{
-		handleDragging: (delta) => (position = { x: position.x + delta.x, y: position.y + delta.y })
-	}}
-	style="--x: {position.x}; --y: {position.y}; --size: {size}"
+	use:draggable={{ onDragToggle, handleDragging }}
+	style="--x: {$positionSpring.x}; --y: {$positionSpring.y}; --size: {size}"
 >
 	Token
 </div>
@@ -32,10 +62,10 @@
 		justify-content: center;
 
 		position: absolute;
-		left: calc(var(--x) * var(--cell-size));
-		top: calc(var(--y) * var(--cell-size));
+		left: calc(-0.5 * var(--size-px));
+		top: calc(-0.5 * var(--size-px));
 
-		translate: calc(-0.5 * var(--size-px)) calc(-0.5 * var(--size-px));
+		translate: calc(var(--x) * var(--cell-size)) calc(var(--y) * var(--cell-size));
 		width: var(--size-px);
 		height: var(--size-px);
 	}

@@ -3,7 +3,7 @@
 	import { asset } from 'client/communication/asset';
 	import { boardState } from 'client/state';
 
-	export let size: Size = {
+	export const size: Size = {
 		width: 600,
 		height: 400
 	};
