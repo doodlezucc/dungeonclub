@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Position } from '$lib/compounds';
+	import { Board } from 'client/state';
 	import { draggable } from 'components/Draggable.svelte';
 	import { getContext } from 'svelte';
 	import { spring } from 'svelte/motion';
@@ -7,6 +8,8 @@
 
 	export let position: Position;
 	export let size: number = 1;
+
+	let activeGridSpace = Board.instance.grid.gridSpace;
 
 	let originalPosition: Position;
 
@@ -28,14 +31,14 @@
 	}
 
 	function handleDragging(ev: MouseEvent) {
-		const transformed = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });
+		const mouseInGridSpace = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });
 
-		const rounded = {
-			x: Math.round(transformed.x),
-			y: Math.round(transformed.y)
-		};
+		const snapped = $activeGridSpace!.snapShapeToGrid({
+			center: mouseInGridSpace,
+			size
+		});
 
-		position = rounded;
+		position = snapped;
 	}
 </script>
 

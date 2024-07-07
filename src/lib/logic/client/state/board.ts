@@ -1,9 +1,17 @@
+import { GridSpace } from '$lib/packages/grid/grid-snapping';
 import type { BoardSnippet } from 'shared';
+import { derived, type Readable } from 'svelte/store';
 import { getSocket } from '../communication';
 import { WithState } from './with-state';
 
 export class BoardGrid {
-	constructor(readonly board: Board) {}
+	readonly gridSpace: Readable<GridSpace | null>;
+
+	constructor(readonly board: Board) {
+		this.gridSpace = derived(board.state, (boardState) => {
+			return boardState ? GridSpace.parse(boardState.gridType) : null;
+		});
+	}
 }
 
 export interface BoardSelectOptions {

@@ -1,4 +1,5 @@
 import type { Position } from '$lib/compounds';
+import type { GridType } from '@prisma/client';
 
 type PositionedSquare = {
 	center: Position;
@@ -11,9 +12,20 @@ export interface SnapToGridProvider {
 
 export abstract class GridSpace implements SnapToGridProvider {
 	abstract snapShapeToGrid(token: PositionedSquare): Position;
+
+	static parse(gridType: GridType): GridSpace {
+		switch (gridType) {
+			case 'SQUARE':
+				return SquareGridSpace.instance;
+		}
+
+		throw `No grid space implementation for type ${gridType}`;
+	}
 }
 
 export class SquareGridSpace extends GridSpace {
+	static readonly instance = new SquareGridSpace();
+
 	snapShapeToGrid({ center: { x, y }, size }: PositionedSquare): Position {
 		if (size % 2 == 1) {
 			// Sizes 1, 3, 5 are centered in the middle of a grid cell
