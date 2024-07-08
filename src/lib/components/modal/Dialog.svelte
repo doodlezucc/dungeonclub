@@ -74,7 +74,7 @@
 		</Row>
 	</header>
 
-	<Separator />
+	<Separator fat />
 
 	<div class="content">
 		<slot />
@@ -92,7 +92,7 @@
 <style>
 	dialog {
 		color: inherit;
-		border: 0.15em solid var(--color-separator);
+		border: 2px solid var(--color-separator);
 		padding: 0;
 	}
 

@@ -1,5 +1,7 @@
 <script lang="ts" context="module">
 	export type ModalContext = {
+		displayToast: (options: ToastOptions) => void;
+
 		display: <T, PROPS extends Record<string, any>>(
 			component: typeof SvelteComponent<PROPS>,
 			props: PROPS
@@ -14,18 +16,27 @@
 		props: PROPS;
 		callback: (result: T) => void;
 	}
+
+	interface VisibleToast {
+		id: number;
+		options: ToastOptions;
+	}
 </script>
 
 <script lang="ts">
 	import { browser } from '$app/environment';
 
 	import { setContext, SvelteComponent } from 'svelte';
+	import { flip } from 'svelte/animate';
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
+	import Toast, { TOAST_DURATION_MS, type ToastOptions } from './Toast.svelte';
 
 	const stack = writable<Modal<any, any>[]>([]);
+	const toasts = writable<VisibleToast[]>([]);
 
 	const nextModalID = writable(0);
+	const nextToastID = writable(0);
 
 	function display<T, PROPS extends Record<string, any>>(
 		component: typeof SvelteComponent<PROPS>,
@@ -44,10 +55,21 @@
 		});
 	}
 
+	function displayToast(options: ToastOptions) {
+		const id = $nextToastID++;
+
+		$toasts = [{ id, options }, ...$toasts];
+
+		setTimeout(() => {
+			// Remove this toast after timeout
+			$toasts = $toasts.filter((toast) => toast.id !== id);
+		}, TOAST_DURATION_MS);
+	}
+
 	if (browser) {
 		setContext<ModalContext>('modal', {
-			display: display,
-
+			displayToast,
+			display,
 			pop: (result) => {
 				const topModal = $stack.at(-1);
 				topModal?.callback(result);
@@ -66,6 +88,14 @@
 			<svelte:component this={modal.component} {...modal.props} />
 		</div>
 	{/each}
+
+	<div class="toast-array">
+		{#each $toasts as toast (toast.id)}
+			<div animate:flip={{ duration: 300 }} transition:fade>
+				<Toast options={toast.options} />
+			</div>
+		{/each}
+	</div>
 </div>
 
 <style>
@@ -92,5 +122,14 @@
 		width: 100%;
 		height: 100%;
 		background-color: var(--color-modal-background);
+	}
+
+	.toast-array {
+		position: absolute;
+		display: flex;
+		gap: 0.5em;
+		flex-direction: column-reverse;
+		align-items: center;
+		bottom: 5em;
 	}
 </style>
