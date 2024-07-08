@@ -1,5 +1,15 @@
-import { writable } from 'svelte/store';
+import { writable, type Invalidator, type Subscriber, type Unsubscriber } from 'svelte/store';
 import type { BidirectionalAction, PromiseOr, UndoableFn } from './action';
+
+const histories = new Map<unknown, HistoryStore>();
+
+export function historyOf(key: unknown): HistoryStore {
+	if (!histories.has(key)) {
+		histories.set(key, createHistory());
+	}
+
+	return histories.get(key)!;
+}
 
 export interface HistoryState {
 	timeline: BidirectionalAction[];
@@ -12,7 +22,20 @@ export interface HistoryState {
 	presentIndex: number;
 }
 
-export const createHistory = () => {
+export interface HistoryStore {
+	subscribe: (
+		run: Subscriber<HistoryState>,
+		invalidate?: Invalidator<HistoryState> | undefined
+	) => Unsubscriber;
+
+	register: (action: BidirectionalAction) => Promise<void>;
+	registerUndoable: (name: string, doAction: UndoableFn) => Promise<void>;
+
+	undo: () => Promise<void>;
+	redo: () => Promise<void>;
+}
+
+export const createHistory = (): HistoryStore => {
 	const { subscribe, update } = writable<HistoryState>({
 		timeline: [],
 		presentIndex: 0

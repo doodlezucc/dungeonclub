@@ -2,8 +2,7 @@
 	import { accountState } from 'client/state';
 	import { Content } from 'components';
 	import { Row } from 'components/layout';
-	import type { ModalContext } from 'components/modal';
-	import { getContext, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { fly, slide } from 'svelte/transition';
 	import AccountContent from './home/AccountContent.svelte';
 	import LoginForm from './home/LoginForm.svelte';
@@ -12,24 +11,8 @@
 
 	$: isMounted = false;
 
-	const modal = getContext<ModalContext>('modal');
-
 	onMount(() => {
 		isMounted = true;
-		modal.displayToast({
-			text: 'This is my first toast. Hello World!'
-		});
-
-		modal.displayToast({
-			text: 'This is my SECOND toast!'
-		});
-
-		setTimeout(() => {
-			modal.displayToast({
-				text: 'Am I late',
-				icon: 'undo-alt'
-			});
-		}, 750);
 	});
 </script>
 

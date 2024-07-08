@@ -29,8 +29,8 @@
 	import { setContext, SvelteComponent } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { writable } from 'svelte/store';
-	import { fade } from 'svelte/transition';
-	import Toast, { TOAST_DURATION_MS, type ToastOptions } from './Toast.svelte';
+	import { fade, fly } from 'svelte/transition';
+	import Toast, { MAX_TOAST_COUNT, TOAST_DURATION_MS, type ToastOptions } from './Toast.svelte';
 
 	const stack = writable<Modal<any, any>[]>([]);
 	const toasts = writable<VisibleToast[]>([]);
@@ -59,6 +59,10 @@
 		const id = $nextToastID++;
 
 		$toasts = [{ id, options }, ...$toasts];
+
+		if ($toasts.length > MAX_TOAST_COUNT) {
+			$toasts = $toasts.slice(0, MAX_TOAST_COUNT);
+		}
 
 		setTimeout(() => {
 			// Remove this toast after timeout
@@ -90,9 +94,13 @@
 	{/each}
 
 	<div class="toast-array">
-		{#each $toasts as toast (toast.id)}
-			<div animate:flip={{ duration: 300 }} transition:fade>
-				<Toast options={toast.options} />
+		{#each $toasts as toast, index (toast.id)}
+			<div
+				animate:flip={{ duration: 100 }}
+				in:fly={{ y: 20, duration: 100 }}
+				out:fade={{ duration: 100 }}
+			>
+				<Toast options={toast.options} isLatest={index == 0} />
 			</div>
 		{/each}
 	</div>
