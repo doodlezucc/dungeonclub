@@ -1,5 +1,15 @@
+export type PromiseOr<T> = Promise<T> | T;
+
+export type OneWayAction = () => PromiseOr<void>;
+
 export interface BidirectionalAction {
 	name: string;
-	do(): Promise<void>;
-	undo(): Promise<void>;
+	do: OneWayAction;
+	undo: OneWayAction;
 }
+
+type UndoableFnResult = {
+	undo: OneWayAction;
+};
+
+export type UndoableFn = () => PromiseOr<UndoableFnResult>;

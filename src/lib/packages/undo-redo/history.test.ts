@@ -277,3 +277,50 @@ test('Undo/Redo multiple', async () => {
 		timeline: [increaseFrom0To1, increaseFrom1To3]
 	});
 });
+
+test('Undo/Redo with inline syntax', async () => {
+	let counterVariable = 0;
+
+	const history = createHistory();
+
+	await history.registerUndoable('Increase counter from 0 to 1', () => {
+		counterVariable = 1;
+
+		return {
+			undo: () => {
+				counterVariable = 0;
+			}
+		};
+	});
+
+	expect(counterVariable).toBe(1);
+
+	await history.registerUndoable('Increase counter from 1 to 2', () => {
+		counterVariable = 2;
+
+		return {
+			undo: () => {
+				counterVariable = 1;
+			}
+		};
+	});
+	expect(counterVariable).toBe(2);
+
+	await history.undo();
+	expect(counterVariable).toBe(1);
+
+	await history.undo();
+	expect(counterVariable).toBe(0);
+
+	await history.undo();
+	expect(counterVariable).toBe(0);
+
+	await history.redo();
+	expect(counterVariable).toBe(1);
+
+	await history.redo();
+	expect(counterVariable).toBe(2);
+
+	await history.undo();
+	expect(counterVariable).toBe(1);
+});

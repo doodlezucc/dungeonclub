@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { BidirectionalAction } from './action';
+import type { BidirectionalAction, PromiseOr, UndoableFn } from './action';
 
 export interface HistoryState {
 	timeline: BidirectionalAction[];
@@ -20,7 +20,7 @@ export const createHistory = () => {
 
 	let activePromise: Promise<unknown> | null = null;
 
-	async function enqueuePromise<T>(promise: () => Promise<T> | T): Promise<T> {
+	async function enqueuePromise<T>(promise: () => PromiseOr<T>): Promise<T> {
 		const endOfQueue = (result: T) => {
 			activePromise = null;
 			return result;
@@ -58,15 +58,15 @@ export const createHistory = () => {
 		await enqueuePromise(action.do);
 	}
 
-	async function registerUndoable(name: string, doAction: () => Promise<() => Promise<void>>) {
-		const undoAction = await enqueuePromise(doAction);
+	async function registerUndoable(name: string, doAction: UndoableFn) {
+		const { undo } = await enqueuePromise(doAction);
 
 		silentRegister({
 			name,
 			do: async () => {
 				await doAction();
 			},
-			undo: undoAction
+			undo: undo
 		});
 	}
 
@@ -79,7 +79,7 @@ export const createHistory = () => {
 				}
 
 				const actionToUndo = timeline[presentIndex - 1];
-				enqueuePromise(() => actionToUndo.undo()).then(resolve);
+				enqueuePromise(() => actionToUndo.undo()).then(() => resolve());
 
 				return {
 					presentIndex: presentIndex - 1,
@@ -98,7 +98,7 @@ export const createHistory = () => {
 				}
 
 				const actionToRedo = timeline[presentIndex];
-				enqueuePromise(() => actionToRedo.do()).then(resolve);
+				enqueuePromise(() => actionToRedo.do()).then(() => resolve());
 
 				return {
 					presentIndex: presentIndex + 1,
