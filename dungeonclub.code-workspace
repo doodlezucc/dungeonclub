@@ -21,6 +21,10 @@
 			"path": "src/lib/components"
 		},
 		{
+			"name": "packages",
+			"path": "src/lib/packages"
+		},
+		{
 			"name": "<root>",
 			"path": "."
 		}
