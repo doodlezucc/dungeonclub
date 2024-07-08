@@ -22,6 +22,11 @@ export interface HistoryState {
 	presentIndex: number;
 }
 
+interface HistoryManipulationResult {
+	actionName: string;
+	completed: Promise<void>;
+}
+
 export interface HistoryStore {
 	subscribe: (
 		run: Subscriber<HistoryState>,
@@ -31,8 +36,8 @@ export interface HistoryStore {
 	register: (action: BidirectionalAction) => Promise<void>;
 	registerUndoable: (name: string, doAction: UndoableFn) => Promise<void>;
 
-	undo: () => Promise<void>;
-	redo: () => Promise<void>;
+	undo: () => Promise<HistoryManipulationResult | null>;
+	redo: () => Promise<HistoryManipulationResult | null>;
 }
 
 export const createHistory = (): HistoryStore => {
@@ -93,16 +98,19 @@ export const createHistory = (): HistoryStore => {
 		});
 	}
 
-	async function undo(): Promise<void> {
+	async function undo(): Promise<HistoryManipulationResult | null> {
 		return new Promise((resolve) =>
 			update(({ timeline, presentIndex }) => {
 				if (presentIndex <= 0) {
-					resolve();
+					resolve(null);
 					return { timeline, presentIndex };
 				}
 
 				const actionToUndo = timeline[presentIndex - 1];
-				enqueuePromise(() => actionToUndo.undo()).then(() => resolve());
+				resolve({
+					actionName: actionToUndo.name,
+					completed: enqueuePromise(() => actionToUndo.undo())
+				});
 
 				return {
 					presentIndex: presentIndex - 1,
@@ -112,16 +120,19 @@ export const createHistory = (): HistoryStore => {
 		);
 	}
 
-	async function redo(): Promise<void> {
+	async function redo(): Promise<HistoryManipulationResult | null> {
 		return new Promise((resolve) =>
 			update(({ timeline, presentIndex }) => {
 				if (presentIndex >= timeline.length) {
-					resolve();
+					resolve(null);
 					return { timeline, presentIndex };
 				}
 
 				const actionToRedo = timeline[presentIndex];
-				enqueuePromise(() => actionToRedo.do()).then(() => resolve());
+				resolve({
+					actionName: actionToRedo.name,
+					completed: enqueuePromise(() => actionToRedo.do())
+				});
 
 				return {
 					presentIndex: presentIndex + 1,
