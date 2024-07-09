@@ -28,6 +28,7 @@
 			if (params.onDragToggle) params.onDragToggle(false);
 
 			window.removeEventListener('mousemove', handleGlobalMouseMove);
+			window.removeEventListener('mouseup', handleGlobalMouseUp);
 		}
 
 		node.addEventListener('dragstart', handleDragStart);
@@ -35,6 +36,7 @@
 		return {
 			destroy: () => {
 				node.removeEventListener('dragstart', handleDragStart);
+				window.removeEventListener('mousemove', handleGlobalMouseMove);
 				window.removeEventListener('mouseup', handleGlobalMouseUp);
 			}
 		};
