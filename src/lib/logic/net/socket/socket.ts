@@ -60,6 +60,13 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		return countActiveChannels;
 	}
 
+	public send<T extends keyof SENT>(name: T, payload: Payload<SENT, T>) {
+		this.sendMessage({
+			name,
+			payload
+		} as AnyMessage);
+	}
+
 	public async request<T extends keyof SENT>(
 		name: T,
 		payload: Payload<SENT, T>
@@ -148,13 +155,6 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		} else {
 			this.handleResponse(incoming);
 		}
-	}
-
-	public send(name: keyof SENT, payload: Payload<SENT, keyof SENT>) {
-		this.sendMessage({
-			name,
-			payload
-		} as AnyMessage);
 	}
 
 	private async sendMessage(message: AnyMessage) {
