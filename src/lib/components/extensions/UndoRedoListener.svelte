@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { createHistory } from '$lib/packages/undo-redo/history';
 	import { defineKeyBindings } from 'client/shortcuts';
 	import { focusedHistory } from 'client/state/focused-history';
 	import type { ModalContext } from 'components/modal';
-	import { getContext, onMount } from 'svelte';
+	import { getContext } from 'svelte';
 
 	const modal = getContext<ModalContext>('modal');
 
@@ -33,18 +32,6 @@
 		bind({ ctrl: 'z' }, undo);
 		bind({ ctrl: 'y' }, redo);
 		bind({ ctrlShift: 'z' }, redo);
-	});
-
-	// Just some proof of concept testing
-	onMount(() => {
-		$focusedHistory = createHistory();
-		$focusedHistory.registerUndoable('debug thingy', () => {
-			console.log('I was done');
-
-			return {
-				undo: () => console.log('I was undone')
-			};
-		});
 	});
 </script>
 

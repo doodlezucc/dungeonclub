@@ -22,9 +22,7 @@ export class ClientRequestHandler extends MessageHandler<ClientHandledMessages, 
 			console.log('onTokenCreate', payload);
 		},
 
-		onTokenMove: (payload) => {
-			console.log('onTokenMove', payload);
-		}
+		onTokenMove: (payload) => Board.instance.handleTokenMove(payload)
 	};
 
 	campaign: CategoryHandlers<CampaignMessageCategory, ClientHandledMessages, Options> = {};

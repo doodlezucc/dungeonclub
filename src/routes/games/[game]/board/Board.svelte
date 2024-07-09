@@ -24,6 +24,8 @@
 
 	$: cellSize = (dimensions?.width ?? 0) / cellsPerRow;
 
+	$: tokens = $boardState!.tokens;
+
 	let contentElement: HTMLElement;
 	$: cachedClientRect = undefined as DOMRect | undefined;
 
@@ -70,8 +72,9 @@
 			</Overlay>
 
 			<Overlay>
-				<Token position={{ x: 1.5, y: 1.5 }}></Token>
-				<Token size={2} position={{ x: 4, y: 1 }}></Token>
+				{#each tokens as token (token.id)}
+					<Token id={token.id} position={{ x: token.x, y: token.y }} size={token.size}></Token>
+				{/each}
 			</Overlay>
 		{/if}
 	</div>

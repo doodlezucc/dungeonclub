@@ -1,11 +1,14 @@
 <script lang="ts">
 	import type { Position } from '$lib/compounds';
-	import { Board } from 'client/state';
+	import { historyOf } from '$lib/packages/undo-redo/history';
+	import { socket } from 'client/communication';
+	import { Board, boardState } from 'client/state';
 	import { draggable } from 'components/Draggable.svelte';
 	import { getContext } from 'svelte';
 	import { spring } from 'svelte/motion';
 	import type { BoardContext } from '../Board.svelte';
 
+	export let id: string;
 	export let position: Position;
 	export let size: number = 1;
 
@@ -27,6 +30,24 @@
 	function onDragToggle(isDragging: boolean) {
 		if (isDragging) {
 			originalPosition = position;
+		} else {
+			function sendAndHandle(position: Position) {
+				const payload = { id, position };
+				$socket.send('tokenMove', payload);
+				Board.instance.handleTokenMove(payload);
+			}
+
+			const delta = [originalPosition, position];
+
+			historyOf($boardState!.id).registerUndoable('Move token', () => {
+				sendAndHandle(delta[1]);
+
+				return {
+					undo: () => {
+						sendAndHandle(delta[0]);
+					}
+				};
+			});
 		}
 	}
 

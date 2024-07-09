@@ -1,6 +1,8 @@
+import type { JsonObject } from '@prisma/client/runtime/library';
 import { readonly, writable, type Readable, type Writable } from 'svelte/store';
 
-export abstract class WithState<T> {
+export abstract class WithState<T extends JsonObject> {
+	private _currentState: T | null = null;
 	private readonly _state: Writable<T | null>;
 	readonly state: Readable<T | null>;
 
@@ -11,5 +13,17 @@ export abstract class WithState<T> {
 
 	protected set(state: T) {
 		this._state.set(state);
+		this._currentState = state;
+	}
+
+	protected put(update: (state: T) => T) {
+		if (!this._currentState) {
+			throw 'State not set, unable to modify with put()';
+		}
+
+		this.set({
+			...this._currentState,
+			...update(this._currentState)
+		});
 	}
 }

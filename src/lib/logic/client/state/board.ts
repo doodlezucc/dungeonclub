@@ -1,7 +1,9 @@
 import { GridSpace } from '$lib/packages/grid/grid-snapping';
-import type { BoardSnippet } from 'shared';
+import { historyOf } from '$lib/packages/undo-redo/history';
+import type { BoardSnippet, GetPayload } from 'shared';
 import { derived, type Readable } from 'svelte/store';
 import { getSocket } from '../communication';
+import { focusedHistory } from './focused-history';
 import { WithState } from './with-state';
 
 export class BoardGrid {
@@ -27,6 +29,7 @@ export class Board extends WithState<BoardSnippet> {
 
 	load(snippet: BoardSnippet) {
 		this.set(snippet);
+		focusedHistory.set(historyOf(snippet.id));
 	}
 
 	async request({ boardId, mode }: BoardSelectOptions) {
@@ -39,6 +42,13 @@ export class Board extends WithState<BoardSnippet> {
 		}
 
 		this.load(snippet);
+	}
+
+	handleTokenMove({ id, position }: GetPayload<'tokenMove'>) {
+		this.put((board) => ({
+			...board,
+			tokens: board.tokens.map((token) => (token.id === id ? { ...token, ...position } : token))
+		}));
 	}
 }
 
