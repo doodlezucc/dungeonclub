@@ -13,3 +13,8 @@ type UndoableFnResult = {
 };
 
 export type UndoableFn = () => PromiseOr<UndoableFnResult>;
+
+export interface DeltaOptions<T> {
+	fromTo: [T, T];
+	apply: (state: T) => PromiseOr<void>;
+}

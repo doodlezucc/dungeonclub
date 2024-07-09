@@ -31,22 +31,14 @@
 		if (isDragging) {
 			originalPosition = position;
 		} else {
-			function sendAndHandle(position: Position) {
-				const payload = { id, position };
-				$socket.send('tokenMove', payload);
-				Board.instance.handleTokenMove(payload);
-			}
+			historyOf($boardState!.id).registerDelta('Move token', {
+				fromTo: [originalPosition, position],
+				apply: (position) => {
+					const payload = { id, position };
 
-			const delta = [originalPosition, position];
-
-			historyOf($boardState!.id).registerUndoable('Move token', () => {
-				sendAndHandle(delta[1]);
-
-				return {
-					undo: () => {
-						sendAndHandle(delta[0]);
-					}
-				};
+					$socket.send('tokenMove', payload);
+					Board.instance.handleTokenMove(payload);
+				}
 			});
 		}
 	}
