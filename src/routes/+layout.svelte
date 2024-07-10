@@ -1,4 +1,5 @@
 <script>
+	import ShortcutListener from 'components/extensions/ShortcutListener.svelte';
 	import SocketProvider from 'components/extensions/SocketProvider.svelte';
 	import UndoRedoListener from 'components/extensions/UndoRedoListener.svelte';
 	import { ModalProvider } from 'components/modal';
@@ -8,10 +9,12 @@
 
 <SocketProvider>
 	<ModalProvider>
-		<UndoRedoListener>
-			<Header />
+		<ShortcutListener>
+			<UndoRedoListener>
+				<Header />
 
-			<slot />
-		</UndoRedoListener>
+				<slot />
+			</UndoRedoListener>
+		</ShortcutListener>
 	</ModalProvider>
 </SocketProvider>
