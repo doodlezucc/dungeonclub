@@ -1,6 +1,6 @@
 import { DISABLE_PERMISSIONS } from '$env/static/private';
-import { SelectBoard, SelectCampaign, type CampaignSnippet } from 'shared';
-import { prisma, server } from './server';
+import { type CampaignSnippet } from 'shared';
+import { server } from './server';
 import type { CampaignSession } from './session';
 import { ConnectionSocket } from './socket';
 
@@ -8,7 +8,6 @@ export class User {
 	readonly connection: ConnectionSocket;
 
 	private _accountId?: string;
-	private _activeBoardId?: string;
 	private _session?: CampaignSession;
 
 	constructor(socket: ConnectionSocket) {
@@ -34,6 +33,10 @@ export class User {
 		return this._accountId !== undefined;
 	}
 
+	get sessionOrNull() {
+		return this._session;
+	}
+
 	get session() {
 		if (!this._session) throw 'Not in a session';
 
@@ -49,12 +52,12 @@ export class User {
 		return result;
 	}
 
-	get activeBoardIdOrNull() {
-		return this._activeBoardId;
+	get visibleBoardIdOrNull() {
+		return this.session.getVisibleBoardIdFor(this);
 	}
 
-	get activeBoardId() {
-		const result = this.activeBoardIdOrNull;
+	get visibleBoardId() {
+		const result = this.visibleBoardIdOrNull;
 
 		if (!result) throw 'No active board set for this user';
 
@@ -66,30 +69,9 @@ export class User {
 	}
 
 	async enterSession(campaignId: string): Promise<CampaignSnippet> {
-		this._session = server.sessionManager.enterSession(campaignId, this);
+		const session = await server.sessionManager.enterSession(campaignId, this);
+		this._session = session;
 
-		const campaign = await prisma.campaign.findUniqueOrThrow({
-			where: { id: campaignId },
-			select: {
-				...SelectCampaign,
-				selectedBoardId: true
-			}
-		});
-
-		const { selectedBoardId } = campaign;
-
-		if (!selectedBoardId) {
-			return campaign;
-		}
-
-		const selectedBoard = await prisma.board.findUniqueOrThrow({
-			where: { id: selectedBoardId },
-			select: SelectBoard
-		});
-
-		return {
-			...campaign,
-			selectedBoard: selectedBoard
-		};
+		return await session.loadSnippetFor(this);
 	}
 }

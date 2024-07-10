@@ -38,6 +38,8 @@ class WebSocketManager {
 
 	private onDisconnect(disconnectedSocket: ConnectionSocket, code: number) {
 		console.log('Closing connection with code', code);
+		disconnectedSocket.dispose();
+
 		this.connectionSockets = this.connectionSockets.filter(
 			(socket) => socket !== disconnectedSocket
 		);

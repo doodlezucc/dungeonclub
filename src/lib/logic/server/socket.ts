@@ -30,12 +30,12 @@ export const serverMessageHandler = new ServerMessageHandler();
 export class ConnectionSocket extends MessageSocket<ServerHandledMessages, ServerSentMessages> {
 	private static utf8 = new TextDecoder('UTF-8');
 
-	readonly connection: User;
+	readonly user: User;
 	private webSocket: WebSocket;
 
 	constructor(webSocket: WebSocket) {
 		super();
-		this.connection = new User(this);
+		this.user = new User(this);
 		this.webSocket = webSocket;
 
 		webSocket.on('message', (data: Buffer) => {
@@ -45,7 +45,7 @@ export class ConnectionSocket extends MessageSocket<ServerHandledMessages, Serve
 	}
 
 	dispose() {
-		this.connection.dispose();
+		this.user.dispose();
 	}
 
 	protected processMessage<T extends keyof ServerHandledMessages>(
@@ -53,11 +53,18 @@ export class ConnectionSocket extends MessageSocket<ServerHandledMessages, Serve
 		payload: Payload<ServerHandledMessages, T>
 	): Promise<ResponseObject<ServerHandledMessages, T>> {
 		return serverMessageHandler.handle<T>(name, payload, {
-			dispatcher: this.connection
+			dispatcher: this.user
 		});
 	}
 
 	protected sendOutgoingMessage(encodedMessage: string): void {
 		this.webSocket.send(encodedMessage);
+	}
+
+	protected getPeers(): ConnectionSocket[] {
+		return (
+			this.user.sessionOrNull?.getPeerUsersOf(this.user).map((peerUser) => peerUser.connection) ??
+			[]
+		);
 	}
 }

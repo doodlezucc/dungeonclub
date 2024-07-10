@@ -8,7 +8,7 @@ import {
 	type ClientHandledMessages
 } from 'shared';
 
-type Options = unknown;
+type Options = {};
 
 export class ClientRequestHandler extends MessageHandler<ClientHandledMessages, Options> {
 	account: CategoryHandlers<AccountMessageCategory, ClientHandledMessages, Options> = {};

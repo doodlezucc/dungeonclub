@@ -1,4 +1,4 @@
-import type { IForward, IResponse, Payload, Response, ResponseObject } from '../messages';
+import type { Payload, Response, ResponseObject } from '../messages';
 import {
 	MessageCodec,
 	type AnyMessage,
@@ -106,24 +106,23 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		}
 	}
 
-	private async handleMessage(message: SendMessage<HANDLED, keyof HANDLED>) {
+	private async handleMessage<T extends keyof HANDLED>(message: SendMessage<HANDLED, T>) {
 		const { name, payload, channel } = message;
 
 		try {
-			const result = (await this.processMessage(name, payload)) as Response<HANDLED, keyof HANDLED>;
+			const result = (await this.processMessage(name, payload)) as ResponseObject<HANDLED, T>;
 
-			let responsePayload = result;
+			let responsePayload = result as Response<HANDLED, T>;
 
 			if (result && typeof result === 'object') {
-				const multiResponse = responsePayload as IForward<unknown> | IResponse<unknown>;
+				if ('forwardedResponse' in result) {
+					const forwardedName = name as unknown as keyof SENT;
+					const forwardedPayload = result.forwardedResponse as Payload<SENT, typeof forwardedName>;
 
-				if ('forwardedPayload' in multiResponse) {
-					const { forwardedPayload } = multiResponse;
-
-					console.log('forward to other players', forwardedPayload);
+					this.broadcastToPeers(forwardedName, forwardedPayload);
 				}
-				if ('response' in multiResponse) {
-					responsePayload = multiResponse.response as Response<HANDLED, keyof HANDLED>;
+				if ('response' in result) {
+					responsePayload = result.response as Response<HANDLED, T>;
 				}
 			}
 
@@ -173,11 +172,20 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		);
 	}
 
+	private broadcastToPeers<T extends keyof SENT>(name: T, payload: Payload<SENT, T>) {
+		for (const peerSocket of this.getPeers()) {
+			peerSocket.send(name, payload);
+		}
+	}
+
 	protected abstract processMessage<T extends keyof HANDLED>(
 		name: T,
 		payload: Payload<HANDLED, T>
 	): Promise<ResponseObject<HANDLED, T>>;
 	protected abstract sendOutgoingMessage(encodedMessage: string): void;
+	protected getPeers(): MessageSocket<HANDLED, SENT>[] {
+		return [];
+	}
 }
 
 export class RequestError extends Error {

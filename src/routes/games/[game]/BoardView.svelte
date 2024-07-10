@@ -19,6 +19,7 @@
 
 		// Show board selection if there is no board loaded
 		if (loadedCampaign && !loadedCampaign.selectedBoard) {
+			console.log(loadedCampaign, loadedCampaign.selectedBoard);
 			showBoardSelection();
 		}
 	}

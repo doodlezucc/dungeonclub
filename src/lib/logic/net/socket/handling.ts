@@ -38,13 +38,30 @@ export abstract class MessageHandler<HANDLED, OPTIONS> {
 		options: OPTIONS
 	): Promise<ResponseObject<HANDLED, T>> {
 		const nameCapitalized = name.substring(0, 1).toUpperCase() + name.substring(1);
-		const handlerName = `handle${nameCapitalized}`;
 
-		return this.runHandler(handlerName as HandlerName<T>, payload, options);
+		try {
+			// Look for request handler
+			return this.runHandler(`handle${nameCapitalized}` as HandlerName<T>, payload, options);
+		} catch (err) {
+			if (!(err instanceof UnhandledMessageError)) {
+				throw err;
+			}
+
+			try {
+				// Look for event handler
+				return this.runHandler(`on${nameCapitalized}` as EventHandlerName<T>, payload, options);
+			} catch (err) {
+				if (!(err instanceof UnhandledMessageError)) {
+					throw err;
+				}
+			}
+		}
+
+		throw 'Unhandled message';
 	}
 
 	runHandler<T extends keyof HANDLED & string>(
-		handlerName: HandlerName<T>,
+		handlerName: HandlerName<T> | EventHandlerName<T>,
 		payload: Payload<HANDLED, T>,
 		options: OPTIONS
 	): Promise<ResponseObject<HANDLED, T>> {
@@ -61,9 +78,11 @@ export abstract class MessageHandler<HANDLED, OPTIONS> {
 			}
 		}
 
-		throw 'Unhandled message ' + handlerName;
+		throw new UnhandledMessageError();
 	}
 }
+
+class UnhandledMessageError extends Error {}
 
 export function publicResponse<R>(response: R) {
 	return {
