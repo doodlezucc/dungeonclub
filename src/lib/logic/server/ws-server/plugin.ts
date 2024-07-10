@@ -1,5 +1,5 @@
 import type { Plugin } from 'vite';
-import { createWSSGlobalInstance, makeWebSocketUpgradeHandler } from './web-socket-utils.js';
+import { createWSSGlobalInstance, makeWebSocketUpgradeHandler } from './ws-server';
 
 interface Options {
 	/**

@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import type { WebSocket } from 'ws';
 import { AssetManager } from './asset-manager';
 import { Connection } from './connection';
-import { getWebSocketServer } from './ws-server';
+import { getWebSocketServer } from './ws-server/ws-server';
 
 export const prisma = new PrismaClient();
 

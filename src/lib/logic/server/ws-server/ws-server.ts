@@ -4,9 +4,9 @@ import { WebSocketServer } from 'ws';
 
 // Adapted from https://github.com/suhaildawood/SvelteKit-integrated-WebSocket
 
-export const globalThisWSS = Symbol.for('sveltekit.wss');
+const globalThisWSS = Symbol.for('sveltekit.wss');
 
-export type ExtendedGlobal = typeof globalThis & {
+type ExtendedGlobal = typeof globalThis & {
 	[globalThisWSS]: WebSocketServer;
 };
 
