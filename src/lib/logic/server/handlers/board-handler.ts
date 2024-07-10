@@ -38,11 +38,11 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 	},
 
 	handleTokenCreate: async (payload, { dispatcher }) => {
-		const board = dispatcher.sessionAsOwner.visibleBoard;
+		const boardId = dispatcher.sessionAsOwner && dispatcher.activeBoardId;
 
 		const token = await prisma.token.create({
 			data: {
-				boardId: board.id,
+				boardId,
 				templateId: payload.tokenTemplate,
 				...payload.position
 			},
@@ -52,8 +52,17 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 		return publicResponse(token);
 	},
 
-	handleTokenMove: async (payload) => {
-		console.log('move token', payload);
+	handleTokenMove: async (payload, { dispatcher }) => {
+		const boardId = dispatcher.sessionAsOwner && dispatcher.activeBoardId;
+
+		await prisma.token.update({
+			where: { boardId, id: payload.id },
+			data: {
+				x: payload.position.x,
+				y: payload.position.y
+			},
+			select: null
+		});
 
 		return {
 			forwardedResponse: payload

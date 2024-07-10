@@ -16,7 +16,7 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 			}
 		});
 
-		return dispatcher.enterSession(campaignId, { isGM: true });
+		return dispatcher.enterSession(campaignId, { enterAsGM: true });
 	},
 
 	handleCampaignEdit: async ({ id, name }, { dispatcher }) => {
@@ -49,11 +49,11 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 			throw 'You must be the owner of this campaign to be able to host';
 		}
 
-		return await dispatcher.enterSession(id, { isGM: true });
+		return await dispatcher.enterSession(id, { enterAsGM: true });
 	},
 
 	handleCampaignJoin: async ({ id }, { dispatcher }) => {
-		return await dispatcher.enterSession(id, { isGM: false });
+		return await dispatcher.enterSession(id, { enterAsGM: false });
 	}
 };
 

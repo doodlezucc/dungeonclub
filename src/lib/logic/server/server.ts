@@ -1,15 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 import type { WebSocket } from 'ws';
 import { AssetManager } from './asset-manager';
-import { Connection } from './connection';
+import { SessionManager } from './session';
+import { ConnectionSocket } from './socket';
 import { getWebSocketServer } from './ws-server/ws-server';
 
 export const prisma = new PrismaClient();
 
 export class Server {
 	readonly assetManager = new AssetManager();
+	readonly sessionManager = new SessionManager();
 	readonly webSocketManager = new WebSocketManager();
-	readonly connections: Connection[] = [];
 
 	async start() {
 		this.webSocketManager.start();
@@ -17,26 +18,29 @@ export class Server {
 }
 
 class WebSocketManager {
-	connections: Connection[] = [];
+	private connectionSockets: ConnectionSocket[] = [];
 
 	start() {
 		const wss = getWebSocketServer();
+		wss.removeAllListeners();
 		wss.on('connection', (socket) => this.onConnect(socket));
 	}
 
-	onConnect(socket: WebSocket) {
-		const connection = new Connection(socket);
+	onConnect(webSocket: WebSocket) {
+		const connectionSocket = new ConnectionSocket(webSocket);
 
-		socket.on('close', (code) => {
-			this.onDisconnect(connection, code);
+		webSocket.on('close', (code) => {
+			this.onDisconnect(connectionSocket, code);
 		});
 
-		this.connections.push(connection);
+		this.connectionSockets.push(connectionSocket);
 	}
 
-	private onDisconnect(connection: Connection, code: number) {
+	private onDisconnect(disconnectedSocket: ConnectionSocket, code: number) {
 		console.log('Closing connection with code', code);
-		this.connections = this.connections.filter((conn) => conn !== connection);
+		this.connectionSockets = this.connectionSockets.filter(
+			(socket) => socket !== disconnectedSocket
+		);
 	}
 }
 
