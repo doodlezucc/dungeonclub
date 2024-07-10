@@ -1,3 +1,5 @@
+import { get, readonly, writable } from 'svelte/store';
+
 type KeyCode = string;
 
 export type Shortcut =
@@ -24,20 +26,21 @@ type LookupShortcut = {
 	shift: boolean;
 };
 
-interface ToggleTrigger {
-	key: string | null;
-	ctrl: boolean;
-	shift: boolean;
-	alt: boolean;
+interface KeyStateTrigger {
+	key?: string;
+	ctrl?: boolean;
+	shift?: boolean;
+	alt?: boolean;
 }
 
 type ActionHandler<T> = (action: T) => void;
 
-export class ShortcutManager<ACTION, TOGGLE> {
+export class ShortcutManager<ACTION, STATE> {
 	private readonly actionBindings: [LookupShortcut, ACTION][] = [];
-	private readonly toggleBindings: [ToggleTrigger, TOGGLE][] = [];
+	private readonly stateBindings: [KeyStateTrigger, STATE][] = [];
 
-	private readonly activeToggles = new Set<TOGGLE>();
+	private readonly activeStateStore = writable<STATE[]>([]);
+	public readonly activeKeyStates = readonly(this.activeStateStore);
 
 	constructor(private readonly actionHandler: ActionHandler<ACTION>) {}
 
@@ -63,8 +66,8 @@ export class ShortcutManager<ACTION, TOGGLE> {
 		this.actionBindings.push([lookupShortcut, action]);
 	}
 
-	bindToggle(trigger: ToggleTrigger, toggle: TOGGLE) {
-		this.toggleBindings.push([trigger, toggle]);
+	bindState(trigger: KeyStateTrigger, state: STATE) {
+		this.stateBindings.push([trigger, state]);
 	}
 
 	handleShortcutAction(ev: KeyboardEvent): boolean {
@@ -87,21 +90,37 @@ export class ShortcutManager<ACTION, TOGGLE> {
 		return false;
 	}
 
-	triggerToggles(ev: KeyboardEvent, isKeyDownEvent: boolean) {
-		for (const [trigger, toggle] of this.toggleBindings) {
-			const isTriggeringKey = trigger.key == null || trigger.key === ev.key;
+	updateKeyStates(ev: KeyboardEvent, isKeyDownEvent: boolean) {
+		const activeStatesBeforeUpdate = get(this.activeStateStore);
 
-			if (
-				isTriggeringKey &&
-				trigger.ctrl == ev.ctrlKey &&
-				trigger.shift == ev.shiftKey &&
-				trigger.alt == ev.altKey
-			) {
-				if (isKeyDownEvent) {
-					this.activeToggles.add(toggle);
-				} else {
-					this.activeToggles.delete(toggle);
-				}
+		for (const [trigger, keyState] of this.stateBindings) {
+			let isTriggerSatisfied = true;
+
+			if (trigger.key !== undefined && trigger.key === ev.key) {
+				// True when pressing the trigger key,
+				// false when releasing the trigger key
+				isTriggerSatisfied = isKeyDownEvent;
+			}
+			if (trigger.ctrl !== undefined) {
+				isTriggerSatisfied &&= trigger.ctrl === ev.ctrlKey;
+			}
+			if (trigger.shift !== undefined) {
+				isTriggerSatisfied &&= trigger.shift === ev.shiftKey;
+			}
+			if (trigger.alt !== undefined) {
+				isTriggerSatisfied &&= trigger.alt === ev.altKey;
+			}
+
+			const isCurrentlyActive = activeStatesBeforeUpdate.includes(keyState);
+
+			if (isTriggerSatisfied && !isCurrentlyActive) {
+				this.activeStateStore.update((states) => [...states, keyState]);
+				ev.preventDefault();
+			} else if (!isTriggerSatisfied && isCurrentlyActive) {
+				this.activeStateStore.update((states) =>
+					states.filter((activeState) => activeState !== keyState)
+				);
+				ev.preventDefault();
 			}
 		}
 	}

@@ -6,7 +6,7 @@
 
 	export type ActionListener = [ShortcutAction, () => void];
 
-	export enum ShortcutToggle {
+	export enum KeyState {
 		DisableGridSnapping = 'Disable Grid Snapping'
 	}
 
@@ -36,6 +36,11 @@
 		};
 	}
 
+	export function keyStateOf(keyState: KeyState): Readable<boolean> {
+		return derived(activeKeyStates, (active) => active.includes(keyState));
+	}
+
+	let activeKeyStates = writable<KeyState[]>([]);
 	let actionListeners: ActionListener[] = [];
 
 	function handleAction(action: ShortcutAction) {
@@ -49,27 +54,29 @@
 
 <script lang="ts">
 	import { ShortcutManager } from '$lib/packages/shortcut-manager';
-	import { readable } from 'svelte/store';
+	import { derived, readable, writable, type Readable } from 'svelte/store';
 
-	const shortcutManager = new ShortcutManager<ShortcutAction, ShortcutToggle>(handleAction);
+	const shortcutManager = new ShortcutManager<ShortcutAction, KeyState>(handleAction);
+	const activeManagerKeyStates = shortcutManager.activeKeyStates;
+
+	$: {
+		activeKeyStates.set($activeManagerKeyStates);
+	}
 
 	shortcutManager.bind({ ctrl: 'z' }, ShortcutAction.Undo);
 	shortcutManager.bind({ ctrl: 'y' }, ShortcutAction.Redo);
 	shortcutManager.bind({ ctrlShift: 'z' }, ShortcutAction.Redo);
 
-	shortcutManager.bindToggle(
-		{ alt: true, ctrl: false, key: null, shift: false },
-		ShortcutToggle.DisableGridSnapping
-	);
+	shortcutManager.bindState({ alt: true }, KeyState.DisableGridSnapping);
 </script>
 
 <svelte:window
 	on:keydown={(ev) => {
 		shortcutManager.handleShortcutAction(ev);
-		shortcutManager.triggerToggles(ev, true);
+		shortcutManager.updateKeyStates(ev, true);
 	}}
 	on:keyup={(ev) => {
-		shortcutManager.triggerToggles(ev, false);
+		shortcutManager.updateKeyStates(ev, false);
 	}}
 />
 
