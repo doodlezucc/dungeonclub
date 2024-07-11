@@ -29,9 +29,3 @@
 		{/if}
 	</Content>
 </main>
-
-<style>
-	main {
-		padding: 2em 0;
-	}
-</style>

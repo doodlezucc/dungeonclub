@@ -18,3 +18,9 @@
 		<Sidebar />
 	</Row>
 </main>
+
+<style>
+	main {
+		padding: 0;
+	}
+</style>

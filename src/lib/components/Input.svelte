@@ -4,7 +4,8 @@
 	export let value: string | number;
 
 	export let name: string;
-	export let label: string;
+	export let label: string | undefined = undefined;
+	export let id: string | undefined = undefined;
 
 	export let placeholder: string;
 
@@ -20,9 +21,25 @@
 	}
 </script>
 
-<label>
-	{label}
+{#if label}
+	<label>
+		{label}
+
+		<input
+			{id}
+			{name}
+			{placeholder}
+			{autocomplete}
+			tabindex={autofocus ? 0 : undefined}
+			{required}
+			aria-required={required}
+			bind:value
+			use:applyType
+		/>
+	</label>
+{:else}
 	<input
+		{id}
 		{name}
 		{placeholder}
 		{autocomplete}
@@ -32,7 +49,7 @@
 		bind:value
 		use:applyType
 	/>
-</label>
+{/if}
 
 <style>
 	label {

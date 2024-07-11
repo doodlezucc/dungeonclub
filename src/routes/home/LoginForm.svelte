@@ -1,15 +1,14 @@
 <script lang="ts">
 	import { Account } from 'client/state';
-	import { Button, Input } from 'components';
-	import { Column, Container } from 'components/layout';
+	import { Input } from 'components';
+	import Dot from 'components/layout/Dot.svelte';
 	import { RequestError } from 'shared';
-	import { fly } from 'svelte/transition';
+	import Form from './Form.svelte';
+
+	$: errorReason = '';
 
 	$: emailAddress = '';
 	$: password = '';
-
-	$: errorReason = '';
-	$: errorKey = 0;
 
 	$: {
 		if (emailAddress && password) {
@@ -26,55 +25,39 @@
 			if (!(err instanceof RequestError)) throw err;
 
 			errorReason = `${err.message}`;
-			errorKey++;
 		}
 	}
 </script>
 
-<Container margin="big" padding="big">
-	<Column align="center">
-		<h2 aria-label="">Sign in to Dungeon Club</h2>
+<Form title="Sign in to Dungeon Club" submitButtonLabel="Log In" {errorReason} on:submit={login}>
+	<Input
+		required
+		label="Email Address"
+		placeholder="Email of your account..."
+		name="email"
+		type="email"
+		autocomplete="email"
+		bind:value={emailAddress}
+	/>
+	<Input
+		required
+		label="Password"
+		placeholder="Password..."
+		name="password"
+		type="password"
+		autocomplete="current-password"
+		bind:value={password}
+	/>
 
-		<form action="javascript:void(0);" on:submit={() => false}>
-			<Input
-				label="Email Address"
-				placeholder="Email..."
-				name="email"
-				type="email"
-				autocomplete="email"
-				bind:value={emailAddress}
-			/>
-			<Input
-				label="Password"
-				placeholder="Password..."
-				name="password"
-				type="password"
-				autocomplete="current-password"
-				bind:value={password}
-			/>
-
-			{#key errorKey}
-				<span class="error" aria-live="polite" in:fly={{ y: 20 }}>{errorReason}</span>
-			{/key}
-
-			<Button type="submit" on:click={login} raised>Log In</Button>
-		</form>
-	</Column>
-</Container>
+	<span slot="links">
+		<a href="./reset-password">Reset password</a>
+		<Dot />
+		<a href="./sign-up">Create an account</a>
+	</span>
+</Form>
 
 <style>
-	h2 {
-		color: var(--color-primary);
-		margin: 0 0 1.5em 0;
-	}
-
-	form {
-		display: grid;
-		gap: 1.5em;
-		max-width: 500px;
-	}
-
-	.error {
-		color: var(--color-bad);
+	span {
+		text-align: center;
 	}
 </style>
