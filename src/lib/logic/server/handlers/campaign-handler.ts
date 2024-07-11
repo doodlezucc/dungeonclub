@@ -10,19 +10,19 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 
 		await prisma.campaign.create({
 			data: {
-				ownerId: dispatcher.loggedInAccountHash,
+				ownerEmail: dispatcher.loggedInAccountHash,
 				name,
 				id: campaignId
 			}
 		});
 
-		return dispatcher.enterSession(campaignId, { enterAsGM: true });
+		return dispatcher.enterSession(campaignId);
 	},
 
 	handleCampaignEdit: async ({ id, name }, { dispatcher }) => {
 		const campaignCard = await prisma.campaign.update({
 			where: {
-				ownerId: dispatcher.loggedInAccountHash,
+				ownerEmail: dispatcher.loggedInAccountHash,
 				id: id
 			},
 			data: {
@@ -37,7 +37,7 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 
 	handleCampaignHost: async ({ id }, { dispatcher }) => {
 		const dispatcherAccount = await prisma.account.findUniqueOrThrow({
-			where: { id: dispatcher.loggedInAccountHash },
+			where: { emailHash: dispatcher.loggedInAccountHash },
 			select: {
 				campaigns: { select: { id: true } }
 			}
@@ -49,11 +49,11 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 			throw 'You must be the owner of this campaign to be able to host';
 		}
 
-		return await dispatcher.enterSession(id, { enterAsGM: true });
+		return await dispatcher.enterSession(id);
 	},
 
 	handleCampaignJoin: async ({ id }, { dispatcher }) => {
-		return await dispatcher.enterSession(id, { enterAsGM: false });
+		return await dispatcher.enterSession(id);
 	}
 };
 

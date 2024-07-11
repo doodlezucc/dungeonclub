@@ -27,7 +27,7 @@ export async function authorizedEndpoint(
 	}
 
 	try {
-		return await requirement(validToken.accountId);
+		return await requirement(validToken.accountEmail);
 	} catch (err) {
 		if (err && typeof err === 'object' && 'code' in err) {
 			const errorCode = `${err.code}`;

@@ -4,14 +4,14 @@ import { prisma, server } from 'server/server.js';
 import { SelectBoard } from 'shared/snippets.js';
 
 export const POST = ({ params: { campaignId }, request }) =>
-	authorizedEndpoint(request, async (accountId) => {
+	authorizedEndpoint(request, async (accountHash) => {
 		const campaign = await prisma.campaign.findFirst({
 			where: {
 				id: campaignId
 			}
 		});
 
-		if (campaign?.ownerId !== accountId) {
+		if (campaign?.ownerEmail !== accountHash) {
 			throw error(403);
 		}
 
