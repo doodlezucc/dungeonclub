@@ -1,7 +1,6 @@
-import type { JsonObject } from '@prisma/client/runtime/library';
 import { readonly, writable, type Readable, type Writable } from 'svelte/store';
 
-export abstract class WithState<T extends JsonObject> {
+export abstract class WithState<T> {
 	private _currentState: T | null = null;
 	private readonly _state: Writable<T | null>;
 	readonly state: Readable<T | null>;

@@ -14,6 +14,15 @@ export class Account extends WithState<AccountSnippet> {
 
 		this.instance.set(response);
 	}
+
+	static async register(emailAddress: string, password: string) {
+		const response = await getSocket().request('accountCreate', {
+			email: emailAddress,
+			password: password
+		});
+
+		this.instance.set(response);
+	}
 }
 
 export const accountState = Account.state;
