@@ -1,8 +1,8 @@
 import type { CampaignMessageCategory } from 'shared';
 import { SelectCampaignCard } from '../../net/snippets';
-import { generateUniqueString } from '../generate-string';
 import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
+import { generateUniqueString } from '../util/generate-string';
 
 export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	handleCampaignCreate: async ({ name }, { dispatcher }) => {
@@ -10,7 +10,7 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 
 		await prisma.campaign.create({
 			data: {
-				ownerId: dispatcher.loggedInAccountId,
+				ownerId: dispatcher.loggedInAccountHash,
 				name,
 				id: campaignId
 			}
@@ -22,7 +22,7 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	handleCampaignEdit: async ({ id, name }, { dispatcher }) => {
 		const campaignCard = await prisma.campaign.update({
 			where: {
-				ownerId: dispatcher.loggedInAccountId,
+				ownerId: dispatcher.loggedInAccountHash,
 				id: id
 			},
 			data: {
@@ -37,7 +37,7 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 
 	handleCampaignHost: async ({ id }, { dispatcher }) => {
 		const dispatcherAccount = await prisma.account.findUniqueOrThrow({
-			where: { id: dispatcher.loggedInAccountId },
+			where: { id: dispatcher.loggedInAccountHash },
 			select: {
 				campaigns: { select: { id: true } }
 			}

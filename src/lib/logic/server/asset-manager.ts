@@ -1,8 +1,8 @@
 import type { Asset } from '@prisma/client';
 import { access, mkdir, writeFile } from 'fs/promises';
 import * as mime from 'mime-types';
-import { generateUniqueString } from './generate-string';
 import { prisma } from './server';
+import { generateUniqueString } from './util/generate-string';
 
 export class AssetManager {
 	readonly rootDirFromFrontend: string = '/user-media';

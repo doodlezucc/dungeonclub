@@ -23,11 +23,21 @@ model Asset {
   Board         Board?
 }
 
+model Crypt {
+  hash       String @id
+  salt       String
+  iterations Int
+  keyLength  Int
+  digest     String
+
+  Account Account[]
+}
+
 model Account {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
+  emailHash             String   @id
+  encryptedPassword     Crypt    @relation(fields: [encryptedPasswordHash], references: [hash])
+  encryptedPasswordHash String
+  createdAt             DateTime @default(now())
 
   tokenInfo AccessToken?
 
@@ -38,16 +48,16 @@ model AccessToken {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 
-  account   Account @relation(fields: [accountId], references: [id])
-  accountId String  @unique
+  account      Account @relation(fields: [accountEmail], references: [emailHash])
+  accountEmail String  @unique
 }
 
 model Campaign {
-  id        String   @id
-  owner     Account  @relation(fields: [ownerId], references: [id])
-  ownerId   String
-  name      String
-  createdAt DateTime @default(now())
+  id         String   @id
+  owner      Account  @relation(fields: [ownerEmail], references: [emailHash])
+  ownerEmail String
+  name       String
+  createdAt  DateTime @default(now())
 
   playerCharacters PlayerCharacter[]
   templates        TokenTemplate[]

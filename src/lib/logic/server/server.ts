@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import type { WebSocket } from 'ws';
+import { AccountManager } from './account-manager';
 import { AssetManager } from './asset-manager';
 import { SessionManager } from './session';
 import { ConnectionSocket } from './socket';
@@ -8,6 +9,7 @@ import { getWebSocketServer } from './ws-server/ws-server';
 export const prisma = new PrismaClient();
 
 export class Server {
+	readonly accountManager = new AccountManager();
 	readonly assetManager = new AssetManager();
 	readonly sessionManager = new SessionManager();
 	readonly webSocketManager = new WebSocketManager();

@@ -7,7 +7,7 @@ import { ConnectionSocket } from './socket';
 export class User {
 	readonly connection: ConnectionSocket;
 
-	private _accountId?: string;
+	private _accountHash?: string;
 	private _session?: CampaignSession;
 
 	constructor(socket: ConnectionSocket) {
@@ -19,18 +19,18 @@ export class User {
 		this._session?.onLeave(this);
 	}
 
-	get accountId() {
-		return this._accountId;
+	get accountHash() {
+		return this._accountHash;
 	}
 
-	get loggedInAccountId() {
-		if (!this._accountId) throw 'Not logged in';
+	get loggedInAccountHash() {
+		if (!this._accountHash) throw 'Not logged in';
 
-		return this._accountId;
+		return this._accountHash;
 	}
 
 	get isLoggedIn() {
-		return this._accountId !== undefined;
+		return this._accountHash !== undefined;
 	}
 
 	get sessionOrNull() {
@@ -64,8 +64,8 @@ export class User {
 		return result;
 	}
 
-	onLogIn(accountId: string) {
-		this._accountId = accountId;
+	onLogIn(accountHash: string) {
+		this._accountHash = accountHash;
 	}
 
 	async enterSession(campaignId: string): Promise<CampaignSnippet> {

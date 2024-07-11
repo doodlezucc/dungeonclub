@@ -111,8 +111,10 @@ export type CampaignSnippet = Prisma.CampaignGetPayload<{ select: typeof SelectC
 };
 
 export const SelectAccount = {
-	id: true,
-	tokenInfo: true,
+	emailHash: true,
+	tokenInfo: {
+		select: { id: true }
+	},
 	campaigns: {
 		select: SelectCampaignCard
 	}

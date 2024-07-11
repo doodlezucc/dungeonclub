@@ -1,5 +1,5 @@
-import { SelectAccount, type AccountMessageCategory } from 'shared';
-import { prisma } from '../server';
+import { type AccountMessageCategory } from 'shared';
+import { prisma, server } from '../server';
 import type { CategoryHandler } from '../socket';
 
 export const accountHandler: CategoryHandler<AccountMessageCategory> = {
@@ -8,54 +8,37 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 			throw 'Already logged in';
 		}
 
-		const account = await prisma.account.findFirstOrThrow({
-			where: {
-				email: email,
-				password: password
-			},
-			select: SelectAccount
-		});
+		const account = await server.accountManager.findAccountWithCredentials(email, password);
 
 		const tokenInfo =
 			account.tokenInfo ??
 			(await prisma.accessToken.create({
 				data: {
-					accountId: account.id
+					accountEmail: account.emailHash
 				}
 			}));
 
-		dispatcher.onLogIn(account.id);
+		dispatcher.onLogIn(account.emailHash);
 
 		return {
 			accessToken: tokenInfo.id,
-			id: account.id,
 			campaigns: account.campaigns
 		};
 	},
 
 	handleAccountCreate: async ({ email, password }, { dispatcher }) => {
-		if (await prisma.account.findFirst({ where: { email: email } })) {
-			throw 'An account with this email address already exists';
-		}
-
-		const account = await prisma.account.create({
-			data: {
-				email,
-				password
-			},
-			select: SelectAccount
-		});
+		const account = await server.accountManager.storeNewAccount(email, password);
 
 		const accessToken = await prisma.accessToken.create({
 			data: {
-				accountId: account.id
+				accountEmail: account.emailHash
 			},
 			select: {
 				id: true
 			}
 		});
 
-		dispatcher.onLogIn(account.id);
+		dispatcher.onLogIn(account.emailHash);
 
 		console.log('Created new account');
 
