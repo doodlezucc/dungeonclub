@@ -30,13 +30,13 @@ model Crypt {
   keyLength  Int
   digest     String
 
-  Account Account[]
+  Account Account?
 }
 
 model Account {
   emailHash             String   @id
   encryptedPassword     Crypt    @relation(fields: [encryptedPasswordHash], references: [hash])
-  encryptedPasswordHash String
+  encryptedPasswordHash String   @unique
   createdAt             DateTime @default(now())
 
   tokenInfo AccessToken?

@@ -14,6 +14,7 @@ import { MessageSocket } from './socket';
 
 it('sends and receives', async () => {
 	const response = await testClient.request('tokenCreate', {
+		boardId: 'boardid',
 		position: {
 			x: 0.5,
 			y: 2.5
