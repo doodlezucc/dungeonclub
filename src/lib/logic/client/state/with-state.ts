@@ -15,7 +15,7 @@ export abstract class WithState<T> {
 		this._currentState = state;
 	}
 
-	protected put(update: (state: T) => T) {
+	put(update: (state: T) => T) {
 		if (!this._currentState) {
 			throw 'State not set, unable to modify with put()';
 		}

@@ -102,6 +102,7 @@ export const SelectCampaign = {
 	boards: {
 		select: SelectBoardPreview
 	},
+	selectedBoardId: true,
 	templates: {
 		select: SelectTokenTemplate
 	}

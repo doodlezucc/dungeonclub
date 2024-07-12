@@ -1,14 +1,14 @@
 import { DISABLE_PERMISSIONS } from '$env/static/private';
 import { type CampaignSnippet } from 'shared';
 import { server } from './server';
-import type { CampaignSession } from './session';
+import { SessionConnection } from './session';
 import { ConnectionSocket } from './socket';
 
 export class User {
 	readonly connection: ConnectionSocket;
 
 	private _accountHash?: string;
-	private _session?: CampaignSession;
+	private _sessionConnection?: SessionConnection;
 
 	constructor(socket: ConnectionSocket) {
 		this.connection = socket;
@@ -16,7 +16,7 @@ export class User {
 
 	dispose() {
 		console.log('dispose connection');
-		this._session?.onLeave(this);
+		this.session.onLeave(this);
 	}
 
 	get accountHash() {
@@ -33,35 +33,31 @@ export class User {
 		return this._accountHash !== undefined;
 	}
 
+	get sessionConnection() {
+		if (!this._sessionConnection) throw 'Not in a session';
+
+		return this._sessionConnection!;
+	}
+
+	get sessionConnectionAsOwner() {
+		const result = this.sessionConnection;
+
+		if (DISABLE_PERMISSIONS) return result;
+		if (!result.session.isOwner(this)) throw 'Not in a session as GM';
+
+		return result;
+	}
+
 	get sessionOrNull() {
-		return this._session;
+		return this._sessionConnection?.session;
 	}
 
 	get session() {
-		if (!this._session) throw 'Not in a session';
-
-		return this._session;
+		return this.sessionConnection.session;
 	}
 
 	get sessionAsOwner() {
-		const result = this.session;
-
-		if (DISABLE_PERMISSIONS) return result;
-		if (!result.isOwner(this)) throw 'Not in a session as GM';
-
-		return result;
-	}
-
-	get visibleBoardIdOrNull() {
-		return this.session.getVisibleBoardIdFor(this);
-	}
-
-	get visibleBoardId() {
-		const result = this.visibleBoardIdOrNull;
-
-		if (!result) throw 'No active board set for this user';
-
-		return result;
+		return this.sessionConnectionAsOwner.session;
 	}
 
 	onLogIn(accountHash: string) {
@@ -70,8 +66,10 @@ export class User {
 
 	async enterSession(campaignId: string): Promise<CampaignSnippet> {
 		const session = await server.sessionManager.enterSession(campaignId, this);
-		this._session = session;
+		this._sessionConnection = new SessionConnection(session);
 
-		return await session.loadSnippetFor(this);
+		const campaign = await session.loadSnippetFor(this);
+
+		return campaign;
 	}
 }

@@ -24,36 +24,21 @@ export class CampaignSession {
 	private host: User | null;
 
 	readonly campaignId: string;
-	private selectedBoardId: string | null;
-	private hostBoardId: string | null;
 
-	constructor(hostedBy: User, campaignId: string, selectedBoardId: string | null) {
+	constructor(hostedBy: User, campaignId: string) {
 		this.host = hostedBy;
 
 		this.campaignId = campaignId;
-		this.selectedBoardId = selectedBoardId;
-		this.hostBoardId = selectedBoardId;
 
 		this.onJoin(hostedBy);
 	}
 
 	static async load(hostedBy: User, campaignId: string) {
-		const { selectedBoardId } = await prisma.campaign.findUniqueOrThrow({
-			where: { id: campaignId },
-			select: {
-				selectedBoardId: true
-			}
+		await prisma.campaign.findUniqueOrThrow({
+			where: { id: campaignId }
 		});
 
-		return new CampaignSession(hostedBy, campaignId, selectedBoardId);
-	}
-
-	getVisibleBoardIdFor(user: User) {
-		if (user == this.host) {
-			return this.hostBoardId;
-		} else {
-			return this.selectedBoardId;
-		}
+		return new CampaignSession(hostedBy, campaignId);
 	}
 
 	getPeerUsersOf(user: User) {
@@ -63,19 +48,17 @@ export class CampaignSession {
 	async loadSnippetFor(user: User) {
 		const campaign = await prisma.campaign.findUniqueOrThrow({
 			where: { id: this.campaignId },
-			select: {
-				...SelectCampaign
-			}
+			select: SelectCampaign
 		});
 
-		const visibleBoardId = this.getVisibleBoardIdFor(user);
+		user.sessionConnection.visibleBoardIdOrNull = campaign.selectedBoardId;
 
-		if (!visibleBoardId) {
+		if (!campaign.selectedBoardId) {
 			return campaign;
 		}
 
 		const visibleBoard = await prisma.board.findUniqueOrThrow({
-			where: { id: visibleBoardId },
+			where: { id: campaign.selectedBoardId },
 			select: SelectBoard
 		});
 
@@ -101,5 +84,17 @@ export class CampaignSession {
 
 	isOwner(user: User): boolean {
 		return this.host != null && this.host == user;
+	}
+}
+
+export class SessionConnection {
+	visibleBoardIdOrNull: string | null = null;
+
+	constructor(readonly session: CampaignSession) {}
+
+	get visibleBoardId() {
+		if (!this.visibleBoardIdOrNull) throw 'Not on any board';
+
+		return this.visibleBoardIdOrNull!;
 	}
 }

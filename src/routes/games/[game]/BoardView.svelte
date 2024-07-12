@@ -10,16 +10,18 @@
 
 	const modal = getContext<ModalContext>('modal');
 
+	$: selectBoardDialogIsVisible = false;
+
 	async function showBoardSelection() {
+		selectBoardDialogIsVisible = true;
 		await modal.display(SelectBoardDialog, {});
 	}
 
-	$: {
+	$: if (!selectBoardDialogIsVisible) {
 		const loadedCampaign = $sessionState.campaign;
 
 		// Show board selection if there is no board loaded
-		if (loadedCampaign && !loadedCampaign.selectedBoard) {
-			console.log(loadedCampaign, loadedCampaign.selectedBoard);
+		if (loadedCampaign && !$boardState) {
 			showBoardSelection();
 		}
 	}

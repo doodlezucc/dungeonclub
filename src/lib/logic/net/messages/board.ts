@@ -24,6 +24,7 @@ export interface BoardMessageCategory {
 
 	tokenCreate: DefineRequestWithPublicResponse<
 		{
+			boardId: UUID;
 			tokenTemplate: UUID;
 			position: Position;
 		},

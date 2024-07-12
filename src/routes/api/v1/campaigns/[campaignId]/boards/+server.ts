@@ -25,5 +25,12 @@ export const POST = ({ params: { campaignId }, request }) =>
 			select: SelectBoard
 		});
 
+		if (campaign.selectedBoardId === null) {
+			await prisma.campaign.update({
+				where: { id: campaign.id },
+				data: { selectedBoardId: board.id }
+			});
+		}
+
 		return json(board);
 	});

@@ -17,7 +17,8 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 	},
 
 	handleBoardPlay: async ({ id: boardId }, { dispatcher }) => {
-		const campaignId = dispatcher.sessionAsOwner.campaignId;
+		const session = dispatcher.sessionAsOwner;
+		const campaignId = session.campaignId;
 
 		const boardSnippet = await prisma.board.findFirstOrThrow({
 			where: {
@@ -38,22 +39,39 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 	},
 
 	handleTokenCreate: async (payload, { dispatcher }) => {
-		const boardId = dispatcher.sessionAsOwner && dispatcher.visibleBoardId;
+		const sessionCampaignId = dispatcher.sessionAsOwner.campaignId;
+
+		const { campaignId } = await prisma.board.findUniqueOrThrow({
+			where: {
+				id: payload.boardId
+			},
+			select: { campaignId: true }
+		});
+
+		if (sessionCampaignId !== campaignId) {
+			throw 'Board is not part of the hosted campaign';
+		}
 
 		const token = await prisma.token.create({
 			data: {
-				boardId,
+				boardId: payload.boardId,
 				templateId: payload.tokenTemplate,
 				...payload.position
 			},
 			select: SelectToken
 		});
 
-		return publicResponse(token);
+		return {
+			response: token,
+			forwardedResponse: {
+				...token,
+				boardId: payload.boardId
+			}
+		};
 	},
 
 	handleTokenMove: async (payload, { dispatcher }) => {
-		const boardId = dispatcher.sessionAsOwner && dispatcher.visibleBoardId;
+		const boardId = dispatcher.sessionAsOwner && dispatcher.sessionConnection.visibleBoardId;
 
 		await prisma.token.update({
 			where: { boardId, id: payload.id },
