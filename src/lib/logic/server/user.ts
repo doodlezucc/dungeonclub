@@ -16,7 +16,7 @@ export class User {
 
 	dispose() {
 		console.log('dispose connection');
-		this.session.onLeave(this);
+		this.sessionOrNull?.onLeave(this);
 	}
 
 	get accountHash() {

@@ -13,6 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model SystemSetting {
+  key       String @id
+  jsonValue String
+}
+
 model Asset {
   id String @id @default(uuid())
 
