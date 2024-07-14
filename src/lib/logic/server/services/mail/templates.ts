@@ -1,7 +1,13 @@
 import { defineTemplate } from './conversion';
-import layoutActivateAccount from './templates/activate-account.mjml';
+import layoutActivateAccount from './templates/activate-account.mjml?raw';
+import layoutResetPassword from './templates/reset-password.mjml?raw';
 
-export const templateActivateAccount = defineTemplate<{
+export const TEMPLATE_ACTIVATE_ACCOUNT = defineTemplate<{
 	activationCode: string;
 	activationUrl: string;
-}>(layoutActivateAccount);
+}>(layoutActivateAccount, 'Confirm your email address');
+
+export const TEMPLATE_RESET_PASSWORD = defineTemplate<{
+	activationCode: string;
+	activationUrl: string;
+}>(layoutResetPassword, 'Verify password reset');

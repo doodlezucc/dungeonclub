@@ -1,6 +1,8 @@
 import { expect, test } from 'vitest';
 import { convertTemplateToHtml, defineTemplate } from './conversion';
 
+import testLayout from './conversion.test.mjml?raw';
+
 test('Interpolate and convert mails from MJML to HTML', async () => {
 	const layout = `
       <mjml>
@@ -21,7 +23,7 @@ test('Interpolate and convert mails from MJML to HTML', async () => {
 
 	const template = defineTemplate<{
 		customText: string;
-	}>(layout);
+	}>(layout, 'Test Email');
 
 	const processed = await convertTemplateToHtml(template, {
 		customText: 'This is my custom text :)'
@@ -29,4 +31,14 @@ test('Interpolate and convert mails from MJML to HTML', async () => {
 
 	expect(processed).toContain('This is my custom text :)');
 	expect(processed).not.toContain('${customText}');
+});
+
+test('Interpolate content from relative file import', async () => {
+	const template = defineTemplate<{
+		customText: string;
+	}>(testLayout, 'Test Email');
+
+	await convertTemplateToHtml(template, {
+		customText: 'This is my custom text :)'
+	});
 });

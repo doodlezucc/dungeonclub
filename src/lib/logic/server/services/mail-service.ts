@@ -7,7 +7,6 @@ export interface SendMailOptions {
 }
 
 export interface SendTemplateMailOptions<P> {
-	subject: string;
 	recipient: string;
 	template: MailTemplate<P>;
 	params: P;
@@ -17,7 +16,8 @@ export abstract class MailService {
 	abstract sendMail(options: SendMailOptions): Promise<void>;
 
 	async sendTemplateMail<P>(options: SendTemplateMailOptions<P>): Promise<void> {
-		const { subject, recipient, template, params } = options;
+		const { recipient, template, params } = options;
+		const { subject } = template;
 
 		const mjmlPreprocessed = await convertTemplateToHtml(template, params);
 

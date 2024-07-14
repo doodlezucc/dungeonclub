@@ -15,6 +15,6 @@ export interface AccountMessageCategory {
 			email: string;
 			password: string;
 		},
-		AccountSnippet
+		true
 	>;
 }

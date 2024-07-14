@@ -1,12 +1,14 @@
 import mjml2html from 'mjml';
 
 export interface MailTemplate<P> {
+	subject: string;
 	mjmlLayout: string;
 	defaultParams: Partial<P>;
 }
 
-export function defineTemplate<P>(mjmlLayout: string): MailTemplate<P> {
+export function defineTemplate<P>(mjmlLayout: string, subject: string): MailTemplate<P> {
 	return {
+		subject,
 		mjmlLayout,
 		defaultParams: {}
 	};
@@ -33,15 +35,12 @@ function interpolateTemplate<P>(template: MailTemplate<P>, params: P) {
 export async function convertTemplateToHtml<P>(template: MailTemplate<P>, params: P) {
 	const preprocessed = interpolateTemplate(template, params);
 
-	const results = await mjml2html(preprocessed);
-
-	if (results.errors.length) {
-		for (const err of results.errors) {
-			console.error(err);
-		}
-
-		throw 'Failed to convert MJML email template to HTML';
+	try {
+		const results = await mjml2html(preprocessed);
+		return results.html;
+	} catch (err) {
+		console.error('Failed to process MJML. Interpolated template:');
+		console.error(preprocessed);
+		throw err;
 	}
-
-	return results.html;
 }

@@ -26,25 +26,8 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 		};
 	},
 
-	handleAccountCreate: async ({ email, password }, { dispatcher }) => {
-		const account = await server.accountManager.storeNewAccount(email, password);
-
-		const accessToken = await prisma.accessToken.create({
-			data: {
-				accountEmail: account.emailHash
-			},
-			select: {
-				id: true
-			}
-		});
-
-		dispatcher.onLogIn(account.emailHash);
-
-		console.log('Created new account');
-
-		return {
-			accessToken: accessToken.id,
-			campaigns: []
-		};
+	handleAccountCreate: async ({ email, password }) => {
+		await server.accountManager.prepareUnverifiedAccount(email, password);
+		return true;
 	}
 };
