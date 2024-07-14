@@ -1,5 +1,5 @@
-import layoutActivateAccount from '../mail-templates/activate-account.mjml';
 import { defineTemplate } from './conversion';
+import layoutActivateAccount from './templates/activate-account.mjml';
 
 export const templateActivateAccount = defineTemplate<{
 	activationCode: string;
