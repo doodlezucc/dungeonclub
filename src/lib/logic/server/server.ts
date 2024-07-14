@@ -3,7 +3,7 @@ import type { WebSocket } from 'ws';
 import { AccountManager } from './account-manager';
 import { AssetManager } from './asset-manager';
 import type { MailService } from './services/mail-service';
-import { GmailMailService } from './services/mail/gmail';
+import { GmailMailService } from './services/mail/service-gmail';
 import { SessionManager } from './session';
 import { ConnectionSocket } from './socket';
 import { getWebSocketServer } from './ws-server/ws-server';
