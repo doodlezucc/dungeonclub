@@ -87,7 +87,14 @@ export class GmailMailService extends MailService {
 			subject: options.subject,
 			from: { name: 'Dungeon Club', address: GMAIL_API_USER },
 			to: options.recipient,
-			html: options.htmlBody
+			html: options.htmlBody,
+			attachments: [
+				{
+					cid: 'logo',
+					filename: 'logo.png',
+					content: await MailService.loadLogoImage()
+				}
+			]
 		});
 
 		console.log('Result after sending mail:', result);

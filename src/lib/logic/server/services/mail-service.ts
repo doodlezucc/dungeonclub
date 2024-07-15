@@ -1,3 +1,4 @@
+import { readFile } from 'fs/promises';
 import { convertTemplateToHtml, type MailTemplate } from './mail/conversion';
 
 export interface SendMailOptions {
@@ -13,6 +14,17 @@ export interface SendTemplateMailOptions<P> {
 }
 
 export abstract class MailService {
+	private static bufferedLogoImage: Buffer | undefined = undefined;
+
+	static async loadLogoImage(): Promise<Buffer> {
+		if (this.bufferedLogoImage) {
+			return this.bufferedLogoImage;
+		}
+
+		const loadedBytes = await readFile('./static/icon32.png');
+		return (this.bufferedLogoImage = loadedBytes);
+	}
+
 	abstract sendMail(options: SendMailOptions): Promise<void>;
 
 	async sendTemplateMail<P>(options: SendTemplateMailOptions<P>): Promise<void> {
