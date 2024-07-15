@@ -2,15 +2,16 @@ const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const lowercase = 'abcdefghijklmnopqrstuvwxyz';
 const digits = '0123456789';
 
-const defaultAllowedCharacters = [uppercase, lowercase, digits].join('');
+const allLettersAndDigits = [uppercase, lowercase, digits].join('');
+const similarCharacters = /1lI0O/gm;
+
+const defaultAllowedCharacters = allLettersAndDigits.replaceAll(similarCharacters, '');
 
 export interface GenerateIDOptions {
 	/**
-	 * Defaults to:
-	 *  - 26 uppercase letters (latin alphabet)
-	 *  - 26 lowercase letters (latin alphabet)
-	 *  - digits 0 through 9
-	 * */
+	 * Defaults to uppercase and lowercase letters (latin alphabet) and digits,
+	 * EXCLUDING similar characters such as `1`, `I` and `l`.
+	 */
 	allowedCharacters?: string;
 
 	length: number;
