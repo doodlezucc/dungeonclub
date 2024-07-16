@@ -8,7 +8,7 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 			throw 'Already logged in';
 		}
 
-		const account = await server.accountManager.findAccountWithCredentials(email, password);
+		const account = await server.accountManager.selectAccountWithCredentials(email, password);
 
 		const tokenInfo =
 			account.tokenInfo ??
@@ -28,6 +28,11 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 
 	handleAccountCreate: async ({ email, password }) => {
 		await server.accountManager.prepareUnverifiedAccount(email, password);
+		return true;
+	},
+
+	handleAccountResetPassword: async ({ email, password }) => {
+		await server.accountManager.preparePasswordReset(email, password);
 		return true;
 	}
 };

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { Account } from 'client/state';
 	import ActivationCodeForm from '../home/forms/ActivationCodeForm.svelte';
 	import ConfirmPasswordPage from '../home/forms/ConfirmPasswordPage.svelte';
 	import CredentialsForm from '../home/forms/CredentialsForm.svelte';
@@ -6,22 +8,14 @@
 	$: showActivationCodeForm = false;
 
 	async function attemptResetPassword(emailAddress: string, password: string) {
-		// await Account.attemptSignUp(emailAddress, password);
+		await Account.attemptResetPassword(emailAddress, password);
 		showActivationCodeForm = true;
 	}
 
 	async function attemptVerify(code: string) {
-		const response = await fetch(`/verify-new-password?code=${code}`);
+		await Account.verifyActivationCode(`/verify-new-password?code=${code}`);
 
-		if (response.ok) {
-			alert('OK!!');
-		} else {
-			if (response.status === 401) {
-				throw 'Code is invalid.';
-			} else {
-				throw `Error ${response.status}: ${response.statusText}`;
-			}
-		}
+		goto('/');
 	}
 </script>
 

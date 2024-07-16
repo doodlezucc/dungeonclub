@@ -2,7 +2,7 @@ import type { Crypt } from '@prisma/client';
 import { SelectAccount } from 'shared';
 import { ExpiringCodeManager } from './expiring-code-manager';
 import { prisma, server } from './server';
-import { TEMPLATE_ACTIVATE_ACCOUNT } from './services/mail/templates';
+import { TEMPLATE_ACTIVATE_ACCOUNT, TEMPLATE_RESET_PASSWORD } from './services/mail/templates';
 import { encryptString, hashEmail, matchAgainstCrypt } from './util/encryption';
 
 interface AccountActivationInfo {
@@ -19,17 +19,20 @@ export class AccountManager {
 	readonly accountActivationCodes = new ExpiringCodeManager<AccountActivationInfo>();
 	readonly passwordResetCodes = new ExpiringCodeManager<PasswordResetInfo>();
 
-	async doesAccountExist(rawEmail: string) {
+	private async findAccount(rawEmail: string) {
 		const emailHash = hashEmail(rawEmail);
 
-		const accountProperties = await prisma.account.findFirst({
+		return await prisma.account.findFirst({
 			where: { emailHash: emailHash }
 		});
+	}
 
+	async doesAccountExist(rawEmail: string) {
+		const accountProperties = await this.findAccount(rawEmail);
 		return accountProperties !== null;
 	}
 
-	async findAccountWithCredentials(rawEmail: string, rawPassword: string) {
+	async selectAccountWithCredentials(rawEmail: string, rawPassword: string) {
 		const emailHash = hashEmail(rawEmail);
 
 		const { encryptedPassword } = await prisma.account.findFirstOrThrow({
@@ -46,6 +49,44 @@ export class AccountManager {
 		return await prisma.account.findFirstOrThrow({
 			where: { emailHash: emailHash },
 			select: SelectAccount
+		});
+	}
+
+	async preparePasswordReset(rawEmail: string, rawPassword: string) {
+		const accountProperties = await this.findAccount(rawEmail);
+
+		if (accountProperties === null) {
+			throw 'No account is registered under this email address';
+		}
+
+		const passwordCrypt = await encryptString(rawPassword);
+
+		const code = await this.passwordResetCodes.registerNewCode(
+			{
+				accountHash: accountProperties.emailHash,
+				newPasswordCrypt: passwordCrypt
+			},
+			{
+				onCodeVerified: async () => {
+					await prisma.account.update({
+						where: { emailHash: accountProperties.emailHash },
+						data: {
+							encryptedPassword: {
+								update: passwordCrypt
+							}
+						}
+					});
+				}
+			}
+		);
+
+		await server.mailService.sendTemplateMail({
+			recipient: rawEmail,
+			template: TEMPLATE_RESET_PASSWORD,
+			params: {
+				activationCode: code,
+				activationUrl: `http://localhost:5173/verify-new-password?code=${code}`
+			}
 		});
 	}
 
@@ -68,7 +109,7 @@ export class AccountManager {
 				newAccountPasswordCrypt: passwordCrypt
 			},
 			{
-				onResolve: async () => {
+				onCodeVerified: async () => {
 					await this.storeNewAccount(emailHash, passwordCrypt);
 				}
 			}

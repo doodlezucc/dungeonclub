@@ -17,4 +17,12 @@ export interface AccountMessageCategory {
 		},
 		true
 	>;
+
+	accountResetPassword: DefinePrivateRequest<
+		{
+			email: string;
+			password: string;
+		},
+		true
+	>;
 }

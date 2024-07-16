@@ -16,10 +16,29 @@ export class Account extends WithState<AccountSnippet> {
 	}
 
 	static async attemptSignUp(emailAddress: string, password: string) {
-		await getSocket().request('accountCreate', {
+		return await getSocket().request('accountCreate', {
 			email: emailAddress,
 			password: password
 		});
+	}
+
+	static async attemptResetPassword(emailAddress: string, password: string) {
+		return await getSocket().request('accountResetPassword', {
+			email: emailAddress,
+			password: password
+		});
+	}
+
+	static async verifyActivationCode(endpointPath: string) {
+		const response = await fetch(endpointPath);
+
+		if (!response.ok) {
+			if (response.status === 401) {
+				throw 'Code is invalid.';
+			} else {
+				throw `Error ${response.status}: ${response.statusText}`;
+			}
+		}
 	}
 }
 

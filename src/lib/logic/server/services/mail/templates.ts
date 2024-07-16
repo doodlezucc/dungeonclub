@@ -10,4 +10,4 @@ export const TEMPLATE_ACTIVATE_ACCOUNT = defineTemplate<{
 export const TEMPLATE_RESET_PASSWORD = defineTemplate<{
 	activationCode: string;
 	activationUrl: string;
-}>(layoutResetPassword, 'Verify password reset');
+}>(layoutResetPassword, 'Reset your password');

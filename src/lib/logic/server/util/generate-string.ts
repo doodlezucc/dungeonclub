@@ -3,7 +3,7 @@ const lowercase = 'abcdefghijklmnopqrstuvwxyz';
 const digits = '0123456789';
 
 const allLettersAndDigits = [uppercase, lowercase, digits].join('');
-const similarCharacters = /1lI0O/gm;
+const similarCharacters = /[1lI0O]/gm;
 
 const defaultAllowedCharacters = allLettersAndDigits.replaceAll(similarCharacters, '');
 

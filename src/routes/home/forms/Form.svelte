@@ -54,7 +54,7 @@
 					on:click={onSubmitForm}
 					raised
 					highlight
-					disabled={disableSubmitButton}
+					disabled={isSubmitting || disableSubmitButton}
 				>
 					{submitButtonLabel}
 				</Button>

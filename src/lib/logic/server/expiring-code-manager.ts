@@ -6,7 +6,7 @@ export interface CodeInfo<T> {
 }
 
 interface RegisterNewCodeOptions {
-	onResolve: () => Promise<void>;
+	onCodeVerified: () => Promise<void>;
 }
 
 export class ExpiringCodeManager<T> {
@@ -19,12 +19,15 @@ export class ExpiringCodeManager<T> {
 		});
 	}
 
-	async registerNewCode(attachedInfo: T, { onResolve }: RegisterNewCodeOptions): Promise<string> {
+	async registerNewCode(
+		attachedInfo: T,
+		{ onCodeVerified }: RegisterNewCodeOptions
+	): Promise<string> {
 		const code = await this.generateCode();
 
 		this.validCodes.set(code, {
 			payload: attachedInfo,
-			callback: onResolve
+			callback: onCodeVerified
 		});
 		return code;
 	}

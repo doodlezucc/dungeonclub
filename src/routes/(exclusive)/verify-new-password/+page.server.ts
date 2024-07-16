@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ url }) => {
 		throw error(400, 'No "code" parameter supplied in URL');
 	}
 
-	const attachedInfo = server.accountManager.accountActivationCodes.tryResolveCode(activationCode);
+	const attachedInfo = server.accountManager.passwordResetCodes.tryResolveCode(activationCode);
 
 	if (!attachedInfo) {
 		throw error(401, 'Your activation code is invalid. It might have already expired.');
