@@ -1,3 +1,7 @@
+<script lang="ts" context="module">
+	const MIN_PASSWORD_LENGTH = 7;
+</script>
+
 <script lang="ts">
 	import Input from 'components/Input.svelte';
 	import { Column } from 'components/layout';
@@ -13,7 +17,40 @@
 	$: password = '';
 	$: passwordConfirmation = '';
 
-	$: isValid = $enteredEmailAddress.length > 0 && password === passwordConfirmation;
+	$: formValidationError = 'woah';
+	$: isValid = false;
+
+	function validate() {
+		if (password.length === 0) {
+			throw '';
+		}
+
+		if (password.length < MIN_PASSWORD_LENGTH) {
+			throw `Password should be at least ${MIN_PASSWORD_LENGTH} characters long.`;
+		}
+
+		if (passwordConfirmation.length > 0 && password !== passwordConfirmation) {
+			throw "Passwords don't match.";
+		}
+
+		if ($enteredEmailAddress.length === 0 || passwordConfirmation.length === 0) {
+			throw '';
+		}
+	}
+
+	$: {
+		[$enteredEmailAddress, password, passwordConfirmation];
+
+		isValid = false;
+
+		try {
+			validate();
+			formValidationError = '';
+			isValid = true;
+		} catch (err) {
+			formValidationError = `${err}`;
+		}
+	}
 </script>
 
 <Form
@@ -52,6 +89,9 @@
 			autocomplete="new-password"
 			bind:value={passwordConfirmation}
 		/>
+		{#if formValidationError.length > 0}
+			<span class="error">{formValidationError}</span>
+		{/if}
 	</Column>
 
 	<slot name="links" slot="links"></slot>

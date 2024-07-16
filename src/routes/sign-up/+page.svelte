@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { Account } from 'client/state';
 	import { fly } from 'svelte/transition';
 	import ActivationCodeForm from '../home/forms/ActivationCodeForm.svelte';
@@ -13,17 +14,8 @@
 	}
 
 	async function attemptVerify(code: string) {
-		const response = await fetch(`/activate?code=${code}`);
-
-		if (response.ok) {
-			alert('OK!!');
-		} else {
-			if (response.status === 401) {
-				throw 'Code is invalid.';
-			} else {
-				throw `Error ${response.status}: ${response.statusText}`;
-			}
-		}
+		await Account.verifyActivationCode(`/activate?code=${code}`);
+		goto('/');
 	}
 </script>
 

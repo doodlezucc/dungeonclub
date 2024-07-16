@@ -8,7 +8,7 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 			throw 'Already logged in';
 		}
 
-		const account = await server.accountManager.selectAccountWithCredentials(email, password);
+		const account = await server.accountManager.login(email, password);
 
 		const tokenInfo =
 			account.tokenInfo ??

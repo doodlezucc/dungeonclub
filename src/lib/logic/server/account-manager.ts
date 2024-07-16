@@ -32,24 +32,33 @@ export class AccountManager {
 		return accountProperties !== null;
 	}
 
-	async selectAccountWithCredentials(rawEmail: string, rawPassword: string) {
+	async login(rawEmail: string, rawPassword: string) {
 		const emailHash = hashEmail(rawEmail);
 
-		const { encryptedPassword } = await prisma.account.findFirstOrThrow({
+		const account = await prisma.account.findFirst({
 			where: { emailHash: emailHash },
-			select: { encryptedPassword: true }
+			select: { ...SelectAccount, encryptedPassword: true }
 		});
 
-		const isValidPassword = await matchAgainstCrypt(rawPassword, encryptedPassword);
+		if (!account) {
+			throw 'No account is registered under this email address';
+		}
+
+		const isValidPassword = await matchAgainstCrypt(rawPassword, account.encryptedPassword);
 
 		if (!isValidPassword) {
 			throw 'Password incorrect';
 		}
 
-		return await prisma.account.findFirstOrThrow({
-			where: { emailHash: emailHash },
-			select: SelectAccount
-		});
+		const tokenInfo =
+			account.tokenInfo ??
+			(await prisma.accessToken.create({
+				data: {
+					accountEmail: account.emailHash
+				}
+			}));
+
+		return { ...account, tokenInfo };
 	}
 
 	async preparePasswordReset(rawEmail: string, rawPassword: string) {

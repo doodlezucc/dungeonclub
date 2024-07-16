@@ -14,7 +14,6 @@
 
 	async function attemptVerify(code: string) {
 		await Account.verifyActivationCode(`/verify-new-password?code=${code}`);
-
 		goto('/');
 	}
 </script>
