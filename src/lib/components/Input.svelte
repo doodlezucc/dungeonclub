@@ -1,3 +1,11 @@
+<script lang="ts" context="module">
+	export function focusOnMount(node: HTMLInputElement, enabled: boolean = true) {
+		if (enabled) {
+			node.focus();
+		}
+	}
+</script>
+
 <script lang="ts">
 	import type { HTMLInputTypeAttribute } from 'svelte/elements';
 
@@ -12,9 +20,9 @@
 	export let type: HTMLInputTypeAttribute | undefined = undefined;
 	export let required: boolean | undefined = undefined;
 	export let autocomplete: 'email' | 'current-password' | 'new-password' | undefined = undefined;
-	export let autofocus: boolean | undefined = undefined;
+	export let autofocus: boolean = false;
 
-	function applyTypeAndAutoFocus(node: HTMLInputElement) {
+	function applyType(node: HTMLInputElement) {
 		if (type !== undefined) {
 			node.type = type;
 		}
@@ -38,7 +46,8 @@
 			{required}
 			aria-required={required}
 			bind:value
-			use:applyTypeAndAutoFocus
+			use:applyType
+			use:focusOnMount={autofocus}
 		/>
 	</label>
 {:else}
@@ -51,7 +60,8 @@
 		{required}
 		aria-required={required}
 		bind:value
-		use:applyTypeAndAutoFocus
+		use:applyType
+		use:focusOnMount={autofocus}
 	/>
 {/if}
 

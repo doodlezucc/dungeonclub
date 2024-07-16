@@ -34,7 +34,7 @@
 			submitButtonLabel="Sign Up"
 			handleSubmit={attemptSignUp}
 		>
-			<span slot="note" class="note" in:fly={{ delay: 100, y: 20, duration: 600 }}>
+			<span slot="note" class="heads-up" in:fly={{ delay: 100, y: 20, duration: 600 }}>
 				<b>Tip!</b> Accounts are <em>not required</em><br />
 				for players, only for game leaders.
 			</span>
@@ -57,9 +57,13 @@
 </ConfirmPasswordPage>
 
 <style>
-	.note {
+	.heads-up {
 		margin-top: 1em;
 		color: var(--color-text-pale);
 		text-align: center;
+	}
+
+	b {
+		color: var(--color-text);
 	}
 </style>

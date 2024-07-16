@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { focusOnMount } from 'components/Input.svelte';
 	import Form from './Form.svelte';
 
 	export let title: string;
@@ -19,11 +20,12 @@
 		<slot name="note" />
 	</p>
 
-	<input name="activation-code" placeholder="CODE" bind:value={enteredCode} />
+	<input name="activation-code" placeholder="CODE" bind:value={enteredCode} use:focusOnMount />
 </Form>
 
 <style>
 	p {
+		text-align: center;
 		color: var(--color-text-pale);
 		max-width: 20em;
 	}
