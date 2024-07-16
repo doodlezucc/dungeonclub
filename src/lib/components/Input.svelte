@@ -14,9 +14,13 @@
 	export let autocomplete: 'email' | 'current-password' | 'new-password' | undefined = undefined;
 	export let autofocus: boolean | undefined = undefined;
 
-	function applyType(node: HTMLInputElement) {
+	function applyTypeAndAutoFocus(node: HTMLInputElement) {
 		if (type !== undefined) {
 			node.type = type;
+		}
+
+		if (autofocus) {
+			node.focus();
 		}
 	}
 </script>
@@ -34,7 +38,7 @@
 			{required}
 			aria-required={required}
 			bind:value
-			use:applyType
+			use:applyTypeAndAutoFocus
 		/>
 	</label>
 {:else}
@@ -47,7 +51,7 @@
 		{required}
 		aria-required={required}
 		bind:value
-		use:applyType
+		use:applyTypeAndAutoFocus
 	/>
 {/if}
 
