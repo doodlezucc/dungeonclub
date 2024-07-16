@@ -1,63 +1,65 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { Account } from 'client/state';
-	import { RequestError } from 'shared';
 	import { fly } from 'svelte/transition';
-	import ConfirmPasswordPage from '../home/ConfirmPasswordPage.svelte';
+	import ActivationCodeForm from '../home/forms/ActivationCodeForm.svelte';
+	import ConfirmPasswordPage from '../home/forms/ConfirmPasswordPage.svelte';
+	import CredentialsForm from '../home/forms/CredentialsForm.svelte';
 
-	$: errorReason = '';
+	$: showActivationCodeForm = false;
 
-	$: emailAddress = '';
-	$: password = '';
-	$: passwordConfirmation = '';
-
-	$: {
-		if (emailAddress && password) {
-			errorReason = '';
-		}
+	async function attemptSignUp(emailAddress: string, password: string) {
+		await Account.attemptSignUp(emailAddress, password);
+		showActivationCodeForm = true;
 	}
 
-	async function createAccount() {
-		try {
-			await Account.register(emailAddress, password);
+	async function attemptVerify(code: string) {
+		const response = await fetch(`/activate?code=${code}`);
 
-			console.log('Registered + logged in');
-			goto('/');
-		} catch (err) {
-			if (!(err instanceof RequestError)) throw err;
-
-			errorReason = `${err.message}`;
+		if (response.ok) {
+			alert('OK!!');
+		} else {
+			if (response.status === 401) {
+				throw 'Code is invalid.';
+			} else {
+				throw `Error ${response.status}: ${response.statusText}`;
+			}
 		}
 	}
 </script>
 
-<ConfirmPasswordPage
-	title="Create a new Account"
-	submitButtonLabel="Sign Up"
-	bind:emailAddress
-	bind:password
-	bind:passwordConfirmation
-	bind:errorReason
-	on:submit={createAccount}
->
-	<span slot="note" class="note" in:fly={{ delay: 100, y: 20, duration: 600 }}>
-		<b>Tip!</b> Accounts are <em>not required</em><br />
-		for players, only for game leaders.
-	</span>
+<ConfirmPasswordPage {showActivationCodeForm}>
+	<svelte:fragment slot="credentials-form">
+		<CredentialsForm
+			title="Create a new Account"
+			submitButtonLabel="Sign Up"
+			handleSubmit={attemptSignUp}
+		>
+			<span slot="note" class="note" in:fly={{ delay: 100, y: 20, duration: 600 }}>
+				<b>Tip!</b> Accounts are <em>not required</em><br />
+				for players, only for game leaders.
+			</span>
 
-	<span slot="links">
-		Already have an account?<br />
-		<a href="/">Log in here</a>
-	</span>
+			<span slot="links">
+				Already have an account?<br />
+				<a href="/">Log in here</a>
+			</span>
+		</CredentialsForm>
+	</svelte:fragment>
+
+	<svelte:fragment slot="code-form">
+		<ActivationCodeForm title="Activate Account" handleCodeSubmit={attemptVerify}>
+			<span slot="note">
+				Hey there, thanks for signing up. Glad to have you! Please <b>check your email inbox</b> for
+				an activation code.
+			</span>
+		</ActivationCodeForm>
+	</svelte:fragment>
 </ConfirmPasswordPage>
 
 <style>
-	span {
-		text-align: center;
-	}
-
 	.note {
 		margin-top: 1em;
 		color: var(--color-text-pale);
+		text-align: center;
 	}
 </style>

@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import { fly, slide } from 'svelte/transition';
 	import AccountContent from './home/AccountContent.svelte';
-	import LoginForm from './home/LoginForm.svelte';
+	import LoginForm from './home/forms/LoginForm.svelte';
 
 	$: isLoggedIn = !!$accountState;
 

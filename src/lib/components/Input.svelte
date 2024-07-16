@@ -53,6 +53,7 @@
 
 <style>
 	label {
+		text-align: start;
 		display: grid;
 		gap: 0.25em;
 	}

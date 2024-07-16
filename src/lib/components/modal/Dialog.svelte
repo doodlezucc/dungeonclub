@@ -13,7 +13,7 @@
 
 	const modal = getContext<ModalContext>('modal');
 
-	export function trapFocus(node: HTMLElement) {
+	function trapFocus(node: HTMLElement) {
 		const previous = document.activeElement as HTMLElement | null;
 
 		function focusable() {

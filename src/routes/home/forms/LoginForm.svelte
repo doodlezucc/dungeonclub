@@ -2,34 +2,17 @@
 	import { Account } from 'client/state';
 	import { Input } from 'components';
 	import Dot from 'components/layout/Dot.svelte';
-	import { RequestError } from 'shared';
 	import Form from './Form.svelte';
-
-	$: errorReason = '';
 
 	$: emailAddress = '';
 	$: password = '';
 
-	$: {
-		if (emailAddress && password) {
-			errorReason = '';
-		}
-	}
-
-	async function login() {
-		try {
-			await Account.logIn(emailAddress, password);
-
-			console.log('Logged in');
-		} catch (err) {
-			if (!(err instanceof RequestError)) throw err;
-
-			errorReason = `${err.message}`;
-		}
+	async function attemptLogin() {
+		await Account.logIn(emailAddress, password);
 	}
 </script>
 
-<Form title="Sign in to Dungeon Club" submitButtonLabel="Log In" {errorReason} on:submit={login}>
+<Form title="Sign in to Dungeon Club" submitButtonLabel="Log In" handleSubmit={attemptLogin}>
 	<Input
 		required
 		label="Email Address"
@@ -55,9 +38,3 @@
 		<a href="./sign-up">Create an account</a>
 	</span>
 </Form>
-
-<style>
-	span {
-		text-align: center;
-	}
-</style>

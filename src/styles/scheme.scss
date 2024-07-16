@@ -2,7 +2,7 @@
 @use 'scheme/text' as *;
 
 @mixin rounded() {
-	border-radius: 0.5em;
+	border-radius: 8px;
 }
 
 .container {
