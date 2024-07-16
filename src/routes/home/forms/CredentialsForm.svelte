@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Input from 'components/Input.svelte';
 	import { Column } from 'components/layout';
+	import { enteredEmailAddress } from '../credential-stores';
 	import Form from './Form.svelte';
 
 	export let title: string;
@@ -9,18 +10,17 @@
 
 	export let handleSubmit: (emailAddress: string, password: string) => Promise<void>;
 
-	$: emailAddress = '';
 	$: password = '';
 	$: passwordConfirmation = '';
 
-	$: isValid = emailAddress.length > 0 && password === passwordConfirmation;
+	$: isValid = $enteredEmailAddress.length > 0 && password === passwordConfirmation;
 </script>
 
 <Form
 	{title}
 	{submitButtonLabel}
 	disableSubmitButton={!isValid}
-	handleSubmit={() => handleSubmit(emailAddress, password)}
+	handleSubmit={() => handleSubmit($enteredEmailAddress, password)}
 >
 	<slot name="note" slot="note"></slot>
 
@@ -32,7 +32,7 @@
 		name="email"
 		type="email"
 		autocomplete="email"
-		bind:value={emailAddress}
+		bind:value={$enteredEmailAddress}
 	/>
 	<Column gap="normal">
 		<Input

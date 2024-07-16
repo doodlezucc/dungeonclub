@@ -2,25 +2,26 @@
 	import { Account } from 'client/state';
 	import { Input } from 'components';
 	import Dot from 'components/layout/Dot.svelte';
+	import { enteredEmailAddress } from '../credential-stores';
 	import Form from './Form.svelte';
 
-	$: emailAddress = '';
 	$: password = '';
 
 	async function attemptLogin() {
-		await Account.logIn(emailAddress, password);
+		await Account.logIn($enteredEmailAddress, password);
 	}
 </script>
 
 <Form title="Sign in to Dungeon Club" submitButtonLabel="Log In" handleSubmit={attemptLogin}>
 	<Input
+		autofocus
 		required
 		label="Email Address"
 		placeholder="Email of your account..."
 		name="email"
 		type="email"
 		autocomplete="email"
-		bind:value={emailAddress}
+		bind:value={$enteredEmailAddress}
 	/>
 	<Input
 		required
