@@ -1,22 +1,13 @@
 <script lang="ts" context="module">
+	import type { HexGridSpace } from '$lib/packages/grid/spaces/hex';
 	import type { Position } from 'components/compounds';
 
-	const oneThird = 1 / 3;
-	const heightRatio = 0.8660254037844386;
+	function drawPolygon(offset: Position, scale: number, gridSpace: HexGridSpace): Position[] {
+		const unitHexagon = gridSpace.getUnitHexagonShape();
 
-	const unitHexagonHorizontal: Position[] = [
-		{ x: -oneThird, y: -0.5 },
-		{ x: oneThird, y: -0.5 },
-		{ x: 2 * oneThird, y: 0 },
-		{ x: oneThird, y: 0.5 },
-		{ x: -oneThird, y: 0.5 },
-		{ x: -2 * oneThird, y: 0 }
-	];
-
-	function drawPolygon(offset: Position, scale: number): Position[] {
-		return unitHexagonHorizontal.map((point) => ({
+		return unitHexagon.points.map((point) => ({
 			x: (point.x + offset.x) * scale,
-			y: ((point.y + offset.y) * scale) / heightRatio
+			y: (point.y + offset.y) * scale * gridSpace.tileHeightRatio
 		}));
 	}
 
@@ -28,8 +19,9 @@
 <script lang="ts">
 	export let offset: Position;
 	export let cellWidth: number;
+	export let gridSpace: HexGridSpace;
 
-	$: points = drawPolygon(offset, cellWidth);
+	$: points = drawPolygon(offset, cellWidth, gridSpace);
 </script>
 
 <polygon id="hexagon" points={makePolygonData(points)} />

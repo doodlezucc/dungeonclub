@@ -1,8 +1,9 @@
 import type { Position } from '$lib/compounds';
+import { oneThird, unitHexagons, type UnitHexagon } from './hex-shape';
 import { GridSpace, type PositionedSquare } from './interface';
 
 type Vector = Position;
-type HexagonAxis = 'horizontal' | 'vertical';
+export type HexagonAxis = 'horizontal' | 'vertical';
 
 /**
  * ```
@@ -20,16 +21,12 @@ interface FlatVector {
 	shortCoordinate: number;
 }
 
-const oneThird = 1 / 3;
-// const oneSixth = 1 / 6;
 const invertedSqrt3 = 0.5773502691896257; // 1 / √3
 
 const tileHeights: Record<HexagonAxis, number> = {
 	horizontal: 2 * invertedSqrt3, // 2 / √3
 	vertical: 0.8660254037844386 //  √3 /  2
 };
-
-// const twlvSqt3 = tileHeights.vertical / 6; // √3 / 12
 
 export class HexGridSpace extends GridSpace {
 	static readonly horizontal = new HexGridSpace('horizontal');
@@ -41,6 +38,10 @@ export class HexGridSpace extends GridSpace {
 
 	get tileHeightRatio() {
 		return tileHeights[this.axis];
+	}
+
+	getUnitHexagonShape(): UnitHexagon {
+		return unitHexagons[this.axis];
 	}
 
 	private rotated(flat: FlatVector): Vector {
