@@ -53,7 +53,10 @@
 		const mouseInGridSpace = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });
 
 		if ($isGridSnappingDisabled) {
-			position = mouseInGridSpace;
+			position = {
+				x: mouseInGridSpace.x,
+				y: mouseInGridSpace.y * $activeGridSpace!.tileHeightRatio
+			};
 		} else {
 			const snapped = $activeGridSpace!.snapShapeToGrid({
 				center: mouseInGridSpace,

@@ -25,8 +25,8 @@ const oneThird = 1 / 3;
 const invertedSqrt3 = 0.5773502691896257; // 1 / √3
 
 const tileHeights: Record<HexagonAxis, number> = {
-	horizontal: 0.8660254037844386, // √3 /  2
-	vertical: 2 * invertedSqrt3 //      2 / √3
+	horizontal: 2 * invertedSqrt3, // 2 / √3
+	vertical: 0.8660254037844386 //  √3 /  2
 };
 
 // const twlvSqt3 = tileHeights.vertical / 6; // √3 / 12
