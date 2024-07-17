@@ -105,6 +105,18 @@ test('Undo/Redo asynchronous action', async () => {
 
 	const history = createHistory();
 
+	async function undoAndWait() {
+		await (
+			await history.undo()
+		)?.completed;
+	}
+
+	async function redoAndWait() {
+		await (
+			await history.redo()
+		)?.completed;
+	}
+
 	const increaseFrom0To1 = {
 		name: 'Increase counter from 0 to 1',
 		do: () => setCounterAsync(1),
@@ -118,20 +130,20 @@ test('Undo/Redo asynchronous action', async () => {
 		timeline: [increaseFrom0To1]
 	});
 
-	await history.redo();
+	await redoAndWait();
 	expect(counterVariable).toBe(1);
 	expect(get(history)).toEqual(<HistoryState>{
 		presentIndex: 1,
 		timeline: [increaseFrom0To1]
 	});
 
-	await history.undo();
+	await undoAndWait();
 	expect(counterVariable).toBe(0);
 	expect(get(history)).toEqual(<HistoryState>{
 		presentIndex: 0,
 		timeline: [increaseFrom0To1]
 	});
-	await history.undo();
+	await undoAndWait();
 	expect(counterVariable).toBe(0);
 	expect(get(history)).toEqual(<HistoryState>{
 		presentIndex: 0,
