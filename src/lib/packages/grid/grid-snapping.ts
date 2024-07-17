@@ -1,8 +1,9 @@
 import type { GridType } from '@prisma/client';
 import { HexGridSpace } from './spaces/hex';
+import type { GridSpace } from './spaces/interface';
 import { SquareGridSpace } from './spaces/square';
 
-export abstract class GridSpace {
+export abstract class GridSpaces {
 	static parse(gridType: GridType): GridSpace {
 		switch (gridType) {
 			case 'SQUARE':

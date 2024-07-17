@@ -7,13 +7,16 @@
 
 <script lang="ts">
 	import type { Position, Size } from '$lib/compounds';
-	import { boardState } from 'client/state/board';
+	import { Board, boardState } from 'client/state/board';
 	import { PanView } from 'components';
 	import { Overlay } from 'components/layout';
 	import { setContext } from 'svelte';
 	import BattleMap from './BattleMap.svelte';
 	import Grid from './Grid.svelte';
 	import Token from './grid/Token.svelte';
+
+	const activeGridSpace = Board.instance.grid.gridSpace;
+	const tileHeightRatio = $activeGridSpace?.tileHeightRatio ?? 1;
 
 	const cellsPerRow = $boardState!.gridCellsPerRow;
 
@@ -48,7 +51,7 @@
 
 		return {
 			x: (clientPosition.x - rect.x) / factor,
-			y: (clientPosition.y - rect.y) / factor
+			y: (clientPosition.y - rect.y) / (factor * tileHeightRatio)
 		};
 	}
 
@@ -63,7 +66,11 @@
 </script>
 
 <PanView expand bind:position bind:zoom>
-	<div bind:this={contentElement} class="board" style="--cell-size: {cellSize}px">
+	<div
+		bind:this={contentElement}
+		class="board"
+		style="--cell-size: {cellSize}px; --cell-grow-factor: {tileHeightRatio};"
+	>
 		<BattleMap bind:size={dimensions} />
 
 		{#if dimensions}

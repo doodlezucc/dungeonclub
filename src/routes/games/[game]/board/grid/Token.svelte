@@ -77,7 +77,7 @@
 
 <style lang="scss">
 	.token {
-		--size-px: calc(var(--cell-size) * var(--size));
+		--size-px: calc(var(--cell-size) * var(--size) * var(--cell-grow-factor));
 
 		cursor: pointer;
 		pointer-events: all;

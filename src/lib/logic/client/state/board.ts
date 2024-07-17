@@ -1,4 +1,5 @@
-import { GridSpace } from '$lib/packages/grid/grid-snapping';
+import { GridSpaces } from '$lib/packages/grid/grid-snapping';
+import type { GridSpace } from '$lib/packages/grid/spaces/interface';
 import { historyOf } from '$lib/packages/undo-redo/history';
 import type { BoardSnippet, GetPayload } from 'shared';
 import { derived, type Readable } from 'svelte/store';
@@ -11,7 +12,7 @@ export class BoardGrid {
 
 	constructor(readonly board: Board) {
 		this.gridSpace = derived(board.state, (boardState) => {
-			return boardState ? GridSpace.parse(boardState.gridType) : null;
+			return boardState ? GridSpaces.parse(boardState.gridType) : null;
 		});
 	}
 }
