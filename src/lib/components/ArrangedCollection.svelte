@@ -19,7 +19,6 @@
 
 	import { fly } from 'svelte/transition';
 	import Arrangable from './Arrangable.svelte';
-	import Row from './layout/Row.svelte';
 
 	export let items: Array<T>;
 	export let customDragHandling = false;
@@ -113,24 +112,17 @@
 
 <svelte:window on:mouseup={() => ($draggedItem = null)} on:pointermove={handleMouseMove} />
 
-<Row gap="normal" wrap>
-	{#each itemsPlus as entry, index (entry ? entry[0] : null)}
-		<div in:fly|global={{ y: 30, delay: 200 + index * 50 }}>
-			{#if entry}
-				<Arrangable
-					{index}
-					state={entry[1]}
-					{customDragHandling}
-					on:drag={(ev) => onDrag(entry, ev)}
-				>
-					<slot item={entry[0]} dragController={entry[1].controller} this />
-				</Arrangable>
-			{:else}
-				<slot name="plus" />
-			{/if}
-		</div>
-	{/each}
-</Row>
+{#each itemsPlus as entry, index (entry ? entry[0] : null)}
+	<div in:fly|global={{ y: 30, delay: 200 + index * 50 }}>
+		{#if entry}
+			<Arrangable {index} state={entry[1]} {customDragHandling} on:drag={(ev) => onDrag(entry, ev)}>
+				<slot item={entry[0]} dragController={entry[1].controller} this />
+			</Arrangable>
+		{:else}
+			<slot name="plus" />
+		{/if}
+	</div>
+{/each}
 
 <style>
 	div {

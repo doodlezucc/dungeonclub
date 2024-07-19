@@ -3,6 +3,7 @@
 	import { Board, Session, sessionState } from 'client/state';
 	import ArrangedCollection from 'components/ArrangedCollection.svelte';
 	import { displayErrorDialog } from 'components/extensions/modal';
+	import Row from 'components/layout/Row.svelte';
 	import { Dialog, type ModalContext } from 'components/modal';
 	import FileUploader from 'components/upload/FileUploader.svelte';
 	import type { BoardSnippet } from 'shared';
@@ -57,14 +58,16 @@
 
 <Dialog title="Select Board">
 	{#if $boardSnippets}
-		<ArrangedCollection items={$boardSnippets} let:item={snippet}>
-			<BoardPreview name={snippet.name} on:click={() => selectBoard(snippet.id)} />
+		<Row gap="normal" wrap>
+			<ArrangedCollection items={$boardSnippets} let:item={snippet}>
+				<BoardPreview name={snippet.name} on:click={() => selectBoard(snippet.id)} />
 
-			<svelte:fragment slot="plus">
-				<FileUploader displayedIcon="file-image" on:change={createNewBoardsFromFiles}>
-					New Board
-				</FileUploader>
-			</svelte:fragment>
-		</ArrangedCollection>
+				<svelte:fragment slot="plus">
+					<FileUploader displayedIcon="file-image" on:change={createNewBoardsFromFiles}>
+						New Board
+					</FileUploader>
+				</svelte:fragment>
+			</ArrangedCollection>
+		</Row>
 	{/if}
 </Dialog>

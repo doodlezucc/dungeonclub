@@ -52,7 +52,8 @@ button {
 		}
 
 		&:active,
-		&:focus-visible {
+		&:focus-visible,
+		&.drag-over {
 			outline-color: var(--color-button-active-outline);
 		}
 	}
@@ -124,7 +125,8 @@ input {
 	}
 
 	&:not(:disabled):active,
-	&:disabled {
+	&:disabled,
+	&.drag-over {
 		@include raise(0.25);
 	}
 }

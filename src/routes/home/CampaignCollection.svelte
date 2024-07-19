@@ -40,33 +40,35 @@
 	}
 </script>
 
-<ArrangedCollection
-	customDragHandling
-	bind:items={campaigns}
-	let:item={campaign}
-	let:dragController
->
-	<Container>
-		<Row gap="big" align="center" justify="space-between">
-			<h2>{campaign.name}</h2>
-			<DragHandle controller={dragController} />
-		</Row>
-		<Column gap="big">
-			<Text style="subtitle">Created <Time timestamp={campaign.createdAt} /></Text>
-
-			<Placeholder>Preview Image</Placeholder>
-
-			<Row gap="normal">
-				<Button on:click={() => editCampaign(campaign)}>Settings</Button>
-				<Button highlight raised href="games/{campaign.id}">Host Session</Button>
+<Row gap="normal" wrap>
+	<ArrangedCollection
+		customDragHandling
+		bind:items={campaigns}
+		let:item={campaign}
+		let:dragController
+	>
+		<Container>
+			<Row gap="big" align="center" justify="space-between">
+				<h2>{campaign.name}</h2>
+				<DragHandle controller={dragController} />
 			</Row>
-		</Column>
-	</Container>
+			<Column gap="big">
+				<Text style="subtitle">Created <Time timestamp={campaign.createdAt} /></Text>
 
-	<svelte:fragment slot="plus">
-		<Button raised on:click={createCampaign}>Create new campaign</Button>
-	</svelte:fragment>
-</ArrangedCollection>
+				<Placeholder>Preview Image</Placeholder>
+
+				<Row gap="normal">
+					<Button on:click={() => editCampaign(campaign)}>Settings</Button>
+					<Button highlight raised href="games/{campaign.id}">Host Session</Button>
+				</Row>
+			</Column>
+		</Container>
+
+		<svelte:fragment slot="plus">
+			<Button raised on:click={createCampaign}>Create new campaign</Button>
+		</svelte:fragment>
+	</ArrangedCollection>
+</Row>
 
 <style>
 	h2 {

@@ -22,6 +22,8 @@
 	export let autocomplete: 'email' | 'current-password' | 'new-password' | undefined = undefined;
 	export let autofocus: boolean = false;
 
+	export let size: 'small' | undefined = undefined;
+
 	function applyType(node: HTMLInputElement) {
 		if (type !== undefined) {
 			node.type = type;
@@ -45,6 +47,7 @@
 			tabindex={autofocus ? 0 : undefined}
 			{required}
 			aria-required={required}
+			data-size={size}
 			bind:value
 			use:applyType
 			use:focusOnMount={autofocus}
@@ -59,6 +62,7 @@
 		tabindex={autofocus ? 0 : undefined}
 		{required}
 		aria-required={required}
+		data-size={size}
 		bind:value
 		use:applyType
 		use:focusOnMount={autofocus}
@@ -70,5 +74,9 @@
 		text-align: start;
 		display: grid;
 		gap: 0.25em;
+	}
+
+	input[data-size='small'] {
+		min-width: 0;
 	}
 </style>

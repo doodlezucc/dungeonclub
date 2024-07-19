@@ -94,6 +94,7 @@
 		color: inherit;
 		border: 2px solid var(--color-separator);
 		padding: 0;
+		max-width: 90vw;
 	}
 
 	header,
