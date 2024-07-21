@@ -5,6 +5,15 @@ import { WithState } from './with-state';
 export class Account extends WithState<AccountSnippet> {
 	static readonly instance = new Account();
 	static readonly state = this.instance.state;
+	static readonly campaigns = this.instance.derived(
+		(account) => account.campaigns,
+		(account, campaigns) => {
+			return {
+				...account,
+				campaigns: campaigns
+			};
+		}
+	);
 
 	static async logIn(emailAddress: string, password: string) {
 		const response = await getSocket().request('login', {

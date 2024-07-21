@@ -9,6 +9,20 @@ export interface CampaignMessageCategory {
 		CampaignSnippet
 	>;
 
+	campaignDelete: DefinePrivateRequest<
+		{
+			id: string;
+		},
+		true
+	>;
+
+	campaignReorder: DefinePrivateRequest<
+		{
+			campaignIds: string[];
+		},
+		true
+	>;
+
 	campaignEdit: DefinePrivateRequest<Omit<CampaignCardSnippet, 'createdAt'>, CampaignCardSnippet>;
 
 	campaignHost: DefinePrivateRequest<

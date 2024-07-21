@@ -46,7 +46,8 @@ model Account {
 
   tokenInfo AccessToken?
 
-  campaigns Campaign[]
+  campaigns          Campaign[]
+  campaignIdsOrdered String[]
 }
 
 model AccessToken {
@@ -67,8 +68,8 @@ model Campaign {
   playerCharacters PlayerCharacter[]
   templates        TokenTemplate[]
   boards           Board[]
-
-  selectedBoardId String?
+  boardIdsOrdered  String[]
+  selectedBoardId  String?
 
   audioSfxWeather SfxWeather @default(NONE)
   audioSfxCrowd   SfxCrowd   @default(NONE)

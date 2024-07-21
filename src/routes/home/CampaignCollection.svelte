@@ -3,10 +3,12 @@
 
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { accountState, Session } from 'client/state';
+	import { socket } from 'client/communication';
+	import { Account, Session } from 'client/state';
 	import { Button, Text } from 'components';
 	import ArrangedCollection from 'components/ArrangedCollection.svelte';
 	import DragHandle from 'components/DragHandle.svelte';
+	import { runWithErrorDialogBoundary } from 'components/extensions/modal';
 	import { Column, Container, Placeholder, Row } from 'components/layout';
 	import type { ModalContext } from 'components/modal';
 	import type { CampaignCardSnippet, CampaignSnippet } from 'shared';
@@ -14,18 +16,14 @@
 	import Time from 'svelte-time/Time.svelte';
 	import CampaignEditDialog from './CampaignEditDialog.svelte';
 
-	let campaigns = [...($accountState?.campaigns ?? [])];
+	const campaigns = Account.campaigns;
 
 	const modal = getContext<ModalContext>('modal');
 
 	async function editCampaign(unedited: CampaignCardSnippet) {
-		const result: CampaignCardSnippet | undefined = await modal.display(CampaignEditDialog, {
+		await modal.display(CampaignEditDialog, {
 			...unedited
 		});
-
-		if (result) {
-			campaigns = campaigns.map((campaign) => (campaign === unedited ? result : campaign));
-		}
 	}
 
 	async function createCampaign() {
@@ -38,12 +36,21 @@
 			Session.instance.campaign.onEnter(result);
 		}
 	}
+
+	function submitReorder() {
+		runWithErrorDialogBoundary(modal, async () => {
+			await $socket.request('campaignReorder', {
+				campaignIds: $campaigns.map((campaign) => campaign.id)
+			});
+		});
+	}
 </script>
 
 <Row gap="normal" wrap>
 	<ArrangedCollection
 		customDragHandling
-		bind:items={campaigns}
+		bind:items={$campaigns}
+		on:reorder={submitReorder}
 		let:item={campaign}
 		let:dragController
 	>

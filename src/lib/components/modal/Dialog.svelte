@@ -82,7 +82,7 @@
 
 	{#if $$slots.actions}
 		<div class="actions">
-			<Row align="center" justify="end" gap="normal">
+			<Row justify="end" gap="normal">
 				<slot name="actions" />
 			</Row>
 		</div>

@@ -1,14 +1,14 @@
-import { PrismaClient } from '@prisma/client';
 import type { WebSocket } from 'ws';
 import { AccountManager } from './account-manager';
 import { AssetManager } from './asset-manager';
+import { prisma } from './prisma';
 import type { MailService } from './services/mail-service';
 import { GmailMailService } from './services/mail/service-gmail';
 import { SessionManager } from './session';
 import { ConnectionSocket } from './socket';
 import { getWebSocketServer } from './ws-server/ws-server';
 
-export const prisma = new PrismaClient();
+export { prisma };
 
 export class Server {
 	readonly accountManager = new AccountManager();

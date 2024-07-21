@@ -15,6 +15,7 @@
 </script>
 
 <script lang="ts" generics="T">
+	import { createEventDispatcher } from 'svelte';
 	import { derived, writable, type Readable } from 'svelte/store';
 
 	import { fly } from 'svelte/transition';
@@ -39,6 +40,10 @@
 			}
 		}
 	}
+
+	const dispatch = createEventDispatcher<{
+		reorder: undefined;
+	}>();
 
 	function registerDragState(item: T) {
 		$draggedItem = null;
@@ -102,6 +107,13 @@
 		}
 	}
 
+	function handleMouseUp() {
+		if ($draggedItem) {
+			$draggedItem = null;
+			dispatch('reorder');
+		}
+	}
+
 	function handleMouseMove(ev: PointerEvent) {
 		mousePosition = {
 			x: ev.clientX,
@@ -110,7 +122,7 @@
 	}
 </script>
 
-<svelte:window on:mouseup={() => ($draggedItem = null)} on:pointermove={handleMouseMove} />
+<svelte:window on:mouseup={handleMouseUp} on:pointermove={handleMouseMove} />
 
 {#each itemsPlus as entry, index (entry ? entry[0] : null)}
 	<div in:fly|global={{ y: 30, delay: 200 + index * 50 }}>

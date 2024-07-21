@@ -8,15 +8,53 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	handleCampaignCreate: async ({ name }, { dispatcher }) => {
 		const campaignId = await generateCampaignID();
 
-		await prisma.campaign.create({
+		await prisma.account.update({
+			where: { emailHash: dispatcher.loggedInAccountHash },
 			data: {
-				ownerEmail: dispatcher.loggedInAccountHash,
-				name,
-				id: campaignId
+				campaigns: {
+					create: {
+						name,
+						id: campaignId
+					}
+				},
+				campaignIdsOrdered: {
+					push: campaignId
+				}
 			}
 		});
 
 		return dispatcher.enterSession(campaignId);
+	},
+
+	handleCampaignDelete: async ({ id }, { dispatcher }) => {
+		const dispatcherAccount = await prisma.account.findUniqueOrThrow({
+			where: { emailHash: dispatcher.loggedInAccountHash },
+			select: {
+				campaigns: { select: { id: true } }
+			}
+		});
+
+		const isOwner = dispatcherAccount.campaigns.some((campaign) => campaign.id === id);
+
+		if (!isOwner) {
+			throw 'You must be the owner of this campaign to be able to delete it';
+		}
+
+		await prisma.campaign.delete({
+			where: { id: id }
+		});
+
+		return true;
+	},
+
+	handleCampaignReorder: async ({ campaignIds }, { dispatcher }) => {
+		await prisma.account.updateArrayOrder({
+			where: { emailHash: dispatcher.accountHash },
+			arrayName: 'campaignIdsOrdered',
+			updateTo: campaignIds
+		});
+
+		return true;
 	},
 
 	handleCampaignEdit: async ({ id, name }, { dispatcher }) => {
@@ -27,7 +65,6 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 			},
 			data: {
 				name: name
-				// TODO: delete removed characters from DB, add new characters
 			},
 			select: SelectCampaignCard
 		});
