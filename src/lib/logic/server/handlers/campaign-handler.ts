@@ -1,6 +1,6 @@
 import type { CampaignMessageCategory } from 'shared';
 import { SelectCampaignCard } from '../../net/snippets';
-import { prisma } from '../server';
+import { prisma, server } from '../server';
 import type { CategoryHandler } from '../socket';
 import { generateUniqueString } from '../util/generate-string';
 
@@ -27,21 +27,53 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	},
 
 	handleCampaignDelete: async ({ id }, { dispatcher }) => {
-		const dispatcherAccount = await prisma.account.findUniqueOrThrow({
+		const { campaigns, campaignIdsOrdered } = await prisma.account.findUniqueOrThrow({
 			where: { emailHash: dispatcher.loggedInAccountHash },
 			select: {
-				campaigns: { select: { id: true } }
+				campaigns: { select: { id: true } },
+				campaignIdsOrdered: true
 			}
 		});
 
-		const isOwner = dispatcherAccount.campaigns.some((campaign) => campaign.id === id);
+		const isOwner = campaigns.some((campaign) => campaign.id === id);
 
 		if (!isOwner) {
 			throw 'You must be the owner of this campaign to be able to delete it';
 		}
 
-		await prisma.campaign.delete({
-			where: { id: id }
+		const selectedAssets = await prisma.campaign.findUniqueOrThrow({
+			where: { id: id },
+			select: {
+				boards: {
+					select: {
+						mapImage: true
+					}
+				},
+				templates: {
+					select: {
+						avatar: true
+					}
+				}
+			}
+		});
+
+		const allAssets = [
+			...selectedAssets.boards.map((board) => board.mapImage),
+			...selectedAssets.templates
+				.map((template) => template.avatar)
+				.filter((asset) => asset != null)
+		];
+
+		await server.assetManager.disposeAssetsInBatch(allAssets);
+
+		await prisma.account.update({
+			where: { emailHash: dispatcher.loggedInAccountHash },
+			data: {
+				campaigns: {
+					delete: { id: id }
+				},
+				campaignIdsOrdered: campaignIdsOrdered.filter((ownedId) => ownedId !== id)
+			}
 		});
 
 		return true;

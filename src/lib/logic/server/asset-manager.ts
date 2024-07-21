@@ -1,5 +1,5 @@
 import type { Asset } from '@prisma/client';
-import { access, mkdir, writeFile } from 'fs/promises';
+import * as fs from 'fs/promises';
 import * as mime from 'mime-types';
 import { prisma } from './server';
 import { generateUniqueString } from './util/generate-string';
@@ -13,7 +13,7 @@ export class AssetManager {
 	}
 
 	private async createStaticDirectory() {
-		await mkdir(this.rootDirFromBackend, { recursive: true });
+		await fs.mkdir(this.rootDirFromBackend, { recursive: true });
 	}
 
 	async getPathToAsset(assetId: string, { accessibleByFrontend = false }) {
@@ -50,7 +50,7 @@ export class AssetManager {
 			doesExist: async (fileName) => {
 				try {
 					const pathToAsset = this.getPathToFile(fileName);
-					await access(pathToAsset);
+					await fs.access(pathToAsset);
 					return true;
 				} catch {
 					return false;
@@ -61,7 +61,7 @@ export class AssetManager {
 		const buffer = await request.arrayBuffer();
 
 		const systemPath = this.getPathToFile(fileName);
-		await writeFile(systemPath, new Uint8Array(buffer));
+		await fs.writeFile(systemPath, new Uint8Array(buffer));
 
 		console.log('created asset ' + fileName);
 
@@ -71,5 +71,14 @@ export class AssetManager {
 				path: fileName
 			}
 		});
+	}
+
+	async disposeAsset(asset: Asset) {
+		const filePath = this.getPathToFile(asset.path);
+		await fs.unlink(filePath);
+	}
+
+	async disposeAssetsInBatch(assets: Asset[]) {
+		await Promise.allSettled(assets.map((asset) => this.disposeAsset(asset)));
 	}
 }

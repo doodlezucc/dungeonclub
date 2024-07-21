@@ -80,17 +80,17 @@ model Campaign {
 model PlayerCharacter {
   id String @id @default(uuid())
 
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId String
 
-  tokenTemplate   TokenTemplate @relation(fields: [tokenTemplateId], references: [id])
+  tokenTemplate   TokenTemplate @relation(fields: [tokenTemplateId], references: [id], onDelete: Cascade)
   tokenTemplateId String        @unique
 }
 
 model TokenTemplate {
   id String @id @default(uuid())
 
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId String
 
   player PlayerCharacter?
@@ -109,7 +109,7 @@ model TokenTemplate {
 model Board {
   id String @id @default(uuid())
 
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId String
 
   name String @default("Untitled Board")
