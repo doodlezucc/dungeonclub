@@ -165,7 +165,7 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		this.sendOutgoingMessage(encodedMessage);
 	}
 
-	public receiveIncomingMessage(encodedMessage: string) {
+	protected receiveIncomingMessage(encodedMessage: string) {
 		const incoming = MessageCodec.decode(encodedMessage);
 		this.handleIncomingMessage(
 			incoming as ResponseMessage<SENT, keyof SENT> | SendMessage<HANDLED, keyof HANDLED>

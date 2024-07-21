@@ -44,6 +44,10 @@ class TestClient extends MessageSocket<ClientHandledMessages, ClientSentMessages
 	protected sendOutgoingMessage(encodedMessage: string): void {
 		testServer.receiveIncomingMessage(encodedMessage);
 	}
+
+	public receiveIncomingMessage(encodedMessage: string): void {
+		return super.receiveIncomingMessage(encodedMessage);
+	}
 }
 
 type _ServerHandled = Pick<ServerHandledMessages, 'tokenCreate'>;
@@ -70,6 +74,10 @@ class TestServer extends MessageSocket<_ServerHandled, ServerSentMessages> {
 
 	protected sendOutgoingMessage(encodedMessage: string): void {
 		testClient.receiveIncomingMessage(encodedMessage);
+	}
+
+	public receiveIncomingMessage(encodedMessage: string): void {
+		return super.receiveIncomingMessage(encodedMessage);
 	}
 }
 
