@@ -102,6 +102,7 @@ export const SelectCampaign = {
 	boards: {
 		select: SelectBoardPreview
 	},
+	boardIdsOrdered: true,
 	selectedBoardId: true,
 	templates: {
 		select: SelectTokenTemplate
@@ -118,7 +119,8 @@ export const SelectAccount = {
 	},
 	campaigns: {
 		select: SelectCampaignCard
-	}
+	},
+	campaignIdsOrdered: true
 } satisfies Prisma.AccountSelect;
 export type AccountSnippet = {
 	accessToken: string;

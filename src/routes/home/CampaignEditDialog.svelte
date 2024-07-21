@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { socket } from 'client/communication';
+	import { Account } from 'client/state';
 	import { Button, Input } from 'components';
 	import { runWithErrorDialogBoundary } from 'components/extensions/modal';
 	import { Flex } from 'components/layout';
@@ -43,6 +44,8 @@
 				await $socket.request('campaignDelete', { id: id! });
 
 				modal.pop();
+
+				Account.campaigns.update((campaigns) => campaigns.filter((campaign) => campaign.id !== id));
 			});
 		}
 	}

@@ -22,7 +22,9 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 
 		return {
 			accessToken: tokenInfo.id,
-			campaigns: account.campaigns
+			campaigns: account.campaignIdsOrdered.map((campaignId) => {
+				return account.campaigns.find((campaign) => campaign.id === campaignId)!;
+			})
 		};
 	},
 
