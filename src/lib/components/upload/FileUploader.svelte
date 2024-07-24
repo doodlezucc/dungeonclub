@@ -39,7 +39,11 @@
 		const files = ev.dataTransfer?.files;
 
 		if (files) {
-			fileList = Array.from(files);
+			if (acceptMultiple) {
+				fileList = Array.from(files);
+			} else {
+				fileList = files.length >= 1 ? [files.item(0)!] : [];
+			}
 		}
 	}
 
