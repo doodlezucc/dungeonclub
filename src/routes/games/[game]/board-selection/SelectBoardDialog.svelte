@@ -15,7 +15,7 @@
 
 	const modal = getContext<ModalContext>('modal');
 
-	async function createNewBoardsFromFiles(ev: CustomEvent<FileList>) {
+	async function createNewBoardsFromFiles(ev: CustomEvent<File[]>) {
 		const files = ev.detail;
 
 		try {
@@ -63,7 +63,12 @@
 				<BoardPreview name={snippet.name} on:click={() => selectBoard(snippet.id)} />
 
 				<svelte:fragment slot="plus">
-					<FileUploader displayedIcon="file-image" on:change={createNewBoardsFromFiles}>
+					<FileUploader
+						accept="image/*"
+						acceptMultiple
+						displayedIcon="file-image"
+						on:change={createNewBoardsFromFiles}
+					>
 						New Board
 					</FileUploader>
 				</svelte:fragment>

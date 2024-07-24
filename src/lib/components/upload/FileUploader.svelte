@@ -1,12 +1,19 @@
+<script lang="ts" context="module">
+	export type AcceptedFileType = 'audio/*' | 'image/*';
+</script>
+
 <script lang="ts">
 	import Icon, { type IconID } from 'components/Icon.svelte';
 	import { createEventDispatcher } from 'svelte';
+
+	export let accept: AcceptedFileType;
+	export let acceptMultiple = false;
 
 	export let buttonClass = 'raised';
 	export let displayedIcon: IconID | undefined = undefined;
 
 	$: dragOver = false;
-	$: fileList = null as FileList | null;
+	$: fileList = null as File[] | null;
 
 	let input: HTMLInputElement;
 	function openFilePicker() {
@@ -14,7 +21,7 @@
 	}
 
 	const dispatch = createEventDispatcher<{
-		change: FileList;
+		change: File[];
 	}>();
 
 	$: {
@@ -32,13 +39,13 @@
 		const files = ev.dataTransfer?.files;
 
 		if (files) {
-			fileList = files;
+			fileList = Array.from(files);
 		}
 	}
 
 	function handlePick() {
 		if (input.files) {
-			fileList = input.files;
+			fileList = Array.from(input.files);
 		}
 	}
 </script>
@@ -65,6 +72,8 @@
 	<slot />
 </button>
 <input
+	{accept}
+	multiple={acceptMultiple}
 	bind:this={input}
 	on:change={handlePick}
 	type="file"

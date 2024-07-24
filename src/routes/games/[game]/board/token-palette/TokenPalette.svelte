@@ -15,7 +15,7 @@
 
 	const modal = getContext<ModalContext>('modal');
 
-	async function createNewTokensFromFiles(ev: CustomEvent<FileList>) {
+	async function createNewTokensFromFiles(ev: CustomEvent<File[]>) {
 		const files = ev.detail;
 
 		await runWithErrorDialogBoundary(modal, async () => {
@@ -46,7 +46,12 @@
 			<TokenTemplateItem template={item} />
 
 			<svelte:fragment slot="plus">
-				<FileUploader buttonClass="token-palette-item" on:change={createNewTokensFromFiles}>
+				<FileUploader
+					accept="image/*"
+					acceptMultiple
+					buttonClass="token-palette-item"
+					on:change={createNewTokensFromFiles}
+				>
 					<Icon icon="add" />
 				</FileUploader>
 			</svelte:fragment>
