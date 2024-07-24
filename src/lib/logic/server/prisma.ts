@@ -7,7 +7,7 @@ export const prisma = new PrismaClient().$extends({
 				this: T,
 				{ updateTo: nextArray, where, arrayName }: UpdateOrderOptions<T, E>
 			) {
-				// Arbitrary type cast to "prisma.asset", only for IntelliSense
+				// Arbitrary type cast to "prisma.asset", ONLY here for IntelliSense
 				const context = Prisma.getExtensionContext(this) as unknown as Prisma.AssetDelegate;
 
 				const result = (await context.findUniqueOrThrow({
@@ -20,9 +20,6 @@ export const prisma = new PrismaClient().$extends({
 				const previousArray = result[arrayName as string];
 				const previousValueSet = new Set(previousArray);
 				const nextValueSet = new Set(nextArray);
-
-				console.log(previousArray, nextArray);
-				console.log(previousValueSet, nextValueSet);
 
 				if (previousValueSet.size !== nextValueSet.size) {
 					throw 'Array count must not be manipulated by reorder';

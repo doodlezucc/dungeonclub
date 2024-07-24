@@ -40,7 +40,7 @@ model Crypt {
 
 model Account {
   emailHash             String   @id
-  encryptedPassword     Crypt    @relation(fields: [encryptedPasswordHash], references: [hash])
+  encryptedPassword     Crypt    @relation(fields: [encryptedPasswordHash], references: [hash], onDelete: Cascade)
   encryptedPasswordHash String   @unique
   createdAt             DateTime @default(now())
 
@@ -54,13 +54,13 @@ model AccessToken {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 
-  account      Account @relation(fields: [accountEmail], references: [emailHash])
+  account      Account @relation(fields: [accountEmail], references: [emailHash], onDelete: Cascade)
   accountEmail String  @unique
 }
 
 model Campaign {
   id         String   @id
-  owner      Account  @relation(fields: [ownerEmail], references: [emailHash])
+  owner      Account  @relation(fields: [ownerEmail], references: [emailHash], onDelete: Cascade)
   ownerEmail String
   name       String
   createdAt  DateTime @default(now())
@@ -95,7 +95,7 @@ model TokenTemplate {
 
   player PlayerCharacter?
 
-  avatar   Asset?  @relation(fields: [avatarId], references: [id])
+  avatar   Asset?  @relation(fields: [avatarId], references: [id], onDelete: Cascade)
   avatarId String? @unique
 
   name String
@@ -114,7 +114,7 @@ model Board {
 
   name String @default("Untitled Board")
 
-  mapImage   Asset  @relation(fields: [mapImageId], references: [id])
+  mapImage   Asset  @relation(fields: [mapImageId], references: [id], onDelete: Cascade)
   mapImageId String @unique
 
   gridCellsPerRow   Int      @default(20)
@@ -138,10 +138,10 @@ enum GridType {
 model Token {
   id String @id @default(uuid())
 
-  board   Board  @relation(fields: [boardId], references: [id])
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId String
 
-  template   TokenTemplate? @relation(fields: [templateId], references: [id])
+  template   TokenTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade)
   templateId String?
 
   label String @default("")
@@ -159,17 +159,17 @@ model Token {
 model InitiativeOrder {
   id Int @id @default(autoincrement())
 
-  board   Board  @relation(fields: [boardId], references: [id])
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId String @unique
 
   entries InitiativeEntry[]
 }
 
 model InitiativeEntry {
-  order   InitiativeOrder @relation(fields: [orderId], references: [id])
+  order   InitiativeOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId Int
 
-  token   Token  @relation(fields: [tokenId], references: [id])
+  token   Token  @relation(fields: [tokenId], references: [id], onDelete: Cascade)
   tokenId String @unique
 
   roll Int
