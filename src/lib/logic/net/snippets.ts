@@ -13,6 +13,9 @@ export const SelectTokenTemplate = {
 	name: true,
 	size: true
 } satisfies Prisma.TokenTemplateSelect;
+export type TokenTemplateSnippet = Prisma.TokenTemplateGetPayload<{
+	select: typeof SelectTokenTemplate;
+}>;
 
 export const SelectPlayerCharacter = {
 	id: true,

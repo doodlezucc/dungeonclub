@@ -2,6 +2,7 @@
 	import Icon, { type IconID } from 'components/Icon.svelte';
 	import { createEventDispatcher } from 'svelte';
 
+	export let buttonClass = 'raised';
 	export let displayedIcon: IconID | undefined = undefined;
 
 	$: dragOver = false;
@@ -12,7 +13,9 @@
 		input.click();
 	}
 
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher<{
+		change: FileList;
+	}>();
 
 	$: {
 		if (fileList) {
@@ -49,7 +52,8 @@
 	on:drop={handleDrop}
 	type="button"
 	aria-describedby="file-upload"
-	class="drop-area raised"
+	class={buttonClass}
+	class:drop-area={true}
 	class:drag-over={dragOver}
 >
 	{#if displayedIcon}

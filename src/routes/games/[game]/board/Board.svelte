@@ -12,7 +12,7 @@
 	import { Overlay } from 'components/layout';
 	import { setContext } from 'svelte';
 	import BattleMap from './BattleMap.svelte';
-	import Grid from './Grid.svelte';
+	import Grid from './grid/Grid.svelte';
 	import Token from './grid/Token.svelte';
 
 	const activeGridSpace = Board.instance.grid.gridSpace;

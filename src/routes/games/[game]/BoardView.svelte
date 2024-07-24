@@ -6,7 +6,7 @@
 	import SelectBoardDialog from './board-selection/SelectBoardDialog.svelte';
 	import Board from './board/Board.svelte';
 	import BoardTools from './board/BoardTools.svelte';
-	import TokenPalette from './board/TokenPalette.svelte';
+	import TokenPalette from './board/token-palette/TokenPalette.svelte';
 
 	const modal = getContext<ModalContext>('modal');
 

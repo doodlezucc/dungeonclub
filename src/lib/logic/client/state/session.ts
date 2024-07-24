@@ -16,6 +16,14 @@ export class Campaign extends WithState<CampaignSnippet> {
 			Board.instance.load(snippet.selectedBoard);
 		}
 	}
+
+	readonly tokenTemplates = this.derived(
+		(campaign) => campaign.templates,
+		(campaign, templates) => ({
+			...campaign,
+			templates: templates
+		})
+	);
 }
 
 export class Session {
