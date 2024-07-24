@@ -22,7 +22,6 @@ button {
 	@include rounded();
 
 	outline: 0.25em solid transparent;
-	border: none;
 	box-sizing: border-box;
 
 	padding: 0.8em 2.5em;
@@ -116,7 +115,7 @@ input {
 	padding: $padding-vertical $padding-horizontal calc($padding-vertical + $strength * $max);
 }
 
-.raised {
+.raised:not(.custom) {
 	@extend %transitions-playful;
 	@include raise(1);
 
