@@ -13,8 +13,6 @@ export abstract class WithState<T> {
 	protected set(state: T) {
 		this._state.set(state);
 		this._currentState = state;
-
-		console.log(state);
 	}
 
 	put(update: (state: T) => T) {

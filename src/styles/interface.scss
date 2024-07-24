@@ -86,7 +86,7 @@ button {
 	}
 }
 
-[role='button'] {
+[role='button']:not(.custom) {
 	@extend button;
 }
 

@@ -1,28 +1,38 @@
 <script lang="ts">
-	import Row from 'components/layout/Row.svelte';
+	import { asset } from 'client/communication/asset';
 	import type { TokenTemplateSnippet } from 'shared';
 
 	export let template: TokenTemplateSnippet;
 
-	$: displayName = template.name.length > 0 ? template.name : '(Untitled)';
+	$: avatarSrc = asset(template.avatar!.path);
+
+	function handleClick() {
+		console.log('click');
+	}
+
+	function handleKeyDown(ev: KeyboardEvent) {}
 </script>
 
-<li class="row token-template">
-	<Row gap="normal" align="center">
-		<img alt="Avatar" />
-		<span>
-			{displayName}
-		</span>
-	</Row>
-</li>
+<div
+	role="button"
+	class="token-template custom"
+	tabindex="0"
+	on:keydown={handleKeyDown}
+	on:click={handleClick}
+>
+	<img src={avatarSrc} alt="T" title={template.name} />
+</div>
 
 <style>
-	li {
-		background-color: var(--color-background);
+	.token-template {
+		width: inherit;
+		height: inherit;
+		border: 1px solid var(--color-separator);
+		box-sizing: border-box;
 	}
 
 	img {
-		width: 48px;
-		height: 48px;
+		width: 100%;
+		height: 100%;
 	}
 </style>
