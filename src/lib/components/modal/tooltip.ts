@@ -43,9 +43,15 @@ export const tooltip: Action<HTMLElement, TooltipProps> = (node, props) => {
 		node.ariaLabel = value;
 	}
 
-	setAriaTooltip(props.label);
-	node.addEventListener('mouseenter', onMouseEnter);
-	node.addEventListener('mouseleave', onMouseLeave);
+	function initializeOnMove() {
+		window.removeEventListener('mousemove', initializeOnMove);
+
+		setAriaTooltip(props.label);
+		node.addEventListener('mouseenter', onMouseEnter);
+		node.addEventListener('mouseleave', onMouseLeave);
+	}
+
+	window.addEventListener('mousemove', initializeOnMove);
 
 	return {
 		update: (props) => {

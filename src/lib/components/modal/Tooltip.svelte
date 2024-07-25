@@ -4,7 +4,7 @@
 	}
 
 	/** Minimum duration needed to ensure a smooth fade-out before detaching a tooltip component. */
-	export const TOOLTIP_TRANSITION_OUT_MS = 200;
+	export const TOOLTIP_TRANSITION_OUT_MS = 150;
 
 	function rectToCssVariableMap(rect: DOMRect) {
 		return {
@@ -43,7 +43,7 @@
 		role="presentation"
 		class="tooltip-wrapper"
 		style={composeRectStyleProperty(boundingRect)}
-		transition:fly={{ y: 20, duration: TOOLTIP_TRANSITION_OUT_MS }}
+		transition:fly={{ y: 10, duration: TOOLTIP_TRANSITION_OUT_MS }}
 	>
 		<div class="tooltip">
 			{props.label}
@@ -59,11 +59,13 @@
 		width: var(--w);
 		height: var(--h);
 
-		outline: 2px solid red;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.tooltip {
-		background-color: var(--color-background);
-		padding: 0.5em;
+		position: relative;
+		bottom: 40%;
 	}
 </style>
