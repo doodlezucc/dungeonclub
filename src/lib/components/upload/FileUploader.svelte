@@ -95,9 +95,9 @@
 
 	.drop-area {
 		border-style: dashed;
+	}
 
-		> * {
-			pointer-events: none;
-		}
+	:global(.drop-area > *) {
+		pointer-events: none;
 	}
 </style>
