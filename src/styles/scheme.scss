@@ -33,3 +33,13 @@
 	background-color: var(--color-background);
 	padding: 0.5em 0.8em;
 }
+
+.list-tile {
+	background-color: var(--color-list-tile);
+	min-height: 2rem;
+	padding: 4px;
+
+	&:hover {
+		background-color: var(--color-list-tile-hover);
+	}
+}

@@ -1,40 +1,33 @@
 <script lang="ts">
 	import { asset } from 'client/communication/asset';
-	import { tooltip } from 'components/modal/tooltip';
+	import { Row } from 'components/layout';
+	import ListTile from 'components/ListTile.svelte';
 	import type { TokenTemplateSnippet } from 'shared';
 
 	export let template: TokenTemplateSnippet;
 
 	$: avatarSrc = asset(template.avatar!.path);
 
-	function handleClick() {
+	function handleMouseDown(ev: MouseEvent) {
+		ev.preventDefault();
 		console.log('click');
 	}
-
-	function handleKeyDown(ev: KeyboardEvent) {}
 </script>
 
-<div
-	role="button"
-	class="token-template custom"
-	tabindex="0"
-	on:keydown={handleKeyDown}
-	on:click={handleClick}
-	use:tooltip={{ label: template.name }}
->
-	<img src={avatarSrc} alt="T" />
-</div>
+<ListTile on:mousedown={handleMouseDown}>
+	<Row align="center" gap="normal">
+		<img class="token-template-avatar" src={avatarSrc} alt="Token avatar" />
+		<span>{template.name}</span>
+	</Row>
+</ListTile>
 
-<style>
-	.token-template {
-		width: 100%;
-		height: 100%;
-		border: 1px solid var(--color-separator);
-		box-sizing: border-box;
-	}
+<style lang="scss">
+	$avatar-size: 40px;
 
-	img {
-		width: 100%;
-		height: 100%;
+	.token-template-avatar {
+		width: $avatar-size;
+		height: $avatar-size;
+		border-radius: 50%;
+		padding: 0;
 	}
 </style>

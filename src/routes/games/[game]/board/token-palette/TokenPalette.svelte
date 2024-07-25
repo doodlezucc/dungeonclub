@@ -4,6 +4,7 @@
 	import Collection from 'components/Collection.svelte';
 	import { runWithErrorDialogBoundary } from 'components/extensions/modal';
 	import Icon from 'components/Icon.svelte';
+	import Column from 'components/layout/Column.svelte';
 	import type { ModalContext } from 'components/modal';
 	import FileUploader from 'components/upload/FileUploader.svelte';
 	import type { TokenTemplateSnippet } from 'shared';
@@ -41,37 +42,31 @@
 </script>
 
 <Panel title="Token Palette">
-	<div class="token-palette-grid">
-		<Collection itemClass="token-palette-item" items={$tokenTemplates} let:item>
-			<TokenTemplateItem template={item} />
+	<Column gap="normal">
+		<div class="token-palette-list">
+			<Collection itemClass="token-palette-item" items={$tokenTemplates} let:item>
+				<TokenTemplateItem template={item} />
+			</Collection>
+		</div>
 
-			<svelte:fragment slot="plus">
-				<FileUploader
-					accept="image/*"
-					acceptMultiple
-					buttonClass="token-palette-item"
-					on:change={createNewTokensFromFiles}
-				>
-					<Icon icon="add" />
-				</FileUploader>
-			</svelte:fragment>
-		</Collection>
-	</div>
+		<FileUploader
+			accept="image/*"
+			acceptMultiple
+			buttonClass="token-palette-item"
+			on:change={createNewTokensFromFiles}
+		>
+			<Icon icon="add" />
+		</FileUploader>
+	</Column>
 </Panel>
 
-<style lang="scss">
-	$square-size: 80px;
-
-	.token-palette-grid {
-		display: grid;
-		gap: 4px;
-		grid-template-columns: repeat(4, $square-size);
-	}
-
-	:global(.token-palette-item) {
-		width: $square-size;
-		height: $square-size;
-		border-radius: 0;
-		padding: 0;
+<style>
+	.token-palette-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+		min-width: 200px;
+		max-height: 25vh;
+		overflow-y: auto;
 	}
 </style>
