@@ -18,10 +18,8 @@ export class ClientRequestHandler extends MessageHandler<ClientHandledMessages, 
 			Board.instance.load(boardSnippet);
 		},
 
-		onTokenCreate: (payload) => {
-			console.log('onTokenCreate', payload);
-		},
-
+		onTokenCreate: (payload) => Board.instance.handleTokenCreate(payload),
+		onTokenDelete: (payload) => Board.instance.handleTokenDelete(payload),
 		onTokenMove: (payload) => Board.instance.handleTokenMove(payload)
 	};
 
