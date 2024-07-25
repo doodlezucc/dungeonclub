@@ -20,9 +20,9 @@
 	tabindex="0"
 	on:keydown={handleKeyDown}
 	on:click={handleClick}
-	use:tooltip={{ label: 'Le Token' }}
+	use:tooltip={{ label: template.name }}
 >
-	<img src={avatarSrc} alt="T" title={template.name} />
+	<img src={avatarSrc} alt="T" />
 </div>
 
 <style>

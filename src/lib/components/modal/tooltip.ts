@@ -39,16 +39,24 @@ export const tooltip: Action<HTMLElement, TooltipProps> = (node, props) => {
 		destroyAfterFadeOut();
 	}
 
+	function setAriaTooltip(value: string | null) {
+		node.ariaLabel = value;
+	}
+
+	setAriaTooltip(props.label);
 	node.addEventListener('mouseenter', onMouseEnter);
 	node.addEventListener('mouseleave', onMouseLeave);
 
 	return {
 		update: (props) => {
+			setAriaTooltip(props.label);
 			tooltipComponent?.$set({ props });
 		},
 		destroy: () => {
 			node.removeEventListener('mouseenter', onMouseEnter);
 			node.removeEventListener('mouseleave', onMouseLeave);
+
+			setAriaTooltip(null);
 			destroyAfterFadeOut();
 		}
 	};

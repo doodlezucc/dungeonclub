@@ -40,11 +40,14 @@
 
 {#if isMounted && !isDestroyed}
 	<div
+		role="presentation"
 		class="tooltip-wrapper"
 		style={composeRectStyleProperty(boundingRect)}
 		transition:fly={{ y: 20, duration: TOOLTIP_TRANSITION_OUT_MS }}
 	>
-		<span>{props.label}</span>
+		<div class="tooltip">
+			{props.label}
+		</div>
 	</div>
 {/if}
 
@@ -56,10 +59,10 @@
 		width: var(--w);
 		height: var(--h);
 
-		outline: 1px solid red;
+		outline: 2px solid red;
 	}
 
-	span {
+	.tooltip {
 		background-color: var(--color-background);
 		padding: 0.5em;
 	}
