@@ -28,8 +28,15 @@ export interface BoardMessageCategory {
 			tokenTemplate: UUID;
 			position: Position;
 		},
-		TokenSnippet
+		{
+			boardId: UUID;
+			token: TokenSnippet;
+		}
 	>;
+
+	tokenDelete: DefineSendAndForward<{
+		tokenId: UUID;
+	}>;
 
 	tokenMove: DefineSendAndForward<{
 		id: UUID;

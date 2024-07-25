@@ -61,11 +61,37 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 			select: SelectToken
 		});
 
+		return publicResponse({
+			token: token,
+			boardId: payload.boardId
+		});
+	},
+
+	handleTokenDelete: async ({ tokenId }, { dispatcher }) => {
+		const sessionCampaignId = dispatcher.sessionAsOwner.campaignId;
+
+		const token = await prisma.token.findUniqueOrThrow({
+			where: { id: tokenId },
+			select: {
+				board: {
+					select: {
+						campaignId: true
+					}
+				}
+			}
+		});
+
+		if (sessionCampaignId !== token.board.campaignId) {
+			throw 'Token is not part of the hosted campaign';
+		}
+
+		await prisma.token.delete({
+			where: { id: tokenId }
+		});
+
 		return {
-			response: token,
 			forwardedResponse: {
-				...token,
-				boardId: payload.boardId
+				tokenId
 			}
 		};
 	},

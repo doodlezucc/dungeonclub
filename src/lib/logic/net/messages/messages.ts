@@ -71,6 +71,8 @@ export type ResponseObject<S, T extends keyof S> = AsResponseObject<S[T]>;
 
 export type AsResponse<T> = T extends IResponse<infer R> ? R : void;
 export type Response<S, T extends keyof S> = AsResponse<S[T]>;
+export type GetResponse<T extends keyof AllMessages> = Response<AllMessages, T>;
 
 export type AsForwarded<T> = T extends IForward<infer F> ? F : void;
 export type Forwarded<S, T extends keyof S> = AsForwarded<S[T]>;
+export type GetForwarded<T extends keyof AllMessages> = Forwarded<AllMessages, T>;

@@ -1,19 +1,31 @@
 <script lang="ts" context="module">
+	import type { TokenSnippet, TokenTemplateSnippet } from 'shared';
+
 	export interface BoardContext {
 		transformClientToGridSpace: (position: Position) => Position;
 		transformGridToClientSpace: (position: Position) => Position;
 	}
+
+	interface UnplacedTokenOptions {
+		tokenTemplate: TokenTemplateSnippet;
+		triggeringEvent: MouseEvent;
+	}
+
+	export const unplacedToken = writable<UnplacedTokenOptions | null>(null);
 </script>
 
 <script lang="ts">
 	import type { Position, Size } from '$lib/compounds';
+	import { sessionState } from 'client/state';
 	import { Board, boardState } from 'client/state/board';
 	import { PanView } from 'components';
 	import { Overlay } from 'components/layout';
 	import { setContext } from 'svelte';
+	import { writable } from 'svelte/store';
 	import BattleMap from './BattleMap.svelte';
 	import Grid from './grid/Grid.svelte';
 	import Token from './grid/Token.svelte';
+	import UnplacedToken from './grid/UnplacedToken.svelte';
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
 	const tileHeightRatio = $activeGridSpace?.tileHeightRatio ?? 1;
@@ -28,6 +40,11 @@
 	$: cellSize = (dimensions?.width ?? 0) / cellsPerRow;
 
 	$: tokens = $boardState!.tokens;
+	$: tokenTemplates = $sessionState.campaign!.templates;
+
+	function getTemplateForToken(token: TokenSnippet) {
+		return tokenTemplates.find((template) => template.id === token.templateId)!;
+	}
 
 	let contentElement: HTMLElement;
 	$: cachedClientRect = undefined as DOMRect | undefined;
@@ -59,10 +76,17 @@
 		throw 'Not implemented';
 	}
 
-	setContext('board', <BoardContext>{
+	setContext<BoardContext>('board', {
 		transformClientToGridSpace,
 		transformGridToClientSpace
 	});
+
+	$: unplacedTokenSpawnPosition = $unplacedToken
+		? transformClientToGridSpace({
+				x: $unplacedToken.triggeringEvent.clientX,
+				y: $unplacedToken.triggeringEvent.clientY
+			})
+		: null;
 </script>
 
 <PanView expand bind:position bind:zoom>
@@ -80,8 +104,22 @@
 
 			<Overlay>
 				{#each tokens as token (token.id)}
-					<Token id={token.id} position={{ x: token.x, y: token.y }} size={token.size}></Token>
+					<Token
+						id={token.id}
+						template={getTemplateForToken(token)}
+						position={{ x: token.x, y: token.y }}
+						bind:size={token.size}
+					></Token>
 				{/each}
+
+				{#if $unplacedToken && unplacedTokenSpawnPosition}
+					{#key $unplacedToken.tokenTemplate.id}
+						<UnplacedToken
+							template={$unplacedToken.tokenTemplate}
+							spawnPosition={unplacedTokenSpawnPosition}
+						/>
+					{/key}
+				{/if}
 			</Overlay>
 		{/if}
 	</div>
