@@ -60,7 +60,7 @@
 </Panel>
 
 <style lang="scss">
-	$square-size: 40px;
+	$square-size: 80px;
 
 	.token-palette-grid {
 		display: grid;

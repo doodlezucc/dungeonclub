@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+	export const tooltipContainerID = 'tooltips';
+
 	export type ModalContext = {
 		displayToast: (options: ToastOptions) => void;
 
@@ -104,6 +106,8 @@
 			</div>
 		{/each}
 	</div>
+
+	<div id={tooltipContainerID} class="group"></div>
 </div>
 
 <style>
@@ -139,5 +143,9 @@
 		flex-direction: column-reverse;
 		align-items: center;
 		bottom: 5em;
+	}
+
+	.group {
+		display: contents;
 	}
 </style>
