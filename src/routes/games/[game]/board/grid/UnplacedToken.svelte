@@ -3,6 +3,7 @@
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { Board, boardState } from 'client/state';
+	import { allocateNewReference } from 'client/state/reference';
 	import type { TokenTemplateSnippet } from 'shared';
 	import { unplacedToken } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';
@@ -14,7 +15,7 @@
 		$unplacedToken = null;
 
 		const boardId = $boardState!.id;
-		let tokenId: string | undefined;
+		const tokenIdHandle = allocateNewReference();
 
 		historyOf(boardId).registerUndoable('Add token to board', async () => {
 			const payload = await $socket.request('tokenCreate', {
@@ -24,14 +25,17 @@
 			});
 			Board.instance.handleTokenCreate(payload);
 
-			tokenId = payload.token.id;
+			tokenIdHandle.set(payload.token.id);
 
 			return {
 				undo: () => {
 					$socket.send('tokenDelete', {
-						tokenId: tokenId!
+						tokenId: tokenIdHandle.resolve()
 					});
-					Board.instance.handleTokenDelete({ tokenId: tokenId! });
+					Board.instance.handleTokenDelete({
+						tokenId: tokenIdHandle.resolve()
+					});
+					tokenIdHandle.clear();
 				}
 			};
 		});

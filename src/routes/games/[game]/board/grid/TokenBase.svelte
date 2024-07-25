@@ -64,7 +64,7 @@
 		} else {
 			const snapped = $activeGridSpace!.snapShapeToGrid({
 				center: mouseInGridSpace,
-				size
+				size: displaySize
 			});
 
 			position = snapped;

@@ -3,6 +3,7 @@
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { Board, boardState } from 'client/state';
+	import { referenceTo } from 'client/state/reference';
 	import type { TokenTemplateSnippet } from 'shared';
 	import TokenBase from './TokenBase.svelte';
 
@@ -13,9 +14,12 @@
 	export let size: number = 1;
 
 	function onDraggedTo(position: Position, originalPosition: Position) {
+		const idReference = referenceTo(id);
+
 		historyOf($boardState!.id).registerDelta('Move token', {
 			fromTo: [originalPosition, position],
 			apply: (position) => {
+				const id = idReference.resolve();
 				const payload = { id, position };
 
 				$socket.send('tokenMove', payload);
