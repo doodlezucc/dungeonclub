@@ -40,10 +40,11 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 
 	handleTokenCreate: async (payload, { dispatcher }) => {
 		const sessionCampaignId = dispatcher.sessionAsOwner.campaignId;
+		const boardId = dispatcher.sessionConnection.visibleBoardId;
 
 		const { campaignId } = await prisma.board.findUniqueOrThrow({
 			where: {
-				id: payload.boardId
+				id: boardId
 			},
 			select: { campaignId: true }
 		});
@@ -54,7 +55,7 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 
 		const token = await prisma.token.create({
 			data: {
-				boardId: payload.boardId,
+				boardId,
 				templateId: payload.tokenTemplate,
 				...payload.position
 			},
@@ -62,8 +63,8 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 		});
 
 		return publicResponse({
-			token: token,
-			boardId: payload.boardId
+			token,
+			boardId
 		});
 	},
 
@@ -97,16 +98,20 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 	},
 
 	handleTokenMove: async (payload, { dispatcher }) => {
-		const boardId = dispatcher.sessionAsOwner && dispatcher.sessionConnection.visibleBoardId;
+		const boardId = dispatcher.sessionConnection.visibleBoardId;
 
-		await prisma.token.update({
-			where: { boardId, id: payload.id },
-			data: {
-				x: payload.position.x,
-				y: payload.position.y
-			},
-			select: null
-		});
+		for (const tokenId in Object.keys(payload)) {
+			const position = payload[tokenId];
+
+			await prisma.token.update({
+				where: { boardId, id: tokenId },
+				data: {
+					x: position.x,
+					y: position.y
+				},
+				select: null
+			});
+		}
 
 		return {
 			forwardedResponse: payload

@@ -1,28 +1,22 @@
+<script lang="ts" context="module">
+	export interface TokenStyle {
+		selected: boolean;
+		dragging: boolean;
+	}
+</script>
+
 <script lang="ts">
 	import type { Position } from '$lib/compounds';
-	import { Board } from 'client/state';
-	import { draggable } from 'components/Draggable.svelte';
-	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
-	import type { TokenTemplateSnippet } from 'shared';
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { draggable, type DraggableParams } from 'components/Draggable.svelte';
 	import { spring } from 'svelte/motion';
-	import type { BoardContext } from '../Board.svelte';
 
-	export let template: TokenTemplateSnippet;
 	export let position: Position;
-	export let size: number = 1;
-	export let autoDrag = false;
+	export let size: number;
 
-	$: displaySize = size == 0 ? template.size : size;
+	export let style: TokenStyle;
+	export let draggableParams: DraggableParams;
 
-	const activeGridSpace = Board.instance.grid.gridSpace;
-	const isGridSnappingDisabled = keyStateOf(KeyState.DisableGridSnapping);
-
-	$: isDragging = false;
-
-	let originalPosition: Position;
-
-	let positionSpring = spring(position, {
+	const positionSpring = spring(position, {
 		damping: 0.7,
 		stiffness: 0.2
 	});
@@ -30,54 +24,17 @@
 	$: {
 		$positionSpring = position;
 	}
-
-	const dispatch = createEventDispatcher<{
-		dragEnd: {
-			originalPosition: Position;
-			draggedPosition: Position;
-		};
-	}>();
-
-	const { transformClientToGridSpace } = getContext<BoardContext>('board');
-
-	function onDragToggle(dragState: boolean) {
-		isDragging = dragState;
-
-		if (dragState) {
-			originalPosition = position;
-		} else {
-			dispatch('dragEnd', {
-				originalPosition,
-				draggedPosition: position
-			});
-		}
-	}
-
-	function handleDragging(ev: MouseEvent) {
-		const mouseInGridSpace = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });
-
-		if ($isGridSnappingDisabled) {
-			position = {
-				x: mouseInGridSpace.x,
-				y: mouseInGridSpace.y * $activeGridSpace!.tileHeightRatio
-			};
-		} else {
-			const snapped = $activeGridSpace!.snapShapeToGrid({
-				center: mouseInGridSpace,
-				size: displaySize
-			});
-
-			position = snapped;
-		}
-	}
 </script>
 
 <div
 	class="token"
-	class:dragging={isDragging}
+	class:dragging={style.dragging}
+	class:selected={style.selected}
 	role="presentation"
-	use:draggable={{ autoDrag, onDragToggle, handleDragging }}
-	style="--x: {$positionSpring.x}; --y: {$positionSpring.y}; --size: {displaySize}"
+	use:draggable={draggableParams}
+	style="--x: {$positionSpring.x}; --y: {$positionSpring.y}; --size: {size}"
+	on:mousedown
+	on:mouseup
 >
 	<slot />
 </div>
@@ -114,6 +71,10 @@
 		&.dragging {
 			outline-color: white;
 			outline-offset: 0.5em;
+		}
+
+		&.selected {
+			border-color: var(--color-primary);
 		}
 	}
 </style>

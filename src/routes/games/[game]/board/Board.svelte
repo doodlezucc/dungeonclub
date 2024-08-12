@@ -19,6 +19,7 @@
 	import { sessionState } from 'client/state';
 	import { Board, boardState } from 'client/state/board';
 	import { PanView } from 'components';
+	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import { Overlay } from 'components/layout';
 	import { setContext } from 'svelte';
 	import { writable } from 'svelte/store';
@@ -103,14 +104,14 @@
 			</Overlay>
 
 			<Overlay>
-				{#each tokens as token (token.id)}
-					<Token
-						id={token.id}
-						template={getTemplateForToken(token)}
-						position={{ x: token.x, y: token.y }}
-						bind:size={token.size}
-					></Token>
-				{/each}
+				<SelectionGroup
+					elements={tokens}
+					toKey={(token) => token.id}
+					let:element={token}
+					let:isSelected
+				>
+					<Token {token} template={getTemplateForToken(token)} selected={isSelected} />
+				</SelectionGroup>
 
 				{#if $unplacedToken && unplacedTokenSpawnPosition}
 					{#key $unplacedToken.tokenTemplate.id}

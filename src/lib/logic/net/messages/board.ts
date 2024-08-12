@@ -24,7 +24,6 @@ export interface BoardMessageCategory {
 
 	tokenCreate: DefineRequestWithPublicResponse<
 		{
-			boardId: UUID;
 			tokenTemplate: UUID;
 			position: Position;
 		},
@@ -39,7 +38,6 @@ export interface BoardMessageCategory {
 	}>;
 
 	tokenMove: DefineSendAndForward<{
-		id: UUID;
-		position: Position;
+		[id: UUID]: Position;
 	}>;
 }

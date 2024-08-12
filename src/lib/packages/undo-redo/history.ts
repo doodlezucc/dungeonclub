@@ -1,5 +1,11 @@
 import { writable, type Invalidator, type Subscriber, type Unsubscriber } from 'svelte/store';
-import type { BidirectionalAction, DeltaOptions, PromiseOr, UndoableFn } from './action';
+import type {
+	BidirectionalAction,
+	DeltaOptions,
+	DirectionalFunction,
+	PromiseOr,
+	UndoableFn
+} from './action';
 
 const histories = new Map<unknown, HistoryStore>();
 
@@ -37,6 +43,7 @@ export interface HistoryStore {
 	registerUndoable: (name: string, doAction: UndoableFn) => Promise<void>;
 
 	registerDelta: <T>(name: string, options: DeltaOptions<T>) => Promise<void>;
+	registerDirectional: (name: string, doAction: DirectionalFunction) => Promise<void>;
 
 	undo: () => Promise<HistoryManipulationResult | null>;
 	redo: () => Promise<HistoryManipulationResult | null>;
@@ -108,6 +115,14 @@ export const createHistory = (): HistoryStore => {
 		});
 	}
 
+	async function registerDirectional(name: string, doAction: DirectionalFunction) {
+		register({
+			name: name,
+			do: () => doAction('forward'),
+			undo: () => doAction('backward')
+		});
+	}
+
 	async function undo(): Promise<HistoryManipulationResult | null> {
 		return new Promise((resolve) =>
 			update(({ timeline, presentIndex }) => {
@@ -157,6 +172,7 @@ export const createHistory = (): HistoryStore => {
 		register,
 		registerUndoable,
 		registerDelta,
+		registerDirectional,
 		undo,
 		redo
 	};

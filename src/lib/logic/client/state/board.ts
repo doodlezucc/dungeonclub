@@ -45,10 +45,19 @@ export class Board extends WithState<BoardSnippet> {
 		this.load(snippet);
 	}
 
-	handleTokenMove({ id, position }: GetPayload<'tokenMove'>) {
+	handleTokenMove(payload: GetPayload<'tokenMove'>) {
 		this.put((board) => ({
 			...board,
-			tokens: board.tokens.map((token) => (token.id === id ? { ...token, ...position } : token))
+			tokens: board.tokens.map((token) => {
+				const isTokenAffected = token.id in payload;
+
+				if (isTokenAffected) {
+					const newTokenPosition = payload[token.id];
+					return { ...token, ...newTokenPosition };
+				}
+
+				return token;
+			})
 		}));
 	}
 

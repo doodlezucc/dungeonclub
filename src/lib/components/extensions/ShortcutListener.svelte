@@ -7,7 +7,9 @@
 	export type ActionListener = [ShortcutAction, () => void];
 
 	export enum KeyState {
-		DisableGridSnapping = 'Disable Grid Snapping'
+		DisableGridSnapping = 'Disable Grid Snapping',
+		ModifySelectionRange = 'Modify Selection Range',
+		ModifySelection = 'Modify Selection'
 	}
 
 	interface ListenerHandle {
@@ -68,6 +70,8 @@
 	shortcutManager.bind({ ctrlShift: 'z' }, ShortcutAction.Redo);
 
 	shortcutManager.bindState({ alt: true }, KeyState.DisableGridSnapping);
+	shortcutManager.bindState({ shift: true }, KeyState.ModifySelectionRange);
+	shortcutManager.bindState({ ctrl: true }, KeyState.ModifySelection);
 </script>
 
 <svelte:window
