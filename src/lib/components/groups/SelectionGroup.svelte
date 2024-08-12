@@ -16,10 +16,10 @@
 	import { setContext } from 'svelte';
 
 	export let elements: T[];
-	export let toKey: (element: T) => string;
+	export let getElementKey: (element: T) => string;
 
 	$: selectedKeys = [] as string[];
-	$: selectedElements = elements.filter((element) => selectedKeys.includes(toKey(element)));
+	$: selectedElements = elements.filter((element) => selectedKeys.includes(getElementKey(element)));
 
 	export function clear() {
 		selectedKeys = [];
@@ -27,7 +27,7 @@
 
 	setContext<SelectionContext<T>>('selection', {
 		select: (element, { additive }) => {
-			const key = toKey(element);
+			const key = getElementKey(element);
 
 			if (additive) {
 				if (!selectedKeys.includes(key)) {
@@ -43,10 +43,10 @@
 			}
 		},
 		map: (transform) => selectedElements.map(transform),
-		includes: (element) => selectedKeys.includes(toKey(element))
+		includes: (element) => selectedKeys.includes(getElementKey(element))
 	});
 </script>
 
-{#each elements as element (toKey(element))}
+{#each elements as element (getElementKey(element))}
 	<slot {element} isSelected={selectedElements.includes(element)} />
 {/each}

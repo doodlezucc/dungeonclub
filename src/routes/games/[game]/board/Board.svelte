@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-	import type { TokenSnippet, TokenTemplateSnippet } from 'shared';
+	import type { TokenTemplateSnippet } from 'shared';
 
 	export interface BoardContext {
 		transformClientToGridSpace: (position: Position) => Position;
@@ -16,16 +16,14 @@
 
 <script lang="ts">
 	import type { Position, Size } from '$lib/compounds';
-	import { sessionState } from 'client/state';
 	import { Board, boardState } from 'client/state/board';
 	import { PanView } from 'components';
-	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import { Overlay } from 'components/layout';
 	import { setContext } from 'svelte';
-	import { derived, writable } from 'svelte/store';
+	import { writable } from 'svelte/store';
 	import BattleMap from './BattleMap.svelte';
+	import BoardTokens from './BoardTokens.svelte';
 	import Grid from './grid/Grid.svelte';
-	import Token from './grid/Token.svelte';
 	import UnplacedToken from './grid/UnplacedToken.svelte';
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
@@ -39,15 +37,6 @@
 	$: dimensions = undefined as Size | undefined;
 
 	$: cellSize = (dimensions?.width ?? 0) / cellsPerRow;
-
-	$: tokens = $boardState!.tokens;
-	$: tokenTemplates = $sessionState.campaign!.templates;
-
-	const loadedBoardId = derived(boardState, (board) => board!.id);
-
-	function getTemplateForToken(token: TokenSnippet) {
-		return tokenTemplates.find((template) => template.id === token.templateId)!;
-	}
 
 	let contentElement: HTMLElement;
 	$: cachedClientRect = undefined as DOMRect | undefined;
@@ -90,15 +79,6 @@
 				y: $unplacedToken.triggeringEvent.clientY
 			})
 		: null;
-
-	$: tokenSelectionGroup = null as SelectionGroup<TokenSnippet> | null;
-
-	$: {
-		if ($loadedBoardId) {
-			// Called whenever a board gets loaded
-			tokenSelectionGroup?.clear();
-		}
-	}
 </script>
 
 <PanView expand bind:position bind:zoom>
@@ -115,15 +95,7 @@
 			</Overlay>
 
 			<Overlay>
-				<SelectionGroup
-					bind:this={tokenSelectionGroup}
-					elements={tokens}
-					toKey={(token) => token.id}
-					let:element={token}
-					let:isSelected
-				>
-					<Token {token} template={getTemplateForToken(token)} selected={isSelected} />
-				</SelectionGroup>
+				<BoardTokens />
 
 				{#if $unplacedToken && unplacedTokenSpawnPosition}
 					{#key $unplacedToken.tokenTemplate.id}
