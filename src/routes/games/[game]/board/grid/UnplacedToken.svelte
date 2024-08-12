@@ -1,3 +1,14 @@
+<script lang="ts" context="module">
+	import { writable } from 'svelte/store';
+
+	export interface UnplacedTokenProperties {
+		tokenTemplate: TokenTemplateSnippet;
+		triggeringEvent: MouseEvent;
+	}
+
+	export const unplacedTokenProperties = writable<UnplacedTokenProperties | null>(null);
+</script>
+
 <script lang="ts">
 	import type { Position } from '$lib/compounds';
 	import { historyOf } from '$lib/packages/undo-redo/history';
@@ -5,9 +16,9 @@
 	import { Board, boardState } from 'client/state';
 	import { allocateNewReference } from 'client/state/reference';
 	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
-	import type { TokenTemplateSnippet } from 'shared';
-	import { getContext } from 'svelte';
-	import { unplacedToken, type BoardContext } from '../Board.svelte';
+	import type { TokenSnippet, TokenTemplateSnippet } from 'shared';
+	import { createEventDispatcher, getContext } from 'svelte';
+	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';
 
 	export let template: TokenTemplateSnippet;
@@ -15,22 +26,33 @@
 
 	$: position = spawnPosition;
 
+	const dispatch = createEventDispatcher<{
+		instantiate: TokenSnippet;
+	}>();
+
 	function onDragToggle(isDragStart: boolean) {
 		if (isDragStart) return;
 
-		$unplacedToken = null;
+		$unplacedTokenProperties = null;
 
 		const boardId = $boardState!.id;
 		const tokenIdHandle = allocateNewReference();
 
+		let isInitialCreation = true;
+
 		historyOf(boardId).registerUndoable('Add token to board', async () => {
-			const payload = await $socket.request('tokenCreate', {
+			const response = await $socket.request('tokenCreate', {
 				position: position,
 				tokenTemplate: template.id
 			});
-			Board.instance.handleTokenCreate(payload);
+			Board.instance.handleTokenCreate(response);
 
-			tokenIdHandle.set(payload.token.id);
+			if (isInitialCreation) {
+				dispatch('instantiate', response.token);
+				isInitialCreation = false;
+			}
+
+			tokenIdHandle.set(response.token.id);
 
 			return {
 				undo: () => {
@@ -74,7 +96,8 @@
 	{position}
 	style={{
 		dragging: true,
-		selected: true
+		selected: true,
+		transparent: true
 	}}
 	draggableParams={{
 		autoDrag: true,

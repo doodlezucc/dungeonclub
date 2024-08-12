@@ -2,6 +2,7 @@
 	export interface TokenStyle {
 		selected: boolean;
 		dragging: boolean;
+		transparent: boolean;
 	}
 </script>
 
@@ -30,6 +31,7 @@
 	class="token"
 	class:dragging={style.dragging}
 	class:selected={style.selected}
+	class:transparent={style.transparent}
 	role="presentation"
 	use:draggable={draggableParams}
 	style="--x: {$positionSpring.x}; --y: {$positionSpring.y}; --size: {size}"
@@ -75,6 +77,10 @@
 
 		&.selected {
 			border-color: var(--color-primary);
+		}
+
+		&.transparent {
+			opacity: 0.8;
 		}
 	}
 </style>

@@ -1,17 +1,8 @@
 <script lang="ts" context="module">
-	import type { TokenTemplateSnippet } from 'shared';
-
 	export interface BoardContext {
 		transformClientToGridSpace: (position: Position) => Position;
 		transformGridToClientSpace: (position: Position) => Position;
 	}
-
-	interface UnplacedTokenOptions {
-		tokenTemplate: TokenTemplateSnippet;
-		triggeringEvent: MouseEvent;
-	}
-
-	export const unplacedToken = writable<UnplacedTokenOptions | null>(null);
 </script>
 
 <script lang="ts">
@@ -20,11 +11,9 @@
 	import { PanView } from 'components';
 	import { Overlay } from 'components/layout';
 	import { setContext } from 'svelte';
-	import { writable } from 'svelte/store';
 	import BattleMap from './BattleMap.svelte';
 	import BoardTokens from './BoardTokens.svelte';
 	import Grid from './grid/Grid.svelte';
-	import UnplacedToken from './grid/UnplacedToken.svelte';
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
 	const tileHeightRatio = $activeGridSpace?.tileHeightRatio ?? 1;
@@ -72,13 +61,6 @@
 		transformClientToGridSpace,
 		transformGridToClientSpace
 	});
-
-	$: unplacedTokenSpawnPosition = $unplacedToken
-		? transformClientToGridSpace({
-				x: $unplacedToken.triggeringEvent.clientX,
-				y: $unplacedToken.triggeringEvent.clientY
-			})
-		: null;
 </script>
 
 <PanView expand bind:position bind:zoom>
@@ -96,15 +78,6 @@
 
 			<Overlay>
 				<BoardTokens />
-
-				{#if $unplacedToken && unplacedTokenSpawnPosition}
-					{#key $unplacedToken.tokenTemplate.id}
-						<UnplacedToken
-							template={$unplacedToken.tokenTemplate}
-							spawnPosition={unplacedTokenSpawnPosition}
-						/>
-					{/key}
-				{/if}
 			</Overlay>
 		{/if}
 	</div>

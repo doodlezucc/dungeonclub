@@ -25,18 +25,20 @@
 		selectedKeys = [];
 	}
 
-	setContext<SelectionContext<T>>('selection', {
-		select: (element, { additive }) => {
-			const key = getElementKey(element);
+	export function select(element: T, { additive }: SelectOptions) {
+		const key = getElementKey(element);
 
-			if (additive) {
-				if (!selectedKeys.includes(key)) {
-					selectedKeys = [...selectedKeys, key];
-				}
-			} else {
-				selectedKeys = [key];
+		if (additive) {
+			if (!selectedKeys.includes(key)) {
+				selectedKeys = [...selectedKeys, key];
 			}
-		},
+		} else {
+			selectedKeys = [key];
+		}
+	}
+
+	setContext<SelectionContext<T>>('selection', {
+		select,
 		forEach: (action) => {
 			for (const element of selectedElements) {
 				action(element);

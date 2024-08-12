@@ -3,7 +3,7 @@
 	import { Row } from 'components/layout';
 	import ListTile from 'components/ListTile.svelte';
 	import type { TokenTemplateSnippet } from 'shared';
-	import { unplacedToken } from '../Board.svelte';
+	import { unplacedTokenProperties } from '../grid/UnplacedToken.svelte';
 
 	export let template: TokenTemplateSnippet;
 
@@ -20,7 +20,7 @@
 		ev.preventDefault();
 
 		captureMouseMovement = false;
-		$unplacedToken = {
+		$unplacedTokenProperties = {
 			tokenTemplate: template,
 			triggeringEvent: ev
 		};

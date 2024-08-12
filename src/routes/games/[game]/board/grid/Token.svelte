@@ -152,7 +152,8 @@
 	size={displaySize}
 	style={{
 		selected,
-		dragging: isDragging
+		dragging: isDragging,
+		transparent: false
 	}}
 	draggableParams={{
 		onDragToggle,
