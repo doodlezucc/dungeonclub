@@ -27,6 +27,7 @@
 
 	$: cellSize = (dimensions?.width ?? 0) / cellsPerRow;
 
+	let tokenContainer: BoardTokens;
 	let contentElement: HTMLElement;
 	$: cachedClientRect = undefined as DOMRect | undefined;
 
@@ -35,6 +36,10 @@
 		if (position && zoom != undefined) {
 			cachedClientRect = undefined;
 		}
+	}
+
+	function onClickEmptySpace() {
+		tokenContainer.clearSelection();
 	}
 
 	function getClientRect() {
@@ -63,7 +68,7 @@
 	});
 </script>
 
-<PanView expand bind:position bind:zoom>
+<PanView expand bind:position bind:zoom on:click={onClickEmptySpace}>
 	<div
 		bind:this={contentElement}
 		class="board"
@@ -77,7 +82,7 @@
 			</Overlay>
 
 			<Overlay>
-				<BoardTokens />
+				<BoardTokens bind:this={tokenContainer} />
 			</Overlay>
 		{/if}
 	</div>

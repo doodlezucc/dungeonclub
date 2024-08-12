@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
 	import type { Position, Size } from '$lib/compounds';
+	import { createEventDispatcher } from 'svelte';
 
 	const minZoom = -1;
 	const maxZoom = 3;
@@ -39,6 +40,7 @@
 	$: elementsTriggeringPanEvent = [elementView, elementContent];
 
 	$: isPanning = false;
+	$: hasPointerMovedSincePanStart = false;
 	$: pointerOrigin = { x: 0, y: 0 };
 
 	$: scale = Math.exp(zoom);
@@ -47,6 +49,10 @@
 		width: 1,
 		height: 1
 	};
+
+	const dispatch = createEventDispatcher<{
+		click: void;
+	}>();
 
 	function isValidPanEventStarter(eventTarget: EventTarget | null) {
 		return eventTarget && elementsTriggeringPanEvent.includes(eventTarget);
@@ -60,16 +66,25 @@
 				ev.preventDefault();
 				pointerOrigin = { x: ev.screenX, y: ev.screenY };
 				isPanning = true;
+				hasPointerMovedSincePanStart = true;
 			}
 		}
 	}
 
 	function stopPanning() {
-		isPanning = false;
+		if (isPanning) {
+			if (hasPointerMovedSincePanStart) {
+				dispatch('click');
+			}
+
+			isPanning = false;
+		}
 	}
 
 	function handlePointerMove(ev: PointerEvent) {
 		if (!isPanning) return;
+
+		hasPointerMovedSincePanStart = false;
 
 		const offset = {
 			x: (ev.screenX - pointerOrigin.x) / scale,

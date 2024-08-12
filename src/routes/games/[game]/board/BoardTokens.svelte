@@ -38,6 +38,10 @@
 	function onCreateNewToken(event: CustomEvent<TokenSnippet>) {
 		tokenSelectionGroup?.select(event.detail, { additive: false });
 	}
+
+	export function clearSelection() {
+		tokenSelectionGroup?.clear();
+	}
 </script>
 
 <SelectionGroup
