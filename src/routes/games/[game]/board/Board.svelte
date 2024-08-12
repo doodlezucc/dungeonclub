@@ -22,7 +22,7 @@
 	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import { Overlay } from 'components/layout';
 	import { setContext } from 'svelte';
-	import { writable } from 'svelte/store';
+	import { derived, writable } from 'svelte/store';
 	import BattleMap from './BattleMap.svelte';
 	import Grid from './grid/Grid.svelte';
 	import Token from './grid/Token.svelte';
@@ -42,6 +42,8 @@
 
 	$: tokens = $boardState!.tokens;
 	$: tokenTemplates = $sessionState.campaign!.templates;
+
+	const loadedBoardId = derived(boardState, (board) => board!.id);
 
 	function getTemplateForToken(token: TokenSnippet) {
 		return tokenTemplates.find((template) => template.id === token.templateId)!;
@@ -88,6 +90,15 @@
 				y: $unplacedToken.triggeringEvent.clientY
 			})
 		: null;
+
+	$: tokenSelectionGroup = null as SelectionGroup<TokenSnippet> | null;
+
+	$: {
+		if ($loadedBoardId) {
+			// Called whenever a board gets loaded
+			tokenSelectionGroup?.clear();
+		}
+	}
 </script>
 
 <PanView expand bind:position bind:zoom>
@@ -105,6 +116,7 @@
 
 			<Overlay>
 				<SelectionGroup
+					bind:this={tokenSelectionGroup}
 					elements={tokens}
 					toKey={(token) => token.id}
 					let:element={token}

@@ -21,6 +21,10 @@
 	$: selectedKeys = [] as string[];
 	$: selectedElements = elements.filter((element) => selectedKeys.includes(toKey(element)));
 
+	export function clear() {
+		selectedKeys = [];
+	}
+
 	setContext<SelectionContext<T>>('selection', {
 		select: (element, { additive }) => {
 			const key = toKey(element);
