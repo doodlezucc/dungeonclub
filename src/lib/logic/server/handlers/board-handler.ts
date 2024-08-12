@@ -7,13 +7,17 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 	handleBoardEdit: async ({ id: boardId }, { dispatcher }) => {
 		const campaignId = dispatcher.sessionAsOwner.campaignId;
 
-		return await prisma.board.findFirstOrThrow({
+		const boardSnippet = await prisma.board.findFirstOrThrow({
 			where: {
 				campaignId: campaignId,
 				id: boardId
 			},
 			select: SelectBoard
 		});
+
+		dispatcher.sessionConnection.visibleBoardIdOrNull = boardId;
+
+		return boardSnippet;
 	},
 
 	handleBoardPlay: async ({ id: boardId }, { dispatcher }) => {
@@ -34,6 +38,10 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 				selectedBoardId: boardId
 			}
 		});
+
+		for (const user of session.users) {
+			user.sessionConnection.visibleBoardIdOrNull = boardId;
+		}
 
 		return publicResponse(boardSnippet);
 	},
@@ -100,7 +108,7 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 	handleTokenMove: async (payload, { dispatcher }) => {
 		const boardId = dispatcher.sessionConnection.visibleBoardId;
 
-		for (const tokenId in Object.keys(payload)) {
+		for (const tokenId in payload) {
 			const position = payload[tokenId];
 
 			await prisma.token.update({

@@ -20,10 +20,10 @@ export class SessionManager {
 }
 
 export class CampaignSession {
-	private users: User[] = [];
-	private host: User | null;
-
 	readonly campaignId: string;
+
+	users: User[] = [];
+	host: User | null;
 
 	constructor(hostedBy: User, campaignId: string) {
 		this.host = hostedBy;
