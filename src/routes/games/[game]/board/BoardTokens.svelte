@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { boardState, sessionState } from 'client/state';
+	import { listenTo, ShortcutAction } from 'components/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import type { TokenSnippet } from 'shared';
 	import { getContext } from 'svelte';
@@ -42,6 +43,15 @@
 	export function clearSelection() {
 		tokenSelectionGroup?.clear();
 	}
+
+	const onPressDelete = listenTo(ShortcutAction.Delete);
+	$onPressDelete.handle(() => {
+		const selectedTokens = tokenSelectionGroup?.getSelectedElements() ?? [];
+
+		if (selectedTokens.length > 0) {
+			console.log('delete tokens!');
+		}
+	});
 </script>
 
 <SelectionGroup

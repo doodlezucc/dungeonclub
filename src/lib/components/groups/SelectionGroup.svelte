@@ -21,6 +21,10 @@
 	$: selectedKeys = [] as string[];
 	$: selectedElements = elements.filter((element) => selectedKeys.includes(getElementKey(element)));
 
+	export function getSelectedElements() {
+		return selectedElements;
+	}
+
 	export function clear() {
 		selectedKeys = [];
 	}
