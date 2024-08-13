@@ -70,7 +70,7 @@
 		const actionName = tokenMovements.length === 1 ? 'Move token' : 'Move tokens';
 
 		historyOf($boardState!.id).registerDirectional(actionName, (direction) => {
-			const payload: GetPayload<'tokenMove'> = {};
+			const payload: GetPayload<'tokensMove'> = {};
 
 			for (const movement of tokenMovements) {
 				const tokenId = movement.tokenReference.resolve();
@@ -78,8 +78,8 @@
 				payload[tokenId] = position;
 			}
 
-			$socket.send('tokenMove', payload);
-			Board.instance.handleTokenMove(payload);
+			$socket.send('tokensMove', payload);
+			Board.instance.handleTokensMove(payload);
 		});
 	}
 

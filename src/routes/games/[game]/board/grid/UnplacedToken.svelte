@@ -2,7 +2,7 @@
 	import { writable } from 'svelte/store';
 
 	export interface UnplacedTokenProperties {
-		tokenTemplate: TokenTemplateSnippet;
+		tokenTemplate?: TokenTemplateSnippet;
 		triggeringEvent: MouseEvent;
 	}
 
@@ -16,12 +16,12 @@
 	import { Board, boardState } from 'client/state';
 	import { allocateNewReference } from 'client/state/reference';
 	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
-	import type { TokenSnippet, TokenTemplateSnippet } from 'shared';
+	import type { GetPayload, TokenSnippet, TokenTemplateSnippet } from 'shared';
 	import { createEventDispatcher, getContext } from 'svelte';
 	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';
 
-	export let template: TokenTemplateSnippet;
+	export let template: TokenTemplateSnippet | undefined;
 	export let spawnPosition: Position;
 
 	$: position = spawnPosition;
@@ -41,27 +41,35 @@
 		let isInitialCreation = true;
 
 		historyOf(boardId).registerUndoable('Add token to board', async () => {
-			const response = await $socket.request('tokenCreate', {
-				position: position,
-				tokenTemplate: template.id
+			const response = await $socket.request('tokensCreate', {
+				newTokens: [
+					{
+						x: position.x,
+						y: position.y,
+						templateId: template?.id ?? null
+					}
+				]
 			});
-			Board.instance.handleTokenCreate(response);
+			Board.instance.handleTokensCreate(response);
+
+			const instantiatedToken = response.tokens[0];
 
 			if (isInitialCreation) {
-				dispatch('instantiate', response.token);
+				dispatch('instantiate', instantiatedToken);
 				isInitialCreation = false;
 			}
 
-			tokenIdHandle.set(response.token.id);
+			tokenIdHandle.set(instantiatedToken.id);
 
 			return {
 				undo: () => {
-					$socket.send('tokenDelete', {
-						tokenId: tokenIdHandle.resolve()
-					});
-					Board.instance.handleTokenDelete({
-						tokenId: tokenIdHandle.resolve()
-					});
+					const payload: GetPayload<'tokensDelete'> = {
+						tokenIds: [tokenIdHandle.resolve()]
+					};
+
+					$socket.send('tokensDelete', payload);
+					Board.instance.handleTokensDelete(payload);
+
 					tokenIdHandle.clear();
 				}
 			};
@@ -71,6 +79,8 @@
 	const activeGridSpace = Board.instance.grid.gridSpace;
 	const isGridSnappingDisabled = keyStateOf(KeyState.DisableGridSnapping);
 	const { transformClientToGridSpace } = getContext<BoardContext>('board');
+
+	$: size = template?.size ?? 1;
 
 	function handleDragging(ev: MouseEvent) {
 		const mouseInGridSpace = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });
@@ -83,7 +93,7 @@
 		} else {
 			const snapped = $activeGridSpace!.snapShapeToGrid({
 				center: mouseInGridSpace,
-				size: template.size
+				size: size
 			});
 
 			position = snapped;
@@ -92,7 +102,7 @@
 </script>
 
 <TokenBase
-	size={template.size}
+	{size}
 	{position}
 	style={{
 		dragging: true,
@@ -105,5 +115,5 @@
 		onDragToggle
 	}}
 >
-	{template.name}
+	{template?.name ?? 'Labeled'}
 </TokenBase>

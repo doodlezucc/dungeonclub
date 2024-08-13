@@ -65,7 +65,7 @@
 </SelectionGroup>
 
 {#if $unplacedTokenProperties && unplacedTokenSpawnPosition}
-	{#key $unplacedTokenProperties.tokenTemplate.id}
+	{#key $unplacedTokenProperties.tokenTemplate?.id}
 		<UnplacedToken
 			template={$unplacedTokenProperties.tokenTemplate}
 			spawnPosition={unplacedTokenSpawnPosition}

@@ -45,7 +45,7 @@ export class Board extends WithState<BoardSnippet> {
 		this.load(snippet);
 	}
 
-	handleTokenMove(payload: GetPayload<'tokenMove'>) {
+	handleTokensMove(payload: GetPayload<'tokensMove'>) {
 		this.put((board) => ({
 			...board,
 			tokens: board.tokens.map((token) => {
@@ -61,21 +61,21 @@ export class Board extends WithState<BoardSnippet> {
 		}));
 	}
 
-	handleTokenCreate({ boardId, token }: GetResponse<'tokenCreate'>) {
+	handleTokensCreate({ boardId, tokens }: GetResponse<'tokensCreate'>) {
 		this.put((board) =>
 			board.id !== boardId
 				? board
 				: {
 						...board,
-						tokens: [...board.tokens, token]
+						tokens: [...board.tokens, ...tokens]
 					}
 		);
 	}
 
-	handleTokenDelete({ tokenId }: GetForwarded<'tokenDelete'>) {
+	handleTokensDelete({ tokenIds: deletedTokenIds }: GetForwarded<'tokensDelete'>) {
 		this.put((board) => ({
 			...board,
-			tokens: board.tokens.filter((token) => token.id !== tokenId)
+			tokens: board.tokens.filter((token) => !deletedTokenIds.includes(token.id))
 		}));
 	}
 }

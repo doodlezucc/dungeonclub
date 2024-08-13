@@ -1,5 +1,6 @@
+import { Limits as LIMITS } from 'server/limits';
 import { publicResponse, type BoardMessageCategory } from 'shared';
-import { SelectBoard, SelectToken } from '../../net/snippets';
+import { SelectBoard, SelectToken, type TokenSnippet } from '../../net/snippets';
 import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
 
@@ -46,66 +47,91 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 		return publicResponse(boardSnippet);
 	},
 
-	handleTokenCreate: async (payload, { dispatcher }) => {
+	handleTokensCreate: async ({ newTokens }, { dispatcher }) => {
 		const sessionCampaignId = dispatcher.sessionAsOwner.campaignId;
 		const boardId = dispatcher.sessionConnection.visibleBoardId;
 
-		const { campaignId } = await prisma.board.findUniqueOrThrow({
+		const {
+			campaignId,
+			_count: { tokens: currentTokenCount }
+		} = await prisma.board.findUniqueOrThrow({
 			where: {
 				id: boardId
 			},
-			select: { campaignId: true }
+			select: {
+				campaignId: true,
+				_count: {
+					select: {
+						tokens: true
+					}
+				}
+			}
 		});
 
 		if (sessionCampaignId !== campaignId) {
 			throw 'Board is not part of the hosted campaign';
 		}
 
-		const token = await prisma.token.create({
-			data: {
-				boardId,
-				templateId: payload.tokenTemplate,
-				...payload.position
-			},
-			select: SelectToken
-		});
+		if (newTokens.length + currentTokenCount > LIMITS.tokensPerBoard) {
+			throw 'Resulting token count exceeds maximum tokens per board';
+		}
+
+		const createdTokens: TokenSnippet[] = [];
+
+		for (const creationSnippet of newTokens) {
+			createdTokens.push(
+				await prisma.token.create({
+					data: {
+						boardId,
+						conditions: creationSnippet.conditions,
+						// initiativeEntry
+						// initiativeModifier
+						invisible: creationSnippet.invisible,
+						label: creationSnippet.label,
+						size: creationSnippet.size,
+						templateId: creationSnippet.templateId,
+						x: creationSnippet.x,
+						y: creationSnippet.y
+					},
+					select: SelectToken
+				})
+			);
+		}
 
 		return publicResponse({
-			token,
-			boardId
+			boardId,
+			tokens: createdTokens
 		});
 	},
 
-	handleTokenDelete: async ({ tokenId }, { dispatcher }) => {
-		const sessionCampaignId = dispatcher.sessionAsOwner.campaignId;
+	handleTokensDelete: async (payload, { dispatcher }) => {
+		const visibleBoardId = dispatcher.sessionConnectionAsOwner.visibleBoardId;
 
-		const token = await prisma.token.findUniqueOrThrow({
-			where: { id: tokenId },
-			select: {
-				board: {
-					select: {
-						campaignId: true
-					}
-				}
+		const { count } = await prisma.token.deleteMany({
+			where: {
+				id: { in: payload.tokenIds },
+				boardId: visibleBoardId
 			}
 		});
 
-		if (sessionCampaignId !== token.board.campaignId) {
-			throw 'Token is not part of the hosted campaign';
-		}
+		const expectedDeleteCount = payload.tokenIds.length;
 
-		await prisma.token.delete({
-			where: { id: tokenId }
-		});
+		if (count !== expectedDeleteCount) {
+			console.warn(
+				`"tokensDelete" affected ${count} tokens, expected ${expectedDeleteCount} deletions.`,
+				'Message:',
+				payload
+			);
+		}
 
 		return {
 			forwardedResponse: {
-				tokenId
+				tokenIds: payload.tokenIds
 			}
 		};
 	},
 
-	handleTokenMove: async (payload, { dispatcher }) => {
+	handleTokensMove: async (payload, { dispatcher }) => {
 		const boardId = dispatcher.sessionConnection.visibleBoardId;
 
 		for (const tokenId in payload) {

@@ -18,9 +18,9 @@ export class ClientRequestHandler extends MessageHandler<ClientHandledMessages, 
 			Board.instance.load(boardSnippet);
 		},
 
-		onTokenCreate: (payload) => Board.instance.handleTokenCreate(payload),
-		onTokenDelete: (payload) => Board.instance.handleTokenDelete(payload),
-		onTokenMove: (payload) => Board.instance.handleTokenMove(payload)
+		onTokensCreate: (payload) => Board.instance.handleTokensCreate(payload),
+		onTokensDelete: (payload) => Board.instance.handleTokensDelete(payload),
+		onTokensMove: (payload) => Board.instance.handleTokensMove(payload)
 	};
 
 	campaign: CategoryHandlers<CampaignMessageCategory, ClientHandledMessages, Options> = {};
