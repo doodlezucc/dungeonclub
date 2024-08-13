@@ -96,14 +96,16 @@ export const createHistory = (): HistoryStore => {
 	}
 
 	async function registerUndoable(name: string, doAction: UndoableFn) {
-		const { undo } = await enqueuePromise(doAction);
+		let lastActionResult = await enqueuePromise(doAction);
 
 		silentRegister({
 			name,
 			do: async () => {
-				await doAction();
+				lastActionResult = await doAction();
 			},
-			undo: undo
+			undo: async () => {
+				await lastActionResult.undo();
+			}
 		});
 	}
 

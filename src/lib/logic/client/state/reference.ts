@@ -47,9 +47,11 @@ export class ReferenceLookup {
 		return aliveId;
 	}
 
-	private persistentReference(persistentId: number): Reference {
+	private persistentReference(persistentId: number): WritableReference {
 		return {
-			resolve: () => this.resolveReference(persistentId)
+			resolve: () => this.resolveReference(persistentId),
+			set: (value) => this.persistentToAliveIdMap.set(persistentId, value),
+			clear: () => this.persistentToAliveIdMap.set(persistentId, undefined)
 		};
 	}
 
@@ -57,15 +59,10 @@ export class ReferenceLookup {
 		const persistentId = this.uniqueIdCounter++;
 
 		this.persistentToAliveIdMap.set(persistentId, initialValue);
-
-		return {
-			...this.persistentReference(persistentId),
-			set: (value) => this.persistentToAliveIdMap.set(persistentId, value),
-			clear: () => this.persistentToAliveIdMap.set(persistentId, undefined)
-		};
+		return this.persistentReference(persistentId);
 	}
 
-	referenceTo(aliveId: string): Reference {
+	referenceTo(aliveId: string): WritableReference {
 		const persistentId = this.persistentToAliveIdMap.getInverse(aliveId);
 
 		if (persistentId !== undefined) {
@@ -79,8 +76,12 @@ export class ReferenceLookup {
 
 const globalReferenceLookup = new ReferenceLookup();
 
-export function referenceTo(uniqueId: string) {
-	return globalReferenceLookup.referenceTo(uniqueId);
+export function referenceTo(aliveId: string) {
+	return globalReferenceLookup.referenceTo(aliveId) as Reference;
+}
+
+export function writableReferenceTo(aliveId: string) {
+	return globalReferenceLookup.referenceTo(aliveId);
 }
 
 export function allocateNewReference(initialValue?: string) {
