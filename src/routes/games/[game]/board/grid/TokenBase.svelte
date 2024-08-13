@@ -8,9 +8,12 @@
 
 <script lang="ts">
 	import type { Position } from '$lib/compounds';
+	import { asset } from 'client/communication/asset';
 	import { draggable, type DraggableParams } from 'components/Draggable.svelte';
+	import type { TokenTemplateSnippet } from 'shared';
 	import { spring } from 'svelte/motion';
 
+	export let template: TokenTemplateSnippet | undefined = undefined;
 	export let position: Position;
 	export let size: number;
 
@@ -25,6 +28,8 @@
 	$: {
 		$positionSpring = position;
 	}
+
+	$: avatarUrl = template?.avatar?.path;
 </script>
 
 <div
@@ -38,7 +43,11 @@
 	on:mousedown
 	on:mouseup
 >
-	<slot />
+	{#if avatarUrl}
+		<img src={asset(avatarUrl)} alt="Token avatar" />
+	{:else}
+		<img src="" alt="Default token avatar" />
+	{/if}
 </div>
 
 <style lang="scss">
@@ -48,7 +57,7 @@
 		cursor: pointer;
 		pointer-events: all;
 		border-radius: 50%;
-		border: 2px solid white;
+		border: 1px solid white;
 		background-color: var(--color-background);
 		box-sizing: border-box;
 		display: flex;
@@ -81,6 +90,14 @@
 
 		&.transparent {
 			opacity: 0.8;
+		}
+
+		img {
+			position: absolute;
+			border-radius: inherit;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
 		}
 	}
 </style>

@@ -148,6 +148,7 @@
 </script>
 
 <TokenBase
+	{template}
 	{position}
 	size={displaySize}
 	style={{
@@ -169,6 +170,4 @@
 			if (selected) handleSelect();
 		}
 	}}
->
-	Token
-</TokenBase>
+/>

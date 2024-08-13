@@ -102,6 +102,7 @@
 </script>
 
 <TokenBase
+	{template}
 	{size}
 	{position}
 	style={{
@@ -114,6 +115,4 @@
 		handleDragging,
 		onDragToggle
 	}}
->
-	{template?.name ?? 'Labeled'}
-</TokenBase>
+/>
