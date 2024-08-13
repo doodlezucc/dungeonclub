@@ -1,7 +1,6 @@
 import { error, json } from '@sveltejs/kit';
 import { authorizedEndpoint } from 'server/rest.js';
 import { prisma, server } from 'server/server.js';
-import { SelectBoard } from 'shared/snippets.js';
 
 export const POST = ({ params: { campaignId }, request }) =>
 	authorizedEndpoint(request, async (accountHash) => {
@@ -22,7 +21,9 @@ export const POST = ({ params: { campaignId }, request }) =>
 				campaignId: campaignId,
 				mapImageId: asset.id
 			},
-			select: SelectBoard
+			select: {
+				id: true
+			}
 		});
 
 		if (campaign.selectedBoardId === null) {
@@ -32,5 +33,7 @@ export const POST = ({ params: { campaignId }, request }) =>
 			});
 		}
 
-		return json(board);
+		return json({
+			boardId: board.id
+		});
 	});

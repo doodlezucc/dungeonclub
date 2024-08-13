@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { rest } from 'client/communication';
+	import { rest, socket } from 'client/communication';
 	import { Board, Session, sessionState } from 'client/state';
 	import ArrangedCollection from 'components/ArrangedCollection.svelte';
 	import { displayErrorDialog } from 'components/extensions/modal';
 	import Row from 'components/layout/Row.svelte';
 	import { Dialog, type ModalContext } from 'components/modal';
 	import FileUploader from 'components/upload/FileUploader.svelte';
-	import type { BoardSnippet } from 'shared';
 	import { getContext } from 'svelte';
 	import { derived } from 'svelte/store';
 	import BoardPreview from './BoardPreview.svelte';
@@ -23,20 +22,19 @@
 				const isImage = file.type.startsWith('image/');
 
 				if (isImage) {
-					const response: BoardSnippet = await $rest.post(
-						`/campaigns/${$sessionState.campaign!.id}/boards`,
-						{
-							body: {
-								contentType: file.type,
-								data: await file.arrayBuffer()
-							}
+					const { boardId } = await $rest.post(`/campaigns/${$sessionState.campaign!.id}/boards`, {
+						body: {
+							contentType: file.type,
+							data: await file.arrayBuffer()
 						}
-					);
+					});
 
-					Board.instance.load(response);
+					const createdBoard = await $socket.request('boardEdit', { id: boardId });
+
+					Board.instance.load(createdBoard);
 					Session.instance.campaign.put((campaign) => ({
 						...campaign,
-						boards: [...campaign.boards, response]
+						boards: [...campaign.boards, createdBoard]
 					}));
 				}
 			}
