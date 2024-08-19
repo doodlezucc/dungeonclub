@@ -1109,6 +1109,7 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
 .token-bar {
     position: relative;
     width: 90%;
+    font-size: calc(1em + 0.5em * (var(--size) - 1));
     height: 0.5em;
     padding: 0;
     margin: 2px auto;
