@@ -43,11 +43,11 @@ export type MarkedAsEvent = {
 	forwarded: true;
 };
 
-export type ServerSentMessages = PickMessages<IMessageForClient<unknown>>;
+export type ServerSentMessages = PickMessages<IMessageForClient<unknown>> & ClientHandledEvents;
 export type ServerHandledMessages = PickMessages<IMessageForServer<unknown>>;
 
 export type ClientSentMessages = ServerHandledMessages;
-export type ClientHandledMessages = ServerSentMessages & ClientHandledEvents;
+export type ClientHandledMessages = ServerSentMessages;
 
 export type ClientHandledEvents = PickForwardedMessages<ClientSentMessages>;
 
@@ -76,3 +76,5 @@ export type GetResponse<T extends keyof AllMessages> = Response<AllMessages, T>;
 export type AsForwarded<T> = T extends IForward<infer F> ? F : void;
 export type Forwarded<S, T extends keyof S> = AsForwarded<S[T]>;
 export type GetForwarded<T extends keyof AllMessages> = Forwarded<AllMessages, T>;
+
+export type OptionalForwarded<S, T> = Forwarded<S, T extends keyof S ? T : never>;
