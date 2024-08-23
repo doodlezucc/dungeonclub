@@ -13,11 +13,12 @@
 	import { Board, boardState } from 'client/state';
 	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
 	import type { SelectionContext } from 'components/groups/SelectionGroup.svelte';
-	import type { GetPayload, TokenSnippet, TokenTemplateSnippet } from 'shared';
+	import type { TokenSnippet, TokenTemplateSnippet } from 'shared';
 	import { getContext } from 'svelte';
 	import { derived } from 'svelte/store';
 	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';
+	import * as Tokens from './token-management';
 
 	export let token: TokenSnippet;
 	export let template: TokenTemplateSnippet;
@@ -45,48 +46,20 @@
 		}
 	}
 
-	function submitPositionDelta(delta: Position) {
-		const tokenMovements = selection.map((selectedToken) => {
-			const newPosition = <Position>{
-				x: selectedToken.x,
-				y: selectedToken.y
-			};
-
-			const originalPosition = <Position>{
-				x: newPosition.x - delta.x,
-				y: newPosition.y - delta.y
-			};
-
-			return {
-				tokenId: selectedToken.id,
-				position: <Record<Direction, Position>>{
-					forward: newPosition,
-					backward: originalPosition
-				}
-			};
-		});
-
-		const actionName = tokenMovements.length === 1 ? 'Move token' : 'Move tokens';
-
-		historyOf($boardState!.id).registerDirectional(actionName, (direction) => {
-			const payload: GetPayload<'tokensMove'> = {};
-
-			for (const movement of tokenMovements) {
-				const tokenId = movement.tokenId;
-				const position = movement.position[direction];
-				payload[tokenId] = position;
-			}
-
-			$socket.send('tokensMove', payload);
-			Board.instance.handleTokensMove(payload);
-		});
-	}
-
 	function onDraggedTo(position: Position, originalPosition: Position) {
-		submitPositionDelta({
-			x: position.x - originalPosition.x,
-			y: position.y - originalPosition.y
-		});
+		Tokens.submitTokenMovement(
+			{
+				selection: selection,
+				delta: {
+					x: position.x - originalPosition.x,
+					y: position.y - originalPosition.y
+				}
+			},
+			{
+				boardHistory: historyOf($boardState!.id),
+				socket: $socket
+			}
+		);
 	}
 
 	const activeGridSpace = Board.instance.grid.gridSpace;

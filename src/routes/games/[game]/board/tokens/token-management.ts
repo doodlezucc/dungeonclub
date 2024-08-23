@@ -1,7 +1,9 @@
+import type { Direction } from '$lib/packages/undo-redo/action';
 import { type HistoryStore } from '$lib/packages/undo-redo/history';
 import type { ClientSocket } from 'client/communication';
 import { Board } from 'client/state';
 import type { Position } from 'components/compounds';
+import type { SelectionContext } from 'components/groups/SelectionGroup.svelte';
 import type { GetPayload, TokenSnippet } from 'shared';
 
 export interface Context {
@@ -73,5 +75,50 @@ export function deleteTokens(tokens: TokenSnippet[], context: Context) {
 				});
 			}
 		};
+	});
+}
+
+export interface TokenMovementOptions {
+	delta: Position;
+	selection: SelectionContext<TokenSnippet>;
+}
+
+export function submitTokenMovement(options: TokenMovementOptions, context: Context) {
+	const { boardHistory, socket } = context;
+	const { delta, selection } = options;
+
+	const tokenMovements = selection.map((selectedToken) => {
+		const newPosition = <Position>{
+			x: selectedToken.x,
+			y: selectedToken.y
+		};
+
+		const originalPosition = <Position>{
+			x: newPosition.x - delta.x,
+			y: newPosition.y - delta.y
+		};
+
+		return {
+			tokenId: selectedToken.id,
+			position: <Record<Direction, Position>>{
+				forward: newPosition,
+				backward: originalPosition
+			}
+		};
+	});
+
+	const actionName = tokenMovements.length === 1 ? 'Move token' : 'Move tokens';
+
+	boardHistory.registerDirectional(actionName, (direction) => {
+		const payload: GetPayload<'tokensMove'> = {};
+
+		for (const movement of tokenMovements) {
+			const tokenId = movement.tokenId;
+			const position = movement.position[direction];
+			payload[tokenId] = position;
+		}
+
+		socket.send('tokensMove', payload);
+		Board.instance.handleTokensMove(payload);
 	});
 }
