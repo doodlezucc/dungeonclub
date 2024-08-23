@@ -13,14 +13,14 @@ export interface CampaignMessageCategory {
 		{
 			id: string;
 		},
-		true
+		void
 	>;
 
 	campaignReorder: DefinePrivateRequest<
 		{
 			campaignIds: string[];
 		},
-		true
+		void
 	>;
 
 	campaignEdit: DefinePrivateRequest<Omit<CampaignCardSnippet, 'createdAt'>, CampaignCardSnippet>;
@@ -37,5 +37,12 @@ export interface CampaignMessageCategory {
 			id: UUID;
 		},
 		CampaignSnippet
+	>;
+
+	tokenTemplateDelete: DefinePrivateRequest<
+		{
+			tokenTemplateId: UUID;
+		},
+		void
 	>;
 }

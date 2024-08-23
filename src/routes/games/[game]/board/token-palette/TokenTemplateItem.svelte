@@ -3,7 +3,7 @@
 	import { Row } from 'components/layout';
 	import ListTile from 'components/ListTile.svelte';
 	import type { TokenTemplateSnippet } from 'shared';
-	import { unplacedTokenProperties } from '../grid/UnplacedToken.svelte';
+	import { unplacedTokenProperties } from '../tokens/UnplacedToken.svelte';
 
 	export let template: TokenTemplateSnippet;
 

@@ -80,10 +80,10 @@ export abstract class MessageSocket<HANDLED, SENT> {
 			this.activeChannelCallbacks.set(channel, (responseMessage) => {
 				const { error, response: payload } = responseMessage;
 
-				if (error || !payload) {
-					reject(new RequestError(error ?? 'No payload in response'));
+				if (error) {
+					reject(new RequestError(error));
 				} else {
-					resolve(payload);
+					resolve(payload as Response<SENT, T>);
 				}
 			});
 

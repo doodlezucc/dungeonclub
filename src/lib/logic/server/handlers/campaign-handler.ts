@@ -75,8 +75,6 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 				campaignIdsOrdered: campaignIdsOrdered.filter((ownedId) => ownedId !== id)
 			}
 		});
-
-		return true;
 	},
 
 	handleCampaignReorder: async ({ campaignIds }, { dispatcher }) => {
@@ -85,8 +83,6 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 			arrayName: 'campaignIdsOrdered',
 			updateTo: campaignIds
 		});
-
-		return true;
 	},
 
 	handleCampaignEdit: async ({ id, name }, { dispatcher }) => {
@@ -123,6 +119,24 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 
 	handleCampaignJoin: async ({ id }, { dispatcher }) => {
 		return await dispatcher.enterSession(id);
+	},
+
+	handleTokenTemplateDelete: async ({ tokenTemplateId }, { dispatcher }) => {
+		const session = dispatcher.sessionAsOwner;
+		const campaignId = session.campaignId;
+
+		const tokenTemplate = await prisma.tokenTemplate.findUnique({
+			where: { id: tokenTemplateId },
+			select: { campaignId: true }
+		});
+
+		if (tokenTemplate?.campaignId !== campaignId) {
+			throw 'Token template is not part of the hosted campaign';
+		}
+
+		await prisma.tokenTemplate.delete({
+			where: { id: tokenTemplateId }
+		});
 	}
 };
 

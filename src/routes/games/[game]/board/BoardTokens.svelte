@@ -9,8 +9,8 @@
 	import { getContext } from 'svelte';
 	import { derived } from 'svelte/store';
 	import { type BoardContext } from './Board.svelte';
-	import Token from './grid/Token.svelte';
-	import UnplacedToken, { unplacedTokenProperties } from './grid/UnplacedToken.svelte';
+	import Token from './tokens/Token.svelte';
+	import UnplacedToken, { unplacedTokenProperties } from './tokens/UnplacedToken.svelte';
 
 	const loadedBoardId = derived(boardState, (board) => board!.id);
 
