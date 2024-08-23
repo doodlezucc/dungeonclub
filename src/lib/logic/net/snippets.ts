@@ -54,7 +54,10 @@ export const SelectToken = {
 	templateId: true,
 	invisible: true,
 	conditions: true,
-	label: true,
+	name: true,
+	avatar: {
+		select: SelectAsset
+	},
 	x: true,
 	y: true,
 	size: true

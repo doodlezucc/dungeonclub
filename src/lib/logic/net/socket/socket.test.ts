@@ -13,31 +13,26 @@ import { publicResponse } from './handling';
 import { MessageSocket } from './socket';
 
 it('sends and receives', async () => {
-	const response = await testClient.request('tokensCreate', {
-		newTokens: [
-			{
-				x: 0.5,
-				y: 2.5,
-				templateId: 'someTokenDefId'
-			}
-		]
+	const response = await testClient.request('tokenCreate', {
+		x: 0.5,
+		y: 2.5,
+		templateId: 'someTokenDefId'
 	});
 
 	expect(response).toEqual({
 		boardId: 'boardid',
-		tokens: [
-			{
-				id: 'new uuid',
-				templateId: 'someTokenDefId',
-				label: 'Test Label',
-				conditions: [],
-				invisible: false,
-				size: 1,
-				x: 0.5,
-				y: 2.5
-			}
-		]
-	} as Response<AllMessages, 'tokensCreate'>);
+		token: {
+			id: 'new uuid',
+			templateId: 'someTokenDefId',
+			avatar: null,
+			conditions: [],
+			invisible: false,
+			name: 'Test Label',
+			size: 1,
+			x: 0.5,
+			y: 2.5
+		}
+	} as Response<AllMessages, 'tokenCreate'>);
 });
 
 class TestClient extends MessageSocket<ClientHandledMessages, ClientSentMessages> {
@@ -56,7 +51,7 @@ class TestClient extends MessageSocket<ClientHandledMessages, ClientSentMessages
 	}
 }
 
-type _ServerHandled = Pick<ServerHandledMessages, 'tokensCreate'>;
+type _ServerHandled = Pick<ServerHandledMessages, 'tokenCreate'>;
 
 class TestServer extends MessageSocket<_ServerHandled, ServerSentMessages> {
 	protected async processMessage<T extends keyof _ServerHandled>(
@@ -65,22 +60,21 @@ class TestServer extends MessageSocket<_ServerHandled, ServerSentMessages> {
 	): Promise<ResponseObject<_ServerHandled, T>> {
 		console.log(`server processes ${name} with payload`, payload);
 
-		const { x, y, templateId } = payload.newTokens[0];
+		const { x, y, templateId } = payload;
 
-		return publicResponse(<Response<_ServerHandled, 'tokensCreate'>>{
+		return publicResponse(<Response<_ServerHandled, 'tokenCreate'>>{
 			boardId: 'boardid',
-			tokens: [
-				{
-					id: 'new uuid',
-					templateId: templateId,
-					label: 'Test Label',
-					conditions: [],
-					invisible: false,
-					size: 1,
-					x: x,
-					y: y
-				}
-			]
+			token: {
+				templateId: templateId,
+				x: x,
+				y: y,
+				id: 'new uuid',
+				avatar: null,
+				conditions: [],
+				invisible: false,
+				name: 'Test Label',
+				size: 1
+			}
 		}) as ResponseObject<_ServerHandled, T>;
 	}
 

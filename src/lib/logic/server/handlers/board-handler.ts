@@ -1,6 +1,6 @@
 import { Limits as LIMITS } from 'server/limits';
 import { publicResponse, type BoardMessageCategory } from 'shared';
-import { SelectBoard, SelectToken, type TokenSnippet } from '../../net/snippets';
+import { SelectBoard, SelectToken } from '../../net/snippets';
 import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';
 
@@ -47,7 +47,7 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 		return publicResponse(boardSnippet);
 	},
 
-	handleTokensCreate: async ({ newTokens }, { dispatcher }) => {
+	handleTokenCreate: async ({ templateId, x, y }, { dispatcher }) => {
 		const sessionCampaignId = dispatcher.sessionAsOwner.campaignId;
 		const boardId = dispatcher.sessionConnection.visibleBoardId;
 
@@ -72,35 +72,23 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 			throw 'Board is not part of the hosted campaign';
 		}
 
-		if (newTokens.length + currentTokenCount > LIMITS.tokensPerBoard) {
+		if (currentTokenCount + 1 > LIMITS.tokensPerBoard) {
 			throw 'Resulting token count exceeds maximum tokens per board';
 		}
 
-		const createdTokens: TokenSnippet[] = [];
-
-		for (const creationSnippet of newTokens) {
-			createdTokens.push(
-				await prisma.token.create({
-					data: {
-						boardId,
-						conditions: creationSnippet.conditions,
-						// initiativeEntry
-						// initiativeModifier
-						invisible: creationSnippet.invisible,
-						label: creationSnippet.label,
-						size: creationSnippet.size,
-						templateId: creationSnippet.templateId,
-						x: creationSnippet.x,
-						y: creationSnippet.y
-					},
-					select: SelectToken
-				})
-			);
-		}
+		const createdToken = await prisma.token.create({
+			data: {
+				boardId,
+				templateId: templateId,
+				x: x,
+				y: y
+			},
+			select: SelectToken
+		});
 
 		return publicResponse({
 			boardId,
-			tokens: createdTokens
+			token: createdToken
 		});
 	},
 

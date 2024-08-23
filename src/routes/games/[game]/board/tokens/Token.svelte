@@ -25,7 +25,7 @@
 	export let selected: boolean;
 
 	$: position = <Position>{ x: token.x, y: token.y };
-	const displaySize = token.size === 0 ? template.size : token.size;
+	const displaySize = token.size === null ? template.size : token.size;
 
 	const selection = getContext<SelectionContext<TokenSnippet>>('selection');
 

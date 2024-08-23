@@ -7,9 +7,6 @@ import type {
 	UUID
 } from './messages';
 
-export type TokenCreationSnippet = Pick<TokenSnippet, 'templateId' | 'x' | 'y'> &
-	Partial<Omit<TokenSnippet, 'id'>>;
-
 export interface BoardMessageCategory {
 	boardEdit: DefinePrivateRequest<
 		{
@@ -25,13 +22,15 @@ export interface BoardMessageCategory {
 		BoardSnippet
 	>;
 
-	tokensCreate: DefineRequestWithPublicResponse<
+	tokenCreate: DefineRequestWithPublicResponse<
 		{
-			newTokens: TokenCreationSnippet[];
+			templateId: string | null;
+			x: number;
+			y: number;
 		},
 		{
 			boardId: UUID;
-			tokens: TokenSnippet[];
+			token: TokenSnippet;
 		}
 	>;
 

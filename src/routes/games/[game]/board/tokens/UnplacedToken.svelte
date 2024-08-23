@@ -41,18 +41,14 @@
 		let isInitialCreation = true;
 
 		historyOf(boardId).registerUndoable('Add token to board', async () => {
-			const response = await $socket.request('tokensCreate', {
-				newTokens: [
-					{
-						x: position.x,
-						y: position.y,
-						templateId: template?.id ?? null
-					}
-				]
+			const response = await $socket.request('tokenCreate', {
+				x: position.x,
+				y: position.y,
+				templateId: template?.id ?? null
 			});
-			Board.instance.handleTokensCreate(response);
+			Board.instance.handleTokenCreate(response);
 
-			const instantiatedToken = response.tokens[0];
+			const instantiatedToken = response.token;
 
 			if (isInitialCreation) {
 				dispatch('instantiate', instantiatedToken);

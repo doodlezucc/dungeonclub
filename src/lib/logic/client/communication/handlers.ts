@@ -18,7 +18,7 @@ export class ClientRequestHandler extends MessageHandler<ClientHandledMessages, 
 			Board.instance.load(boardSnippet);
 		},
 
-		onTokensCreate: (payload) => Board.instance.handleTokensCreate(payload),
+		onTokenCreate: (payload) => Board.instance.handleTokenCreate(payload),
 		onTokensDelete: (payload) => Board.instance.handleTokensDelete(payload),
 		onTokensMove: (payload) => Board.instance.handleTokensMove(payload)
 	};

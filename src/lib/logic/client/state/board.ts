@@ -61,13 +61,13 @@ export class Board extends WithState<BoardSnippet> {
 		}));
 	}
 
-	handleTokensCreate({ boardId, tokens }: GetResponse<'tokensCreate'>) {
+	handleTokenCreate({ boardId, token }: GetResponse<'tokenCreate'>) {
 		this.put((board) =>
 			board.id !== boardId
 				? board
 				: {
 						...board,
-						tokens: [...board.tokens, ...tokens]
+						tokens: [...board.tokens, token]
 					}
 		);
 	}
