@@ -46,7 +46,7 @@
 		tokenSelectionGroup?.clear();
 	}
 
-	function buildManagementContext(): Tokens.Context {
+	function buildContextForTokenManagement(): Tokens.Context {
 		return {
 			boardHistory: historyOf($loadedBoardId),
 			socket: $socket
@@ -62,7 +62,7 @@
 					tokenSelectionGroup!.select(instantiatedToken, { additive: false });
 				}
 			},
-			buildManagementContext()
+			buildContextForTokenManagement()
 		);
 	}
 
@@ -71,7 +71,7 @@
 		const selectedTokens = tokenSelectionGroup?.getSelectedElements() ?? [];
 
 		if (selectedTokens.length > 0) {
-			Tokens.deleteTokens(selectedTokens, buildManagementContext());
+			Tokens.deleteTokens(selectedTokens, buildContextForTokenManagement());
 		}
 	});
 </script>

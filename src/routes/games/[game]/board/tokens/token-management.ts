@@ -24,17 +24,20 @@ export function createNewToken(options: CreateTokenOptions, context: Context) {
 	boardHistory.registerUndoable('Add token to board', async () => {
 		const isInitialCreation = instantiatedToken === null;
 
-		const response = await socket.request('tokenCreate', {
-			x: position.x,
-			y: position.y,
-			templateId: tokenTemplateId
-		});
-		Board.instance.handleTokenCreate(response);
-
-		instantiatedToken = response.token;
-
 		if (isInitialCreation) {
+			const response = await socket.request('tokenCreate', {
+				x: position.x,
+				y: position.y,
+				templateId: tokenTemplateId
+			});
+			Board.instance.handleTokenCreate(response);
+
+			instantiatedToken = response.token;
 			options.onServerSideCreation(instantiatedToken);
+		} else {
+			socket.send('tokensRestore', {
+				tokenIds: [instantiatedToken!.id]
+			});
 		}
 
 		return {
