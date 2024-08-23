@@ -1,5 +1,6 @@
 import { SelectBoard, SelectCampaign } from 'shared';
-import { prisma } from './server';
+import { prisma, server } from './server';
+import { SessionGarbage } from './session-garbage';
 import type { User } from './user';
 
 export class SessionManager {
@@ -17,9 +18,14 @@ export class SessionManager {
 			return newSession;
 		}
 	}
+
+	onSessionClosed(session: CampaignSession) {
+		this.openSessions.delete(session.campaignId);
+	}
 }
 
 export class CampaignSession {
+	readonly garbage = new SessionGarbage();
 	readonly campaignId: string;
 
 	users: User[] = [];
@@ -80,6 +86,16 @@ export class CampaignSession {
 
 		this.users = this.users.filter((user) => user != disconnectedUser);
 		console.log('User left');
+
+		if (this.users.length === 0) {
+			this.dispose();
+		}
+	}
+
+	private async dispose() {
+		server.sessionManager.onSessionClosed(this);
+
+		this.garbage.purge();
 	}
 
 	isOwner(user: User): boolean {

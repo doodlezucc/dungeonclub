@@ -94,29 +94,43 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 
 	handleTokensDelete: async (payload, { dispatcher }) => {
 		const visibleBoardId = dispatcher.sessionConnectionAsOwner.visibleBoardId;
-
-		const { count } = await prisma.token.deleteMany({
+		const validTokens = await prisma.token.findMany({
 			where: {
 				id: { in: payload.tokenIds },
 				boardId: visibleBoardId
-			}
+			},
+			select: SelectToken
 		});
 
-		const expectedDeleteCount = payload.tokenIds.length;
-
-		if (count !== expectedDeleteCount) {
-			console.warn(
-				`"tokensDelete" affected ${count} tokens, expected ${expectedDeleteCount} deletions.`,
-				'Message:',
-				payload
-			);
+		const sessionGarbage = dispatcher.sessionAsOwner.garbage;
+		for (const token of validTokens) {
+			sessionGarbage.tokens.markForDeletion(token.id, {
+				boardId: visibleBoardId,
+				token: token
+			});
 		}
 
+		const validTokenIds = validTokens.map((token) => token.id);
 		return {
 			forwardedResponse: {
-				tokenIds: payload.tokenIds
+				tokenIds: validTokenIds
 			}
 		};
+	},
+
+	handleTokensRestore: async (payload, { dispatcher }) => {
+		const session = dispatcher.sessionAsOwner;
+
+		const restoredInfos = session.garbage.tokens.restoreMany(payload.tokenIds);
+
+		for (const participant of session.users) {
+			for (const restoredTokenInfo of restoredInfos) {
+				participant.connection.send('tokenCreate', {
+					boardId: restoredTokenInfo.boardId,
+					token: restoredTokenInfo.token
+				});
+			}
+		}
 	},
 
 	handleTokensMove: async (payload, { dispatcher }) => {

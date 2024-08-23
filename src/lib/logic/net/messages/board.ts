@@ -38,6 +38,13 @@ export interface BoardMessageCategory {
 		tokenIds: UUID[];
 	}>;
 
+	tokensRestore: DefinePrivateRequest<
+		{
+			tokenIds: UUID[];
+		},
+		void
+	>;
+
 	tokensMove: DefineSendAndForward<{
 		[id: UUID]: Position;
 	}>;

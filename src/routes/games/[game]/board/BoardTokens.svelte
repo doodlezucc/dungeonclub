@@ -1,5 +1,7 @@
 <script lang="ts">
-	import { boardState, sessionState } from 'client/state';
+	import { historyOf } from '$lib/packages/undo-redo/history';
+	import { socket } from 'client/communication';
+	import { Board, boardState, sessionState } from 'client/state';
 	import { listenTo, ShortcutAction } from 'components/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import type { TokenSnippet } from 'shared';
@@ -52,40 +54,23 @@
 			const actionName =
 				selectedTokens.length === 1 ? 'Remove token from board' : 'Remove tokens from board';
 
-			// historyOf($loadedBoardId).registerUndoable(actionName, async () => {
-			// 	const deletedTokenIds = tokenReferences.map((tokenReference) => tokenReference.resolve());
-			// 	const deletedTokens = $boardState!.tokens.filter((token) =>
-			// 		deletedTokenIds.includes(token.id)
-			// 	);
+			const selectedTokenIds = selectedTokens.map((token) => token.id);
 
-			// 	$socket.send('tokensDelete', { tokenIds: deletedTokenIds });
-			// 	Board.instance.handleTokensDelete({ tokenIds: deletedTokenIds });
+			historyOf($loadedBoardId).registerUndoable(actionName, async () => {
+				$socket.send('tokensDelete', {
+					tokenIds: selectedTokenIds
+				});
 
-			// 	for (const reference of tokenReferences) {
-			// 		reference.clear();
-			// 	}
+				Board.instance.handleTokensDelete({ tokenIds: selectedTokenIds });
 
-			// 	return {
-			// 		undo: async () => {
-			// 			const response = await $socket.request('tokensCreate', {
-			// 				newTokens: deletedTokens.map((deletedToken) => ({
-			// 					templateId: deletedToken.templateId,
-			// 					x: deletedToken.x,
-			// 					y: deletedToken.y,
-			// 					conditions: deletedToken.conditions,
-			// 					invisible: deletedToken.invisible,
-			// 					label: deletedToken.label,
-			// 					size: deletedToken.size
-			// 				}))
-			// 			});
-			// 			Board.instance.handleTokensCreate(response);
-
-			// 			for (let i = 0; i < tokenReferences.length; i++) {
-			// 				tokenReferences[i].set(response.tokens[i].id);
-			// 			}
-			// 		}
-			// 	};
-			// });
+				return {
+					undo: () => {
+						$socket.send('tokensRestore', {
+							tokenIds: selectedTokenIds
+						});
+					}
+				};
+			});
 		}
 	});
 </script>
