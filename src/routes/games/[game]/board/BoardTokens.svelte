@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { boardState, sessionState } from 'client/state';
-	import { writableReferenceTo } from 'client/state/reference';
 	import { listenTo, ShortcutAction } from 'components/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import type { TokenSnippet } from 'shared';
@@ -52,7 +51,6 @@
 		if (selectedTokens.length > 0) {
 			const actionName =
 				selectedTokens.length === 1 ? 'Remove token from board' : 'Remove tokens from board';
-			const tokenReferences = selectedTokens.map((token) => writableReferenceTo(token.id));
 
 			// historyOf($loadedBoardId).registerUndoable(actionName, async () => {
 			// 	const deletedTokenIds = tokenReferences.map((tokenReference) => tokenReference.resolve());

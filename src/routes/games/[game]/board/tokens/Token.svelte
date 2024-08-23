@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
 	export interface HistoryTokenMovement {
-		tokenReference: Reference;
+		tokenId: string;
 		position: Record<Direction, Position>;
 	}
 </script>
@@ -11,7 +11,6 @@
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { Board, boardState } from 'client/state';
-	import { referenceTo, type Reference } from 'client/state/reference';
 	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
 	import type { SelectionContext } from 'components/groups/SelectionGroup.svelte';
 	import type { GetPayload, TokenSnippet, TokenTemplateSnippet } from 'shared';
@@ -59,7 +58,7 @@
 			};
 
 			return {
-				tokenReference: referenceTo(selectedToken.id),
+				tokenId: selectedToken.id,
 				position: <Record<Direction, Position>>{
 					forward: newPosition,
 					backward: originalPosition
@@ -73,7 +72,7 @@
 			const payload: GetPayload<'tokensMove'> = {};
 
 			for (const movement of tokenMovements) {
-				const tokenId = movement.tokenReference.resolve();
+				const tokenId = movement.tokenId;
 				const position = movement.position[direction];
 				payload[tokenId] = position;
 			}

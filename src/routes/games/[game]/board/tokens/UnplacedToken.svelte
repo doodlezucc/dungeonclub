@@ -14,7 +14,6 @@
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { Board, boardState } from 'client/state';
-	import { allocateNewReference } from 'client/state/reference';
 	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
 	import type { GetPayload, TokenSnippet, TokenTemplateSnippet } from 'shared';
 	import { createEventDispatcher, getContext } from 'svelte';
@@ -36,7 +35,6 @@
 		$unplacedTokenProperties = null;
 
 		const boardId = $boardState!.id;
-		const tokenIdHandle = allocateNewReference();
 
 		let isInitialCreation = true;
 
@@ -55,18 +53,14 @@
 				isInitialCreation = false;
 			}
 
-			tokenIdHandle.set(instantiatedToken.id);
-
 			return {
 				undo: () => {
 					const payload: GetPayload<'tokensDelete'> = {
-						tokenIds: [tokenIdHandle.resolve()]
+						tokenIds: [instantiatedToken.id]
 					};
 
 					$socket.send('tokensDelete', payload);
 					Board.instance.handleTokensDelete(payload);
-
-					tokenIdHandle.clear();
 				}
 			};
 		});
