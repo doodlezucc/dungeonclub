@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
-	import { Board, boardState, sessionState } from 'client/state';
+	import { boardState, sessionState } from 'client/state';
 	import { listenTo, ShortcutAction } from 'components/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import type { TokenSnippet } from 'shared';
@@ -9,7 +9,11 @@
 	import { derived } from 'svelte/store';
 	import { type BoardContext } from './Board.svelte';
 	import Token from './tokens/Token.svelte';
-	import UnplacedToken, { unplacedTokenProperties } from './tokens/UnplacedToken.svelte';
+	import UnplacedToken, {
+		unplacedTokenProperties,
+		type TokenPlacementEvent
+	} from './tokens/UnplacedToken.svelte';
+	import * as Tokens from './tokens/token-management';
 
 	const loadedBoardId = derived(boardState, (board) => board!.id);
 
@@ -38,12 +42,28 @@
 			})
 		: null;
 
-	function onCreateNewToken(event: CustomEvent<TokenSnippet>) {
-		tokenSelectionGroup?.select(event.detail, { additive: false });
-	}
-
 	export function clearSelection() {
 		tokenSelectionGroup?.clear();
+	}
+
+	function buildManagementContext(): Tokens.Context {
+		return {
+			boardHistory: historyOf($loadedBoardId),
+			socket: $socket
+		};
+	}
+
+	function onPlaceToken(ev: CustomEvent<TokenPlacementEvent>) {
+		Tokens.createNewToken(
+			{
+				position: ev.detail.position,
+				tokenTemplateId: ev.detail.templateId ?? null,
+				onServerSideCreation: (instantiatedToken) => {
+					tokenSelectionGroup!.select(instantiatedToken, { additive: false });
+				}
+			},
+			buildManagementContext()
+		);
 	}
 
 	const onPressDelete = listenTo(ShortcutAction.Delete);
@@ -51,26 +71,7 @@
 		const selectedTokens = tokenSelectionGroup?.getSelectedElements() ?? [];
 
 		if (selectedTokens.length > 0) {
-			const actionName =
-				selectedTokens.length === 1 ? 'Remove token from board' : 'Remove tokens from board';
-
-			const selectedTokenIds = selectedTokens.map((token) => token.id);
-
-			historyOf($loadedBoardId).registerUndoable(actionName, async () => {
-				$socket.send('tokensDelete', {
-					tokenIds: selectedTokenIds
-				});
-
-				Board.instance.handleTokensDelete({ tokenIds: selectedTokenIds });
-
-				return {
-					undo: () => {
-						$socket.send('tokensRestore', {
-							tokenIds: selectedTokenIds
-						});
-					}
-				};
-			});
+			Tokens.deleteTokens(selectedTokens, buildManagementContext());
 		}
 	});
 </script>
@@ -90,7 +91,7 @@
 		<UnplacedToken
 			template={$unplacedTokenProperties.tokenTemplate}
 			spawnPosition={unplacedTokenSpawnPosition}
-			on:instantiate={onCreateNewToken}
+			on:place={onPlaceToken}
 		/>
 	{/key}
 {/if}

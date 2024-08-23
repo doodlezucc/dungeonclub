@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+	import type { Position } from '$lib/compounds';
+	import type { TokenTemplateSnippet } from 'shared';
 	import { writable } from 'svelte/store';
 
 	export interface UnplacedTokenProperties {
@@ -6,16 +8,17 @@
 		triggeringEvent: MouseEvent;
 	}
 
+	export interface TokenPlacementEvent {
+		position: Position;
+		templateId?: string;
+	}
+
 	export const unplacedTokenProperties = writable<UnplacedTokenProperties | null>(null);
 </script>
 
 <script lang="ts">
-	import type { Position } from '$lib/compounds';
-	import { historyOf } from '$lib/packages/undo-redo/history';
-	import { socket } from 'client/communication';
-	import { Board, boardState } from 'client/state';
+	import { Board } from 'client/state';
 	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
-	import type { GetPayload, TokenSnippet, TokenTemplateSnippet } from 'shared';
 	import { createEventDispatcher, getContext } from 'svelte';
 	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';
@@ -26,7 +29,7 @@
 	$: position = spawnPosition;
 
 	const dispatch = createEventDispatcher<{
-		instantiate: TokenSnippet;
+		place: TokenPlacementEvent;
 	}>();
 
 	function onDragToggle(isDragStart: boolean) {
@@ -34,35 +37,9 @@
 
 		$unplacedTokenProperties = null;
 
-		const boardId = $boardState!.id;
-
-		let isInitialCreation = true;
-
-		historyOf(boardId).registerUndoable('Add token to board', async () => {
-			const response = await $socket.request('tokenCreate', {
-				x: position.x,
-				y: position.y,
-				templateId: template?.id ?? null
-			});
-			Board.instance.handleTokenCreate(response);
-
-			const instantiatedToken = response.token;
-
-			if (isInitialCreation) {
-				dispatch('instantiate', instantiatedToken);
-				isInitialCreation = false;
-			}
-
-			return {
-				undo: () => {
-					const payload: GetPayload<'tokensDelete'> = {
-						tokenIds: [instantiatedToken.id]
-					};
-
-					$socket.send('tokensDelete', payload);
-					Board.instance.handleTokensDelete(payload);
-				}
-			};
+		dispatch('place', {
+			position: position,
+			templateId: template?.id
 		});
 	}
 
