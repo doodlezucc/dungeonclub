@@ -18,9 +18,20 @@
 	const modal = getContext<ModalContext>('modal');
 
 	async function editCampaign(unedited: CampaignCardSnippet) {
-		await modal.display(CampaignEditDialog, {
-			...unedited
-		});
+		const editedCampaign: CampaignCardSnippet | undefined = await modal.display(
+			CampaignEditDialog,
+			{
+				...unedited
+			}
+		);
+
+		if (editedCampaign) {
+			campaigns.update((campaigns) =>
+				campaigns.map((existingCampaign) =>
+					existingCampaign.id === editedCampaign.id ? editedCampaign : existingCampaign
+				)
+			);
+		}
 	}
 
 	async function createCampaign() {
