@@ -89,12 +89,22 @@
 	shortcutManager.bindState({ alt: true }, KeyState.DisableGridSnapping);
 	shortcutManager.bindState({ shift: true }, KeyState.ModifySelectionRange);
 	shortcutManager.bindState({ ctrl: true }, KeyState.ModifySelection);
+
+	function isNativelyHandled(ev: KeyboardEvent) {
+		const focusedElement = ev.target;
+
+		return (
+			focusedElement instanceof HTMLInputElement || focusedElement instanceof HTMLTextAreaElement
+		);
+	}
 </script>
 
 <svelte:window
 	on:keydown={(ev) => {
-		shortcutManager.handleShortcutAction(ev);
-		shortcutManager.updateKeyStates(ev, true);
+		if (!isNativelyHandled(ev)) {
+			shortcutManager.handleShortcutAction(ev);
+			shortcutManager.updateKeyStates(ev, true);
+		}
 	}}
 	on:keyup={(ev) => {
 		shortcutManager.updateKeyStates(ev, false);
