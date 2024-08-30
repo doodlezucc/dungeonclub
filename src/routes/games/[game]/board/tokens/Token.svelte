@@ -13,7 +13,8 @@
 	import { Board, boardState } from 'client/state';
 	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
 	import type { SelectionContext } from 'components/groups/SelectionGroup.svelte';
-	import type { TokenSnippet, TokenTemplateSnippet } from 'shared';
+	import type { TokenPropertiesWithAsset, TokenSnippet, TokenTemplateSnippet } from 'shared';
+	import { materializeToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import { derived } from 'svelte/store';
 	import type { BoardContext } from '../Board.svelte';
@@ -21,11 +22,16 @@
 	import * as Tokens from './token-management';
 
 	export let token: TokenSnippet;
-	export let template: TokenTemplateSnippet;
+	export let template: TokenTemplateSnippet | undefined;
 	export let selected: boolean;
 
+	const properties: TokenPropertiesWithAsset = {
+		...materializeToken(token, template),
+		avatar: token.avatar ?? template?.avatar ?? null
+	};
+
 	$: position = <Position>{ x: token.x, y: token.y };
-	const displaySize = token.size === null ? template.size : token.size;
+	const displaySize = properties.size;
 
 	const selection = getContext<SelectionContext<TokenSnippet>>('selection');
 
@@ -120,9 +126,8 @@
 </script>
 
 <TokenBase
-	{template}
+	{properties}
 	{position}
-	size={displaySize}
 	style={{
 		selected,
 		dragging: isDragging,

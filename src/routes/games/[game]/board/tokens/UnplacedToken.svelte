@@ -14,11 +14,16 @@
 	}
 
 	export const unplacedTokenProperties = writable<UnplacedTokenProperties | null>(null);
+
+	export function exitTokenPlacement() {
+		unplacedTokenProperties.set(null);
+	}
 </script>
 
 <script lang="ts">
 	import { Board } from 'client/state';
 	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
+	import { EMPTY_TOKEN_PROPERTIES } from 'shared/token-materializing';
 	import { createEventDispatcher, getContext } from 'svelte';
 	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';
@@ -69,8 +74,7 @@
 </script>
 
 <TokenBase
-	{template}
-	{size}
+	properties={template ?? { ...EMPTY_TOKEN_PROPERTIES, avatar: null }}
 	{position}
 	style={{
 		dragging: true,

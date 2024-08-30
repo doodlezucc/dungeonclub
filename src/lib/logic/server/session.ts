@@ -40,8 +40,10 @@ export class CampaignSession {
 	}
 
 	static async load(hostedBy: User, campaignId: string) {
+		// Make sure the campaign exists
 		await prisma.campaign.findUniqueOrThrow({
-			where: { id: campaignId }
+			where: { id: campaignId },
+			select: { id: true }
 		});
 
 		return new CampaignSession(hostedBy, campaignId);

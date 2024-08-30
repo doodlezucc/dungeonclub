@@ -13,6 +13,33 @@ export const ALL_OVERRIDABLE_TOKEN_PROPERTIES = Object.keys(
 	UNIQUE_OVERRIDABLE_TOKEN_PROPERTIES
 ) as OverridableTokenProperty[];
 
+export const EMPTY_TOKEN_PROPERTIES: TokenProperties = {
+	avatarId: null,
+	initiativeModifier: 0,
+	name: 'Token',
+	size: 1
+};
+
+/**
+ * Returns a copy of `token` with all `null` properties inserted by the underlying template.
+ */
+export function materializeToken(
+	token: TokenPropertiesOrNull,
+	template?: TokenProperties
+): TokenProperties {
+	if (template) {
+		return {
+			...template,
+			...extractOverriddenPropertiesFromToken(token)
+		};
+	} else {
+		return {
+			...EMPTY_TOKEN_PROPERTIES,
+			...extractOverriddenPropertiesFromToken(token)
+		};
+	}
+}
+
 export function getInheritedPropertiesOfToken(token: TokenPropertiesOrNull) {
 	const result: OverridableTokenProperty[] = [];
 
@@ -25,18 +52,44 @@ export function getInheritedPropertiesOfToken(token: TokenPropertiesOrNull) {
 	return result;
 }
 
+interface ExtractPropertiesOptions {
+	onlyKeepNonNulls: boolean;
+}
+
+function extractPropertiesByName(
+	source: TokenPropertiesOrNull,
+	propertyNameFilter: OverridableTokenProperty[],
+	options: ExtractPropertiesOptions
+): Partial<TokenProperties> {
+	const { onlyKeepNonNulls } = options;
+	const extractedProperties: Partial<TokenProperties> = {};
+
+	for (const propertyName of propertyNameFilter) {
+		if (onlyKeepNonNulls && source[propertyName] === null) {
+			// Skip property
+			continue;
+		}
+
+		// @ts-expect-error - template[propertyName] is guaranteed to match the type, but is impossible to statically infer.
+		extractedProperties[propertyName] = source[propertyName];
+	}
+
+	return extractedProperties;
+}
+
 export function extractPropertiesFromTemplate(
 	template: TokenProperties,
 	propertyNames: OverridableTokenProperty[]
 ) {
-	const extractedProperties: Partial<TokenProperties> = {};
+	return extractPropertiesByName(template, propertyNames, {
+		onlyKeepNonNulls: false
+	});
+}
 
-	for (const propertyName of propertyNames) {
-		// @ts-expect-error - template[propertyName] is guaranteed to match the type, but is impossible to statically infer.
-		extractedProperties[propertyName] = template[propertyName];
-	}
-
-	return extractedProperties;
+function extractOverriddenPropertiesFromToken(token: TokenPropertiesOrNull) {
+	return extractPropertiesByName(token, ALL_OVERRIDABLE_TOKEN_PROPERTIES, {
+		onlyKeepNonNulls: true
+	});
 }
 
 export function applyTemplateInheritanceOnProperties(propertyNames: OverridableTokenProperty[]) {

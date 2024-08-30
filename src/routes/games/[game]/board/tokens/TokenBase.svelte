@@ -10,12 +10,11 @@
 	import type { Position } from '$lib/compounds';
 	import { asset } from 'client/communication/asset';
 	import { draggable, type DraggableParams } from 'components/Draggable.svelte';
-	import type { TokenTemplateSnippet } from 'shared';
+	import type { TokenPropertiesWithAsset } from 'shared';
 	import { spring } from 'svelte/motion';
 
-	export let template: TokenTemplateSnippet | undefined = undefined;
+	export let properties: TokenPropertiesWithAsset;
 	export let position: Position;
-	export let size: number;
 
 	export let style: TokenStyle;
 	export let draggableParams: DraggableParams;
@@ -29,7 +28,7 @@
 		$positionSpring = position;
 	}
 
-	$: avatarUrl = template?.avatar?.path;
+	$: avatarUrl = properties.avatar?.path;
 </script>
 
 <div
@@ -39,7 +38,7 @@
 	class:transparent={style.transparent}
 	role="presentation"
 	use:draggable={draggableParams}
-	style="--x: {$positionSpring.x}; --y: {$positionSpring.y}; --size: {size}"
+	style="--x: {$positionSpring.x}; --y: {$positionSpring.y}; --size: {properties.size}"
 	on:mousedown
 	on:mouseup
 >

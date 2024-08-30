@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { rest, socket } from 'client/communication';
-	import { Board, boardState, Campaign, campaignState, tokenTemplatesHistory } from 'client/state';
+	import { Board, boardState, Campaign, campaignState } from 'client/state';
 	import Collection from 'components/Collection.svelte';
 	import { runWithErrorDialogBoundary } from 'components/extensions/modal';
 	import Icon from 'components/Icon.svelte';
@@ -14,6 +15,7 @@
 	} from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import Panel from '../Panel.svelte';
+	import { exitTokenPlacement } from '../tokens/UnplacedToken.svelte';
 	import TokenTemplateItem from './TokenTemplateItem.svelte';
 
 	const tokenTemplates = Campaign.instance.tokenTemplates.withFallback([]);
@@ -45,42 +47,64 @@
 	}
 
 	async function deleteTokenTemplate(deletedTemplate: TokenTemplateSnippet) {
-		tokenTemplatesHistory.registerUndoable('Delete token template', () => {
-			$socket.send('tokenTemplateDelete', {
-				tokenTemplateId: deletedTemplate.id
-			});
+		exitTokenPlacement();
 
-			const boardBeforeDelete = $boardState;
-			if ($boardState) {
-				Board.instance.put((board) => ({
-					...board,
-					tokens: board.tokens.map((token) => ({
-						...token,
-						...extractPropertiesFromTemplate(deletedTemplate, getInheritedPropertiesOfToken(token))
-					}))
-				}));
-			}
+		// Although it's not really part of the board, deletion of a token
+		// template gets registered on the visible board's undo stack.
+		historyOf($boardState?.id ?? $campaignState!.id).registerUndoable(
+			'Delete token template',
+			() => {
+				$socket.send('tokenTemplateDelete', {
+					tokenTemplateId: deletedTemplate.id
+				});
 
-			const tokenTemplatesBeforeDelete = $tokenTemplates;
-			$tokenTemplates = $tokenTemplates.filter((template) => template.id !== deletedTemplate.id);
+				const boardBeforeDelete = $boardState;
+				if ($boardState) {
+					Board.instance.put((board) => ({
+						...board,
+						tokens: board.tokens.map((token) => {
+							if (token.templateId !== deletedTemplate.id) return token;
 
-			return {
-				undo: () => {
-					$socket.send('tokenTemplateRestore', {
-						tokenTemplateId: deletedTemplate.id
-					});
+							const newlyAppliedProperties = extractPropertiesFromTemplate(
+								deletedTemplate,
+								getInheritedPropertiesOfToken(token)
+							);
 
-					if ($boardState && boardBeforeDelete && $boardState.id === boardBeforeDelete.id) {
-						Board.instance.put((board) => ({
-							...board,
-							tokens: boardBeforeDelete.tokens
-						}));
-					}
+							let newAvatar = token.avatar;
+							if (newlyAppliedProperties.avatarId) {
+								newAvatar = deletedTemplate.avatar;
+							}
 
-					$tokenTemplates = tokenTemplatesBeforeDelete;
+							return {
+								...token,
+								...newlyAppliedProperties,
+								avatar: newAvatar
+							};
+						})
+					}));
 				}
-			};
-		});
+
+				const tokenTemplatesBeforeDelete = $tokenTemplates;
+				$tokenTemplates = $tokenTemplates.filter((template) => template.id !== deletedTemplate.id);
+
+				return {
+					undo: () => {
+						$socket.send('tokenTemplateRestore', {
+							tokenTemplateId: deletedTemplate.id
+						});
+
+						if ($boardState && boardBeforeDelete && $boardState.id === boardBeforeDelete.id) {
+							Board.instance.put((board) => ({
+								...board,
+								tokens: boardBeforeDelete.tokens
+							}));
+						}
+
+						$tokenTemplates = tokenTemplatesBeforeDelete;
+					}
+				};
+			}
+		);
 	}
 </script>
 

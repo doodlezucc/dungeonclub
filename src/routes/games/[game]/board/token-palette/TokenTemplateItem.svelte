@@ -17,6 +17,10 @@
 	let captureMouseMovement = false;
 
 	function handleMouseDown(ev: MouseEvent) {
+		if (ev.target instanceof HTMLButtonElement) {
+			return;
+		}
+
 		ev.preventDefault();
 		captureMouseMovement = true;
 	}

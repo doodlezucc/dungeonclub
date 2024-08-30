@@ -30,7 +30,9 @@
 	}
 
 	function getTemplateForToken(token: TokenSnippet) {
-		return tokenTemplates.find((template) => template.id === token.templateId)!;
+		if (!token.templateId) return undefined;
+
+		return tokenTemplates.find((template) => template.id === token.templateId);
 	}
 
 	const board = getContext<BoardContext>('board');

@@ -4,6 +4,9 @@ export const SelectAsset = {
 	mimeType: true,
 	path: true
 } satisfies Prisma.AssetSelect;
+export type AssetSnippet = Prisma.AssetGetPayload<{
+	select: typeof SelectAsset;
+}>;
 
 export const SelectTokenTemplate = {
 	id: true,
@@ -68,7 +71,15 @@ export const SelectToken = {
 } satisfies Prisma.TokenSelect;
 export type TokenSnippet = Prisma.TokenGetPayload<{ select: typeof SelectToken }>;
 
-export type TokenProperties = Omit<Prisma.TokenTemplateGetPayload<{}>, 'id' | 'campaignId'>;
+export type TokenPropertiesWithAsset = Omit<
+	Prisma.TokenTemplateGetPayload<{
+		include: {
+			avatar: { select: typeof SelectAsset };
+		};
+	}>,
+	'id' | 'campaignId'
+>;
+export type TokenProperties = Omit<TokenPropertiesWithAsset, 'avatar'>;
 export type OverridableTokenProperty = keyof TokenProperties;
 
 export type TokenPropertiesOrNull = {
