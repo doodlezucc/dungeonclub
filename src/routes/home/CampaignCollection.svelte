@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { socket } from 'client/communication';
-	import { Account, Session } from 'client/state';
+	import { Account, Campaign } from 'client/state';
 	import { Button, Text } from 'components';
 	import ArrangedCollection from 'components/ArrangedCollection.svelte';
 	import DragHandle from 'components/DragHandle.svelte';
@@ -41,7 +41,7 @@
 
 		if (result) {
 			goto('/games/' + result.id);
-			Session.instance.campaign.onEnter(result);
+			Campaign.instance.onEnter(result);
 		}
 	}
 

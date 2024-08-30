@@ -1,15 +1,20 @@
 <script lang="ts">
 	import { asset } from 'client/communication/asset';
-	import { Row } from 'components/layout';
+	import IconButton from 'components/IconButton.svelte';
+	import { Flex, Row } from 'components/layout';
 	import ListTile from 'components/ListTile.svelte';
 	import type { TokenTemplateSnippet } from 'shared';
+	import { createEventDispatcher } from 'svelte';
 	import { unplacedTokenProperties } from '../tokens/UnplacedToken.svelte';
 
 	export let template: TokenTemplateSnippet;
+	const avatarSrc = template.avatar ? asset(template.avatar!.path) : null;
 
-	$: avatarSrc = asset(template.avatar!.path);
+	const dispatch = createEventDispatcher<{
+		delete: void;
+	}>();
 
-	$: captureMouseMovement = false;
+	let captureMouseMovement = false;
 
 	function handleMouseDown(ev: MouseEvent) {
 		ev.preventDefault();
@@ -37,9 +42,11 @@
 />
 
 <ListTile on:mousedown={handleMouseDown} on:click={displayTokenAtCursor}>
-	<Row align="center" gap="normal">
+	<Row align="center" gap="normal" expand>
 		<img class="token-template-avatar" src={avatarSrc} alt="Token avatar" />
 		<span>{template.name}</span>
+		<Flex expand />
+		<IconButton label="Delete" icon="trash" on:click={() => dispatch('delete')} />
 	</Row>
 </ListTile>
 

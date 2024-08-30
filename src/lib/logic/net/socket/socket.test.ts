@@ -24,13 +24,15 @@ it('sends and receives', async () => {
 		token: {
 			id: 'new uuid',
 			templateId: 'someTokenDefId',
+			avatarId: null,
 			avatar: null,
 			conditions: [],
 			invisible: false,
 			name: 'Test Label',
 			size: 1,
 			x: 0.5,
-			y: 2.5
+			y: 2.5,
+			initiativeModifier: null
 		}
 	} as Response<AllMessages, 'tokenCreate'>);
 });
@@ -69,11 +71,13 @@ class TestServer extends MessageSocket<_ServerHandled, ServerSentMessages> {
 				x: x,
 				y: y,
 				id: 'new uuid',
+				avatarId: null,
 				avatar: null,
 				conditions: [],
 				invisible: false,
 				name: 'Test Label',
-				size: 1
+				size: 1,
+				initiativeModifier: null
 			}
 		}) as ResponseObject<_ServerHandled, T>;
 	}

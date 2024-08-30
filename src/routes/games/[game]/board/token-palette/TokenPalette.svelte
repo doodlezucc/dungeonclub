@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { rest } from 'client/communication';
-	import { Session, sessionState } from 'client/state';
+	import { rest, socket } from 'client/communication';
+	import { Board, boardState, Campaign, campaignState, tokenTemplatesHistory } from 'client/state';
 	import Collection from 'components/Collection.svelte';
 	import { runWithErrorDialogBoundary } from 'components/extensions/modal';
 	import Icon from 'components/Icon.svelte';
@@ -8,15 +8,19 @@
 	import type { ModalContext } from 'components/modal';
 	import FileUploader from 'components/upload/FileUploader.svelte';
 	import type { TokenTemplateSnippet } from 'shared';
+	import {
+		extractPropertiesFromTemplate,
+		getInheritedPropertiesOfToken
+	} from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import Panel from '../Panel.svelte';
 	import TokenTemplateItem from './TokenTemplateItem.svelte';
 
-	const tokenTemplates = Session.instance.campaign.tokenTemplates.withFallback([]);
+	const tokenTemplates = Campaign.instance.tokenTemplates.withFallback([]);
 
 	const modal = getContext<ModalContext>('modal');
 
-	async function createNewTokensFromFiles(ev: CustomEvent<File[]>) {
+	async function createNewTemplatesFromFiles(ev: CustomEvent<File[]>) {
 		const files = ev.detail;
 
 		await runWithErrorDialogBoundary(modal, async () => {
@@ -25,7 +29,7 @@
 
 				if (isImage) {
 					const response: TokenTemplateSnippet = await $rest.post(
-						`/campaigns/${$sessionState.campaign!.id}/token-templates`,
+						`/campaigns/${$campaignState!.id}/token-templates`,
 						{
 							body: {
 								contentType: file.type,
@@ -39,13 +43,52 @@
 			}
 		});
 	}
+
+	async function deleteTokenTemplate(deletedTemplate: TokenTemplateSnippet) {
+		tokenTemplatesHistory.registerUndoable('Delete token template', () => {
+			$socket.send('tokenTemplateDelete', {
+				tokenTemplateId: deletedTemplate.id
+			});
+
+			const boardBeforeDelete = $boardState;
+			if ($boardState) {
+				Board.instance.put((board) => ({
+					...board,
+					tokens: board.tokens.map((token) => ({
+						...token,
+						...extractPropertiesFromTemplate(deletedTemplate, getInheritedPropertiesOfToken(token))
+					}))
+				}));
+			}
+
+			const tokenTemplatesBeforeDelete = $tokenTemplates;
+			$tokenTemplates = $tokenTemplates.filter((template) => template.id !== deletedTemplate.id);
+
+			return {
+				undo: () => {
+					$socket.send('tokenTemplateRestore', {
+						tokenTemplateId: deletedTemplate.id
+					});
+
+					if ($boardState && boardBeforeDelete && $boardState.id === boardBeforeDelete.id) {
+						Board.instance.put((board) => ({
+							...board,
+							tokens: boardBeforeDelete.tokens
+						}));
+					}
+
+					$tokenTemplates = tokenTemplatesBeforeDelete;
+				}
+			};
+		});
+	}
 </script>
 
 <Panel title="Token Palette">
 	<Column gap="normal">
 		<div class="token-palette-list">
 			<Collection itemClass="token-palette-item" items={$tokenTemplates} let:item>
-				<TokenTemplateItem template={item} />
+				<TokenTemplateItem template={item} on:delete={() => deleteTokenTemplate(item)} />
 			</Collection>
 		</div>
 
@@ -53,7 +96,7 @@
 			accept="image/*"
 			acceptMultiple
 			buttonClass="token-palette-item"
-			on:change={createNewTokensFromFiles}
+			on:change={createNewTemplatesFromFiles}
 		>
 			<Icon icon="add" />
 		</FileUploader>

@@ -104,7 +104,7 @@ model TokenTemplate {
   name               String
   size               Int     @default(1)
   initiativeModifier Int     @default(0)
-  avatar             Asset?  @relation(fields: [avatarId], references: [id], onDelete: Cascade)
+  avatar             Asset?  @relation(fields: [avatarId], references: [id], onDelete: SetNull)
   avatarId           String?
 }
 
@@ -131,7 +131,7 @@ model Token {
 
   x               Float
   y               Float
-  invisible       Boolean?
+  invisible       Boolean          @default(false)
   conditions      Int[]
   initiativeEntry InitiativeEntry?
 }

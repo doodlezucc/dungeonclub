@@ -45,4 +45,11 @@ export interface CampaignMessageCategory {
 		},
 		void
 	>;
+
+	tokenTemplateRestore: DefinePrivateRequest<
+		{
+			tokenTemplateId: UUID;
+		},
+		void
+	>;
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { boardState, sessionState } from 'client/state';
+	import { boardState, campaignState } from 'client/state';
 	import { Align, Stack } from 'components/layout';
 	import type { ModalContext } from 'components/modal';
 	import { getContext } from 'svelte';
@@ -18,7 +18,7 @@
 	}
 
 	$: if (!selectBoardDialogIsVisible) {
-		const loadedCampaign = $sessionState.campaign;
+		const loadedCampaign = $campaignState;
 
 		// Show board selection if there is no board loaded
 		if (loadedCampaign && !$boardState) {

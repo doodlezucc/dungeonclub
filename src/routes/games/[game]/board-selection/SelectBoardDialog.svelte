@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { rest, socket } from 'client/communication';
-	import { Board, Session, sessionState } from 'client/state';
+	import { Board, Campaign, campaignState } from 'client/state';
 	import ArrangedCollection from 'components/ArrangedCollection.svelte';
 	import { displayErrorDialog } from 'components/extensions/modal';
 	import Row from 'components/layout/Row.svelte';
@@ -10,7 +10,7 @@
 	import { derived } from 'svelte/store';
 	import BoardPreview from './BoardPreview.svelte';
 
-	const boardSnippets = derived(sessionState, ({ campaign }) => campaign?.boards);
+	const boardSnippets = derived(campaignState, (campaign) => campaign?.boards);
 
 	const modal = getContext<ModalContext>('modal');
 
@@ -22,7 +22,7 @@
 				const isImage = file.type.startsWith('image/');
 
 				if (isImage) {
-					const { boardId } = await $rest.post(`/campaigns/${$sessionState.campaign!.id}/boards`, {
+					const { boardId } = await $rest.post(`/campaigns/${$campaignState!.id}/boards`, {
 						body: {
 							contentType: file.type,
 							data: await file.arrayBuffer()
@@ -32,7 +32,7 @@
 					const createdBoard = await $socket.request('boardEdit', { id: boardId });
 
 					Board.instance.load(createdBoard);
-					Session.instance.campaign.put((campaign) => ({
+					Campaign.instance.put((campaign) => ({
 						...campaign,
 						boards: [...campaign.boards, createdBoard]
 					}));

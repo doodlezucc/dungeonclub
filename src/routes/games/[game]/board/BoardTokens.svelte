@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
-	import { boardState, sessionState } from 'client/state';
+	import { boardState, campaignState } from 'client/state';
 	import { listenTo, ShortcutAction } from 'components/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import type { TokenSnippet } from 'shared';
@@ -18,7 +18,7 @@
 	const loadedBoardId = derived(boardState, (board) => board!.id);
 
 	$: tokens = $boardState!.tokens;
-	$: tokenTemplates = $sessionState.campaign!.templates;
+	$: tokenTemplates = $campaignState!.templates;
 
 	$: tokenSelectionGroup = null as SelectionGroup<TokenSnippet> | null;
 

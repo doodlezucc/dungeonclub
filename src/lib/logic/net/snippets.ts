@@ -7,11 +7,13 @@ export const SelectAsset = {
 
 export const SelectTokenTemplate = {
 	id: true,
+	avatarId: true,
 	avatar: {
 		select: SelectAsset
 	},
 	name: true,
-	size: true
+	size: true,
+	initiativeModifier: true
 } satisfies Prisma.TokenTemplateSelect;
 export type TokenTemplateSnippet = Prisma.TokenTemplateGetPayload<{
 	select: typeof SelectTokenTemplate;
@@ -55,14 +57,33 @@ export const SelectToken = {
 	invisible: true,
 	conditions: true,
 	name: true,
+	avatarId: true,
 	avatar: {
 		select: SelectAsset
 	},
 	x: true,
 	y: true,
-	size: true
+	size: true,
+	initiativeModifier: true
 } satisfies Prisma.TokenSelect;
 export type TokenSnippet = Prisma.TokenGetPayload<{ select: typeof SelectToken }>;
+
+export type TokenProperties = Omit<Prisma.TokenTemplateGetPayload<{}>, 'id' | 'campaignId'>;
+export type OverridableTokenProperty = keyof TokenProperties;
+
+export type TokenPropertiesOrNull = {
+	[K in OverridableTokenProperty]: TokenProperties[K] | null;
+};
+
+export const SelectTokenProperties = {
+	name: true,
+	size: true,
+	avatarId: true,
+	initiativeModifier: true
+} satisfies Record<
+	OverridableTokenProperty,
+	true
+> satisfies Prisma.TokenSelect satisfies Prisma.TokenTemplateSelect;
 
 export const SelectBoardPreview = {
 	id: true,

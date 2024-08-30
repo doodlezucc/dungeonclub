@@ -4,6 +4,8 @@ import * as mime from 'mime-types';
 import { prisma } from './server';
 import { generateUniqueString } from './util/generate-string';
 
+type PartialAsset = Pick<Asset, 'path'>;
+
 export class AssetManager {
 	readonly rootDirFromFrontend: string = '/user-media';
 	readonly rootDirFromBackend: string = `./static${this.rootDirFromFrontend}`;
@@ -73,12 +75,35 @@ export class AssetManager {
 		});
 	}
 
-	async disposeAsset(asset: Asset) {
+	async deleteIfUnused(assetId: string) {
+		const asset = await prisma.asset.findUniqueOrThrow({
+			where: { id: assetId },
+			select: {
+				_count: true,
+				path: true
+			}
+		});
+
+		const usageCountByType = Object.values(asset._count);
+		const totalUsageCount = usageCountByType.reduce(
+			(total, countForType) => total + countForType,
+			0
+		);
+
+		if (totalUsageCount === 0) {
+			await prisma.asset.delete({
+				where: { id: assetId }
+			});
+			await this.disposeAsset(asset);
+		}
+	}
+
+	async disposeAsset(asset: PartialAsset) {
 		const filePath = this.getPathToFile(asset.path);
 		await fs.unlink(filePath);
 	}
 
-	async disposeAssetsInBatch(assets: Asset[]) {
+	async disposeAssetsInBatch(assets: PartialAsset[]) {
 		await Promise.allSettled(assets.map((asset) => this.disposeAsset(asset)));
 	}
 }

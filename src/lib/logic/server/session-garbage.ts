@@ -1,10 +1,21 @@
-import type { TokenSnippet } from 'shared';
+import type {
+	OverridableTokenProperty,
+	TokenProperties,
+	TokenSnippet,
+	TokenTemplateSnippet
+} from 'shared';
 import { prisma } from './prisma';
+import { server } from './server';
 
-type DeletedTokenInfo = {
+export interface DeletedTokenInfo {
 	boardId: string;
 	token: TokenSnippet;
-};
+}
+
+export interface DeletedTokenTemplateInfo {
+	tokenTemplate: TokenProperties & TokenTemplateSnippet;
+	tokenToInheritedPropertyMap: Record<string, OverridableTokenProperty[]>;
+}
 
 export class SessionGarbage {
 	readonly tokens = new DedicatedGarbage<string, DeletedTokenInfo>({
@@ -19,8 +30,26 @@ export class SessionGarbage {
 		}
 	});
 
+	readonly tokenTemplates = new DedicatedGarbage<string, DeletedTokenTemplateInfo>({
+		onPurge: async (markedForDeletion) => {
+			const idsMarkedForDeletion = Array.from(markedForDeletion.keys());
+
+			await prisma.tokenTemplate.deleteMany({
+				where: { id: { in: idsMarkedForDeletion } }
+			});
+
+			for (const info of markedForDeletion.values()) {
+				const avatarIdOfDeletedTemplate = info.tokenTemplate.avatarId;
+
+				if (avatarIdOfDeletedTemplate !== null) {
+					await server.assetManager.deleteIfUnused(avatarIdOfDeletedTemplate);
+				}
+			}
+		}
+	});
+
 	private get subGarbages() {
-		return [this.tokens];
+		return [this.tokens, this.tokenTemplates];
 	}
 
 	purge() {
