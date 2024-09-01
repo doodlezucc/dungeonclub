@@ -10,6 +10,7 @@
 	import type { Position, Size } from '$lib/compounds';
 	import { Board, boardState } from 'client/state/board';
 	import { PanView } from 'components';
+	import { derivedKeyStateModifySelection } from 'components/extensions/ShortcutListener.svelte';
 	import { Overlay } from 'components/layout';
 	import { setContext } from 'svelte';
 	import BattleMap from './BattleMap.svelte';
@@ -39,8 +40,11 @@
 		}
 	}
 
+	const keepTokenSelection = derivedKeyStateModifySelection();
 	function onClickEmptySpace() {
-		tokenContainer.clearSelection();
+		if (!$keepTokenSelection) {
+			tokenContainer.clearSelection();
+		}
 	}
 
 	function getClientRect() {

@@ -11,12 +11,15 @@
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { Board, boardState } from 'client/state';
-	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
+	import {
+		KeyState,
+		derivedKeyStateModifySelection,
+		keyStateOf
+	} from 'components/extensions/ShortcutListener.svelte';
 	import type { SelectionContext } from 'components/groups/SelectionGroup.svelte';
 	import type { TokenPropertiesWithAsset, TokenSnippet, TokenTemplateSnippet } from 'shared';
 	import { materializeToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
-	import { derived } from 'svelte/store';
 	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';
 	import * as Tokens from './token-management';
@@ -113,12 +116,7 @@
 		}));
 	}
 
-	const doModifySelection = derived(
-		[keyStateOf(KeyState.ModifySelection), keyStateOf(KeyState.ModifySelectionRange)],
-		([doModify, doModifyRange]) => {
-			return doModify || doModifyRange;
-		}
-	);
+	const doModifySelection = derivedKeyStateModifySelection();
 
 	function handleSelect() {
 		selection.select(token, { additive: $doModifySelection });

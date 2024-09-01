@@ -46,6 +46,15 @@
 		return derived(activeKeyStates, (active) => active.includes(keyState));
 	}
 
+	export function derivedKeyStateModifySelection() {
+		return derived(
+			[keyStateOf(KeyState.ModifySelection), keyStateOf(KeyState.ModifySelectionRange)],
+			([doModify, doModifyRange]) => {
+				return doModify || doModifyRange;
+			}
+		);
+	}
+
 	let activeKeyStates = writable<KeyState[]>([]);
 	let actionListeners: ActionListener[] = [];
 
