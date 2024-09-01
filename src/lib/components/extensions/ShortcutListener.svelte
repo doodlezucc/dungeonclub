@@ -1,11 +1,14 @@
 <script lang="ts" context="module">
 	export enum ShortcutAction {
+		Escape = 'Escape',
+
 		Undo = 'Undo',
 		Redo = 'Redo',
 		Copy = 'Copy',
 		Cut = 'Cut',
 		Paste = 'Paste',
 		Delete = 'Delete',
+
 		SelectAll = 'Select All'
 	}
 
@@ -65,6 +68,8 @@
 	$: {
 		activeKeyStates.set($activeManagerKeyStates);
 	}
+
+	shortcutManager.bind('Escape', ShortcutAction.Escape);
 
 	// See https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values#editing_keys for reference
 	shortcutManager.bind('Undo', ShortcutAction.Undo);

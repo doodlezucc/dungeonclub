@@ -10,6 +10,7 @@
 	import { type BoardContext } from './Board.svelte';
 	import Token from './tokens/Token.svelte';
 	import UnplacedToken, {
+		exitTokenPlacement,
 		unplacedTokenProperties,
 		type TokenPlacementEvent
 	} from './tokens/UnplacedToken.svelte';
@@ -74,6 +75,13 @@
 
 		if (selectedTokens.length > 0) {
 			Tokens.deleteTokens(selectedTokens, buildContextForTokenManagement());
+		}
+	});
+
+	const onPressEscape = listenTo(ShortcutAction.Escape);
+	$onPressEscape.handle(() => {
+		if ($unplacedTokenProperties) {
+			exitTokenPlacement();
 		}
 	});
 </script>
