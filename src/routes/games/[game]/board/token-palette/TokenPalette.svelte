@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { historyOf } from '$lib/packages/undo-redo/history';
-	import { rest, socket } from 'client/communication';
+	import { socket } from 'client/communication';
 	import { Board, boardState, Campaign, campaignState } from 'client/state';
 	import Collection from 'components/Collection.svelte';
 	import { runWithErrorDialogBoundary } from 'components/extensions/modal';
@@ -9,13 +9,13 @@
 	import type { ModalContext } from 'components/modal';
 	import FileUploader from 'components/upload/FileUploader.svelte';
 	import type { TokenTemplateSnippet } from 'shared';
-	import {
-		extractPropertiesFromTemplate,
-		getInheritedPropertiesOfToken
-	} from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import Panel from '../Panel.svelte';
 	import { exitTokenPlacement } from '../tokens/UnplacedToken.svelte';
+	import {
+		detachTemplateFromVisibleTokens,
+		restPostTokenTemplate
+	} from './token-palette-management';
 	import TokenTemplateItem from './TokenTemplateItem.svelte';
 
 	const tokenTemplates = Campaign.instance.tokenTemplates.withFallback([]);
@@ -30,16 +30,7 @@
 				const isImage = file.type.startsWith('image/');
 
 				if (isImage) {
-					const response: TokenTemplateSnippet = await $rest.post(
-						`/campaigns/${$campaignState!.id}/token-templates`,
-						{
-							body: {
-								contentType: file.type,
-								data: await file.arrayBuffer()
-							}
-						}
-					);
-
+					const response = await restPostTokenTemplate({ avatarImageFile: file });
 					$tokenTemplates = [...$tokenTemplates, response];
 				}
 			}
@@ -54,34 +45,11 @@
 		historyOf($boardState?.id ?? $campaignState!.id).registerUndoable(
 			'Delete token template',
 			() => {
-				$socket.send('tokenTemplateDelete', {
-					tokenTemplateId: deletedTemplate.id
-				});
+				$socket.send('tokenTemplateDelete', { tokenTemplateId: deletedTemplate.id });
 
 				const boardBeforeDelete = $boardState;
 				if ($boardState) {
-					Board.instance.put((board) => ({
-						...board,
-						tokens: board.tokens.map((token) => {
-							if (token.templateId !== deletedTemplate.id) return token;
-
-							const newlyAppliedProperties = extractPropertiesFromTemplate(
-								deletedTemplate,
-								getInheritedPropertiesOfToken(token)
-							);
-
-							let newAvatar = token.avatar;
-							if (newlyAppliedProperties.avatarId) {
-								newAvatar = deletedTemplate.avatar;
-							}
-
-							return {
-								...token,
-								...newlyAppliedProperties,
-								avatar: newAvatar
-							};
-						})
-					}));
+					detachTemplateFromVisibleTokens(deletedTemplate);
 				}
 
 				const tokenTemplatesBeforeDelete = $tokenTemplates;
@@ -89,11 +57,13 @@
 
 				return {
 					undo: () => {
-						$socket.send('tokenTemplateRestore', {
-							tokenTemplateId: deletedTemplate.id
-						});
+						$socket.send('tokenTemplateRestore', { tokenTemplateId: deletedTemplate.id });
 
-						if ($boardState && boardBeforeDelete && $boardState.id === boardBeforeDelete.id) {
+						const isAffectedBoardVisible =
+							$boardState && boardBeforeDelete && $boardState.id === boardBeforeDelete.id;
+
+						if (isAffectedBoardVisible) {
+							// Reset tokens to how they were before their template was detached
 							Board.instance.put((board) => ({
 								...board,
 								tokens: boardBeforeDelete.tokens
