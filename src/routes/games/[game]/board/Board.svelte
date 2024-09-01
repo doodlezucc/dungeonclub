@@ -2,6 +2,7 @@
 	export interface BoardContext {
 		transformClientToGridSpace: (position: Position) => Position;
 		transformGridToClientSpace: (position: Position) => Position;
+		getPanViewEventTarget(): EventTarget;
 	}
 </script>
 
@@ -62,18 +63,25 @@
 		throw 'Not implemented';
 	}
 
+	let panViewElement: HTMLElement | undefined;
+
 	setContext<BoardContext>('board', {
 		transformClientToGridSpace,
-		transformGridToClientSpace
+		transformGridToClientSpace,
+
+		getPanViewEventTarget: () => panViewElement!
 	});
 </script>
 
-<PanView expand bind:position bind:zoom on:click={onClickEmptySpace}>
-	<div
-		bind:this={contentElement}
-		class="board"
-		style="--cell-size: {cellSize}px; --cell-grow-factor: {tileHeightRatio};"
-	>
+<PanView
+	expand
+	bind:position
+	bind:zoom
+	bind:elementView={panViewElement}
+	bind:elementContent={contentElement}
+	on:click={onClickEmptySpace}
+>
+	<div class="board" style="--cell-size: {cellSize}px; --cell-grow-factor: {tileHeightRatio};">
 		<BattleMap bind:size={dimensions} />
 
 		{#if dimensions}

@@ -34,10 +34,10 @@
 	export let position = { x: 0, y: 0 };
 	export let zoom = 0;
 
-	let elementView: EventTarget;
-	let elementContent: EventTarget;
+	export let elementView: HTMLElement | undefined = undefined;
+	export let elementContent: HTMLElement | undefined = undefined;
 
-	$: elementsTriggeringPanEvent = [elementView, elementContent];
+	$: elementsTriggeringPanEvent = [elementView, elementContent] as EventTarget[];
 
 	$: isPanning = false;
 	$: hasPointerMovedSincePanStart = false;

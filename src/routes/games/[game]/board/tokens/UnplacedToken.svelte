@@ -50,7 +50,7 @@
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
 	const isGridSnappingDisabled = keyStateOf(KeyState.DisableGridSnapping);
-	const { transformClientToGridSpace } = getContext<BoardContext>('board');
+	const { transformClientToGridSpace, getPanViewEventTarget } = getContext<BoardContext>('board');
 
 	$: size = template?.size ?? 1;
 
@@ -83,6 +83,7 @@
 	}}
 	draggableParams={{
 		autoDrag: true,
+		mouseUpEventListener: getPanViewEventTarget(),
 		handleDragging,
 		onDragToggle
 	}}

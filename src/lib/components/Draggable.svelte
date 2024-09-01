@@ -4,6 +4,10 @@
 
 	export interface DraggableParams {
 		autoDrag?: boolean;
+
+		/** Defaults to `window`. */
+		mouseUpEventListener?: EventTarget;
+
 		handleDragging: (ev: MouseEvent) => void;
 		onDragToggle?: (isDragging: boolean) => void;
 		onDragStart?: (ev: DragEvent) => void;
@@ -11,6 +15,7 @@
 
 	export const draggable: Action<HTMLElement, DraggableParams> = (node, params) => {
 		const autoDrag = params.autoDrag ?? false;
+		const mouseUpEventListener = params.mouseUpEventListener ?? window;
 
 		node.draggable = true;
 
@@ -27,14 +32,14 @@
 			if (params.onDragToggle) params.onDragToggle(true);
 
 			window.addEventListener('mousemove', handleGlobalMouseMove);
-			window.addEventListener('mouseup', handleGlobalMouseUp);
+			mouseUpEventListener.addEventListener('mouseup', handleGlobalMouseUp);
 		}
 
 		function handleGlobalMouseUp() {
 			if (params.onDragToggle) params.onDragToggle(false);
 
 			window.removeEventListener('mousemove', handleGlobalMouseMove);
-			window.removeEventListener('mouseup', handleGlobalMouseUp);
+			mouseUpEventListener.removeEventListener('mouseup', handleGlobalMouseUp);
 		}
 
 		node.addEventListener('dragstart', handleDragStart);
@@ -46,7 +51,7 @@
 			destroy: () => {
 				node.removeEventListener('dragstart', handleDragStart);
 				window.removeEventListener('mousemove', handleGlobalMouseMove);
-				window.removeEventListener('mouseup', handleGlobalMouseUp);
+				mouseUpEventListener.removeEventListener('mouseup', handleGlobalMouseUp);
 			}
 		};
 	};
