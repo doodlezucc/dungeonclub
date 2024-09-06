@@ -73,6 +73,14 @@ button {
 			margin: 0;
 		}
 
+		&[data-size='small'] {
+			font-size: inherit;
+		}
+
+		:not(:hover, :active) {
+			color: inherit;
+		}
+
 		&:hover {
 			background-color: var(--color-button-hover);
 			outline-color: var(--color-button-hover);

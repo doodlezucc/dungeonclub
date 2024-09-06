@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { boardState, campaignState } from 'client/state';
-	import { Align, Stack } from 'components/layout';
+	import { Align, Column, Stack } from 'components/layout';
 	import type { ModalContext } from 'components/modal';
 	import { getContext } from 'svelte';
 	import SelectBoardDialog from './board-selection/SelectBoardDialog.svelte';
 	import Board from './board/Board.svelte';
 	import BoardTools from './board/BoardTools.svelte';
 	import TokenPalette from './board/token-palette/TokenPalette.svelte';
+	import TokenPropertiesPanel from './board/token-properties/TokenPropertiesPanel.svelte';
 
 	const modal = getContext<ModalContext>('modal');
 
@@ -37,6 +38,9 @@
 	</Align>
 
 	<Align alignment="top-right" margin="normal">
-		<TokenPalette />
+		<Column gap="big">
+			<TokenPalette />
+			<TokenPropertiesPanel />
+		</Column>
 	</Align>
 </Stack>

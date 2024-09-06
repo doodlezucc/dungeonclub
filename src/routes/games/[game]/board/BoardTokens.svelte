@@ -21,7 +21,7 @@
 	$: tokens = $boardState!.tokens;
 	$: tokenTemplates = $campaignState!.templates;
 
-	$: tokenSelectionGroup = null as SelectionGroup<TokenSnippet> | null;
+	let tokenSelectionGroup = null as SelectionGroup<TokenSnippet> | null;
 
 	$: {
 		if ($loadedBoardId) {
