@@ -104,6 +104,7 @@
 		gap: 1px;
 		min-width: 200px;
 		max-height: 25vh;
+		overflow-x: hidden;
 		overflow-y: auto;
 	}
 </style>

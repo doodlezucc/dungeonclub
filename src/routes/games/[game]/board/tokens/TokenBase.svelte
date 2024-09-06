@@ -62,6 +62,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		box-shadow: 0 0 0 2px #1110;
 
 		position: absolute;
 		left: calc(-0.5 * var(--size-px));
@@ -70,21 +71,25 @@
 		translate: calc(var(--x) * var(--cell-size)) calc(var(--y) * var(--cell-size));
 		width: var(--size-px);
 		height: var(--size-px);
-
-		outline: 1px solid transparent;
-		outline-offset: 0.3em;
 		transition:
-			outline-offset 0.05s cubic-bezier(0.215, 0.61, 0.355, 1),
-			outline 0.1s;
-
-		&:hover,
-		&.dragging {
-			outline-color: white;
-			outline-offset: 0.5em;
-		}
+			box-shadow 0.15s,
+			border-color 0.15s;
 
 		&.selected {
 			border-color: var(--color-primary);
+		}
+
+		&:hover,
+		&.selected,
+		&.dragging {
+			z-index: 1;
+			box-shadow: 0 0 0 2px #1116;
+			transition-duration: 0.05s;
+		}
+
+		&:hover,
+		&.dragging {
+			z-index: 2;
 		}
 
 		&.transparent {

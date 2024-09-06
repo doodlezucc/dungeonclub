@@ -25,7 +25,8 @@ body {
 	--color-separator: var(--color-shade-pale);
 
 	--color-list-tile: var(--color-background);
-	--color-list-tile-hover: var(--color-shade-dark);
+	--color-list-tile-hover: var(--color-shade-darker);
+	--color-list-tile-selected: var(--color-shade-mid);
 
 	--color-button: var(--color-shade-darker);
 	--color-button-hover: var(--color-shade-darkest);

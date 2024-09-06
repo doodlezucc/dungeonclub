@@ -67,6 +67,11 @@ button {
 		border-radius: 50%;
 		outline-width: 0.15em;
 		outline-offset: -1px;
+		margin: 5px;
+
+		&.disable-margin {
+			margin: 0;
+		}
 
 		&:hover {
 			background-color: var(--color-button-hover);
@@ -128,4 +133,8 @@ input {
 	&.drag-over {
 		@include raise(0.25);
 	}
+}
+
+.list-tile {
+	@extend %transitions-playful;
 }

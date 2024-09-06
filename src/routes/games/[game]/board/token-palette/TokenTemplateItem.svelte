@@ -10,6 +10,8 @@
 	export let template: TokenTemplateSnippet;
 	const avatarSrc = template.avatar ? asset(template.avatar!.path) : null;
 
+	$: isSelectedForPlacement = $unplacedTokenProperties?.tokenTemplate === template;
+
 	const dispatch = createEventDispatcher<{
 		delete: void;
 	}>();
@@ -45,12 +47,18 @@
 	on:mouseup={captureMouseMovement ? handleMouseUp : undefined}
 />
 
-<ListTile on:mousedown={handleMouseDown} on:click={displayTokenAtCursor}>
+<ListTile
+	selected={isSelectedForPlacement}
+	on:mousedown={handleMouseDown}
+	on:click={displayTokenAtCursor}
+>
 	<Row align="center" gap="normal" expand>
 		<img class="token-template-avatar" src={avatarSrc} alt="Token avatar" />
 		<span>{template.name}</span>
+
 		<Flex expand />
-		<IconButton label="Delete" icon="trash" on:click={() => dispatch('delete')} />
+
+		<IconButton label="Delete" icon="remove" on:click={() => dispatch('delete')} />
 	</Row>
 </ListTile>
 
