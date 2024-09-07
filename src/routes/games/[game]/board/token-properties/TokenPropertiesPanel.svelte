@@ -38,7 +38,7 @@
 	import { Column, Container } from 'components/layout';
 	import Row from 'components/layout/Row.svelte';
 	import FileUploader from 'components/upload/FileUploader.svelte';
-	import type { OverridableTokenProperty, TokenSnippet, TokenTemplateSnippet } from 'shared';
+	import type { OverridableTokenProperty, TokenProperties, TokenSnippet } from 'shared';
 	import {
 		getAvatarUrlById,
 		getTemplateForToken,
@@ -66,83 +66,106 @@
 	const conflictOverrideProperties = materializedTokens[materializedTokens.length - 1];
 
 	const commonAvatarId = findAverageOfStrings(materializedTokens.map((token) => token.avatarId));
-	let avatarId =
-		commonAvatarId !== undefined ? commonAvatarId : conflictOverrideProperties.avatarId;
-	let inheritAvatar = doAllTokensInherit((token) => token.avatar);
-	let inheritAvatarValue = inheritAvatar;
-
-	let avatar = avatarId ? getAvatarUrlById(avatarId, selectedTokens, $allTemplates) : null;
-
 	const commonName = findAverageOfStrings(materializedTokens.map((token) => token.name));
-	let name = commonName ?? conflictOverrideProperties.name;
-	let nameValue = name;
 
-	let inheritName = doAllTokensInherit((token) => token.name);
-	let inheritNameValue = inheritName;
+	let displayedProperties: TokenProperties = {
+		avatarId: commonAvatarId !== undefined ? commonAvatarId : conflictOverrideProperties.avatarId,
+		name: commonName ?? conflictOverrideProperties.name,
+		size: 1,
+		initiativeModifier: 0
+	};
 
-	function updateTemplateProperty(
-		updater: (template: TokenTemplateSnippet) => TokenTemplateSnippet
+	let displayedInheritance: Record<OverridableTokenProperty, boolean> = {
+		avatarId: doAllTokensInherit((token) => token.avatarId),
+		name: doAllTokensInherit((token) => token.name),
+		size: true,
+		initiativeModifier: true
+	};
+
+	function updateTemplateProperty<T extends OverridableTokenProperty>(
+		property: T,
+		value: TokenProperties[T]
 	) {
 		$allTemplates = $allTemplates.map((template) => {
 			if (template.id !== singleTokenTemplateId) return template;
 
-			return updater(template);
+			return { ...template, [property]: value };
 		});
 	}
 
-	function updatePropertyOnSelectedTokens(updater: (token: TokenSnippet) => TokenSnippet) {
+	function updatePropertyOnSelectedTokens<T extends OverridableTokenProperty>(
+		property: T,
+		value: TokenProperties[T]
+	) {
 		$allTokens = $allTokens.map((token) => {
 			if (!selectedTokens.includes(token)) return token;
 
-			return updater(token);
+			return { ...token, [property]: value };
 		});
 	}
 
-	function unsetPropertyOnSelectedTokens(property: OverridableTokenProperty) {
-		updatePropertyOnSelectedTokens((token) => ({
-			...token,
-			[property]: null
-		}));
+	/**
+	 * Updates the specified property on either the selected tokens or their shared inherited template.
+	 */
+	function handlePropertyEdit<K extends OverridableTokenProperty>(
+		property: K,
+		value: TokenProperties[K]
+	) {
+		const propertyIsInherited = displayedInheritance[property];
+
+		if (propertyIsInherited) {
+			updateTemplateProperty(property, value);
+		} else {
+			updatePropertyOnSelectedTokens(property, value);
+		}
 	}
 
+	/**
+	 * Applies either the independence or the template inheritance of a specified property.
+	 */
+	function handleInheritanceStateToggle(property: OverridableTokenProperty, inherit: boolean) {
+		const propertyValue = displayedProperties[property];
+
+		if (inherit) {
+			// At this point, assume that `singleTokenTemplate` != null
+			updateTemplateProperty(property, propertyValue);
+			updatePropertyOnSelectedTokens(property, null);
+		} else {
+			updatePropertyOnSelectedTokens(property, propertyValue);
+		}
+	}
+
+	function updatePropertyValue<T extends OverridableTokenProperty>(
+		property: T,
+		value: TokenProperties[T]
+	) {
+		if (value !== displayedProperties[property]) {
+			displayedProperties = { ...displayedProperties, [property]: value };
+			handlePropertyEdit(property, value);
+		}
+	}
+
+	function updatePropertyInheritance<T extends OverridableTokenProperty>(
+		property: T,
+		inherit: boolean
+	) {
+		if (inherit !== displayedInheritance[property]) {
+			displayedInheritance = { ...displayedInheritance, [property]: inherit };
+			handleInheritanceStateToggle(property, inherit);
+		}
+	}
+
+	let avatarIdValue = displayedProperties.avatarId;
+	let inheritAvatarValue = displayedInheritance.avatarId;
+	$: avatar = avatarIdValue ? getAvatarUrlById(avatarIdValue, selectedTokens, $allTemplates) : null;
+
+	let nameValue = displayedProperties.name;
+	let inheritNameValue = displayedInheritance.name;
+
 	$: {
-		if (nameValue !== name) {
-			name = nameValue;
-
-			if (inheritName) {
-				// Update template
-				updateTemplateProperty((template) => ({
-					...template,
-					name: name
-				}));
-			} else {
-				// Update token instance
-				updatePropertyOnSelectedTokens((token) => ({
-					...token,
-					name: name
-				}));
-			}
-		}
-
-		if (inheritNameValue !== inheritName) {
-			inheritName = inheritNameValue;
-
-			if (inheritName) {
-				// Assertion: `singleTokenTemplate` != null
-				// Apply name to template and all
-				updateTemplateProperty((template) => ({
-					...template,
-					name: name
-				}));
-				unsetPropertyOnSelectedTokens('name');
-			} else {
-				console.log('Detach');
-				updatePropertyOnSelectedTokens((token) => ({
-					...token,
-					name: name
-				}));
-			}
-		}
+		updatePropertyValue('name', nameValue);
+		updatePropertyInheritance('name', inheritNameValue);
+		updatePropertyValue('avatarId', avatarIdValue);
 	}
 </script>
 

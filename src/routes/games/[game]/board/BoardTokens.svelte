@@ -67,8 +67,6 @@
 
 	const onPressDelete = listenTo(ShortcutAction.Delete);
 	$onPressDelete.handle(() => {
-		const selectedTokens = tokenSelectionGroup?.getSelectedElements() ?? [];
-
 		if (selectedTokens.length > 0) {
 			Tokens.deleteTokens(selectedTokens, buildContextForTokenManagement());
 		}

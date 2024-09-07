@@ -21,6 +21,11 @@
 	export let selectedElements: T[] = [];
 
 	$: {
+		// Remove stale keys of elements which are no longer part of the `elements` array.
+		selectedKeys = selectedKeys.filter((key) =>
+			elements.some((element) => getElementKey(element) === key)
+		);
+
 		// The order in which elements get selected stays consistent.
 		// When selecting a new element, it will be placed at the end of the array.
 		selectedElements = selectedKeys.map(
