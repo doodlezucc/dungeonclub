@@ -28,6 +28,14 @@ export class Board extends WithState<BoardSnippet> {
 
 	readonly grid = new BoardGrid(this);
 
+	readonly tokens = this.derived(
+		(board) => board.tokens,
+		(board, tokens) => ({
+			...board,
+			tokens: tokens
+		})
+	);
+
 	load(snippet: BoardSnippet) {
 		this.set(snippet);
 		focusedHistory.set(historyOf(snippet.id));

@@ -21,7 +21,11 @@
 	export let selectedElements: T[] = [];
 
 	$: {
-		selectedElements = elements.filter((element) => selectedKeys.includes(getElementKey(element)));
+		// The order in which elements get selected stays consistent.
+		// When selecting a new element, it will be placed at the end of the array.
+		selectedElements = selectedKeys.map(
+			(key) => elements.find((element) => getElementKey(element) === key)!
+		);
 	}
 
 	export function clear() {

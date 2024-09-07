@@ -29,6 +29,8 @@
 	}
 
 	export let selectedTokens: TokenSnippet[] = [];
+
+	$: selectedTokenIdsHashed = selectedTokens.map((token) => token.id).join('');
 </script>
 
 <Stack expand>
@@ -45,7 +47,7 @@
 			<TokenPalette />
 			{#if selectedTokens.length > 0}
 				<!-- Remount panel when selection changes. -->
-				{#key selectedTokens}
+				{#key selectedTokenIdsHashed}
 					<TokenPropertiesPanel {selectedTokens} />
 				{/key}
 			{/if}

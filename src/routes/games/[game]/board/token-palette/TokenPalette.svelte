@@ -81,7 +81,12 @@
 <Panel title="Token Palette">
 	<Column gap="normal">
 		<div class="token-palette-list">
-			<Collection itemClass="token-palette-item" items={$tokenTemplates} let:item>
+			<Collection
+				itemClass="token-palette-item"
+				items={$tokenTemplates}
+				keyFunction={(template) => template.id}
+				let:item
+			>
 				<TokenTemplateItem template={item} on:delete={() => deleteTokenTemplate(item)} />
 			</Collection>
 		</div>
