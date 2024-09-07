@@ -1,6 +1,6 @@
 <script lang="ts">
 	import IconButton from 'components/IconButton.svelte';
-	import { Row } from 'components/layout';
+	import { Align, Stack } from 'components/layout';
 
 	export let isInheriting: boolean;
 	export let disableToggle: boolean = false;
@@ -10,30 +10,40 @@
 	}
 </script>
 
-<Row gap="big" align="center">
-	<slot />
+<div class="property-container" class:is-inheriting={isInheriting}>
+	<Stack>
+		<slot />
 
-	<span class:is-inheriting={isInheriting} class:disabled={disableToggle}>
-		<IconButton
-			icon={isInheriting ? 'link' : 'link-slash'}
-			label={isInheriting ? 'Make unique' : 'Inherit from template'}
-			disabled={disableToggle}
-			disableMargin
-			inline
-			on:click={toggle}
-		/>
-	</span>
-</Row>
+		<Align alignment="right" margin="small">
+			<span class:is-inheriting={isInheriting} class:disabled={disableToggle}>
+				<IconButton
+					icon={disableToggle ? 'link-slash' : isInheriting ? 'globe' : 'reply'}
+					label={isInheriting ? 'Make unique' : 'Inherit from template'}
+					disabled={disableToggle}
+					disableMargin
+					inline
+					on:click={toggle}
+				/>
+			</span>
+		</Align>
+	</Stack>
+</div>
 
 <style>
-	span.disabled {
-		opacity: 0.5;
-	}
-	span:not(.is-inheriting) {
-		color: var(--color-text-pale);
+	.property-container.is-inheriting {
+		color: var(--color-primary);
 	}
 
-	span.is-inheriting {
-		color: var(--color-primary);
+	.property-container:not(:hover) span,
+	span.disabled {
+		opacity: 0.7;
+	}
+
+	span {
+		transition-duration: 0.2s;
+	}
+
+	span:not(.is-inheriting) {
+		color: var(--color-text-pale);
 	}
 </style>
