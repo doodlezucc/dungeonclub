@@ -14,7 +14,7 @@ export const POST = ({ params: { campaignId }, request }) =>
 			throw error(403);
 		}
 
-		const asset = await server.assetManager.uploadAsset(request);
+		const asset = await server.assetManager.uploadAsset(campaignId, request);
 
 		const board = await prisma.board.create({
 			data: {

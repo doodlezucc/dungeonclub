@@ -34,7 +34,7 @@ export class AssetManager {
 		return `${root}/${fileName}`;
 	}
 
-	async uploadAsset(request: Request): Promise<Asset> {
+	async uploadAsset(campaignId: string, request: Request): Promise<Asset> {
 		const contentType = request.headers.get('Content-Type');
 
 		if (!contentType) {
@@ -65,10 +65,11 @@ export class AssetManager {
 		const systemPath = this.getPathToFile(fileName);
 		await fs.writeFile(systemPath, new Uint8Array(buffer));
 
-		console.log('created asset ' + fileName);
+		console.log('Created asset ' + fileName);
 
 		return await prisma.asset.create({
 			data: {
+				campaignId: campaignId,
 				mimeType: contentType,
 				path: fileName
 			}

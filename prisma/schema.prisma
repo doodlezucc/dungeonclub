@@ -24,6 +24,9 @@ model Asset {
   path     String
   mimeType String
 
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId String
+
   avatarOfTokenTemplates TokenTemplate[]
   avatarOfTokens         Token[]
   mapImageOfBoards       Board[]
@@ -66,6 +69,7 @@ model Campaign {
   name       String
   createdAt  DateTime @default(now())
 
+  assets           Asset[]
   playerCharacters PlayerCharacter[]
   templates        TokenTemplate[]
   boards           Board[]
