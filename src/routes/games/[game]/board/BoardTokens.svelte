@@ -5,6 +5,7 @@
 	import { listenTo, ShortcutAction } from 'components/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import type { TokenSnippet } from 'shared';
+	import { getTemplateForToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import { derived } from 'svelte/store';
 	import { type BoardContext } from './Board.svelte';
@@ -22,18 +23,13 @@
 	$: tokenTemplates = $campaignState!.templates;
 
 	let tokenSelectionGroup = null as SelectionGroup<TokenSnippet> | null;
+	export let selectedTokens: TokenSnippet[];
 
 	$: {
 		if ($loadedBoardId) {
 			// Called whenever a board gets loaded
 			tokenSelectionGroup?.clear();
 		}
-	}
-
-	function getTemplateForToken(token: TokenSnippet) {
-		if (!token.templateId) return undefined;
-
-		return tokenTemplates.find((template) => template.id === token.templateId);
 	}
 
 	const board = getContext<BoardContext>('board');
@@ -90,10 +86,15 @@
 	bind:this={tokenSelectionGroup}
 	elements={tokens}
 	getElementKey={(token) => token.id}
+	bind:selectedElements={selectedTokens}
 	let:element
 	let:isSelected
 >
-	<Token token={element} template={getTemplateForToken(element)} selected={isSelected} />
+	<Token
+		token={element}
+		template={getTemplateForToken(element, tokenTemplates)}
+		selected={isSelected}
+	/>
 </SelectionGroup>
 
 {#if $unplacedTokenProperties && unplacedTokenSpawnPosition}

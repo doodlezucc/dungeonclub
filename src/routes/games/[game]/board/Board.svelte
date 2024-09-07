@@ -12,6 +12,7 @@
 	import { PanView } from 'components';
 	import { derivedKeyStateModifySelection } from 'components/extensions/ShortcutListener.svelte';
 	import { Overlay } from 'components/layout';
+	import type { TokenSnippet } from 'shared';
 	import { setContext } from 'svelte';
 	import BattleMap from './BattleMap.svelte';
 	import BoardTokens from './BoardTokens.svelte';
@@ -30,6 +31,8 @@
 	$: cellSize = (dimensions?.width ?? 0) / cellsPerRow;
 
 	let tokenContainer: BoardTokens;
+	export let selectedTokens: TokenSnippet[] = [];
+
 	let contentElement: HTMLElement;
 	$: cachedClientRect = undefined as DOMRect | undefined;
 
@@ -94,7 +97,7 @@
 			</Overlay>
 
 			<Overlay>
-				<BoardTokens bind:this={tokenContainer} />
+				<BoardTokens bind:this={tokenContainer} bind:selectedTokens />
 			</Overlay>
 		{/if}
 	</div>

@@ -58,7 +58,7 @@
 	function onDraggedTo(position: Position, originalPosition: Position) {
 		Tokens.submitTokenMovement(
 			{
-				selection: selection,
+				selection: selection.selected,
 				delta: {
 					x: position.x - originalPosition.x,
 					y: position.y - originalPosition.y

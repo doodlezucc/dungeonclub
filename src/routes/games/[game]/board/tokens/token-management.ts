@@ -3,7 +3,6 @@ import { type HistoryStore } from '$lib/packages/undo-redo/history';
 import type { ClientSocket } from 'client/communication';
 import { Board } from 'client/state';
 import type { Position } from 'components/compounds';
-import type { SelectionContext } from 'components/groups/SelectionGroup.svelte';
 import type { GetPayload, TokenSnippet } from 'shared';
 
 export interface Context {
@@ -80,7 +79,7 @@ export function deleteTokens(tokens: TokenSnippet[], context: Context) {
 
 export interface TokenMovementOptions {
 	delta: Position;
-	selection: SelectionContext<TokenSnippet>;
+	selection: TokenSnippet[];
 }
 
 export function submitTokenMovement(options: TokenMovementOptions, context: Context) {

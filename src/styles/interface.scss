@@ -73,20 +73,28 @@ button {
 			margin: 0;
 		}
 
-		&[data-size='small'] {
+		&.inline {
 			font-size: inherit;
+
+			&,
+			&:enabled:hover,
+			&:enabled:active {
+				background-color: transparent;
+				outline: none;
+			}
 		}
 
-		:not(:hover, :active) {
+		&:disabled,
+		&:not(:hover, :active) {
 			color: inherit;
 		}
 
-		&:hover {
+		&:enabled:hover {
 			background-color: var(--color-button-hover);
 			outline-color: var(--color-button-hover);
 			outline-width: 0.5em;
 		}
-		&:active {
+		&:enabled:active {
 			background-color: var(--color-button-active);
 			outline-color: var(--color-button-active);
 		}

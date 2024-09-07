@@ -4,10 +4,9 @@
 	}
 
 	export interface SelectionContext<T> {
+		readonly selected: T[];
 		select(element: T, options: SelectOptions): void;
 
-		forEach(action: (element: T) => void): void;
-		map<B>(transform: (element: T) => B): B[];
 		includes(element: T): boolean;
 	}
 </script>
@@ -19,10 +18,10 @@
 	export let getElementKey: (element: T) => string;
 
 	$: selectedKeys = [] as string[];
-	$: selectedElements = elements.filter((element) => selectedKeys.includes(getElementKey(element)));
+	export let selectedElements: T[] = [];
 
-	export function getSelectedElements() {
-		return selectedElements;
+	$: {
+		selectedElements = elements.filter((element) => selectedKeys.includes(getElementKey(element)));
 	}
 
 	export function clear() {
@@ -43,12 +42,7 @@
 
 	setContext<SelectionContext<T>>('selection', {
 		select,
-		forEach: (action) => {
-			for (const element of selectedElements) {
-				action(element);
-			}
-		},
-		map: (transform) => selectedElements.map(transform),
+		selected: selectedElements,
 		includes: (element) => selectedKeys.includes(getElementKey(element))
 	});
 </script>

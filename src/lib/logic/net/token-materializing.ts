@@ -1,4 +1,10 @@
-import type { OverridableTokenProperty, TokenProperties, TokenPropertiesOrNull } from './snippets';
+import type {
+	OverridableTokenProperty,
+	TokenProperties,
+	TokenPropertiesOrNull,
+	TokenSnippet,
+	TokenTemplateSnippet
+} from './snippets';
 
 // When adding overridable token properties to prisma.schema, TypeScript requires the property to be explicitly added here.
 // This makes it possible to have the unique set of overridable properties as CONSTANTS, as opposed to just TYPES.
@@ -19,6 +25,15 @@ export const EMPTY_TOKEN_PROPERTIES: TokenProperties = {
 	name: 'Token',
 	size: 1
 };
+
+export function getTemplateForToken(
+	token: TokenSnippet,
+	allTokenTemplates: TokenTemplateSnippet[]
+) {
+	if (!token.templateId) return undefined;
+
+	return allTokenTemplates.find((template) => template.id === token.templateId);
+}
 
 /**
  * Returns a copy of `token` with all `null` properties inserted by the underlying template.
