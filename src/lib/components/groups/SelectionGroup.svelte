@@ -17,14 +17,18 @@
 	export let elements: T[];
 	export let getElementKey: (element: T) => string;
 
-	$: selectedKeys = [] as string[];
+	export let selectedKeys = [] as string[];
 	export let selectedElements: T[] = [];
 
 	$: {
-		// Remove stale keys of elements which are no longer part of the `elements` array.
-		selectedKeys = selectedKeys.filter((key) =>
-			elements.some((element) => getElementKey(element) === key)
+		const staleKeys = selectedKeys.filter(
+			(key) => !elements.some((element) => getElementKey(element) === key)
 		);
+
+		if (staleKeys.length > 0) {
+			// Remove stale keys of elements which are no longer part of the `elements` array.
+			selectedKeys = selectedKeys.filter((key) => !staleKeys.includes(key));
+		}
 
 		// The order in which elements get selected stays consistent.
 		// When selecting a new element, it will be placed at the end of the array.

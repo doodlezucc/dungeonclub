@@ -2,7 +2,6 @@
 	import { boardState, campaignState } from 'client/state';
 	import { Align, Column, Stack } from 'components/layout';
 	import type { ModalContext } from 'components/modal';
-	import type { TokenSnippet } from 'shared';
 	import { getContext } from 'svelte';
 	import SelectBoardDialog from './board-selection/SelectBoardDialog.svelte';
 	import Board from './board/Board.svelte';
@@ -28,15 +27,12 @@
 		}
 	}
 
-	export let selectedTokens: TokenSnippet[] = [];
-
-	$: selectedTokenIds = selectedTokens.map((token) => token.id);
-	$: selectedTokenIdsHashed = selectedTokenIds.join('');
+	let selectedTokenIds: string[] = [];
 </script>
 
 <Stack expand>
 	{#if $boardState}
-		<Board bind:selectedTokens />
+		<Board bind:selectedTokenIds />
 	{/if}
 
 	<Align alignment="top-left" margin="normal">
@@ -46,9 +42,9 @@
 	<Align alignment="top-right" margin="normal">
 		<Column gap="big">
 			<TokenPalette />
-			{#if selectedTokens.length > 0}
-				<!-- Remount panel when selection changes. -->
-				{#key selectedTokenIdsHashed}
+			{#if selectedTokenIds.length > 0}
+				<!-- Only remount panel when selection changes. -->
+				{#key selectedTokenIds}
 					<TokenPropertiesPanel {selectedTokenIds} />
 				{/key}
 			{/if}

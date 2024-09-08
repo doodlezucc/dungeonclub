@@ -12,7 +12,6 @@
 	import { PanView } from 'components';
 	import { derivedKeyStateModifySelection } from 'components/extensions/ShortcutListener.svelte';
 	import { Overlay } from 'components/layout';
-	import type { TokenSnippet } from 'shared';
 	import { setContext } from 'svelte';
 	import BattleMap from './BattleMap.svelte';
 	import BoardTokens from './BoardTokens.svelte';
@@ -23,18 +22,18 @@
 
 	const cellsPerRow = $boardState!.gridCellsPerRow;
 
-	$: position = <Position>{ x: 0, y: 0 };
-	$: zoom = 0;
+	let position = <Position>{ x: 0, y: 0 };
+	let zoom = 0;
 
-	$: dimensions = undefined as Size | undefined;
+	let dimensions = undefined as Size | undefined;
 
 	$: cellSize = (dimensions?.width ?? 0) / cellsPerRow;
 
 	let tokenContainer: BoardTokens;
-	export let selectedTokens: TokenSnippet[] = [];
+	export let selectedTokenIds: string[] = [];
 
 	let contentElement: HTMLElement;
-	$: cachedClientRect = undefined as DOMRect | undefined;
+	let cachedClientRect = undefined as DOMRect | undefined;
 
 	$: {
 		// Clear cached client rect when position or zoom change
@@ -97,7 +96,7 @@
 			</Overlay>
 
 			<Overlay>
-				<BoardTokens bind:this={tokenContainer} bind:selectedTokens />
+				<BoardTokens bind:this={tokenContainer} bind:selectedTokenIds />
 			</Overlay>
 		{/if}
 	</div>

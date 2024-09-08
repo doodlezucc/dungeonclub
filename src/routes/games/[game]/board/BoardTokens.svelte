@@ -23,7 +23,8 @@
 	$: tokenTemplates = $campaignState!.templates;
 
 	let tokenSelectionGroup = null as SelectionGroup<TokenSnippet> | null;
-	export let selectedTokens: TokenSnippet[];
+	let selectedTokens: TokenSnippet[];
+	export let selectedTokenIds: string[] = [];
 
 	$: {
 		if ($loadedBoardId) {
@@ -85,6 +86,7 @@
 	elements={tokens}
 	getElementKey={(token) => token.id}
 	bind:selectedElements={selectedTokens}
+	bind:selectedKeys={selectedTokenIds}
 	let:element
 	let:isSelected
 >
