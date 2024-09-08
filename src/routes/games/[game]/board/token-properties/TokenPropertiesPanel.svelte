@@ -14,30 +14,26 @@
 		return commonTemplateId;
 	}
 
-	function findAverageOfStrings<T = string>(strings: T[]) {
-		if (strings.length == 0) return '';
+	function findCommonValue<T>(values: T[]) {
+		if (values.length == 0) return undefined;
 
-		const commonString = strings[0];
-		for (let i = 1; i < strings.length; i++) {
-			const stringInstance = strings[i];
+		const commonValue = values[0];
+		for (let i = 1; i < values.length; i++) {
+			const value = values[i];
 
-			if (stringInstance !== commonString) {
+			if (value !== commonValue) {
 				return undefined;
 			}
 		}
 
-		return commonString;
+		return commonValue;
 	}
 </script>
 
 <script lang="ts">
-	import { asset } from 'client/communication/asset';
 	import { Board, Campaign } from 'client/state';
-	import Icon from 'components/Icon.svelte';
 	import Input from 'components/Input.svelte';
 	import { Column, Container } from 'components/layout';
-	import Row from 'components/layout/Row.svelte';
-	import FileUploader from 'components/upload/FileUploader.svelte';
 	import type { OverridableTokenProperty, TokenProperties, TokenSnippet } from 'shared';
 	import {
 		getAvatarUrlById,
@@ -45,11 +41,14 @@
 		materializeToken
 	} from 'shared/token-materializing';
 	import Inheritable from './Inheritable.svelte';
+	import TokenPropertyAvatar from './TokenPropertyAvatar.svelte';
 
-	export let selectedTokens: TokenSnippet[];
+	export let selectedTokenIds: string[];
 
 	const allTokens = Board.instance.tokens;
 	const allTemplates = Campaign.instance.tokenTemplates;
+
+	const selectedTokens = selectedTokenIds.map((id) => $allTokens.find((token) => token.id === id)!);
 	const singleTokenTemplateId = getCommonTokenTemplate(selectedTokens);
 
 	const canToggleInheritance = singleTokenTemplateId !== null;
@@ -65,21 +64,25 @@
 
 	const conflictOverrideProperties = materializedTokens[materializedTokens.length - 1];
 
-	const commonAvatarId = findAverageOfStrings(materializedTokens.map((token) => token.avatarId));
-	const commonName = findAverageOfStrings(materializedTokens.map((token) => token.name));
+	const commonAvatarId = findCommonValue(materializedTokens.map((token) => token.avatarId));
+	const commonName = findCommonValue(materializedTokens.map((token) => token.name));
+	const commonSize = findCommonValue(materializedTokens.map((token) => token.size));
+	const commonInitiativeModifier = findCommonValue(
+		materializedTokens.map((token) => token.initiativeModifier)
+	);
 
 	let displayedProperties: TokenProperties = {
 		avatarId: commonAvatarId !== undefined ? commonAvatarId : conflictOverrideProperties.avatarId,
 		name: commonName ?? conflictOverrideProperties.name,
-		size: 1,
-		initiativeModifier: 0
+		size: commonSize ?? conflictOverrideProperties.size,
+		initiativeModifier: commonInitiativeModifier ?? conflictOverrideProperties.initiativeModifier
 	};
 
 	let displayedInheritance: Record<OverridableTokenProperty, boolean> = {
 		avatarId: doAllTokensInherit((token) => token.avatarId),
 		name: doAllTokensInherit((token) => token.name),
-		size: true,
-		initiativeModifier: true
+		size: doAllTokensInherit((token) => token.size),
+		initiativeModifier: doAllTokensInherit((token) => token.initiativeModifier)
 	};
 
 	function updateTemplateProperty<T extends OverridableTokenProperty>(
@@ -98,7 +101,8 @@
 		value: TokenProperties[T]
 	) {
 		$allTokens = $allTokens.map((token) => {
-			if (!selectedTokens.includes(token)) return token;
+			const isSelected = selectedTokens.some((selectedToken) => selectedToken.id === token.id);
+			if (!isSelected) return token;
 
 			return { ...token, [property]: value };
 		});
@@ -155,70 +159,51 @@
 		}
 	}
 
-	let avatarIdValue = displayedProperties.avatarId;
-	let inheritAvatarValue = displayedInheritance.avatarId;
-	$: avatar = avatarIdValue ? getAvatarUrlById(avatarIdValue, selectedTokens, $allTemplates) : null;
+	let avatarId = displayedProperties.avatarId;
+	let inheritAvatar = displayedInheritance.avatarId;
+	$: avatar = avatarId ? getAvatarUrlById(avatarId, selectedTokens, $allTemplates) : null;
 
-	let nameValue = displayedProperties.name;
-	let inheritNameValue = displayedInheritance.name;
+	let name = displayedProperties.name;
+	let inheritName = displayedInheritance.name;
+
+	let size = displayedProperties.size;
+	let inheritSize = displayedInheritance.size;
+
+	let initiativeModifier = displayedProperties.initiativeModifier;
+	let inheritInitiaveModifier = displayedInheritance.initiativeModifier;
 
 	$: {
-		updatePropertyValue('name', nameValue);
-		updatePropertyInheritance('name', inheritNameValue);
-		updatePropertyValue('avatarId', avatarIdValue);
+		updatePropertyValue('name', name);
+		updatePropertyInheritance('name', inheritName);
+		updatePropertyValue('avatarId', avatarId);
+		updatePropertyValue('size', size);
+		updatePropertyInheritance('size', inheritSize);
+		updatePropertyValue('initiativeModifier', initiativeModifier);
+		updatePropertyInheritance('initiativeModifier', inheritInitiaveModifier);
 	}
 </script>
 
 <Container>
 	<Column gap="normal">
-		<Inheritable bind:isInheriting={inheritNameValue} disableToggle={!canToggleInheritance}>
-			<Input name="name" bind:value={nameValue} placeholder="Name..." size="small" />
+		<Inheritable bind:isInheriting={inheritName} disableToggle={!canToggleInheritance}>
+			<Input name="name" bind:value={name} placeholder="Name..." size="small" />
 		</Inheritable>
 
-		<Inheritable bind:isInheriting={inheritAvatarValue} disableToggle={!canToggleInheritance}>
-			<FileUploader accept="image/*" buttonClass="token-properties-avatar-upload">
-				<Row align="center">
-					{#if avatar}
-						<img src={asset(avatar.path)} alt="Token avatar" />
-					{:else}
-						<Icon icon="user" />
-					{/if}
+		<Inheritable bind:isInheriting={inheritAvatar} disableToggle={!canToggleInheritance}>
+			<TokenPropertyAvatar {avatar} />
+		</Inheritable>
 
-					<span class="avatar-label">Avatar</span>
-				</Row>
-			</FileUploader>
+		<Inheritable bind:isInheriting={inheritSize} disableToggle={!canToggleInheritance}>
+			<Input name="size" bind:value={size} placeholder="Size..." size="small" />
+		</Inheritable>
+
+		<Inheritable bind:isInheriting={inheritInitiaveModifier} disableToggle={!canToggleInheritance}>
+			<Input
+				name="initiative-modifier"
+				bind:value={initiativeModifier}
+				placeholder="Initiative Modifier..."
+				size="small"
+			/>
 		</Inheritable>
 	</Column>
 </Container>
-
-<style lang="scss">
-	$avatar-size: 48px;
-
-	:global(.token-properties-avatar-upload) {
-		padding: 0;
-		overflow: hidden;
-		border-radius: $avatar-size;
-		flex: 1;
-
-		font: inherit;
-		letter-spacing: inherit;
-		text-transform: none;
-		color: inherit;
-	}
-
-	:global(.token-properties-avatar-upload:hover) {
-		border: 2px solid var(--color-input-hover-outline);
-	}
-
-	.avatar-label {
-		margin: 0 16px 0 8px;
-	}
-
-	img {
-		display: block;
-		width: $avatar-size;
-		height: $avatar-size;
-		border-radius: 50%;
-		object-fit: cover;
-	}
-</style>
