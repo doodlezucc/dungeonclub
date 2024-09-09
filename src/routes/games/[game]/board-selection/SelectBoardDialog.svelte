@@ -22,12 +22,7 @@
 				const isImage = file.type.startsWith('image/');
 
 				if (isImage) {
-					const { boardId } = await $rest.post(`/campaigns/${$campaignState!.id}/boards`, {
-						body: {
-							contentType: file.type,
-							data: await file.arrayBuffer()
-						}
-					});
+					const { boardId } = await $rest.postFile(`/campaigns/${$campaignState!.id}/boards`, file);
 
 					const createdBoard = await $socket.request('boardEdit', { id: boardId });
 

@@ -1,14 +1,34 @@
 <script lang="ts">
+	import { rest } from 'client/communication';
 	import { asset } from 'client/communication/asset';
+	import { campaignState } from 'client/state';
 	import Icon from 'components/Icon.svelte';
 	import { Row } from 'components/layout';
 	import FileUploader from 'components/upload/FileUploader.svelte';
 	import type { AssetSnippet } from 'shared';
 
 	export let avatar: AssetSnippet | null;
+
+	async function handleAvatarChange(ev: CustomEvent<File[]>) {
+		const files = ev.detail;
+		if (files.length == 0) return;
+
+		const chosenAvatar = files[0];
+
+		const uploadedAsset: AssetSnippet = await $rest.postFile(
+			`/campagins/${$campaignState!.id}/assets`,
+			chosenAvatar
+		);
+
+		avatar = uploadedAsset;
+	}
 </script>
 
-<FileUploader accept="image/*" buttonClass="token-properties-avatar-upload">
+<FileUploader
+	accept="image/*"
+	buttonClass="token-properties-avatar-upload"
+	on:change={handleAvatarChange}
+>
 	<Row align="center">
 		{#if avatar}
 			<img src={asset(avatar.path)} alt="Token avatar" />

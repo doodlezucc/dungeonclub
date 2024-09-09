@@ -16,12 +16,10 @@ export async function restPostTokenTemplate(options: CreateTokenTemplateOptions)
 
 	const activeCampaignId = get(campaignState)!.id;
 
-	return (await RestConnection.instance.post(`/campaigns/${activeCampaignId}/token-templates`, {
-		body: {
-			contentType: avatarImageFile.type,
-			data: await avatarImageFile.arrayBuffer()
-		}
-	})) as TokenTemplateSnippet;
+	return (await RestConnection.instance.postFile(
+		`/campaigns/${activeCampaignId}/token-templates`,
+		avatarImageFile
+	)) as TokenTemplateSnippet;
 }
 
 export function detachTemplateFromVisibleTokens(deletedTemplate: TokenTemplateSnippet) {
