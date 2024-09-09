@@ -1,4 +1,5 @@
 import type { CampaignSnippet, GetPayload } from 'shared';
+import { derived, readable } from 'svelte/store';
 import { getSocket } from '../communication';
 import { Board } from './board';
 import { WithState } from './with-state';
@@ -25,6 +26,26 @@ export class Campaign extends WithState<CampaignSnippet> {
 			templates: templates
 		})
 	);
+
+	readonly assets = this.derived(
+		(campaign) => campaign.assets,
+		(campaign, assets) => ({
+			...campaign,
+			assets: assets
+		})
+	);
+
+	assetById(id: string) {
+		return derived(this.assets, (assets) => assets.find((asset) => asset.id === id)!);
+	}
+
+	assetByNullableId(id: string | null) {
+		if (id) {
+			return this.assetById(id);
+		} else {
+			return readable(null);
+		}
+	}
 }
 
 export class Session {

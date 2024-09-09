@@ -9,11 +9,12 @@
 <script lang="ts">
 	import type { Position } from '$lib/compounds';
 	import { asset } from 'client/communication/asset';
+	import { Campaign } from 'client/state';
 	import { draggable, type DraggableParams } from 'components/Draggable.svelte';
-	import type { TokenPropertiesWithAsset } from 'shared';
+	import type { TokenProperties } from 'shared';
 	import { spring } from 'svelte/motion';
 
-	export let properties: TokenPropertiesWithAsset;
+	export let properties: TokenProperties;
 	export let position: Position;
 
 	export let style: TokenStyle;
@@ -28,7 +29,8 @@
 		$positionSpring = position;
 	}
 
-	$: avatarUrl = properties.avatar?.path;
+	const avatarAsset = Campaign.instance.assetByNullableId(properties.avatarId);
+	const avatarUrl = $avatarAsset?.path;
 </script>
 
 <div

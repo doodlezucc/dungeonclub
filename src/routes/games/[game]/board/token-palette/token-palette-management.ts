@@ -33,15 +33,9 @@ export function detachTemplateFromVisibleTokens(deletedTemplate: TokenTemplateSn
 				getInheritedPropertiesOfToken(token)
 			);
 
-			let newAvatar = token.avatar;
-			if (newlyAppliedProperties.avatarId) {
-				newAvatar = deletedTemplate.avatar;
-			}
-
 			return {
 				...token,
-				...newlyAppliedProperties,
-				avatar: newAvatar
+				...newlyAppliedProperties
 			};
 		})
 	}));

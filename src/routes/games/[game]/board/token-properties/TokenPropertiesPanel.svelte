@@ -35,11 +35,7 @@
 	import Input from 'components/Input.svelte';
 	import { Column, Container } from 'components/layout';
 	import type { OverridableTokenProperty, TokenProperties, TokenSnippet } from 'shared';
-	import {
-		getAvatarUrlById,
-		getTemplateForToken,
-		materializeToken
-	} from 'shared/token-materializing';
+	import { getTemplateForToken, materializeToken } from 'shared/token-materializing';
 	import Inheritable from './Inheritable.svelte';
 	import TokenPropertyAvatar from './TokenPropertyAvatar.svelte';
 
@@ -47,6 +43,7 @@
 
 	const allTokens = Board.instance.tokens;
 	const allTemplates = Campaign.instance.tokenTemplates;
+	const allAssets = Campaign.instance.assets;
 
 	const selectedTokens = selectedTokenIds.map((id) => $allTokens.find((token) => token.id === id)!);
 	const singleTokenTemplateId = getCommonTokenTemplate(selectedTokens);
@@ -161,7 +158,7 @@
 
 	let avatarId = displayedProperties.avatarId;
 	let inheritAvatar = displayedInheritance.avatarId;
-	$: avatar = avatarId ? getAvatarUrlById(avatarId, selectedTokens, $allTemplates) : null;
+	let avatar = avatarId ? $allAssets.find((asset) => asset.id === avatarId)! : null;
 
 	let name = displayedProperties.name;
 	let inheritName = displayedInheritance.name;
@@ -175,11 +172,13 @@
 	$: {
 		updatePropertyValue('name', name);
 		updatePropertyInheritance('name', inheritName);
-		updatePropertyValue('avatarId', avatarId);
 		updatePropertyValue('size', size);
 		updatePropertyInheritance('size', inheritSize);
 		updatePropertyValue('initiativeModifier', initiativeModifier);
 		updatePropertyInheritance('initiativeModifier', inheritInitiaveModifier);
+
+		updatePropertyValue('avatarId', avatar?.id ?? null);
+		updatePropertyInheritance('avatarId', inheritAvatar);
 	}
 </script>
 
@@ -190,7 +189,7 @@
 		</Inheritable>
 
 		<Inheritable bind:isInheriting={inheritAvatar} disableToggle={!canToggleInheritance}>
-			<TokenPropertyAvatar {avatar} />
+			<TokenPropertyAvatar bind:avatar />
 		</Inheritable>
 
 		<Inheritable bind:isInheriting={inheritSize} disableToggle={!canToggleInheritance}>

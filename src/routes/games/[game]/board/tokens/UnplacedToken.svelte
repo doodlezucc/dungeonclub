@@ -74,7 +74,7 @@
 </script>
 
 <TokenBase
-	properties={template ?? { ...EMPTY_TOKEN_PROPERTIES, avatar: null }}
+	properties={template ?? { ...EMPTY_TOKEN_PROPERTIES }}
 	{position}
 	style={{
 		dragging: true,

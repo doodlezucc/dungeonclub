@@ -35,16 +35,6 @@ export function getTemplateForToken(
 	return allTokenTemplates.find((template) => template.id === token.templateId);
 }
 
-export function getAvatarUrlById(
-	avatarId: string,
-	allTokens: TokenSnippet[],
-	allTokenTemplates: TokenTemplateSnippet[]
-) {
-	const allProperties = [...allTokens, ...allTokenTemplates];
-
-	return allProperties.find((properties) => properties.avatarId === avatarId)?.avatar ?? null;
-}
-
 /**
  * Returns a copy of `token` with all `null` properties inserted by the underlying template.
  */

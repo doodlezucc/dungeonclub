@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { asset } from 'client/communication/asset';
+	import { Campaign } from 'client/state';
 	import IconButton from 'components/IconButton.svelte';
 	import { Flex, Row } from 'components/layout';
 	import ListTile from 'components/ListTile.svelte';
@@ -8,7 +9,9 @@
 	import { unplacedTokenProperties } from '../tokens/UnplacedToken.svelte';
 
 	export let template: TokenTemplateSnippet;
-	const avatarSrc = template.avatar ? asset(template.avatar!.path) : null;
+
+	const avatarAsset = Campaign.instance.assetByNullableId(template.avatarId);
+	const avatarSrc = $avatarAsset ? asset($avatarAsset.path) : null;
 
 	$: isSelectedForPlacement = $unplacedTokenProperties?.tokenTemplate === template;
 

@@ -17,7 +17,7 @@
 		keyStateOf
 	} from 'components/extensions/ShortcutListener.svelte';
 	import type { SelectionContext } from 'components/groups/SelectionGroup.svelte';
-	import type { TokenPropertiesWithAsset, TokenSnippet, TokenTemplateSnippet } from 'shared';
+	import type { TokenProperties, TokenSnippet, TokenTemplateSnippet } from 'shared';
 	import { materializeToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import type { BoardContext } from '../Board.svelte';
@@ -28,9 +28,8 @@
 	export let template: TokenTemplateSnippet | undefined;
 	export let selected: boolean;
 
-	const properties: TokenPropertiesWithAsset = {
-		...materializeToken(token, template),
-		avatar: token.avatar ?? template?.avatar ?? null
+	const properties: TokenProperties = {
+		...materializeToken(token, template)
 	};
 
 	$: position = <Position>{ x: token.x, y: token.y };

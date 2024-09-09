@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { rest } from 'client/communication';
 	import { asset } from 'client/communication/asset';
-	import { campaignState } from 'client/state';
+	import { Campaign, campaignState } from 'client/state';
 	import Icon from 'components/Icon.svelte';
 	import { Row } from 'components/layout';
 	import FileUploader from 'components/upload/FileUploader.svelte';
@@ -16,11 +16,12 @@
 		const chosenAvatar = files[0];
 
 		const uploadedAsset: AssetSnippet = await $rest.postFile(
-			`/campagins/${$campaignState!.id}/assets`,
+			`/campaigns/${$campaignState!.id}/assets`,
 			chosenAvatar
 		);
 
 		avatar = uploadedAsset;
+		Campaign.instance.assets.update((assets) => [...assets, uploadedAsset]);
 	}
 </script>
 

@@ -12,9 +12,6 @@ export type AssetSnippet = Prisma.AssetGetPayload<{
 export const SelectTokenTemplate = {
 	id: true,
 	avatarId: true,
-	avatar: {
-		select: SelectAsset
-	},
 	name: true,
 	size: true,
 	initiativeModifier: true
@@ -62,9 +59,6 @@ export const SelectToken = {
 	conditions: true,
 	name: true,
 	avatarId: true,
-	avatar: {
-		select: SelectAsset
-	},
 	x: true,
 	y: true,
 	size: true,
@@ -72,15 +66,10 @@ export const SelectToken = {
 } satisfies Prisma.TokenSelect;
 export type TokenSnippet = Prisma.TokenGetPayload<{ select: typeof SelectToken }>;
 
-export type TokenPropertiesWithAsset = Omit<
-	Prisma.TokenTemplateGetPayload<{
-		include: {
-			avatar: { select: typeof SelectAsset };
-		};
-	}>,
-	'id' | 'campaignId'
+export type TokenProperties = Omit<
+	Prisma.TokenTemplateGetPayload<{}>,
+	'id' | 'campaignId' | 'avatar'
 >;
-export type TokenProperties = Omit<TokenPropertiesWithAsset, 'avatar'>;
 export type OverridableTokenProperty = keyof TokenProperties;
 
 export type TokenPropertiesOrNull = {
@@ -100,9 +89,7 @@ export const SelectTokenProperties = {
 export const SelectBoardPreview = {
 	id: true,
 	name: true,
-	mapImage: {
-		select: SelectAsset
-	}
+	mapImageId: true
 } satisfies Prisma.BoardSelect;
 export type BoardPreviewSnippet = Prisma.BoardGetPayload<{ select: typeof SelectBoardPreview }>;
 
@@ -145,6 +132,9 @@ export const SelectCampaign = {
 	selectedBoardId: true,
 	templates: {
 		select: SelectTokenTemplate
+	},
+	assets: {
+		select: SelectAsset
 	}
 } satisfies Prisma.CampaignSelect;
 export type CampaignSnippet = Prisma.CampaignGetPayload<{ select: typeof SelectCampaign }> & {
