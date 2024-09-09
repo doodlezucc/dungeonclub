@@ -10,8 +10,8 @@
 
 	export let template: TokenTemplateSnippet;
 
-	const avatarAsset = Campaign.instance.assetByNullableId(template.avatarId);
-	const avatarSrc = $avatarAsset ? asset($avatarAsset.path) : null;
+	$: avatarAsset = Campaign.instance.assetByNullableId(template.avatarId);
+	$: avatarSrc = $avatarAsset ? asset($avatarAsset.path) : null;
 
 	$: isSelectedForPlacement = $unplacedTokenProperties?.tokenTemplate === template;
 
@@ -73,5 +73,6 @@
 		height: $avatar-size;
 		border-radius: 50%;
 		padding: 0;
+		object-fit: cover;
 	}
 </style>

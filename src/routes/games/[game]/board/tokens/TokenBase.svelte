@@ -29,8 +29,8 @@
 		$positionSpring = position;
 	}
 
-	const avatarAsset = Campaign.instance.assetByNullableId(properties.avatarId);
-	const avatarUrl = $avatarAsset?.path;
+	$: avatarAsset = Campaign.instance.assetByNullableId(properties.avatarId);
+	$: avatarUrl = $avatarAsset?.path;
 </script>
 
 <div

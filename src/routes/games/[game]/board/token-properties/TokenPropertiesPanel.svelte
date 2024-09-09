@@ -193,13 +193,14 @@
 		</Inheritable>
 
 		<Inheritable bind:isInheriting={inheritSize} disableToggle={!canToggleInheritance}>
-			<Input name="size" bind:value={size} placeholder="Size..." size="small" />
+			<Input name="size" bind:value={size} type="number" placeholder="Size..." size="small" />
 		</Inheritable>
 
 		<Inheritable bind:isInheriting={inheritInitiaveModifier} disableToggle={!canToggleInheritance}>
 			<Input
 				name="initiative-modifier"
 				bind:value={initiativeModifier}
+				type="number"
 				placeholder="Initiative Modifier..."
 				size="small"
 			/>
