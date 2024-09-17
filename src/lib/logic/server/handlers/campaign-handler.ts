@@ -182,6 +182,11 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 				data: applyTemplateInheritanceOnProperties(inheritedProperties)
 			});
 		}
+	},
+
+	// FIXME: Only here because [Server -> Client] broadcasts aren't yet possible to define under net/messages/*.
+	handleAssetCreate: async (payload) => {
+		return { forwardedResponse: payload };
 	}
 };
 
