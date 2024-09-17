@@ -4,7 +4,7 @@
 	}
 
 	export interface SelectionContext<T> {
-		readonly selected: T[];
+		getSelected(): T[];
 		select(element: T, options: SelectOptions): void;
 
 		includes(element: T): boolean;
@@ -54,8 +54,9 @@
 	}
 
 	setContext<SelectionContext<T>>('selection', {
+		getSelected: () => selectedElements,
 		select,
-		selected: selectedElements,
+
 		includes: (element) => selectedKeys.includes(getElementKey(element))
 	});
 </script>
