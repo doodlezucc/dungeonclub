@@ -1,4 +1,4 @@
-import { Board } from 'client/state';
+import { Board, Campaign } from 'client/state';
 import {
 	MessageHandler,
 	type AccountMessageCategory,
@@ -24,5 +24,7 @@ export class ClientRequestHandler extends MessageHandler<ClientHandledMessages, 
 		onTokensEdit: (payload) => Board.instance.handleTokensEdit(payload)
 	};
 
-	campaign: CategoryHandlers<CampaignMessageCategory, ClientHandledMessages, Options> = {};
+	campaign: CategoryHandlers<CampaignMessageCategory, ClientHandledMessages, Options> = {
+		onAssetCreate: (payload) => Campaign.instance.handleAssetCreate(payload)
+	};
 }

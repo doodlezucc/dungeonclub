@@ -28,6 +28,8 @@ export interface DefinePrivateRequest<P, R> extends IMessageForServer<P>, IRespo
 export interface DefineRequest<P, R, F> extends DefinePrivateRequest<P, R>, IForward<F> {}
 export type DefineRequestWithPublicResponse<P, R> = DefineRequest<P, R, R>;
 
+export type DefineServerBroadcast<P> = DefineSendAndForward<P>;
+
 export type UUID = string;
 
 export type PickMessages<T> = {

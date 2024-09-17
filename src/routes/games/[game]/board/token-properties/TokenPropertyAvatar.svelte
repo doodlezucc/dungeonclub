@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { rest } from 'client/communication';
 	import { asset } from 'client/communication/asset';
-	import { Campaign, campaignState } from 'client/state';
+	import { campaignState } from 'client/state';
 	import Icon from 'components/Icon.svelte';
 	import { Row } from 'components/layout';
 	import FileUploader from 'components/upload/FileUploader.svelte';
@@ -21,7 +21,6 @@
 		);
 
 		avatar = uploadedAsset;
-		Campaign.instance.assets.update((assets) => [...assets, uploadedAsset]);
 	}
 </script>
 

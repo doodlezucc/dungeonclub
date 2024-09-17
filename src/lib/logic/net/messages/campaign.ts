@@ -1,5 +1,5 @@
-import type { CampaignCardSnippet, CampaignSnippet } from '../snippets';
-import type { DefinePrivateRequest, UUID } from './messages';
+import type { AssetSnippet, CampaignCardSnippet, CampaignSnippet } from '../snippets';
+import type { DefinePrivateRequest, DefineServerBroadcast, UUID } from './messages';
 
 export interface CampaignMessageCategory {
 	campaignCreate: DefinePrivateRequest<
@@ -52,4 +52,8 @@ export interface CampaignMessageCategory {
 		},
 		void
 	>;
+
+	assetCreate: DefineServerBroadcast<{
+		asset: AssetSnippet;
+	}>;
 }

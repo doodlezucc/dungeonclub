@@ -1,10 +1,10 @@
-import type { Asset } from '@prisma/client';
 import * as fs from 'fs/promises';
 import * as mime from 'mime-types';
-import { prisma } from './server';
+import { SelectAsset, type AssetSnippet } from 'shared';
+import { prisma, server } from './server';
 import { generateUniqueString } from './util/generate-string';
 
-type PartialAsset = Pick<Asset, 'path'>;
+type PartialAsset = Pick<AssetSnippet, 'path'>;
 
 export class AssetManager {
 	readonly rootDirFromFrontend: string = '/user-media';
@@ -34,7 +34,7 @@ export class AssetManager {
 		return `${root}/${fileName}`;
 	}
 
-	async uploadAsset(campaignId: string, request: Request): Promise<Asset> {
+	async uploadAsset(campaignId: string, request: Request): Promise<AssetSnippet> {
 		const contentType = request.headers.get('Content-Type');
 
 		if (!contentType) {
@@ -65,15 +65,22 @@ export class AssetManager {
 		const systemPath = this.getPathToFile(fileName);
 		await fs.writeFile(systemPath, new Uint8Array(buffer));
 
-		console.log('Created asset ' + fileName);
-
-		return await prisma.asset.create({
+		const storedAsset = await prisma.asset.create({
 			data: {
 				campaignId: campaignId,
 				mimeType: contentType,
 				path: fileName
-			}
+			},
+			select: SelectAsset
 		});
+
+		const campaignSession = server.sessionManager.findSession(campaignId);
+		campaignSession?.broadcastMessage('assetCreate', {
+			asset: storedAsset
+		});
+
+		console.log('Created asset ' + fileName);
+		return storedAsset;
 	}
 
 	async deleteIfUnused(assetId: string) {

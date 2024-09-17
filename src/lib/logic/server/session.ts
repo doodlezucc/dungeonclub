@@ -1,4 +1,11 @@
-import { SelectBoard, SelectCampaign } from 'shared';
+import {
+	SelectBoard,
+	SelectCampaign,
+	type OptionalForwarded,
+	type Payload,
+	type ServerHandledMessages,
+	type ServerSentMessages
+} from 'shared';
 import { prisma, server } from './server';
 import { SessionGarbage } from './session-garbage';
 import type { User } from './user';
@@ -7,7 +14,7 @@ export class SessionManager {
 	private readonly openSessions = new Map<string, CampaignSession>();
 
 	async enterSession(campaignId: string, user: User): Promise<CampaignSession> {
-		const campaignSession = this.openSessions.get(campaignId);
+		const campaignSession = this.findSession(campaignId);
 
 		if (campaignSession) {
 			campaignSession.onJoin(user);
@@ -21,6 +28,10 @@ export class SessionManager {
 
 	onSessionClosed(session: CampaignSession) {
 		this.openSessions.delete(session.campaignId);
+	}
+
+	findSession(campaignId: string): CampaignSession | undefined {
+		return this.openSessions.get(campaignId);
 	}
 }
 
@@ -47,6 +58,15 @@ export class CampaignSession {
 		});
 
 		return new CampaignSession(hostedBy, campaignId);
+	}
+
+	broadcastMessage<T extends keyof ServerSentMessages>(
+		message: T,
+		payload: Payload<ServerSentMessages, T> | OptionalForwarded<ServerHandledMessages, T>
+	) {
+		for (const user of this.users) {
+			user.connection.send(message, payload);
+		}
 	}
 
 	getPeerUsersOf(user: User) {

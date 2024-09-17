@@ -36,7 +36,9 @@ export class Campaign extends WithState<CampaignSnippet> {
 	);
 
 	assetById(id: string) {
-		return derived(this.assets, (assets) => assets.find((asset) => asset.id === id)!);
+		return derived(this.assets, (assets) => {
+			return assets.find((asset) => asset.id === id)!;
+		});
 	}
 
 	assetByNullableId(id: string | null) {
@@ -45,6 +47,12 @@ export class Campaign extends WithState<CampaignSnippet> {
 		} else {
 			return readable(null);
 		}
+	}
+
+	handleAssetCreate(payload: GetPayload<'assetCreate'>) {
+		this.assets.update((assets) => {
+			return [...assets, payload.asset];
+		});
 	}
 }
 
