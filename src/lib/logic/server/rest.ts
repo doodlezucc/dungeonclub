@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import { error, fail } from '@sveltejs/kit';
 import { prisma } from './server';
 
@@ -40,4 +41,22 @@ export async function authorizedEndpoint(
 
 		throw fail(500, { error: err });
 	}
+}
+
+export async function campaignEndpoint(
+	request: Request,
+	campaignId: string,
+	ifValid: (campaign: Prisma.CampaignGetPayload<{}>) => Response | Promise<Response>
+): Promise<Response> {
+	return await authorizedEndpoint(request, async (accountEmailHash) => {
+		const campaign = await prisma.campaign.findUnique({
+			where: { id: campaignId }
+		});
+
+		if (campaign?.ownerEmail !== accountEmailHash) {
+			throw error(403);
+		}
+
+		return ifValid(campaign);
+	});
 }

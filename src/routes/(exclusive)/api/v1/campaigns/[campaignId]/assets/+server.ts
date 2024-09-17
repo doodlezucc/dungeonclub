@@ -1,19 +1,11 @@
-import { error, json } from '@sveltejs/kit';
-import { authorizedEndpoint } from 'server/rest';
+import { json } from '@sveltejs/kit';
+import { campaignEndpoint } from 'server/rest.js';
 import { prisma, server } from 'server/server.js';
 
 export const GET = ({ params: { campaignId }, request }) =>
-	authorizedEndpoint(request, async (accountHash) => {
-		const campaign = await prisma.campaign.findUnique({
-			where: { id: campaignId }
-		});
-
-		if (campaign?.ownerEmail !== accountHash) {
-			throw error(403);
-		}
-
+	campaignEndpoint(request, campaignId, async () => {
 		const allAssets = await prisma.asset.findMany({
-			where: { campaignId: campaign.id }
+			where: { campaignId: campaignId }
 		});
 
 		return json({
@@ -22,15 +14,7 @@ export const GET = ({ params: { campaignId }, request }) =>
 	});
 
 export const POST = ({ params: { campaignId }, request }) =>
-	authorizedEndpoint(request, async (accountHash) => {
-		const campaign = await prisma.campaign.findUnique({
-			where: { id: campaignId }
-		});
-
-		if (campaign?.ownerEmail !== accountHash) {
-			throw error(403);
-		}
-
+	campaignEndpoint(request, campaignId, async () => {
 		const asset = await server.assetManager.uploadAsset(campaignId, request);
 
 		return json(asset);
