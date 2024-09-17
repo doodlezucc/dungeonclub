@@ -17,5 +17,9 @@ export const POST = ({ params: { campaignId }, request }) =>
 			select: SelectTokenTemplate
 		});
 
+		server.sessionManager.findSession(campaignId)?.broadcastMessage('tokenTemplateCreate', {
+			tokenTemplate: tokenTemplate
+		});
+
 		return json(tokenTemplate);
 	});

@@ -25,6 +25,7 @@ export class ClientRequestHandler extends MessageHandler<ClientHandledMessages, 
 	};
 
 	campaign: CategoryHandlers<CampaignMessageCategory, ClientHandledMessages, Options> = {
-		onAssetCreate: (payload) => Campaign.instance.handleAssetCreate(payload)
+		onAssetCreate: (payload) => Campaign.instance.handleAssetCreate(payload),
+		onTokenTemplateCreate: (payload) => Campaign.instance.handleTokenTemplateCreate(payload)
 	};
 }

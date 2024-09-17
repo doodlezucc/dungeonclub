@@ -193,6 +193,11 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	// FIXME: Only here because [Server -> Client] broadcasts aren't yet possible to define under net/messages/*.
 	handleAssetCreate: async (payload) => {
 		return { forwardedResponse: payload };
+	},
+
+	// FIXME: Only here because [Server -> Client] broadcasts aren't yet possible to define under net/messages/*.
+	handleTokenTemplateCreate: async (payload) => {
+		return { forwardedResponse: payload };
 	}
 };
 

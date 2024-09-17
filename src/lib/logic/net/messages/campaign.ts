@@ -1,4 +1,9 @@
-import type { AssetSnippet, CampaignCardSnippet, CampaignSnippet } from '../snippets';
+import type {
+	AssetSnippet,
+	CampaignCardSnippet,
+	CampaignSnippet,
+	TokenTemplateSnippet
+} from '../snippets';
 import type { DefinePrivateRequest, DefineServerBroadcast, UUID } from './messages';
 
 export interface CampaignMessageCategory {
@@ -52,6 +57,10 @@ export interface CampaignMessageCategory {
 		},
 		void
 	>;
+
+	tokenTemplateCreate: DefineServerBroadcast<{
+		tokenTemplate: TokenTemplateSnippet;
+	}>;
 
 	assetCreate: DefineServerBroadcast<{
 		asset: AssetSnippet;

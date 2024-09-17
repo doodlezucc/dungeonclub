@@ -54,6 +54,12 @@ export class Campaign extends WithState<CampaignSnippet> {
 			return [...assets, payload.asset];
 		});
 	}
+
+	handleTokenTemplateCreate(payload: GetPayload<'tokenTemplateCreate'>) {
+		this.tokenTemplates.update((templates) => {
+			return [...templates, payload.tokenTemplate];
+		});
+	}
 }
 
 export class Session {

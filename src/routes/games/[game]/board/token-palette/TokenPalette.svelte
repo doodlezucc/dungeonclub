@@ -31,7 +31,6 @@
 
 				if (isImage) {
 					const response = await restPostTokenTemplate({ avatarImageFile: file });
-					$tokenTemplates = [...$tokenTemplates, response];
 				}
 			}
 		});
