@@ -133,6 +133,32 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 		}
 	},
 
+	handleTokensEdit: async (payload, { dispatcher }) => {
+		const { editedTokenTemplate, editedTokens } = payload;
+
+		const campaignId = dispatcher.sessionAsOwner.campaignId;
+		const boardId = dispatcher.sessionConnection.visibleBoardId;
+
+		if (editedTokenTemplate) {
+			// Edits affect a token template
+			await prisma.tokenTemplate.update({
+				where: { campaignId: campaignId, id: editedTokenTemplate.tokenTemplateId },
+				data: editedTokenTemplate.newProperties
+			});
+		}
+
+		for (const tokenId in editedTokens) {
+			await prisma.token.update({
+				where: { boardId: boardId, id: tokenId },
+				data: editedTokens[tokenId]
+			});
+		}
+
+		return {
+			forwardedResponse: payload
+		};
+	},
+
 	handleTokensMove: async (payload, { dispatcher }) => {
 		const boardId = dispatcher.sessionConnection.visibleBoardId;
 
@@ -140,12 +166,11 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 			const position = payload[tokenId];
 
 			await prisma.token.update({
-				where: { boardId, id: tokenId },
+				where: { boardId: boardId, id: tokenId },
 				data: {
 					x: position.x,
 					y: position.y
-				},
-				select: null
+				}
 			});
 		}
 

@@ -101,6 +101,12 @@ export function extractPropertiesFromTemplate(
 	});
 }
 
+export function extractOverridableProperties(properties: TokenPropertiesOrNull) {
+	return extractPropertiesByName(properties, ALL_OVERRIDABLE_TOKEN_PROPERTIES, {
+		onlyKeepNonNulls: false
+	}) as TokenPropertiesOrNull;
+}
+
 function extractOverriddenPropertiesFromToken(token: TokenPropertiesOrNull) {
 	return extractPropertiesByName(token, ALL_OVERRIDABLE_TOKEN_PROPERTIES, {
 		onlyKeepNonNulls: true

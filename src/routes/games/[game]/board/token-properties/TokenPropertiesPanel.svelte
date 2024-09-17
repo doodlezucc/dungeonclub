@@ -1,17 +1,6 @@
 <script lang="ts" context="module">
-	function getCommonTokenTemplate(tokens: TokenSnippet[]) {
-		if (tokens.length == 0) return null;
-
-		const commonTemplateId = tokens[0].templateId;
-		for (let i = 1; i < tokens.length; i++) {
-			const tokenInstance = tokens[i];
-
-			if (tokenInstance.templateId !== commonTemplateId) {
-				return null;
-			}
-		}
-
-		return commonTemplateId;
+	function getCommonTokenTemplateId(tokens: TokenSnippet[]) {
+		return findCommonValue(tokens.map((token) => token.templateId)) ?? null;
 	}
 
 	function findCommonValue<T>(values: T[]) {
@@ -36,8 +25,14 @@
 	import { Column, Container } from 'components/layout';
 	import type { OverridableTokenProperty, TokenProperties, TokenSnippet } from 'shared';
 	import { getTemplateForToken, materializeToken } from 'shared/token-materializing';
+	import { onDestroy } from 'svelte';
 	import Inheritable from './Inheritable.svelte';
 	import TokenPropertyAvatar from './TokenPropertyAvatar.svelte';
+	import {
+		getRawSelectedTokenProperties,
+		getRawCommonTokenTemplateProperties as getRawTemplateProperties,
+		submitTokenPropertiesToServer
+	} from './submitting';
 
 	export let selectedTokenIds: string[];
 
@@ -46,7 +41,7 @@
 	const allAssets = Campaign.instance.assets;
 
 	const selectedTokens = selectedTokenIds.map((id) => $allTokens.find((token) => token.id === id)!);
-	const singleTokenTemplateId = getCommonTokenTemplate(selectedTokens);
+	const singleTokenTemplateId = getCommonTokenTemplateId(selectedTokens);
 
 	const canToggleInheritance = singleTokenTemplateId !== null;
 
@@ -180,6 +175,21 @@
 		updatePropertyValue('avatarId', avatar?.id ?? null);
 		updatePropertyInheritance('avatarId', inheritAvatar);
 	}
+
+	onDestroy(() => {
+		const newTemplateProperties = getRawTemplateProperties(singleTokenTemplateId, $allTemplates);
+		const newTokenProperties = getRawSelectedTokenProperties(selectedTokenIds, $allTokens);
+
+		submitTokenPropertiesToServer({
+			editedTokens: newTokenProperties,
+			editedTokenTemplate: newTemplateProperties
+				? {
+						tokenTemplateId: singleTokenTemplateId!,
+						newProperties: newTemplateProperties
+					}
+				: undefined
+		});
+	});
 </script>
 
 <Container>
