@@ -71,6 +71,14 @@ class DedicatedGarbage<K, V> {
 		this.properties = properties;
 	}
 
+	keysMarkedForDeletion() {
+		return Array.from(this.markedForDeletion.keys());
+	}
+
+	isMarkedForDeletion(key: K) {
+		return this.markedForDeletion.has(key);
+	}
+
 	markForDeletion(key: K, item: V) {
 		this.markedForDeletion.set(key, item);
 	}

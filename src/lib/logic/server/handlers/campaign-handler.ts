@@ -161,7 +161,10 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 			// Remove token template reference from each inheriting token
 			await prisma.token.update({
 				where: { id: token.id },
-				data: extractPropertiesFromTemplate(tokenTemplate, inheritedProperties)
+				data: {
+					...extractPropertiesFromTemplate(tokenTemplate, inheritedProperties),
+					templateId: null
+				}
 			});
 		}
 
@@ -179,7 +182,10 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 		for (const [tokenId, inheritedProperties] of Object.entries(tokenToInheritedPropertyMap)) {
 			await prisma.token.update({
 				where: { id: tokenId },
-				data: applyTemplateInheritanceOnProperties(inheritedProperties)
+				data: {
+					...applyTemplateInheritanceOnProperties(inheritedProperties),
+					templateId: tokenTemplateId
+				}
 			});
 		}
 	},
