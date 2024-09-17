@@ -1,4 +1,5 @@
 import { getSocket } from 'client/communication';
+import isEqual from 'lodash/isEqual';
 import type {
 	GetPayload,
 	TokenProperties,
@@ -36,6 +37,36 @@ export function getRawSelectedTokenProperties(
 	}
 
 	return result;
+}
+
+export function buildWebSocketPayload(
+	singleTokenTemplateId: string | null,
+	allTemplates: TokenTemplateSnippet[],
+	selectedTokenIds: string[],
+	allTokens: TokenSnippet[]
+): GetPayload<'tokensEdit'> {
+	const templateProperties = getRawCommonTokenTemplateProperties(
+		singleTokenTemplateId,
+		allTemplates
+	);
+	const tokenProperties = getRawSelectedTokenProperties(selectedTokenIds, allTokens);
+
+	return {
+		editedTokens: tokenProperties,
+		editedTokenTemplate: templateProperties
+			? {
+					tokenTemplateId: singleTokenTemplateId!,
+					newProperties: templateProperties
+				}
+			: undefined
+	};
+}
+
+export function arePayloadsEqual(
+	previousPayload: GetPayload<'tokensEdit'>,
+	newPayload: GetPayload<'tokensEdit'>
+) {
+	return isEqual(previousPayload, newPayload);
 }
 
 export function submitTokenPropertiesToServer(payload: GetPayload<'tokensEdit'>) {

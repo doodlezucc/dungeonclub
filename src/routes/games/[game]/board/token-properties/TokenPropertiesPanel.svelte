@@ -23,14 +23,14 @@
 	import { Board, Campaign } from 'client/state';
 	import Input from 'components/Input.svelte';
 	import { Column, Container } from 'components/layout';
-	import type { OverridableTokenProperty, TokenProperties, TokenSnippet } from 'shared';
+	import type { GetPayload, OverridableTokenProperty, TokenProperties, TokenSnippet } from 'shared';
 	import { getTemplateForToken, materializeToken } from 'shared/token-materializing';
-	import { onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import Inheritable from './Inheritable.svelte';
 	import TokenPropertyAvatar from './TokenPropertyAvatar.svelte';
 	import {
-		getRawSelectedTokenProperties,
-		getRawCommonTokenTemplateProperties as getRawTemplateProperties,
+		arePayloadsEqual,
+		buildWebSocketPayload,
 		submitTokenPropertiesToServer
 	} from './submitting';
 
@@ -164,6 +164,7 @@
 	let initiativeModifier = displayedProperties.initiativeModifier;
 	let inheritInitiaveModifier = displayedInheritance.initiativeModifier;
 
+	let isMounted = false;
 	$: {
 		updatePropertyValue('name', name);
 		updatePropertyInheritance('name', inheritName);
@@ -174,21 +175,33 @@
 
 		updatePropertyValue('avatarId', avatar?.id ?? null);
 		updatePropertyInheritance('avatarId', inheritAvatar);
+
+		if (isMounted) {
+			submitChanges();
+		}
 	}
 
-	onDestroy(() => {
-		const newTemplateProperties = getRawTemplateProperties(singleTokenTemplateId, $allTemplates);
-		const newTokenProperties = getRawSelectedTokenProperties(selectedTokenIds, $allTokens);
+	function buildEditingPayload(): GetPayload<'tokensEdit'> {
+		return buildWebSocketPayload(
+			singleTokenTemplateId,
+			$allTemplates,
+			selectedTokenIds,
+			$allTokens
+		);
+	}
 
-		submitTokenPropertiesToServer({
-			editedTokens: newTokenProperties,
-			editedTokenTemplate: newTemplateProperties
-				? {
-						tokenTemplateId: singleTokenTemplateId!,
-						newProperties: newTemplateProperties
-					}
-				: undefined
-		});
+	const initialPayload = buildEditingPayload();
+
+	function submitChanges() {
+		const editedPayload = buildEditingPayload();
+
+		if (!arePayloadsEqual(initialPayload, editedPayload)) {
+			submitTokenPropertiesToServer(editedPayload);
+		}
+	}
+
+	onMount(() => {
+		isMounted = true;
 	});
 </script>
 
