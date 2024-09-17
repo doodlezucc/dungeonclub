@@ -1,10 +1,11 @@
 import { GridSpaces } from '$lib/packages/grid/grid-snapping';
 import type { GridSpace } from '$lib/packages/grid/spaces/interface';
 import { historyOf } from '$lib/packages/undo-redo/history';
-import type { BoardSnippet, GetForwarded, GetPayload, GetResponse } from 'shared';
+import type { BoardSnippet, GetForwarded, GetPayload, GetResponse, TokenSnippet } from 'shared';
 import { derived, type Readable } from 'svelte/store';
 import { getSocket } from '../communication';
 import { focusedHistory } from './focused-history';
+import { Campaign } from './session';
 import { WithState } from './with-state';
 
 export class BoardGrid {
@@ -54,14 +55,38 @@ export class Board extends WithState<BoardSnippet> {
 	}
 
 	handleTokensMove(payload: GetPayload<'tokensMove'>) {
+		this.applyChangesToTokens(payload);
+	}
+
+	handleTokensEdit(payload: GetPayload<'tokensEdit'>) {
+		if (payload.editedTokenTemplate) {
+			const { tokenTemplateId, newProperties } = payload.editedTokenTemplate;
+
+			Campaign.instance.tokenTemplates.update((allTokenTemplates) => {
+				return allTokenTemplates.map((tokenTemplate) => {
+					if (tokenTemplate.id !== tokenTemplateId) return tokenTemplate;
+
+					// Inject updated properties into template
+					return {
+						...tokenTemplate,
+						...newProperties
+					};
+				});
+			});
+		}
+
+		this.applyChangesToTokens(payload.editedTokens);
+	}
+
+	private applyChangesToTokens(tokenPropertiesMap: Record<string, Partial<TokenSnippet>>) {
 		this.put((board) => ({
 			...board,
 			tokens: board.tokens.map((token) => {
-				const isTokenAffected = token.id in payload;
+				const isTokenAffected = token.id in tokenPropertiesMap;
 
 				if (isTokenAffected) {
-					const newTokenPosition = payload[token.id];
-					return { ...token, ...newTokenPosition };
+					const newTokenProperties = tokenPropertiesMap[token.id];
+					return { ...token, ...newTokenProperties };
 				}
 
 				return token;
