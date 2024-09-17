@@ -1,3 +1,4 @@
+import { DISABLE_PERMISSIONS } from '$env/static/private';
 import {
 	SelectBoard,
 	SelectCampaign,
@@ -38,26 +39,35 @@ export class SessionManager {
 export class CampaignSession {
 	readonly garbage = new SessionGarbage();
 	readonly campaignId: string;
+	private readonly campaignOwnerEmail: string;
 
 	users: User[] = [];
 	host: User | null;
 
-	constructor(hostedBy: User, campaignId: string) {
+	constructor(hostedBy: User, campaignId: string, campaignOwnerEmail: string) {
 		this.host = hostedBy;
 
 		this.campaignId = campaignId;
+		this.campaignOwnerEmail = campaignOwnerEmail;
 
 		this.onJoin(hostedBy);
 	}
 
 	static async load(hostedBy: User, campaignId: string) {
-		// Make sure the campaign exists
-		await prisma.campaign.findUniqueOrThrow({
+		if (!hostedBy.accountHash) {
+			if (!DISABLE_PERMISSIONS) throw 'Not logged in';
+		}
+
+		const { ownerEmail } = await prisma.campaign.findUniqueOrThrow({
 			where: { id: campaignId },
-			select: { id: true }
+			select: { ownerEmail: true }
 		});
 
-		return new CampaignSession(hostedBy, campaignId);
+		if (hostedBy.accountHash !== ownerEmail) {
+			if (!DISABLE_PERMISSIONS) throw 'Campaign is not owned by the hosting account';
+		}
+
+		return new CampaignSession(hostedBy, campaignId, ownerEmail);
 	}
 
 	broadcastMessage<T extends keyof ServerSentMessages>(
@@ -79,10 +89,12 @@ export class CampaignSession {
 			select: SelectCampaign
 		});
 
-		// Keep deletion-marked token templates from getting sent to the client
-		campaign.templates = campaign.templates.filter(
-			(tokenTemplate) => !this.garbage.tokenTemplates.isMarkedForDeletion(tokenTemplate.id)
-		);
+		if (this.isOwner(user)) {
+			// Keep deletion-marked token templates from getting sent to the client
+			campaign.templates = campaign.templates.filter(
+				(tokenTemplate) => !this.garbage.tokenTemplates.isMarkedForDeletion(tokenTemplate.id)
+			);
+		}
 
 		user.sessionConnection.visibleBoardIdOrNull = campaign.selectedBoardId;
 
@@ -104,6 +116,10 @@ export class CampaignSession {
 	onJoin(user: User) {
 		this.users.push(user);
 		console.log('User joined');
+
+		if (user.accountHash && this.campaignOwnerEmail === user.accountHash) {
+			this.host = user;
+		}
 	}
 
 	onLeave(disconnectedUser: User) {
