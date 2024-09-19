@@ -66,14 +66,14 @@
 				ev.preventDefault();
 				pointerOrigin = { x: ev.screenX, y: ev.screenY };
 				isPanning = true;
-				hasPointerMovedSincePanStart = true;
+				hasPointerMovedSincePanStart = false;
 			}
 		}
 	}
 
 	function stopPanning() {
 		if (isPanning) {
-			if (hasPointerMovedSincePanStart) {
+			if (!hasPointerMovedSincePanStart) {
 				dispatch('click');
 			}
 
@@ -84,7 +84,7 @@
 	function handlePointerMove(ev: PointerEvent) {
 		if (!isPanning) return;
 
-		hasPointerMovedSincePanStart = false;
+		hasPointerMovedSincePanStart = true;
 
 		const offset = {
 			x: (ev.screenX - pointerOrigin.x) / scale,
