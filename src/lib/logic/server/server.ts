@@ -1,13 +1,12 @@
+import { env } from '$env/dynamic/private';
 import type { WebSocket } from 'ws';
 import { AccountManager } from './account-manager';
 import { AssetManager } from './asset-manager';
 import { prisma } from './prisma';
-import type { MailService } from './services/mail-service';
-import { GmailMailService } from './services/mail/service-gmail';
+import { MailService } from './services/mail-service';
 import { SessionManager } from './session';
 import { ConnectionSocket } from './socket';
 import { getWebSocketServer } from './ws-server/ws-server';
-import {SMTPMailService} from "./services/mail/service-smtp";
 
 export { prisma };
 
@@ -17,24 +16,10 @@ export class Server {
 	readonly sessionManager = new SessionManager();
 	readonly webSocketManager = new WebSocketManager();
 
-	readonly mailService: MailService;
+	readonly mailService: MailService = MailService.parseType(env.MAIL_SERVICE);
 
 	async start() {
 		this.webSocketManager.start();
-	}
-
-	constructor() {
-		switch (process.env.MAIL_SERVICE) {
-			case 'gmail':
-				this.mailService = new GmailMailService();
-				break;
-			case 'smtp':
-				this.mailService = new SMTPMailService();
-				break;
-			default:
-				// TODO: Add a warning here, but then default to the Dummy mailer from the other PR
-				throw new Error('Unsupported mail service');
-		}
 	}
 }
 

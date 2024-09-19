@@ -1,5 +1,7 @@
 import { readFile } from 'fs/promises';
 import { convertTemplateToHtml, type MailTemplate } from './mail/conversion';
+import { GmailMailService } from './mail/service-gmail';
+import { SMTPMailService } from './mail/service-smtp';
 
 export interface SendMailOptions {
 	subject: string;
@@ -23,6 +25,17 @@ export abstract class MailService {
 
 		const loadedBytes = await readFile('./static/icon32.png');
 		return (this.bufferedLogoImage = loadedBytes);
+	}
+
+	static parseType(mailServiceType: string): MailService {
+		switch (mailServiceType) {
+			case 'gmail':
+				return new GmailMailService();
+			case 'smtp':
+				return new SMTPMailService();
+			default:
+				throw `Unsupported mail service "${mailServiceType}"`;
+		}
 	}
 
 	abstract sendMail(options: SendMailOptions): Promise<void>;
