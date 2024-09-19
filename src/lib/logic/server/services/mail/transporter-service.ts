@@ -1,3 +1,4 @@
+import { MAIL_SERVICE_SENDER_EMAIL, MAIL_SERVICE_SENDER_NAME } from '$env/static/private';
 import { type Transporter } from 'nodemailer';
 import { MailService, type SendMailOptions } from '../mail-service';
 
@@ -24,7 +25,7 @@ export abstract class TransporterMailService extends MailService {
 
 		const result = await client.sendMail({
 			subject: options.subject,
-			from: { name: 'Dungeon Club', address: 'TODO' },
+			from: { name: MAIL_SERVICE_SENDER_NAME, address: MAIL_SERVICE_SENDER_EMAIL },
 			to: options.recipient,
 			html: options.htmlBody,
 			attachments: [

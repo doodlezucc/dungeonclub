@@ -1,9 +1,4 @@
-import {
-	GMAIL_API_CLIENT_ID,
-	GMAIL_API_CLIENT_SECRET,
-	GMAIL_API_REFRESH_TOKEN,
-	GMAIL_API_USER
-} from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import nodemailer, { type Transporter } from 'nodemailer';
 import { prisma } from 'server/server';
 import { TransporterMailService } from './transporter-service';
@@ -27,6 +22,13 @@ export class GmailMailService extends TransporterMailService {
 	}
 
 	private static createTransporterFromToken(tokenState: GmailTokenState): Transporter {
+		const {
+			GMAIL_API_USER,
+			GMAIL_API_CLIENT_ID,
+			GMAIL_API_CLIENT_SECRET,
+			GMAIL_API_REFRESH_TOKEN
+		} = env;
+
 		return nodemailer.createTransport({
 			host: 'smtp.gmail.com',
 			port: 465,
