@@ -28,6 +28,8 @@ export interface DefinePrivateRequest<P, R> extends IMessageForServer<P>, IRespo
 export interface DefineRequest<P, R, F> extends DefinePrivateRequest<P, R>, IForward<F> {}
 export type DefineRequestWithPublicResponse<P, R> = DefineRequest<P, R, R>;
 
+export type DefineServerBroadcast<P> = DefineSendAndForward<P>;
+
 export type UUID = string;
 
 export type PickMessages<T> = {
@@ -43,11 +45,11 @@ export type MarkedAsEvent = {
 	forwarded: true;
 };
 
-export type ServerSentMessages = PickMessages<IMessageForClient<unknown>>;
+export type ServerSentMessages = PickMessages<IMessageForClient<unknown>> & ClientHandledEvents;
 export type ServerHandledMessages = PickMessages<IMessageForServer<unknown>>;
 
 export type ClientSentMessages = ServerHandledMessages;
-export type ClientHandledMessages = ServerSentMessages & ClientHandledEvents;
+export type ClientHandledMessages = ServerSentMessages;
 
 export type ClientHandledEvents = PickForwardedMessages<ClientSentMessages>;
 
@@ -71,6 +73,10 @@ export type ResponseObject<S, T extends keyof S> = AsResponseObject<S[T]>;
 
 export type AsResponse<T> = T extends IResponse<infer R> ? R : void;
 export type Response<S, T extends keyof S> = AsResponse<S[T]>;
+export type GetResponse<T extends keyof AllMessages> = Response<AllMessages, T>;
 
 export type AsForwarded<T> = T extends IForward<infer F> ? F : void;
 export type Forwarded<S, T extends keyof S> = AsForwarded<S[T]>;
+export type GetForwarded<T extends keyof AllMessages> = Forwarded<AllMessages, T>;
+
+export type OptionalForwarded<S, T> = Forwarded<S, T extends keyof S ? T : never>;

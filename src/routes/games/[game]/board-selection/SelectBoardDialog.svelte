@@ -1,21 +1,20 @@
 <script lang="ts">
-	import { rest } from 'client/communication';
-	import { Board, Session, sessionState } from 'client/state';
+	import { rest, socket } from 'client/communication';
+	import { Board, Campaign, campaignState } from 'client/state';
 	import ArrangedCollection from 'components/ArrangedCollection.svelte';
 	import { displayErrorDialog } from 'components/extensions/modal';
 	import Row from 'components/layout/Row.svelte';
 	import { Dialog, type ModalContext } from 'components/modal';
 	import FileUploader from 'components/upload/FileUploader.svelte';
-	import type { BoardSnippet } from 'shared';
 	import { getContext } from 'svelte';
 	import { derived } from 'svelte/store';
 	import BoardPreview from './BoardPreview.svelte';
 
-	const boardSnippets = derived(sessionState, ({ campaign }) => campaign?.boards);
+	const boardSnippets = derived(campaignState, (campaign) => campaign?.boards);
 
 	const modal = getContext<ModalContext>('modal');
 
-	async function createNewBoardsFromFiles(ev: CustomEvent<FileList>) {
+	async function createNewBoardsFromFiles(ev: CustomEvent<File[]>) {
 		const files = ev.detail;
 
 		try {
@@ -23,20 +22,14 @@
 				const isImage = file.type.startsWith('image/');
 
 				if (isImage) {
-					const response: BoardSnippet = await $rest.post(
-						`/campaigns/${$sessionState.campaign!.id}/boards`,
-						{
-							body: {
-								contentType: file.type,
-								data: await file.arrayBuffer()
-							}
-						}
-					);
+					const { boardId } = await $rest.postFile(`/campaigns/${$campaignState!.id}/boards`, file);
 
-					Board.instance.load(response);
-					Session.instance.campaign.put((campaign) => ({
+					const createdBoard = await $socket.request('boardEdit', { id: boardId });
+
+					Board.instance.load(createdBoard);
+					Campaign.instance.put((campaign) => ({
 						...campaign,
-						boards: [...campaign.boards, response]
+						boards: [...campaign.boards, createdBoard]
 					}));
 				}
 			}
@@ -63,7 +56,12 @@
 				<BoardPreview name={snippet.name} on:click={() => selectBoard(snippet.id)} />
 
 				<svelte:fragment slot="plus">
-					<FileUploader displayedIcon="file-image" on:change={createNewBoardsFromFiles}>
+					<FileUploader
+						accept="image/*"
+						acceptMultiple
+						displayedIcon="file-image"
+						on:change={createNewBoardsFromFiles}
+					>
 						New Board
 					</FileUploader>
 				</svelte:fragment>

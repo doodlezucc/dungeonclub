@@ -1,4 +1,4 @@
-import { Board } from 'client/state';
+import { Board, Campaign } from 'client/state';
 import {
 	MessageHandler,
 	type AccountMessageCategory,
@@ -18,12 +18,14 @@ export class ClientRequestHandler extends MessageHandler<ClientHandledMessages, 
 			Board.instance.load(boardSnippet);
 		},
 
-		onTokenCreate: (payload) => {
-			console.log('onTokenCreate', payload);
-		},
-
-		onTokenMove: (payload) => Board.instance.handleTokenMove(payload)
+		onTokenCreate: (payload) => Board.instance.handleTokenCreate(payload),
+		onTokensDelete: (payload) => Board.instance.handleTokensDelete(payload),
+		onTokensMove: (payload) => Board.instance.handleTokensMove(payload),
+		onTokensEdit: (payload) => Board.instance.handleTokensEdit(payload)
 	};
 
-	campaign: CategoryHandlers<CampaignMessageCategory, ClientHandledMessages, Options> = {};
+	campaign: CategoryHandlers<CampaignMessageCategory, ClientHandledMessages, Options> = {
+		onAssetCreate: (payload) => Campaign.instance.handleAssetCreate(payload),
+		onTokenTemplateCreate: (payload) => Campaign.instance.handleTokenTemplateCreate(payload)
+	};
 }

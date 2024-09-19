@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { socket } from 'client/communication';
-	import { Account, Session } from 'client/state';
+	import { Account, Campaign } from 'client/state';
 	import { Button, Text } from 'components';
 	import ArrangedCollection from 'components/ArrangedCollection.svelte';
 	import DragHandle from 'components/DragHandle.svelte';
@@ -18,9 +18,20 @@
 	const modal = getContext<ModalContext>('modal');
 
 	async function editCampaign(unedited: CampaignCardSnippet) {
-		await modal.display(CampaignEditDialog, {
-			...unedited
-		});
+		const editedCampaign: CampaignCardSnippet | undefined = await modal.display(
+			CampaignEditDialog,
+			{
+				...unedited
+			}
+		);
+
+		if (editedCampaign) {
+			campaigns.update((campaigns) =>
+				campaigns.map((existingCampaign) =>
+					existingCampaign.id === editedCampaign.id ? editedCampaign : existingCampaign
+				)
+			);
+		}
 	}
 
 	async function createCampaign() {
@@ -30,7 +41,7 @@
 
 		if (result) {
 			goto('/games/' + result.id);
-			Session.instance.campaign.onEnter(result);
+			Campaign.instance.onEnter(result);
 		}
 	}
 

@@ -27,3 +27,9 @@
 		border: 2px solid var(--color-separator);
 	}
 }
+
+.tooltip {
+	@include rounded();
+	background-color: var(--color-background);
+	padding: 0.5em 0.8em;
+}

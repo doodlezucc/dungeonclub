@@ -15,7 +15,7 @@ export interface AccountMessageCategory {
 			email: string;
 			password: string;
 		},
-		true
+		void
 	>;
 
 	accountResetPassword: DefinePrivateRequest<
@@ -23,6 +23,6 @@ export interface AccountMessageCategory {
 			email: string;
 			password: string;
 		},
-		true
+		void
 	>;
 }

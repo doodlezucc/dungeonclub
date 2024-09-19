@@ -3,41 +3,55 @@
 	import type { Position } from './compounds';
 
 	export interface DraggableParams {
+		autoDrag?: boolean;
+
+		/** Defaults to `window`. */
+		mouseUpEventListener?: EventTarget;
+
 		handleDragging: (ev: MouseEvent) => void;
 		onDragToggle?: (isDragging: boolean) => void;
 		onDragStart?: (ev: DragEvent) => void;
 	}
 
 	export const draggable: Action<HTMLElement, DraggableParams> = (node, params) => {
+		const autoDrag = params.autoDrag ?? false;
+		const mouseUpEventListener = params.mouseUpEventListener ?? window;
+
 		node.draggable = true;
 
 		function handleGlobalMouseMove(ev: MouseEvent) {
 			params.handleDragging(ev);
 		}
 
-		function handleDragStart(ev: DragEvent) {
-			ev.preventDefault();
-			if (params.onDragStart) params.onDragStart(ev);
+		function handleDragStart(ev?: DragEvent) {
+			if (ev) {
+				ev.preventDefault();
+				if (params.onDragStart) params.onDragStart(ev);
+			}
+
 			if (params.onDragToggle) params.onDragToggle(true);
 
 			window.addEventListener('mousemove', handleGlobalMouseMove);
-			window.addEventListener('mouseup', handleGlobalMouseUp);
+			mouseUpEventListener.addEventListener('mouseup', handleGlobalMouseUp);
 		}
 
 		function handleGlobalMouseUp() {
 			if (params.onDragToggle) params.onDragToggle(false);
 
 			window.removeEventListener('mousemove', handleGlobalMouseMove);
-			window.removeEventListener('mouseup', handleGlobalMouseUp);
+			mouseUpEventListener.removeEventListener('mouseup', handleGlobalMouseUp);
 		}
 
 		node.addEventListener('dragstart', handleDragStart);
+		if (autoDrag) {
+			handleDragStart();
+		}
 
 		return {
 			destroy: () => {
 				node.removeEventListener('dragstart', handleDragStart);
 				window.removeEventListener('mousemove', handleGlobalMouseMove);
-				window.removeEventListener('mouseup', handleGlobalMouseUp);
+				mouseUpEventListener.removeEventListener('mouseup', handleGlobalMouseUp);
 			}
 		};
 	};

@@ -18,3 +18,6 @@ export interface DeltaOptions<T> {
 	fromTo: [T, T];
 	apply: (state: T) => PromiseOr<void>;
 }
+
+export type Direction = 'forward' | 'backward';
+export type DirectionalFunction = (direction: Direction) => PromiseOr<void>;

@@ -1,10 +1,11 @@
 import { GridSpaces } from '$lib/packages/grid/grid-snapping';
 import type { GridSpace } from '$lib/packages/grid/spaces/interface';
 import { historyOf } from '$lib/packages/undo-redo/history';
-import type { BoardSnippet, GetPayload } from 'shared';
+import type { BoardSnippet, GetForwarded, GetPayload, GetResponse, TokenSnippet } from 'shared';
 import { derived, type Readable } from 'svelte/store';
 import { getSocket } from '../communication';
 import { focusedHistory } from './focused-history';
+import { Campaign } from './session';
 import { WithState } from './with-state';
 
 export class BoardGrid {
@@ -28,6 +29,14 @@ export class Board extends WithState<BoardSnippet> {
 
 	readonly grid = new BoardGrid(this);
 
+	readonly tokens = this.derived(
+		(board) => board.tokens,
+		(board, tokens) => ({
+			...board,
+			tokens: tokens
+		})
+	);
+
 	load(snippet: BoardSnippet) {
 		this.set(snippet);
 		focusedHistory.set(historyOf(snippet.id));
@@ -45,10 +54,61 @@ export class Board extends WithState<BoardSnippet> {
 		this.load(snippet);
 	}
 
-	handleTokenMove({ id, position }: GetPayload<'tokenMove'>) {
+	handleTokensMove(payload: GetPayload<'tokensMove'>) {
+		this.applyChangesToTokens(payload);
+	}
+
+	handleTokensEdit(payload: GetPayload<'tokensEdit'>) {
+		if (payload.editedTokenTemplate) {
+			const { tokenTemplateId, newProperties } = payload.editedTokenTemplate;
+
+			Campaign.instance.tokenTemplates.update((allTokenTemplates) => {
+				return allTokenTemplates.map((tokenTemplate) => {
+					if (tokenTemplate.id !== tokenTemplateId) return tokenTemplate;
+
+					// Inject updated properties into template
+					return {
+						...tokenTemplate,
+						...newProperties
+					};
+				});
+			});
+		}
+
+		this.applyChangesToTokens(payload.editedTokens);
+	}
+
+	private applyChangesToTokens(tokenPropertiesMap: Record<string, Partial<TokenSnippet>>) {
 		this.put((board) => ({
 			...board,
-			tokens: board.tokens.map((token) => (token.id === id ? { ...token, ...position } : token))
+			tokens: board.tokens.map((token) => {
+				const isTokenAffected = token.id in tokenPropertiesMap;
+
+				if (isTokenAffected) {
+					const newTokenProperties = tokenPropertiesMap[token.id];
+					return { ...token, ...newTokenProperties };
+				}
+
+				return token;
+			})
+		}));
+	}
+
+	handleTokenCreate({ boardId, token }: GetResponse<'tokenCreate'>) {
+		this.put((board) =>
+			board.id !== boardId
+				? board
+				: {
+						...board,
+						tokens: [...board.tokens, token]
+					}
+		);
+	}
+
+	handleTokensDelete({ tokenIds: deletedTokenIds }: GetForwarded<'tokensDelete'>) {
+		this.put((board) => ({
+			...board,
+			tokens: board.tokens.filter((token) => !deletedTokenIds.includes(token.id))
 		}));
 	}
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Board } from 'client/state';
 	import type { Size } from 'components/compounds';
-	import GridPattern from './grid/GridPattern.svelte';
+	import GridPattern from './GridPattern.svelte';
 
 	export let dimensions: Size;
 	export let cellsPerRow: number;

@@ -1,5 +1,10 @@
-import type { CampaignCardSnippet, CampaignSnippet } from '../snippets';
-import type { DefinePrivateRequest, UUID } from './messages';
+import type {
+	AssetSnippet,
+	CampaignCardSnippet,
+	CampaignSnippet,
+	TokenTemplateSnippet
+} from '../snippets';
+import type { DefinePrivateRequest, DefineServerBroadcast, UUID } from './messages';
 
 export interface CampaignMessageCategory {
 	campaignCreate: DefinePrivateRequest<
@@ -13,14 +18,14 @@ export interface CampaignMessageCategory {
 		{
 			id: string;
 		},
-		true
+		void
 	>;
 
 	campaignReorder: DefinePrivateRequest<
 		{
 			campaignIds: string[];
 		},
-		true
+		void
 	>;
 
 	campaignEdit: DefinePrivateRequest<Omit<CampaignCardSnippet, 'createdAt'>, CampaignCardSnippet>;
@@ -38,4 +43,26 @@ export interface CampaignMessageCategory {
 		},
 		CampaignSnippet
 	>;
+
+	tokenTemplateDelete: DefinePrivateRequest<
+		{
+			tokenTemplateId: UUID;
+		},
+		void
+	>;
+
+	tokenTemplateRestore: DefinePrivateRequest<
+		{
+			tokenTemplateId: UUID;
+		},
+		void
+	>;
+
+	tokenTemplateCreate: DefineServerBroadcast<{
+		tokenTemplate: TokenTemplateSnippet;
+	}>;
+
+	assetCreate: DefineServerBroadcast<{
+		asset: AssetSnippet;
+	}>;
 }

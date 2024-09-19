@@ -1,5 +1,10 @@
-import type { CampaignMessageCategory } from 'shared';
-import { SelectCampaignCard } from '../../net/snippets';
+import type { CampaignMessageCategory, OverridableTokenProperty } from 'shared';
+import {
+	applyTemplateInheritanceOnProperties,
+	extractPropertiesFromTemplate,
+	getInheritedPropertiesOfToken
+} from 'shared/token-materializing';
+import { SelectCampaignCard, SelectTokenProperties, SelectTokenTemplate } from '../../net/snippets';
 import { prisma, server } from '../server';
 import type { CategoryHandler } from '../socket';
 import { generateUniqueString } from '../util/generate-string';
@@ -75,8 +80,6 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 				campaignIdsOrdered: campaignIdsOrdered.filter((ownedId) => ownedId !== id)
 			}
 		});
-
-		return true;
 	},
 
 	handleCampaignReorder: async ({ campaignIds }, { dispatcher }) => {
@@ -85,8 +88,6 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 			arrayName: 'campaignIdsOrdered',
 			updateTo: campaignIds
 		});
-
-		return true;
 	},
 
 	handleCampaignEdit: async ({ id, name }, { dispatcher }) => {
@@ -123,6 +124,80 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 
 	handleCampaignJoin: async ({ id }, { dispatcher }) => {
 		return await dispatcher.enterSession(id);
+	},
+
+	handleTokenTemplateDelete: async ({ tokenTemplateId }, { dispatcher }) => {
+		const session = dispatcher.sessionAsOwner;
+		const campaignId = session.campaignId;
+
+		const tokenTemplate = await prisma.tokenTemplate.findUnique({
+			where: { id: tokenTemplateId },
+			select: {
+				...SelectTokenTemplate,
+				...SelectTokenProperties,
+				campaignId: true
+			}
+		});
+
+		if (tokenTemplate?.campaignId !== campaignId) {
+			throw 'Token template is not part of the hosted campaign';
+		}
+
+		const tokensInheritingTemplate = await prisma.token.findMany({
+			where: { templateId: tokenTemplateId },
+			select: {
+				id: true,
+				...SelectTokenProperties
+			}
+		});
+
+		const tokenToInheritedPropertyMap: Record<string, OverridableTokenProperty[]> = {};
+
+		for (const token of tokensInheritingTemplate) {
+			// Remember inherited properties of each token (in case of an "undo")
+			const inheritedProperties = getInheritedPropertiesOfToken(token);
+			tokenToInheritedPropertyMap[token.id] = inheritedProperties;
+
+			// Remove token template reference from each inheriting token
+			await prisma.token.update({
+				where: { id: token.id },
+				data: {
+					...extractPropertiesFromTemplate(tokenTemplate, inheritedProperties),
+					templateId: null
+				}
+			});
+		}
+
+		session.garbage.tokenTemplates.markForDeletion(tokenTemplateId, {
+			tokenTemplate: tokenTemplate,
+			tokenToInheritedPropertyMap: tokenToInheritedPropertyMap
+		});
+	},
+
+	handleTokenTemplateRestore: async ({ tokenTemplateId }, { dispatcher }) => {
+		const session = dispatcher.sessionAsOwner;
+
+		const { tokenToInheritedPropertyMap } = session.garbage.tokenTemplates.restore(tokenTemplateId);
+
+		for (const [tokenId, inheritedProperties] of Object.entries(tokenToInheritedPropertyMap)) {
+			await prisma.token.update({
+				where: { id: tokenId },
+				data: {
+					...applyTemplateInheritanceOnProperties(inheritedProperties),
+					templateId: tokenTemplateId
+				}
+			});
+		}
+	},
+
+	// FIXME: Only here because [Server -> Client] broadcasts aren't yet possible to define under net/messages/*.
+	handleAssetCreate: async (payload) => {
+		return { forwardedResponse: payload };
+	},
+
+	// FIXME: Only here because [Server -> Client] broadcasts aren't yet possible to define under net/messages/*.
+	handleTokenTemplateCreate: async (payload) => {
+		return { forwardedResponse: payload };
 	}
 };
 

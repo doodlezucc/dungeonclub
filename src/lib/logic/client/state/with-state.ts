@@ -13,8 +13,6 @@ export abstract class WithState<T> {
 	protected set(state: T) {
 		this._state.set(state);
 		this._currentState = state;
-
-		console.log(state);
 	}
 
 	put(update: (state: T) => T) {
@@ -25,17 +23,35 @@ export abstract class WithState<T> {
 		this.set(update(this._currentState));
 	}
 
-	derived<S>(getter: (state: T) => S, update: (state: T, value: S) => T): Writable<S> {
+	derived<S>(getter: (state: T) => S, update: (state: T, value: S) => T): DerivedResult<S> {
 		const derivedState = derived(this.state, (state) => getter(state!));
 
-		return {
-			subscribe: derivedState.subscribe,
+		const commonFunctions = {
 			update: (updater) => {
 				this.put((state) => update(state, updater(getter(state))));
 			},
 			set: (value: S) => {
 				this.put((state) => update(state, value));
 			}
+		} satisfies Partial<Writable<S>>;
+
+		return {
+			subscribe: derivedState.subscribe,
+			...commonFunctions,
+			withFallback: (fallback: S) => {
+				const derivedStateWithFallback = derived(this.state, (state) =>
+					state !== null ? getter(state) : fallback
+				);
+
+				return {
+					subscribe: derivedStateWithFallback.subscribe,
+					...commonFunctions
+				};
+			}
 		};
 	}
+}
+
+interface DerivedResult<S> extends Writable<S> {
+	withFallback: (fallback: S) => Writable<S>;
 }

@@ -2,6 +2,7 @@
 	export interface BoardContext {
 		transformClientToGridSpace: (position: Position) => Position;
 		transformGridToClientSpace: (position: Position) => Position;
+		getPanViewEventTarget(): EventTarget;
 	}
 </script>
 
@@ -9,33 +10,42 @@
 	import type { Position, Size } from '$lib/compounds';
 	import { Board, boardState } from 'client/state/board';
 	import { PanView } from 'components';
+	import { derivedKeyStateModifySelection } from 'components/extensions/ShortcutListener.svelte';
 	import { Overlay } from 'components/layout';
 	import { setContext } from 'svelte';
 	import BattleMap from './BattleMap.svelte';
-	import Grid from './Grid.svelte';
-	import Token from './grid/Token.svelte';
+	import BoardTokens from './BoardTokens.svelte';
+	import Grid from './grid/Grid.svelte';
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
 	const tileHeightRatio = $activeGridSpace?.tileHeightRatio ?? 1;
 
 	const cellsPerRow = $boardState!.gridCellsPerRow;
 
-	$: position = <Position>{ x: 0, y: 0 };
-	$: zoom = 0;
+	let position = <Position>{ x: 0, y: 0 };
+	let zoom = 0;
 
-	$: dimensions = undefined as Size | undefined;
+	let dimensions = undefined as Size | undefined;
 
 	$: cellSize = (dimensions?.width ?? 0) / cellsPerRow;
 
-	$: tokens = $boardState!.tokens;
+	let tokenContainer: BoardTokens;
+	export let selectedTokenIds: string[] = [];
 
 	let contentElement: HTMLElement;
-	$: cachedClientRect = undefined as DOMRect | undefined;
+	let cachedClientRect = undefined as DOMRect | undefined;
 
 	$: {
 		// Clear cached client rect when position or zoom change
 		if (position && zoom != undefined) {
 			cachedClientRect = undefined;
+		}
+	}
+
+	const keepTokenSelection = derivedKeyStateModifySelection();
+	function onClickEmptySpace() {
+		if (!$keepTokenSelection) {
+			tokenContainer.clearSelection();
 		}
 	}
 
@@ -59,18 +69,25 @@
 		throw 'Not implemented';
 	}
 
-	setContext('board', <BoardContext>{
+	let panViewElement: HTMLElement | undefined;
+
+	setContext<BoardContext>('board', {
 		transformClientToGridSpace,
-		transformGridToClientSpace
+		transformGridToClientSpace,
+
+		getPanViewEventTarget: () => panViewElement!
 	});
 </script>
 
-<PanView expand bind:position bind:zoom>
-	<div
-		bind:this={contentElement}
-		class="board"
-		style="--cell-size: {cellSize}px; --cell-grow-factor: {tileHeightRatio};"
-	>
+<PanView
+	expand
+	bind:position
+	bind:zoom
+	bind:elementView={panViewElement}
+	bind:elementContent={contentElement}
+	on:click={onClickEmptySpace}
+>
+	<div class="board" style="--cell-size: {cellSize}px; --cell-grow-factor: {tileHeightRatio};">
 		<BattleMap bind:size={dimensions} />
 
 		{#if dimensions}
@@ -79,9 +96,7 @@
 			</Overlay>
 
 			<Overlay>
-				{#each tokens as token (token.id)}
-					<Token id={token.id} position={{ x: token.x, y: token.y }} size={token.size}></Token>
-				{/each}
+				<BoardTokens bind:this={tokenContainer} bind:selectedTokenIds />
 			</Overlay>
 		{/if}
 	</div>

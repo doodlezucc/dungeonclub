@@ -1,4 +1,4 @@
-import type { Payload, Response, ResponseObject } from '../messages';
+import type { OptionalForwarded, Payload, Response, ResponseObject } from '../messages';
 import {
 	MessageCodec,
 	type AnyMessage,
@@ -60,7 +60,10 @@ export abstract class MessageSocket<HANDLED, SENT> {
 		return countActiveChannels;
 	}
 
-	public send<T extends keyof SENT>(name: T, payload: Payload<SENT, T>) {
+	public send<T extends keyof SENT>(
+		name: T,
+		payload: Payload<SENT, T> | OptionalForwarded<HANDLED, T>
+	) {
 		this.sendMessage({
 			name,
 			payload
@@ -69,7 +72,7 @@ export abstract class MessageSocket<HANDLED, SENT> {
 
 	public async request<T extends keyof SENT>(
 		name: T,
-		payload: Payload<SENT, T>
+		payload: Payload<SENT, T> | OptionalForwarded<HANDLED, T>
 	): Promise<Response<SENT, T>> {
 		return new Promise((resolve, reject) => {
 			const channel = this.findUnusedChannel();
@@ -77,10 +80,10 @@ export abstract class MessageSocket<HANDLED, SENT> {
 			this.activeChannelCallbacks.set(channel, (responseMessage) => {
 				const { error, response: payload } = responseMessage;
 
-				if (error || !payload) {
-					reject(new RequestError(error ?? 'No payload in response'));
+				if (error) {
+					reject(new RequestError(error));
 				} else {
-					resolve(payload);
+					resolve(payload as Response<SENT, T>);
 				}
 			});
 

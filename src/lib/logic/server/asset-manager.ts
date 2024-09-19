@@ -1,8 +1,10 @@
-import type { Asset } from '@prisma/client';
 import * as fs from 'fs/promises';
 import * as mime from 'mime-types';
-import { prisma } from './server';
+import { SelectAsset, type AssetSnippet } from 'shared';
+import { prisma, server } from './server';
 import { generateUniqueString } from './util/generate-string';
+
+type PartialAsset = Pick<AssetSnippet, 'path'>;
 
 export class AssetManager {
 	readonly rootDirFromFrontend: string = '/user-media';
@@ -32,7 +34,7 @@ export class AssetManager {
 		return `${root}/${fileName}`;
 	}
 
-	async uploadAsset(request: Request): Promise<Asset> {
+	async uploadAsset(campaignId: string, request: Request): Promise<AssetSnippet> {
 		const contentType = request.headers.get('Content-Type');
 
 		if (!contentType) {
@@ -63,22 +65,53 @@ export class AssetManager {
 		const systemPath = this.getPathToFile(fileName);
 		await fs.writeFile(systemPath, new Uint8Array(buffer));
 
-		console.log('created asset ' + fileName);
-
-		return await prisma.asset.create({
+		const storedAsset = await prisma.asset.create({
 			data: {
+				campaignId: campaignId,
 				mimeType: contentType,
 				path: fileName
-			}
+			},
+			select: SelectAsset
 		});
+
+		const campaignSession = server.sessionManager.findSession(campaignId);
+		campaignSession?.broadcastMessage('assetCreate', {
+			asset: storedAsset
+		});
+
+		console.log('Created asset ' + fileName);
+		return storedAsset;
 	}
 
-	async disposeAsset(asset: Asset) {
+	async deleteIfUnused(assetId: string) {
+		const asset = await prisma.asset.findUniqueOrThrow({
+			where: { id: assetId },
+			select: {
+				_count: true,
+				path: true
+			}
+		});
+
+		const usageCountByType = Object.values(asset._count);
+		const totalUsageCount = usageCountByType.reduce(
+			(total, countForType) => total + countForType,
+			0
+		);
+
+		if (totalUsageCount === 0) {
+			await prisma.asset.delete({
+				where: { id: assetId }
+			});
+			await this.disposeAsset(asset);
+		}
+	}
+
+	async disposeAsset(asset: PartialAsset) {
 		const filePath = this.getPathToFile(asset.path);
 		await fs.unlink(filePath);
 	}
 
-	async disposeAssetsInBatch(assets: Asset[]) {
+	async disposeAssetsInBatch(assets: PartialAsset[]) {
 		await Promise.allSettled(assets.map((asset) => this.disposeAsset(asset)));
 	}
 }

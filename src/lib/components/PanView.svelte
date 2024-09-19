@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
 	import type { Position, Size } from '$lib/compounds';
+	import { createEventDispatcher } from 'svelte';
 
 	const minZoom = -1;
 	const maxZoom = 3;
@@ -33,12 +34,13 @@
 	export let position = { x: 0, y: 0 };
 	export let zoom = 0;
 
-	let elementView: EventTarget;
-	let elementContent: EventTarget;
+	export let elementView: HTMLElement | undefined = undefined;
+	export let elementContent: HTMLElement | undefined = undefined;
 
-	$: elementsTriggeringPanEvent = [elementView, elementContent];
+	$: elementsTriggeringPanEvent = [elementView, elementContent] as EventTarget[];
 
 	$: isPanning = false;
+	$: hasPointerMovedSincePanStart = false;
 	$: pointerOrigin = { x: 0, y: 0 };
 
 	$: scale = Math.exp(zoom);
@@ -47,6 +49,10 @@
 		width: 1,
 		height: 1
 	};
+
+	const dispatch = createEventDispatcher<{
+		click: void;
+	}>();
 
 	function isValidPanEventStarter(eventTarget: EventTarget | null) {
 		return eventTarget && elementsTriggeringPanEvent.includes(eventTarget);
@@ -60,16 +66,25 @@
 				ev.preventDefault();
 				pointerOrigin = { x: ev.screenX, y: ev.screenY };
 				isPanning = true;
+				hasPointerMovedSincePanStart = false;
 			}
 		}
 	}
 
 	function stopPanning() {
-		isPanning = false;
+		if (isPanning) {
+			if (!hasPointerMovedSincePanStart) {
+				dispatch('click');
+			}
+
+			isPanning = false;
+		}
 	}
 
 	function handlePointerMove(ev: PointerEvent) {
 		if (!isPanning) return;
+
+		hasPointerMovedSincePanStart = true;
 
 		const offset = {
 			x: (ev.screenX - pointerOrigin.x) / scale,
