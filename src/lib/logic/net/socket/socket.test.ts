@@ -14,23 +14,26 @@ import { MessageSocket } from './socket';
 
 it('sends and receives', async () => {
 	const response = await testClient.request('tokenCreate', {
-		boardId: 'boardid',
-		position: {
-			x: 0.5,
-			y: 2.5
-		},
-		tokenTemplate: 'someTokenDefId'
+		x: 0.5,
+		y: 2.5,
+		templateId: 'someTokenDefId'
 	});
 
 	expect(response).toEqual({
-		id: 'new uuid',
-		templateId: 'someTokenDefId',
-		label: 'Test Label',
-		conditions: [],
-		invisible: false,
-		size: 1,
-		x: 0.5,
-		y: 2.5
+		boardId: 'boardid',
+		token: {
+			id: 'new uuid',
+			templateId: 'someTokenDefId',
+			avatarId: null,
+			avatar: null,
+			conditions: [],
+			invisible: false,
+			name: 'Test Label',
+			size: 1,
+			x: 0.5,
+			y: 2.5,
+			initiativeModifier: null
+		}
 	} as Response<AllMessages, 'tokenCreate'>);
 });
 
@@ -59,16 +62,23 @@ class TestServer extends MessageSocket<_ServerHandled, ServerSentMessages> {
 	): Promise<ResponseObject<_ServerHandled, T>> {
 		console.log(`server processes ${name} with payload`, payload);
 
-		const { position, tokenTemplate: tokenDefinition } = payload;
+		const { x, y, templateId } = payload;
 
 		return publicResponse(<Response<_ServerHandled, 'tokenCreate'>>{
-			id: 'new uuid',
-			templateId: tokenDefinition,
-			label: 'Test Label',
-			conditions: [],
-			invisible: false,
-			size: 1,
-			...position
+			boardId: 'boardid',
+			token: {
+				templateId: templateId,
+				x: x,
+				y: y,
+				id: 'new uuid',
+				avatarId: null,
+				avatar: null,
+				conditions: [],
+				invisible: false,
+				name: 'Test Label',
+				size: 1,
+				initiativeModifier: null
+			}
 		}) as ResponseObject<_ServerHandled, T>;
 	}
 

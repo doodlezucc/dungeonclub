@@ -3,6 +3,9 @@ import { accountState } from '../state';
 
 interface RequestOptions {
 	params?: Record<string, string>;
+}
+
+interface RequestOptionsWithBody extends RequestOptions {
 	body?: {
 		data: BodyInit;
 		contentType: string;
@@ -30,7 +33,7 @@ export class RestConnection {
 		return path;
 	}
 
-	private async request(method: string, endpoint: string, options: RequestOptions = {}) {
+	private async request(method: string, endpoint: string, options: RequestOptionsWithBody = {}) {
 		const { params, body } = options;
 
 		const headers: HeadersInit = {};
@@ -62,8 +65,18 @@ export class RestConnection {
 		return this.request('GET', endpoint, options);
 	}
 
-	post(endpoint: string, options?: RequestOptions) {
+	post(endpoint: string, options?: RequestOptionsWithBody) {
 		return this.request('POST', endpoint, options);
+	}
+
+	async postFile(endpoint: string, file: File, options?: RequestOptions) {
+		return await this.post(endpoint, {
+			...options,
+			body: {
+				contentType: file.type,
+				data: await file.arrayBuffer()
+			}
+		});
 	}
 }
 

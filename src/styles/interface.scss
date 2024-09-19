@@ -22,7 +22,6 @@ button {
 	@include rounded();
 
 	outline: 0.25em solid transparent;
-	border: none;
 	box-sizing: border-box;
 
 	padding: 0.8em 2.5em;
@@ -68,13 +67,34 @@ button {
 		border-radius: 50%;
 		outline-width: 0.15em;
 		outline-offset: -1px;
+		margin: 5px;
 
-		&:hover {
+		&.disable-margin {
+			margin: 0;
+		}
+
+		&.inline {
+			font-size: inherit;
+
+			&,
+			&:enabled:hover,
+			&:enabled:active {
+				background-color: transparent;
+				outline: none;
+			}
+		}
+
+		&:disabled,
+		&:not(:hover, :active) {
+			color: inherit;
+		}
+
+		&:enabled:hover {
 			background-color: var(--color-button-hover);
 			outline-color: var(--color-button-hover);
 			outline-width: 0.5em;
 		}
-		&:active {
+		&:enabled:active {
 			background-color: var(--color-button-active);
 			outline-color: var(--color-button-active);
 		}
@@ -86,7 +106,7 @@ button {
 	}
 }
 
-[role='button'] {
+[role='button']:not(.custom) {
 	@extend button;
 }
 
@@ -116,7 +136,7 @@ input {
 	padding: $padding-vertical $padding-horizontal calc($padding-vertical + $strength * $max);
 }
 
-.raised {
+.raised:not(.custom) {
 	@extend %transitions-playful;
 	@include raise(1);
 
@@ -129,4 +149,8 @@ input {
 	&.drag-over {
 		@include raise(0.25);
 	}
+}
+
+.list-tile {
+	@extend %transitions-playful;
 }

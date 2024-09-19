@@ -139,5 +139,6 @@
 <style>
 	div {
 		display: flex;
+		flex-direction: inherit;
 	}
 </style>

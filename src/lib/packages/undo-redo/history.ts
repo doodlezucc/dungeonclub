@@ -1,5 +1,11 @@
 import { writable, type Invalidator, type Subscriber, type Unsubscriber } from 'svelte/store';
-import type { BidirectionalAction, DeltaOptions, PromiseOr, UndoableFn } from './action';
+import type {
+	BidirectionalAction,
+	DeltaOptions,
+	DirectionalFunction,
+	PromiseOr,
+	UndoableFn
+} from './action';
 
 const histories = new Map<unknown, HistoryStore>();
 
@@ -37,6 +43,7 @@ export interface HistoryStore {
 	registerUndoable: (name: string, doAction: UndoableFn) => Promise<void>;
 
 	registerDelta: <T>(name: string, options: DeltaOptions<T>) => Promise<void>;
+	registerDirectional: (name: string, doAction: DirectionalFunction) => Promise<void>;
 
 	undo: () => Promise<HistoryManipulationResult | null>;
 	redo: () => Promise<HistoryManipulationResult | null>;
@@ -89,14 +96,16 @@ export const createHistory = (): HistoryStore => {
 	}
 
 	async function registerUndoable(name: string, doAction: UndoableFn) {
-		const { undo } = await enqueuePromise(doAction);
+		let lastActionResult = await enqueuePromise(doAction);
 
 		silentRegister({
 			name,
 			do: async () => {
-				await doAction();
+				lastActionResult = await doAction();
 			},
-			undo: undo
+			undo: async () => {
+				await lastActionResult.undo();
+			}
 		});
 	}
 
@@ -105,6 +114,14 @@ export const createHistory = (): HistoryStore => {
 			name: name,
 			do: () => apply(states[1]),
 			undo: () => apply(states[0])
+		});
+	}
+
+	async function registerDirectional(name: string, doAction: DirectionalFunction) {
+		register({
+			name: name,
+			do: () => doAction('forward'),
+			undo: () => doAction('backward')
 		});
 	}
 
@@ -157,6 +174,7 @@ export const createHistory = (): HistoryStore => {
 		register,
 		registerUndoable,
 		registerDelta,
+		registerDirectional,
 		undo,
 		redo
 	};

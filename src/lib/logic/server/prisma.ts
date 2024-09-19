@@ -15,7 +15,7 @@ export const prisma = new PrismaClient().$extends({
 					select: {
 						[arrayName]: true
 					}
-				})) as Record<string, E[]>;
+				})) as unknown as Record<string, E[]>;
 
 				const previousArray = result[arrayName as string];
 				const previousValueSet = new Set(previousArray);

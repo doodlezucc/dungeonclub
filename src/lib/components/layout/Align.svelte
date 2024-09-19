@@ -10,12 +10,12 @@
 		| 'bottom-left'
 		| 'bottom-right';
 
-	export type Margin = 'normal';
+	export type AlignMargin = 'small' | 'normal';
 </script>
 
 <script lang="ts">
 	export let alignment: Alignment;
-	export let margin: Margin | undefined = undefined;
+	export let margin: AlignMargin | undefined = undefined;
 </script>
 
 <div
@@ -23,7 +23,7 @@
 	class:bottom={alignment.includes('bottom')}
 	class:left={alignment.includes('left')}
 	class:right={alignment.includes('right')}
-	class:margin-normal={margin === 'normal'}
+	data-margin={margin}
 >
 	<slot />
 </div>
@@ -34,7 +34,10 @@
 		align-self: center;
 	}
 
-	.margin-normal {
+	[data-margin='small'] {
+		margin: 0.8em;
+	}
+	[data-margin='normal'] {
 		margin: 1em;
 	}
 

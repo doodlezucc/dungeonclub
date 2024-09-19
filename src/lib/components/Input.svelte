@@ -33,6 +33,18 @@
 			node.focus();
 		}
 	}
+
+	// "const" -> Only updated on mount
+	const isNumericInput = typeof value === 'number';
+
+	let valueAsString = `${value}`;
+	$: {
+		if (isNumericInput) {
+			value = parseFloat(valueAsString);
+		} else {
+			value = valueAsString;
+		}
+	}
 </script>
 
 {#if label}
@@ -48,7 +60,7 @@
 			{required}
 			aria-required={required}
 			data-size={size}
-			bind:value
+			bind:value={valueAsString}
 			use:applyType
 			use:focusOnMount={autofocus}
 		/>
@@ -63,7 +75,7 @@
 		{required}
 		aria-required={required}
 		data-size={size}
-		bind:value
+		bind:value={valueAsString}
 		use:applyType
 		use:focusOnMount={autofocus}
 	/>

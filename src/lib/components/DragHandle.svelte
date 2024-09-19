@@ -19,6 +19,10 @@
 		padding: 0 0.3em;
 		font-size: 1em;
 
+		&:not(:disabled):hover {
+			background: none;
+		}
+
 		&:hover {
 			color: var(--color-text);
 		}

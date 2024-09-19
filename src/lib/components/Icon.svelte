@@ -14,4 +14,6 @@
 	export let icon: IconID;
 </script>
 
-<FontAwesomeIcon {icon} />
+{#key icon}
+	<FontAwesomeIcon {icon} />
+{/key}

@@ -1,18 +1,24 @@
 import type { Prisma } from '@prisma/client';
 
 export const SelectAsset = {
+	id: true,
 	mimeType: true,
 	path: true
 } satisfies Prisma.AssetSelect;
+export type AssetSnippet = Prisma.AssetGetPayload<{
+	select: typeof SelectAsset;
+}>;
 
 export const SelectTokenTemplate = {
 	id: true,
-	avatar: {
-		select: SelectAsset
-	},
+	avatarId: true,
 	name: true,
-	size: true
+	size: true,
+	initiativeModifier: true
 } satisfies Prisma.TokenTemplateSelect;
+export type TokenTemplateSnippet = Prisma.TokenTemplateGetPayload<{
+	select: typeof SelectTokenTemplate;
+}>;
 
 export const SelectPlayerCharacter = {
 	id: true,
@@ -51,19 +57,39 @@ export const SelectToken = {
 	templateId: true,
 	invisible: true,
 	conditions: true,
-	label: true,
+	name: true,
+	avatarId: true,
 	x: true,
 	y: true,
-	size: true
+	size: true,
+	initiativeModifier: true
 } satisfies Prisma.TokenSelect;
 export type TokenSnippet = Prisma.TokenGetPayload<{ select: typeof SelectToken }>;
+
+export type TokenProperties = Omit<
+	Prisma.TokenTemplateGetPayload<{}>,
+	'id' | 'campaignId' | 'avatar'
+>;
+export type OverridableTokenProperty = keyof TokenProperties;
+
+export type TokenPropertiesOrNull = {
+	[K in OverridableTokenProperty]: TokenProperties[K] | null;
+};
+
+export const SelectTokenProperties = {
+	name: true,
+	size: true,
+	avatarId: true,
+	initiativeModifier: true
+} satisfies Record<
+	OverridableTokenProperty,
+	true
+> satisfies Prisma.TokenSelect satisfies Prisma.TokenTemplateSelect;
 
 export const SelectBoardPreview = {
 	id: true,
 	name: true,
-	mapImage: {
-		select: SelectAsset
-	}
+	mapImageId: true
 } satisfies Prisma.BoardSelect;
 export type BoardPreviewSnippet = Prisma.BoardGetPayload<{ select: typeof SelectBoardPreview }>;
 
@@ -106,6 +132,9 @@ export const SelectCampaign = {
 	selectedBoardId: true,
 	templates: {
 		select: SelectTokenTemplate
+	},
+	assets: {
+		select: SelectAsset
 	}
 } satisfies Prisma.CampaignSelect;
 export type CampaignSnippet = Prisma.CampaignGetPayload<{ select: typeof SelectCampaign }> & {

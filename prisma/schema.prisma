@@ -24,8 +24,12 @@ model Asset {
   path     String
   mimeType String
 
-  TokenTemplate TokenTemplate?
-  Board         Board?
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId String
+
+  avatarOfTokenTemplates TokenTemplate[]
+  avatarOfTokens         Token[]
+  mapImageOfBoards       Board[]
 }
 
 model Crypt {
@@ -65,6 +69,7 @@ model Campaign {
   name       String
   createdAt  DateTime @default(now())
 
+  assets           Asset[]
   playerCharacters PlayerCharacter[]
   templates        TokenTemplate[]
   boards           Board[]
@@ -95,15 +100,44 @@ model TokenTemplate {
 
   player PlayerCharacter?
 
-  avatar   Asset?  @relation(fields: [avatarId], references: [id], onDelete: Cascade)
-  avatarId String? @unique
-
-  name String
-
-  size               Int @default(1)
-  initiativeModifier Int @default(0)
-
   instances Token[]
+
+  //
+  // Common token properties
+
+  name               String
+  size               Int     @default(1)
+  initiativeModifier Int     @default(0)
+  avatar             Asset?  @relation(fields: [avatarId], references: [id], onDelete: SetNull)
+  avatarId           String?
+}
+
+model Token {
+  id String @id @default(uuid())
+
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId String
+
+  template   TokenTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  templateId String?
+
+  //
+  // Common token properties (null = "inherit from template")
+
+  name               String?
+  size               Int?
+  initiativeModifier Int?
+  avatar             Asset?  @relation(fields: [avatarId], references: [id], onDelete: SetNull)
+  avatarId           String?
+
+  //
+  // Instance token properties
+
+  x               Float
+  y               Float
+  invisible       Boolean          @default(false)
+  conditions      Int[]
+  initiativeEntry InitiativeEntry?
 }
 
 model Board {
@@ -115,7 +149,7 @@ model Board {
   name String @default("Untitled Board")
 
   mapImage   Asset  @relation(fields: [mapImageId], references: [id], onDelete: Cascade)
-  mapImageId String @unique
+  mapImageId String
 
   gridCellsPerRow   Int      @default(20)
   gridPaddingTop    Float    @default(0)
@@ -133,27 +167,6 @@ enum GridType {
   HEX_HORIZONTAL
   HEX_VERTICAL
   NONE
-}
-
-model Token {
-  id String @id @default(uuid())
-
-  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  boardId String
-
-  template   TokenTemplate? @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  templateId String?
-
-  label String @default("")
-  x     Float
-  y     Float
-  size  Int    @default(0)
-
-  invisible  Boolean @default(false)
-  conditions Int[]
-
-  initiativeModifier Int?
-  initiativeEntry    InitiativeEntry?
 }
 
 model InitiativeOrder {

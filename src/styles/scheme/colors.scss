@@ -24,6 +24,10 @@ body {
 	--color-container: var(--color-shade-dark);
 	--color-separator: var(--color-shade-pale);
 
+	--color-list-tile: var(--color-background);
+	--color-list-tile-hover: var(--color-shade-darker);
+	--color-list-tile-selected: var(--color-shade-mid);
+
 	--color-button: var(--color-shade-darker);
 	--color-button-hover: var(--color-shade-darkest);
 	--color-button-active-outline: var(--color-shade-pale);
@@ -50,6 +54,7 @@ body {
 
 	--color-input-background: var(--color-shade-darkest);
 	--color-input-outline: var(--color-shade-mid);
+	--color-input-hover-outline: var(--color-shade-light);
 }
 
 body {

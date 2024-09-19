@@ -30,11 +30,9 @@ export const accountHandler: CategoryHandler<AccountMessageCategory> = {
 
 	handleAccountCreate: async ({ email, password }) => {
 		await server.accountManager.prepareUnverifiedAccount(email, password);
-		return true;
 	},
 
 	handleAccountResetPassword: async ({ email, password }) => {
 		await server.accountManager.preparePasswordReset(email, password);
-		return true;
 	}
 };

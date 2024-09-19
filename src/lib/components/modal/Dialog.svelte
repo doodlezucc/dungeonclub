@@ -69,7 +69,12 @@
 			<Text id="dialogTitle" style="heading">{title}</Text>
 
 			{#if !disableCloseButton}
-				<IconButton label="Close" icon="close" on:click={() => modal.pop(closeButtonResult)} />
+				<IconButton
+					label="Close"
+					icon="close"
+					disableMargin
+					on:click={() => modal.pop(closeButtonResult)}
+				/>
 			{/if}
 		</Row>
 	</header>

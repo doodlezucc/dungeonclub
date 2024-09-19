@@ -1,18 +1,28 @@
+<script lang="ts" context="module">
+	export type AcceptedFileType = 'audio/*' | 'image/*';
+</script>
+
 <script lang="ts">
 	import Icon, { type IconID } from 'components/Icon.svelte';
 	import { createEventDispatcher } from 'svelte';
 
+	export let accept: AcceptedFileType;
+	export let acceptMultiple = false;
+
+	export let buttonClass = 'raised';
 	export let displayedIcon: IconID | undefined = undefined;
 
 	$: dragOver = false;
-	$: fileList = null as FileList | null;
+	$: fileList = null as File[] | null;
 
 	let input: HTMLInputElement;
 	function openFilePicker() {
 		input.click();
 	}
 
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher<{
+		change: File[];
+	}>();
 
 	$: {
 		if (fileList) {
@@ -29,13 +39,17 @@
 		const files = ev.dataTransfer?.files;
 
 		if (files) {
-			fileList = files;
+			if (acceptMultiple) {
+				fileList = Array.from(files);
+			} else {
+				fileList = files.length >= 1 ? [files.item(0)!] : [];
+			}
 		}
 	}
 
 	function handlePick() {
 		if (input.files) {
-			fileList = input.files;
+			fileList = Array.from(input.files);
 		}
 	}
 </script>
@@ -49,7 +63,8 @@
 	on:drop={handleDrop}
 	type="button"
 	aria-describedby="file-upload"
-	class="drop-area raised"
+	class={buttonClass}
+	class:drop-area={true}
 	class:drag-over={dragOver}
 >
 	{#if displayedIcon}
@@ -61,6 +76,8 @@
 	<slot />
 </button>
 <input
+	{accept}
+	multiple={acceptMultiple}
 	bind:this={input}
 	on:change={handlePick}
 	type="file"
@@ -78,9 +95,9 @@
 
 	.drop-area {
 		border-style: dashed;
+	}
 
-		> * {
-			pointer-events: none;
-		}
+	:global(.drop-area > *) {
+		pointer-events: none;
 	}
 </style>

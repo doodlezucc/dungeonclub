@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
 	export type FlexDirection = 'column' | 'row';
-	export type Gap = 'normal' | 'big';
+	export type Gap = 'small' | 'normal' | 'big';
 
 	export type FlexAlign = 'start' | 'center' | 'end';
 	export type FlexJustify =
@@ -35,6 +35,9 @@
 </div>
 
 <style>
+	[data-gap='small'] {
+		gap: 1px;
+	}
 	[data-gap='normal'] {
 		gap: 0.4em;
 	}
