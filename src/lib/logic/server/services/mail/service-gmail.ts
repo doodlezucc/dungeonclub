@@ -6,7 +6,7 @@ import {
 } from '$env/static/private';
 import nodemailer, { type Transporter } from 'nodemailer';
 import { prisma } from 'server/server';
-import { MailService, type SendMailOptions } from '../mail-service';
+import { TransporterMailService } from './transporter-service';
 
 const SETTING_KEY_TOKEN_STATE = 'GMAIL_TOKEN';
 interface GmailTokenState {
@@ -14,33 +14,19 @@ interface GmailTokenState {
 	expires: number;
 }
 
-export class GmailMailService extends MailService {
-	private transporter: Transporter | null = null;
+export class GmailMailService extends TransporterMailService {
+	protected async createTransporter() {
+		const state = await this.readState();
 
-	constructor() {
-		super();
-		this.setupTransporter();
-	}
-
-	private async setupTransporter() {
-		try {
-			const state = await this.readState();
-
-			this.transporter = GmailMailService.createTransporter(state);
-
-			this.transporter.on('token', (token) => {
-				this.storeToken({
-					accessToken: token.accessToken,
-					expires: token.expires
-				});
+		return GmailMailService.createTransporterFromToken(state).on('token', (token) => {
+			this.storeToken({
+				accessToken: token.accessToken,
+				expires: token.expires
 			});
-		} catch (err) {
-			console.error('Failed to setup Gmail mailing service');
-			console.error(err);
-		}
+		});
 	}
 
-	private static createTransporter(tokenState: GmailTokenState): Transporter {
+	private static createTransporterFromToken(tokenState: GmailTokenState): Transporter {
 		return nodemailer.createTransport({
 			host: 'smtp.gmail.com',
 			port: 465,
@@ -74,29 +60,5 @@ export class GmailMailService extends MailService {
 				jsonValue: tokenJsonString
 			}
 		});
-	}
-
-	async sendMail(options: SendMailOptions): Promise<void> {
-		const client = this.transporter;
-
-		if (!client) {
-			throw 'Transporter not initialized';
-		}
-
-		const result = await client.sendMail({
-			subject: options.subject,
-			from: { name: 'Dungeon Club', address: GMAIL_API_USER },
-			to: options.recipient,
-			html: options.htmlBody,
-			attachments: [
-				{
-					cid: 'logo',
-					filename: 'logo.png',
-					content: await MailService.loadLogoImage()
-				}
-			]
-		});
-
-		console.log('Result after sending mail:', result);
 	}
 }
