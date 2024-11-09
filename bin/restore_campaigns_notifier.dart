@@ -18,21 +18,6 @@ void main(List<String> args) async {
 Future<void> sendAllMails() async {
   await MailCredentials.load();
 
-  final emailLookupJson =
-      await File('../TMP_CONFIDENTIAL/recovered-emails.json').readAsString();
-  final hashToEmailLookup =
-      Map<String, String?>.from(jsonDecode(emailLookupJson));
-
-  final recreatedEmailToCryptLookupJson =
-      await File('../TMP_CONFIDENTIAL/recreated-account-hashes.json')
-          .readAsString();
-  final recreatedEmailToCryptLookup =
-      Map<String, String>.from(jsonDecode(recreatedEmailToCryptLookupJson));
-
-  final recreatedHashToEmailLookup = recreatedEmailToCryptLookup
-      .map((key, value) => MapEntry(Crypt(value).hash, key));
-  hashToEmailLookup.addAll(recreatedHashToEmailLookup);
-
   final reportFile = File('../TMP_CONFIDENTIAL/restorer-effects.json');
   final report =
       PlainRestorerResult.fromJson(jsonDecode(await reportFile.readAsString()));
@@ -44,18 +29,6 @@ Future<void> sendAllMails() async {
     await _sendMailToLostAccountForRecovery(
       accountEmail,
       restoredGames,
-    );
-  }
-
-  for (var affectedOldAccountInfo in report.affectedAccounts.entries) {
-    final accountCrypt = affectedOldAccountInfo.key;
-    final effects = affectedOldAccountInfo.value;
-
-    final accountEmail = hashToEmailLookup[accountCrypt.hash];
-
-    await _sendMailNotifyingAboutAutomaticallyRestoredGames(
-      accountEmail!,
-      effects,
     );
   }
 }
@@ -74,24 +47,6 @@ Future<void> _sendMailToLostAccountForRecovery(
     subject: 'Recovery of your Account',
     layoutFile: 'notification_lost_account.html',
     modifyHtml: (html) => html.replaceAll('\$URL', recoveryUrl),
-  );
-}
-
-Future<void> _sendMailNotifyingAboutAutomaticallyRestoredGames(
-  String email,
-  List<RestorerEffect> effects,
-) async {
-  final listOfRestorations = effects.map((e) => e.summary).toList();
-  final summaryHtml =
-      listOfRestorations.map((summary) => ' - $summary').join('\n<br>\n');
-
-  print('notify $email about $listOfRestorations');
-
-  await sendMail(
-    email: email,
-    subject: 'Your Account has been Repaired',
-    layoutFile: 'notification_campaigns_repaired.html',
-    modifyHtml: (html) => html.replaceAll('\$SUMMARY', summaryHtml),
   );
 }
 

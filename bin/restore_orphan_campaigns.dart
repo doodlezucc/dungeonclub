@@ -215,7 +215,7 @@ MemoryGapOperation simulateLogs(
 
   final registrationDates = <String, TimeRange>{};
   final loginTimes = <String, DateTime>{};
-  var activeConnections = 3;
+  var activeConnections = 11;
   final suspects = <String>{};
 
   for (var match in matches) {
