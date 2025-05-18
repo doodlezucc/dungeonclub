@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export enum ShortcutAction {
 		Escape = 'Escape',
 
@@ -68,15 +68,22 @@
 </script>
 
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { ShortcutManager } from '$lib/packages/shortcut-manager';
 	import { derived, readable, writable, type Readable } from 'svelte/store';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	const shortcutManager = new ShortcutManager<ShortcutAction, KeyState>(handleAction);
 	const activeManagerKeyStates = shortcutManager.activeKeyStates;
 
-	$: {
+	run(() => {
 		activeKeyStates.set($activeManagerKeyStates);
-	}
+	});
 
 	shortcutManager.bind('Escape', ShortcutAction.Escape);
 
@@ -114,15 +121,15 @@
 </script>
 
 <svelte:window
-	on:keydown={(ev) => {
+	onkeydown={(ev) => {
 		if (!isNativelyHandled(ev)) {
 			shortcutManager.handleShortcutAction(ev);
 			shortcutManager.updateKeyStates(ev, true);
 		}
 	}}
-	on:keyup={(ev) => {
+	onkeyup={(ev) => {
 		shortcutManager.updateKeyStates(ev, false);
 	}}
 />
 
-<slot />
+{@render children?.()}

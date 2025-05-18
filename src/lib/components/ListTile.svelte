@@ -1,10 +1,18 @@
 <script lang="ts">
-	export let selected: boolean = false;
+	import { createBubbler } from 'svelte/legacy';
+
+	const bubble = createBubbler();
+	interface Props {
+		selected?: boolean;
+		children?: import('svelte').Snippet;
+	}
+
+	let { selected = false, children }: Props = $props();
 </script>
 
 <li class="list-tile" class:selected>
-	<div role="button" class="custom" tabindex="0" on:keydown on:click on:mousedown>
-		<slot />
+	<div role="button" class="custom" tabindex="0" onkeydown={bubble('keydown')} onclick={bubble('click')} onmousedown={bubble('mousedown')}>
+		{@render children?.()}
 	</div>
 </li>
 

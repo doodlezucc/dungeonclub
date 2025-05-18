@@ -8,18 +8,22 @@
 	import { createEventDispatcher } from 'svelte';
 	import { unplacedTokenProperties } from '../tokens/UnplacedToken.svelte';
 
-	export let template: TokenTemplateSnippet;
+	interface Props {
+		template: TokenTemplateSnippet;
+	}
 
-	$: avatarAsset = Campaign.instance.assetByNullableId(template.avatarId);
-	$: avatarSrc = $avatarAsset ? asset($avatarAsset.path) : null;
+	let { template }: Props = $props();
 
-	$: isSelectedForPlacement = $unplacedTokenProperties?.tokenTemplate === template;
+	let avatarAsset = $derived(Campaign.instance.assetByNullableId(template.avatarId));
+	let avatarSrc = $derived($avatarAsset ? asset($avatarAsset.path) : null);
+
+	let isSelectedForPlacement = $derived($unplacedTokenProperties?.tokenTemplate === template);
 
 	const dispatch = createEventDispatcher<{
 		delete: void;
 	}>();
 
-	let captureMouseMovement = false;
+	let captureMouseMovement = $state(false);
 
 	function handleMouseDown(ev: MouseEvent) {
 		if (ev.target instanceof HTMLButtonElement) {
@@ -46,8 +50,8 @@
 </script>
 
 <svelte:window
-	on:mousemove={captureMouseMovement ? displayTokenAtCursor : undefined}
-	on:mouseup={captureMouseMovement ? handleMouseUp : undefined}
+	onmousemove={captureMouseMovement ? displayTokenAtCursor : undefined}
+	onmouseup={captureMouseMovement ? handleMouseUp : undefined}
 />
 
 <ListTile

@@ -1,21 +1,38 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export type AcceptedFileType = 'audio/*' | 'image/*';
 </script>
 
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import Icon, { type IconID } from 'components/Icon.svelte';
 	import { createEventDispatcher } from 'svelte';
 
-	export let accept: AcceptedFileType;
-	export let acceptMultiple = false;
 
-	export let buttonClass = 'raised';
-	export let displayedIcon: IconID | undefined = undefined;
+	interface Props {
+		accept: AcceptedFileType;
+		acceptMultiple?: boolean;
+		buttonClass?: string;
+		displayedIcon?: IconID | undefined;
+		children?: import('svelte').Snippet;
+	}
 
-	$: dragOver = false;
-	$: fileList = null as File[] | null;
+	let {
+		accept,
+		acceptMultiple = false,
+		buttonClass = 'raised',
+		displayedIcon = undefined,
+		children
+	}: Props = $props();
 
-	let input: HTMLInputElement;
+	let dragOver = $state(false);
+	
+	let fileList;
+	run(() => {
+		fileList = null as File[] | null;
+	});
+
+	let input: HTMLInputElement = $state();
 	function openFilePicker() {
 		input.click();
 	}
@@ -24,14 +41,14 @@
 		change: File[];
 	}>();
 
-	$: {
+	run(() => {
 		if (fileList) {
 			dispatch('change', fileList);
 
 			// Clear input element state to allow picking the same file again
 			input.value = '';
 		}
-	}
+	});
 
 	function handleDrop(ev: DragEvent) {
 		dragOver = false;
@@ -56,11 +73,11 @@
 
 <button
 	id="upload-button"
-	on:click={openFilePicker}
-	on:dragenter={() => (dragOver = true)}
-	on:dragover={(ev) => ev.preventDefault()}
-	on:dragleave={() => (dragOver = false)}
-	on:drop={handleDrop}
+	onclick={openFilePicker}
+	ondragenter={() => (dragOver = true)}
+	ondragover={(ev) => ev.preventDefault()}
+	ondragleave={() => (dragOver = false)}
+	ondrop={handleDrop}
 	type="button"
 	aria-describedby="file-upload"
 	class={buttonClass}
@@ -73,13 +90,13 @@
 		</div>
 	{/if}
 
-	<slot />
+	{@render children?.()}
 </button>
 <input
 	{accept}
 	multiple={acceptMultiple}
 	bind:this={input}
-	on:change={handlePick}
+	onchange={handlePick}
 	type="file"
 	id="file-upload"
 	aria-labelledby="upload-button"

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export interface TokenStyle {
 		selected: boolean;
 		dragging: boolean;
@@ -7,6 +7,9 @@
 </script>
 
 <script lang="ts">
+	import { run, createBubbler } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import type { Position } from '$lib/compounds';
 	import { asset } from 'client/communication/asset';
 	import { Campaign } from 'client/state';
@@ -14,23 +17,32 @@
 	import type { TokenProperties } from 'shared';
 	import { spring } from 'svelte/motion';
 
-	export let properties: TokenProperties;
-	export let position: Position;
 
-	export let style: TokenStyle;
-	export let draggableParams: DraggableParams;
+	interface Props {
+		properties: TokenProperties;
+		position: Position;
+		style: TokenStyle;
+		draggableParams: DraggableParams;
+	}
+
+	let {
+		properties,
+		position,
+		style,
+		draggableParams
+	}: Props = $props();
 
 	const positionSpring = spring(position, {
 		damping: 0.7,
 		stiffness: 0.2
 	});
 
-	$: {
+	run(() => {
 		$positionSpring = position;
-	}
+	});
 
-	$: avatarAsset = Campaign.instance.assetByNullableId(properties.avatarId);
-	$: avatarUrl = $avatarAsset?.path;
+	let avatarAsset = $derived(Campaign.instance.assetByNullableId(properties.avatarId));
+	let avatarUrl = $derived($avatarAsset?.path);
 </script>
 
 <div
@@ -41,8 +53,8 @@
 	role="presentation"
 	use:draggable={draggableParams}
 	style="--x: {$positionSpring.x}; --y: {$positionSpring.y}; --size: {properties.size}"
-	on:mousedown
-	on:mouseup
+	onmousedown={bubble('mousedown')}
+	onmouseup={bubble('mouseup')}
 >
 	{#if avatarUrl}
 		<img src={asset(avatarUrl)} alt="Token avatar" />

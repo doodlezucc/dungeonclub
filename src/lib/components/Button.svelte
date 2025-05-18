@@ -1,13 +1,28 @@
 <script lang="ts">
+	import { createBubbler } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import { goto } from '$app/navigation';
 
-	export let href: string | undefined = undefined;
 
-	export let highlight: boolean = false;
-	export let raised: boolean = false;
 
-	export let disabled: boolean = false;
-	export let type: HTMLButtonElement['type'] | undefined = undefined;
+	interface Props {
+		href?: string | undefined;
+		highlight?: boolean;
+		raised?: boolean;
+		disabled?: boolean;
+		type?: HTMLButtonElement['type'] | undefined;
+		children?: import('svelte').Snippet;
+	}
+
+	let {
+		href = undefined,
+		highlight = false,
+		raised = false,
+		disabled = false,
+		type = undefined,
+		children
+	}: Props = $props();
 
 	function handleSpaceBar(ev: KeyboardEvent) {
 		if (ev.key === ' ') {
@@ -18,8 +33,8 @@
 
 <svelte:element
 	this={href ? 'a' : 'button'}
-	on:click
-	on:keypress={href ? handleSpaceBar : undefined}
+	onclick={bubble('click')}
+	onkeypress={href ? handleSpaceBar : undefined}
 	{href}
 	role={href && 'button'}
 	class:action={highlight}
@@ -27,5 +42,5 @@
 	{disabled}
 	{type}
 >
-	<slot />
+	{@render children?.()}
 </svelte:element>

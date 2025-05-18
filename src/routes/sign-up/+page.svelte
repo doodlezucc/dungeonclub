@@ -6,7 +6,8 @@
 	import ConfirmPasswordPage from '../home/forms/ConfirmPasswordPage.svelte';
 	import CredentialsForm from '../home/forms/CredentialsForm.svelte';
 
-	$: showActivationCodeForm = false;
+	let showActivationCodeForm = $state(false);
+	
 
 	async function attemptSignUp(emailAddress: string, password: string) {
 		await Account.attemptSignUp(emailAddress, password);
@@ -20,30 +21,38 @@
 </script>
 
 <ConfirmPasswordPage {showActivationCodeForm}>
+	<!-- @migration-task: migrate this slot by hand, `credentials-form` is an invalid identifier -->
 	<svelte:fragment slot="credentials-form">
 		<CredentialsForm
 			title="Create a new Account"
 			submitButtonLabel="Sign Up"
 			handleSubmit={attemptSignUp}
 		>
-			<span slot="note" class="heads-up" in:fly={{ delay: 100, y: 20, duration: 600 }}>
-				<b>Tip!</b> Accounts are <em>not required</em><br />
-				for players, only for game leaders.
-			</span>
+			{#snippet note()}
+						<span  class="heads-up" in:fly={{ delay: 100, y: 20, duration: 600 }}>
+					<b>Tip!</b> Accounts are <em>not required</em><br />
+					for players, only for game leaders.
+				</span>
+					{/snippet}
 
-			<span slot="links">
-				Already have an account?<br />
-				<a href="/">Log in here</a>
-			</span>
+			{#snippet links()}
+						<span >
+					Already have an account?<br />
+					<a href="/">Log in here</a>
+				</span>
+					{/snippet}
 		</CredentialsForm>
 	</svelte:fragment>
 
+	<!-- @migration-task: migrate this slot by hand, `code-form` is an invalid identifier -->
 	<svelte:fragment slot="code-form">
 		<ActivationCodeForm title="Activate Account" handleCodeSubmit={attemptVerify}>
-			<span slot="note">
-				Hey there, thanks for signing up. Glad to have you! Please <b>check your email inbox</b> for
-				an activation code.
-			</span>
+			{#snippet note()}
+						<span >
+					Hey there, thanks for signing up. Glad to have you! Please <b>check your email inbox</b> for
+					an activation code.
+				</span>
+					{/snippet}
 		</ActivationCodeForm>
 	</svelte:fragment>
 </ConfirmPasswordPage>

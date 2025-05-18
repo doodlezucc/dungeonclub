@@ -2,12 +2,23 @@
 	import { focusOnMount } from 'components/Input.svelte';
 	import Form from './Form.svelte';
 
-	export let title: string;
-	export let submitButtonLabel = 'Verify';
 
-	export let handleCodeSubmit: (enteredCode: string) => Promise<void>;
+	interface Props {
+		title: string;
+		submitButtonLabel?: string;
+		handleCodeSubmit: (enteredCode: string) => Promise<void>;
+		note?: import('svelte').Snippet;
+	}
 
-	$: enteredCode = '';
+	let {
+		title,
+		submitButtonLabel = 'Verify',
+		handleCodeSubmit,
+		note
+	}: Props = $props();
+
+	let enteredCode = $state('');
+	
 </script>
 
 <Form
@@ -16,9 +27,11 @@
 	disableFormSpacing
 	handleSubmit={() => handleCodeSubmit(enteredCode)}
 >
-	<p slot="note">
-		<slot name="note" />
-	</p>
+	{#snippet note()}
+		<p >
+			{@render note?.()}
+		</p>
+	{/snippet}
 
 	<input name="activation-code" placeholder="CODE" bind:value={enteredCode} use:focusOnMount />
 </Form>

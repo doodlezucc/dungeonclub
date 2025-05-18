@@ -7,9 +7,21 @@
 	import Text from '../Text.svelte';
 	import type { ModalContext } from './ModalProvider.svelte';
 
-	export let title: string;
-	export let disableCloseButton: boolean = false;
-	export let closeButtonResult: unknown = undefined;
+	interface Props {
+		title: string;
+		disableCloseButton?: boolean;
+		closeButtonResult?: unknown;
+		children?: import('svelte').Snippet;
+		actions?: import('svelte').Snippet;
+	}
+
+	let {
+		title,
+		disableCloseButton = false,
+		closeButtonResult = undefined,
+		children,
+		actions
+	}: Props = $props();
 
 	const modal = getContext<ModalContext>('modal');
 
@@ -82,13 +94,13 @@
 	<Separator fat />
 
 	<div class="content">
-		<slot />
+		{@render children?.()}
 	</div>
 
-	{#if $$slots.actions}
+	{#if actions}
 		<div class="actions">
 			<Row justify="end" gap="normal">
-				<slot name="actions" />
+				{@render actions?.()}
 			</Row>
 		</div>
 	{/if}

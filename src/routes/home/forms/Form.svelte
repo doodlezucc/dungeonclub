@@ -3,16 +3,34 @@
 	import { Column, Container } from 'components/layout';
 	import { fly } from 'svelte/transition';
 
-	export let title: string;
-	export let submitButtonLabel: string;
 
-	export let disableSubmitButton = false;
-	export let disableFormSpacing = false;
 
-	export let handleSubmit: () => Promise<void>;
+	interface Props {
+		title: string;
+		submitButtonLabel: string;
+		disableSubmitButton?: boolean;
+		disableFormSpacing?: boolean;
+		handleSubmit: () => Promise<void>;
+		note?: import('svelte').Snippet;
+		children?: import('svelte').Snippet;
+		links?: import('svelte').Snippet;
+	}
 
-	$: errorReason = '';
-	$: isSubmitting = false;
+	let {
+		title,
+		submitButtonLabel,
+		disableSubmitButton = false,
+		disableFormSpacing = false,
+		handleSubmit,
+		note,
+		children,
+		links
+	}: Props = $props();
+
+	let errorReason = $state('');
+	
+	let isSubmitting = $state(false);
+	
 
 	async function onSubmitForm() {
 		isSubmitting = true;
@@ -37,15 +55,15 @@
 		<Column align="center">
 			<h2>{title}</h2>
 
-			<slot name="note" />
+			{@render note?.()}
 
 			<form
 				class:disable-spacing={disableFormSpacing}
 				action="javascript:void(0);"
 				method="dialog"
-				on:submit={() => false}
+				onsubmit={() => false}
 			>
-				<slot />
+				{@render children?.()}
 
 				{#if errorReason}
 					<span class="error" aria-live="polite" in:fly={{ y: 20 }}>{errorReason}.</span>
@@ -61,7 +79,7 @@
 					{submitButtonLabel}
 				</Button>
 
-				<slot name="links" />
+				{@render links?.()}
 			</form>
 		</Column>
 	</Container>

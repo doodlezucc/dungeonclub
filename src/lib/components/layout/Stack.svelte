@@ -1,9 +1,10 @@
 <script>
-	export let expand = false;
+	/** @type {{expand?: boolean, children?: import('svelte').Snippet}} */
+	let { expand = false, children } = $props();
 </script>
 
 <div class:expand>
-	<slot />
+	{@render children?.()}
 </div>
 
 <style>

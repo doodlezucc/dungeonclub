@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { boardState, campaignState } from 'client/state';
 	import { Align, Column, Stack } from 'components/layout';
 	import type { ModalContext } from 'components/modal';
@@ -11,23 +13,26 @@
 
 	const modal = getContext<ModalContext>('modal');
 
-	$: selectBoardDialogIsVisible = false;
+	let selectBoardDialogIsVisible = $state(false);
+	
 
 	async function showBoardSelection() {
 		selectBoardDialogIsVisible = true;
 		await modal.display(SelectBoardDialog, {});
 	}
 
-	$: if (!selectBoardDialogIsVisible) {
-		const loadedCampaign = $campaignState;
+	run(() => {
+		if (!selectBoardDialogIsVisible) {
+			const loadedCampaign = $campaignState;
 
-		// Show board selection if there is no board loaded
-		if (loadedCampaign && !$boardState) {
-			showBoardSelection();
+			// Show board selection if there is no board loaded
+			if (loadedCampaign && !$boardState) {
+				showBoardSelection();
+			}
 		}
-	}
+	});
 
-	let selectedTokenIds: string[] = [];
+	let selectedTokenIds: string[] = $state([]);
 </script>
 
 <Stack expand>

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	import type { HexGridSpace } from '$lib/packages/grid/spaces/hex';
 	import type { Position } from 'components/compounds';
 
@@ -17,11 +17,15 @@
 </script>
 
 <script lang="ts">
-	export let offset: Position;
-	export let cellWidth: number;
-	export let gridSpace: HexGridSpace;
+	interface Props {
+		offset: Position;
+		cellWidth: number;
+		gridSpace: HexGridSpace;
+	}
 
-	$: points = drawPolygon(offset, cellWidth, gridSpace);
+	let { offset, cellWidth, gridSpace }: Props = $props();
+
+	let points = $derived(drawPolygon(offset, cellWidth, gridSpace));
 </script>
 
 <polygon id="hexagon" points={makePolygonData(points)} />

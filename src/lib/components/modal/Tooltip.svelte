@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export interface TooltipProps {
 		label: string;
 	}
@@ -27,11 +27,16 @@
 
 	import { fly } from 'svelte/transition';
 
-	export let props: TooltipProps;
-	export let boundingRect: DOMRect;
-	export let isDestroyed = false;
+	interface Props {
+		props: TooltipProps;
+		boundingRect: DOMRect;
+		isDestroyed?: boolean;
+	}
 
-	$: isMounted = false;
+	let { props, boundingRect, isDestroyed = false }: Props = $props();
+
+	let isMounted = $state(false);
+	
 
 	onMount(() => {
 		isMounted = true;

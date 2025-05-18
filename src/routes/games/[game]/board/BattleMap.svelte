@@ -8,7 +8,7 @@
 		height: 400
 	};
 
-	$: boardImageAsset = Campaign.instance.assetById($boardState!.mapImageId);
+	let boardImageAsset = $derived(Campaign.instance.assetById($boardState!.mapImageId));
 </script>
 
 <img

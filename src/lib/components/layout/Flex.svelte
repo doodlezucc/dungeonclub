@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export type FlexDirection = 'column' | 'row';
 	export type Gap = 'small' | 'normal' | 'big';
 
@@ -13,14 +13,27 @@
 </script>
 
 <script lang="ts">
-	export let direction: FlexDirection | undefined = undefined;
-	export let gap: Gap | undefined = undefined;
 
-	export let align: FlexAlign | undefined = undefined;
-	export let justify: FlexJustify | undefined = undefined;
 
-	export let expand = false;
-	export let wrap = false;
+	interface Props {
+		direction?: FlexDirection | undefined;
+		gap?: Gap | undefined;
+		align?: FlexAlign | undefined;
+		justify?: FlexJustify | undefined;
+		expand?: boolean;
+		wrap?: boolean;
+		children?: import('svelte').Snippet;
+	}
+
+	let {
+		direction = undefined,
+		gap = undefined,
+		align = undefined,
+		justify = undefined,
+		expand = false,
+		wrap = false,
+		children
+	}: Props = $props();
 </script>
 
 <div
@@ -31,7 +44,7 @@
 	data-gap={gap}
 	data-wrap={wrap ? 1 : undefined}
 >
-	<slot />
+	{@render children?.()}
 </div>
 
 <style>

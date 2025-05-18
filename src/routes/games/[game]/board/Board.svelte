@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: Unexpected token -->
 <script lang="ts" context="module">
 	export interface BoardContext {
 		transformClientToGridSpace: (position: Position) => Position;

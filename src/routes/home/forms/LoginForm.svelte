@@ -5,7 +5,8 @@
 	import { enteredEmailAddress } from '../credential-stores';
 	import Form from './Form.svelte';
 
-	$: password = '';
+	let password = $state('');
+	
 
 	async function attemptLogin() {
 		await Account.logIn($enteredEmailAddress, password);
@@ -33,9 +34,11 @@
 		bind:value={password}
 	/>
 
-	<span slot="links">
-		<a href="./reset-password">Reset password</a>
-		<Dot />
-		<a href="./sign-up">Create an account</a>
-	</span>
+	{#snippet links()}
+		<span >
+			<a href="./reset-password">Reset password</a>
+			<Dot />
+			<a href="./sign-up">Create an account</a>
+		</span>
+	{/snippet}
 </Form>

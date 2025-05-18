@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	import type { Action } from 'svelte/action';
 	import type { Position } from './compounds';
 
@@ -60,10 +60,15 @@
 <script lang="ts">
 	import { spring } from 'svelte/motion';
 
-	export let offset: Position = {
+	interface Props {
+		offset?: Position;
+		children?: import('svelte').Snippet;
+	}
+
+	let { offset = $bindable({
 		x: 0,
 		y: 0
-	};
+	}), children }: Props = $props();
 
 	let visualOffset = spring<Position>(offset, {
 		stiffness: 0.1,
@@ -82,5 +87,5 @@
 			})
 	}}
 >
-	<slot />
+	{@render children?.()}
 </div>

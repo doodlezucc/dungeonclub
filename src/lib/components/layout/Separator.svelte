@@ -1,5 +1,9 @@
 <script lang="ts">
-	export let fat = false;
+	interface Props {
+		fat?: boolean;
+	}
+
+	let { fat = false }: Props = $props();
 </script>
 
 <div class="separator" class:fat></div>

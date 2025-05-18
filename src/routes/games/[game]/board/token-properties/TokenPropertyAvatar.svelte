@@ -7,7 +7,11 @@
 	import FileUploader from 'components/upload/FileUploader.svelte';
 	import type { AssetSnippet } from 'shared';
 
-	export let avatar: AssetSnippet | null;
+	interface Props {
+		avatar: AssetSnippet | null;
+	}
+
+	let { avatar = $bindable() }: Props = $props();
 
 	async function handleAvatarChange(ev: CustomEvent<File[]>) {
 		const files = ev.detail;

@@ -1,13 +1,18 @@
 <script lang="ts">
 	import Container from 'components/layout/Container.svelte';
 
-	export let title: string;
+	interface Props {
+		title: string;
+		children?: import('svelte').Snippet;
+	}
+
+	let { title, children }: Props = $props();
 </script>
 
 <Container>
 	<h3>{title}</h3>
 
-	<slot />
+	{@render children?.()}
 </Container>
 
 <style>

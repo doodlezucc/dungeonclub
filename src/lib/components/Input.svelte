@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export function focusOnMount(node: HTMLInputElement, enabled: boolean = true) {
 		if (enabled) {
 			node.focus();
@@ -7,22 +7,39 @@
 </script>
 
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import type { HTMLInputTypeAttribute } from 'svelte/elements';
 
-	export let value: string | number;
 
-	export let name: string;
-	export let label: string | undefined = undefined;
-	export let id: string | undefined = undefined;
 
-	export let placeholder: string;
 
-	export let type: HTMLInputTypeAttribute | undefined = undefined;
-	export let required: boolean | undefined = undefined;
-	export let autocomplete: 'email' | 'current-password' | 'new-password' | undefined = undefined;
-	export let autofocus: boolean = false;
 
-	export let size: 'small' | undefined = undefined;
+	interface Props {
+		value: string | number;
+		name: string;
+		label?: string | undefined;
+		id?: string | undefined;
+		placeholder: string;
+		type?: HTMLInputTypeAttribute | undefined;
+		required?: boolean | undefined;
+		autocomplete?: 'email' | 'current-password' | 'new-password' | undefined;
+		autofocus?: boolean;
+		size?: 'small' | undefined;
+	}
+
+	let {
+		value = $bindable(),
+		name,
+		label = undefined,
+		id = undefined,
+		placeholder,
+		type = undefined,
+		required = undefined,
+		autocomplete = undefined,
+		autofocus = false,
+		size = undefined
+	}: Props = $props();
 
 	function applyType(node: HTMLInputElement) {
 		if (type !== undefined) {
@@ -37,14 +54,14 @@
 	// "const" -> Only updated on mount
 	const isNumericInput = typeof value === 'number';
 
-	let valueAsString = `${value}`;
-	$: {
+	let valueAsString = $state(`${value}`);
+	run(() => {
 		if (isNumericInput) {
 			value = parseFloat(valueAsString);
 		} else {
 			value = valueAsString;
 		}
-	}
+	});
 </script>
 
 {#if label}

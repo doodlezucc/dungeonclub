@@ -52,19 +52,23 @@
 <Dialog title="Select Board">
 	{#if $boardSnippets}
 		<Row gap="normal" wrap>
-			<ArrangedCollection items={$boardSnippets} let:item={snippet}>
-				<BoardPreview name={snippet.name} on:click={() => selectBoard(snippet.id)} />
+			<ArrangedCollection items={$boardSnippets} >
+				{#snippet children({ item: snippet })}
+								<BoardPreview name={snippet.name} on:click={() => selectBoard(snippet.id)} />
 
-				<svelte:fragment slot="plus">
-					<FileUploader
-						accept="image/*"
-						acceptMultiple
-						displayedIcon="file-image"
-						on:change={createNewBoardsFromFiles}
-					>
-						New Board
-					</FileUploader>
-				</svelte:fragment>
+					{/snippet}
+							{#snippet plus()}
+							
+						<FileUploader
+							accept="image/*"
+							acceptMultiple
+							displayedIcon="file-image"
+							on:change={createNewBoardsFromFiles}
+						>
+							New Board
+						</FileUploader>
+					
+							{/snippet}
 			</ArrangedCollection>
 		</Row>
 	{/if}

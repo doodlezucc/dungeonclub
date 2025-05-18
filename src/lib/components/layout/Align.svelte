@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export type Alignment =
 		| 'center'
 		| 'top'
@@ -14,8 +14,13 @@
 </script>
 
 <script lang="ts">
-	export let alignment: Alignment;
-	export let margin: AlignMargin | undefined = undefined;
+	interface Props {
+		alignment: Alignment;
+		margin?: AlignMargin | undefined;
+		children?: import('svelte').Snippet;
+	}
+
+	let { alignment, margin = undefined, children }: Props = $props();
 </script>
 
 <div
@@ -25,7 +30,7 @@
 	class:right={alignment.includes('right')}
 	data-margin={margin}
 >
-	<slot />
+	{@render children?.()}
 </div>
 
 <style>

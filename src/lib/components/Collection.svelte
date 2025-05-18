@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	const PLUS_ITEM_TOKEN = {};
 </script>
 
@@ -10,9 +10,21 @@
 		return x;
 	}
 
-	export let items: Array<T>;
-	export let itemClass: string | undefined = undefined;
-	export let keyFunction: (item: T) => unknown = identity;
+	interface Props {
+		items: Array<T>;
+		itemClass?: string | undefined;
+		keyFunction?: (item: T) => unknown;
+		children?: import('svelte').Snippet<[any]>;
+		plus?: import('svelte').Snippet;
+	}
+
+	let {
+		items,
+		itemClass = undefined,
+		keyFunction = identity,
+		children,
+		plus
+	}: Props = $props();
 
 	function keyOf(itemOrPlus: T) {
 		if (itemOrPlus === PLUS_ITEM_TOKEN) {
@@ -22,7 +34,7 @@
 		return keyFunction(itemOrPlus);
 	}
 
-	$: modifiedItems = [...items, PLUS_ITEM_TOKEN] as Array<T>;
+	let modifiedItems = $derived([...items, PLUS_ITEM_TOKEN] as Array<T>);
 </script>
 
 {#each modifiedItems as item, index (keyOf(item))}
@@ -32,9 +44,9 @@
 		in:fly|global={{ y: 30, delay: 200 + index * 50 }}
 	>
 		{#if item !== PLUS_ITEM_TOKEN}
-			<slot {item} />
+			{@render children?.({ item, })}
 		{:else}
-			<slot name="plus" />
+			{@render plus?.()}
 		{/if}
 	</div>
 {/each}

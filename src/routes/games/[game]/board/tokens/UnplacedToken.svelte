@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	import type { Position } from '$lib/compounds';
 	import type { TokenTemplateSnippet } from 'shared';
 	import { writable } from 'svelte/store';
@@ -21,6 +21,8 @@
 </script>
 
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { Board } from 'client/state';
 	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
 	import { EMPTY_TOKEN_PROPERTIES } from 'shared/token-materializing';
@@ -28,10 +30,17 @@
 	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';
 
-	export let template: TokenTemplateSnippet | undefined;
-	export let spawnPosition: Position;
+	interface Props {
+		template: TokenTemplateSnippet | undefined;
+		spawnPosition: Position;
+	}
 
-	$: position = spawnPosition;
+	let { template, spawnPosition }: Props = $props();
+
+	let position;
+	run(() => {
+		position = spawnPosition;
+	});
 
 	const dispatch = createEventDispatcher<{
 		place: TokenPlacementEvent;
@@ -52,7 +61,7 @@
 	const isGridSnappingDisabled = keyStateOf(KeyState.DisableGridSnapping);
 	const { transformClientToGridSpace, getPanViewEventTarget } = getContext<BoardContext>('board');
 
-	$: size = template?.size ?? 1;
+	let size = $derived(template?.size ?? 1);
 
 	function handleDragging(ev: MouseEvent) {
 		const mouseInGridSpace = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { boardState, campaignState } from 'client/state';
@@ -19,28 +21,32 @@
 
 	const loadedBoardId = derived(boardState, (board) => board!.id);
 
-	$: tokens = $boardState!.tokens;
-	$: tokenTemplates = $campaignState!.templates;
+	let tokens = $derived($boardState!.tokens);
+	let tokenTemplates = $derived($campaignState!.templates);
 
-	let tokenSelectionGroup = null as SelectionGroup<TokenSnippet> | null;
-	let selectedTokens: TokenSnippet[];
-	export let selectedTokenIds: string[] = [];
+	let tokenSelectionGroup = $state(null as SelectionGroup<TokenSnippet> | null);
+	let selectedTokens: TokenSnippet[] = $state();
+	interface Props {
+		selectedTokenIds?: string[];
+	}
 
-	$: {
+	let { selectedTokenIds = $bindable([]) }: Props = $props();
+
+	run(() => {
 		if ($loadedBoardId) {
 			// Called whenever a board gets loaded
 			tokenSelectionGroup?.clear();
 		}
-	}
+	});
 
 	const board = getContext<BoardContext>('board');
 
-	$: unplacedTokenSpawnPosition = $unplacedTokenProperties
+	let unplacedTokenSpawnPosition = $derived($unplacedTokenProperties
 		? board.transformClientToGridSpace({
 				x: $unplacedTokenProperties.triggeringEvent.clientX,
 				y: $unplacedTokenProperties.triggeringEvent.clientY
 			})
-		: null;
+		: null);
 
 	export function clearSelection() {
 		tokenSelectionGroup?.clear();
@@ -87,14 +93,16 @@
 	getElementKey={(token) => token.id}
 	bind:selectedElements={selectedTokens}
 	bind:selectedKeys={selectedTokenIds}
-	let:element
-	let:isSelected
+	
+	
 >
-	<Token
-		token={element}
-		template={getTemplateForToken(element, tokenTemplates)}
-		selected={isSelected}
-	/>
+	{#snippet children({ element, isSelected })}
+		<Token
+			token={element}
+			template={getTemplateForToken(element, tokenTemplates)}
+			selected={isSelected}
+		/>
+	{/snippet}
 </SelectionGroup>
 
 {#if $unplacedTokenProperties && unplacedTokenSpawnPosition}

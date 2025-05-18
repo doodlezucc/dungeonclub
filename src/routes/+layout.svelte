@@ -5,6 +5,8 @@
 	import { ModalProvider } from 'components/modal';
 	import '../styles/style.scss';
 	import Header from './Header.svelte';
+	/** @type {{children?: import('svelte').Snippet}} */
+	let { children } = $props();
 </script>
 
 <SocketProvider>
@@ -13,7 +15,7 @@
 			<UndoRedoListener>
 				<Header />
 
-				<slot />
+				{@render children?.()}
 			</UndoRedoListener>
 		</ShortcutListener>
 	</ModalProvider>

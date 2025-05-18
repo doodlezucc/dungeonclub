@@ -7,9 +7,10 @@
 	import AccountContent from './home/AccountContent.svelte';
 	import LoginForm from './home/forms/LoginForm.svelte';
 
-	$: isLoggedIn = !!$accountState;
+	let isLoggedIn = $derived(!!$accountState);
 
-	$: isMounted = false;
+	let isMounted = $state(false);
+	
 
 	onMount(() => {
 		isMounted = true;

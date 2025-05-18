@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	function getCommonTokenTemplateId(tokens: TokenSnippet[]) {
 		return findCommonValue(tokens.map((token) => token.templateId)) ?? null;
 	}
@@ -20,6 +20,8 @@
 </script>
 
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { Board, Campaign } from 'client/state';
 	import Input from 'components/Input.svelte';
 	import { Column, Container } from 'components/layout';
@@ -34,7 +36,11 @@
 		submitTokenPropertiesToServer
 	} from './submitting';
 
-	export let selectedTokenIds: string[];
+	interface Props {
+		selectedTokenIds: string[];
+	}
+
+	let { selectedTokenIds }: Props = $props();
 
 	const allTokens = Board.instance.tokens;
 	const allTemplates = Campaign.instance.tokenTemplates;
@@ -152,34 +158,19 @@
 	}
 
 	let avatarId = displayedProperties.avatarId;
-	let inheritAvatar = displayedInheritance.avatarId;
-	let avatar = avatarId ? $allAssets.find((asset) => asset.id === avatarId)! : null;
+	let inheritAvatar = $state(displayedInheritance.avatarId);
+	let avatar = $state(avatarId ? $allAssets.find((asset) => asset.id === avatarId)! : null);
 
-	let name = displayedProperties.name;
-	let inheritName = displayedInheritance.name;
+	let name = $state(displayedProperties.name);
+	let inheritName = $state(displayedInheritance.name);
 
-	let size = displayedProperties.size;
-	let inheritSize = displayedInheritance.size;
+	let size = $state(displayedProperties.size);
+	let inheritSize = $state(displayedInheritance.size);
 
-	let initiativeModifier = displayedProperties.initiativeModifier;
-	let inheritInitiaveModifier = displayedInheritance.initiativeModifier;
+	let initiativeModifier = $state(displayedProperties.initiativeModifier);
+	let inheritInitiaveModifier = $state(displayedInheritance.initiativeModifier);
 
-	let isMounted = false;
-	$: {
-		updatePropertyValue('name', name);
-		updatePropertyInheritance('name', inheritName);
-		updatePropertyValue('size', size);
-		updatePropertyInheritance('size', inheritSize);
-		updatePropertyValue('initiativeModifier', initiativeModifier);
-		updatePropertyInheritance('initiativeModifier', inheritInitiaveModifier);
-
-		updatePropertyValue('avatarId', avatar?.id ?? null);
-		updatePropertyInheritance('avatarId', inheritAvatar);
-
-		if (isMounted) {
-			submitChanges();
-		}
-	}
+	let isMounted = $state(false);
 
 	function buildEditingPayload(): GetPayload<'tokensEdit'> {
 		return buildWebSocketPayload(
@@ -202,6 +193,21 @@
 
 	onMount(() => {
 		isMounted = true;
+	});
+	run(() => {
+		updatePropertyValue('name', name);
+		updatePropertyInheritance('name', inheritName);
+		updatePropertyValue('size', size);
+		updatePropertyInheritance('size', inheritSize);
+		updatePropertyValue('initiativeModifier', initiativeModifier);
+		updatePropertyInheritance('initiativeModifier', inheritInitiaveModifier);
+
+		updatePropertyValue('avatarId', avatar?.id ?? null);
+		updatePropertyInheritance('avatarId', inheritAvatar);
+
+		if (isMounted) {
+			submitChanges();
+		}
 	});
 </script>
 

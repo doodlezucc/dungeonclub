@@ -3,6 +3,11 @@
 	import type { ModalContext } from 'components/modal';
 	import { getContext } from 'svelte';
 	import { listenTo, ShortcutAction } from './ShortcutListener.svelte';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	const modal = getContext<ModalContext>('modal');
 
@@ -31,4 +36,4 @@
 	});
 </script>
 
-<slot />
+{@render children?.()}

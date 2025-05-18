@@ -84,10 +84,12 @@
 				itemClass="token-palette-item"
 				items={$tokenTemplates}
 				keyFunction={(template) => template.id}
-				let:item
+				
 			>
-				<TokenTemplateItem template={item} on:delete={() => deleteTokenTemplate(item)} />
-			</Collection>
+				{#snippet children({ item })}
+								<TokenTemplateItem template={item} on:delete={() => deleteTokenTemplate(item)} />
+											{/snippet}
+						</Collection>
 		</div>
 
 		<FileUploader

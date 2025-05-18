@@ -1,35 +1,47 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import { createEventDispatcher } from 'svelte';
 	import { spring } from 'svelte/motion';
 	import type { DragState } from './ArrangedCollection.svelte';
 	import type { Position } from './compounds';
 
-	export let index: number;
-	export let state: DragState;
-	export let customDragHandling: boolean;
+	interface Props {
+		index: number;
+		state: DragState;
+		customDragHandling: boolean;
+		children?: import('svelte').Snippet;
+	}
 
-	let isDragging = state.controller.isDragging;
-	let isAnyDragging = state.isAnyDragging;
+	let { index, state: dragState, customDragHandling, children }: Props = $props();
 
-	$: mouseOffset = undefined as Position | undefined;
+	let isDragging = dragState.controller.isDragging;
+	let isAnyDragging = dragState.isAnyDragging;
+
+	let mouseOffset;
+	run(() => {
+		mouseOffset = undefined as Position | undefined;
+	});
 
 	let visualCenter = spring<Position>(undefined, {
 		stiffness: 0.1,
 		damping: 0.4
 	});
 
-	let center: Position | undefined = undefined;
-	let draggedCenter: Position | undefined = undefined;
+	let center = $state<Position>();
+	let draggedCenter = $state<Position>();
 
-	let container: HTMLElement;
+	let container = $state<HTMLElement>();
 
-	$: if (!$isDragging) {
-		mouseOffset = undefined;
-		draggedCenter = center;
-	}
+	run(() => {
+		if (!$isDragging) {
+			mouseOffset = undefined;
+			draggedCenter = center;
+		}
+	});
 
 	function findCenter() {
-		const rect = container.getBoundingClientRect();
+		const rect = container!.getBoundingClientRect();
 		center = {
 			x: rect.left + rect.width / 2,
 			y: rect.top + rect.height / 2
@@ -37,31 +49,32 @@
 		if (!$isDragging) {
 			$visualCenter = center;
 		}
-		state.setItemCenter(center);
+		dragState.setItemCenter(center);
 	}
 
-	$: {
+	run(() => {
 		if (container && $isAnyDragging && index !== undefined) {
 			findCenter();
 		}
-	}
+	});
 
-	$: visualOffset =
+	let visualOffset = $derived(
 		$visualCenter && center
 			? {
 					x: $visualCenter.x - center!.x,
 					y: $visualCenter.y - center!.y
 				}
-			: { x: 0, y: 0 };
+			: { x: 0, y: 0 }
+	);
 
 	const dispatch = createEventDispatcher();
 
-	$: {
+	run(() => {
 		if (draggedCenter) {
 			dispatch('drag');
 			$visualCenter = draggedCenter;
 		}
-	}
+	});
 
 	function handleMouseMove(ev: PointerEvent) {
 		mouseOffset ??= {
@@ -79,23 +92,23 @@
 		ev.preventDefault();
 
 		if (!customDragHandling) {
-			state.controller.start();
+			dragState.controller.start();
 		}
 	}
 </script>
 
-<svelte:window on:pointermove={$isDragging ? handleMouseMove : undefined} />
+<svelte:window onpointermove={$isDragging ? handleMouseMove : undefined} />
 
 <div
 	class="arrangable"
 	class:dragging={$isDragging}
 	role="listitem"
 	draggable="true"
-	on:dragstart={onDragContainer}
+	ondragstart={onDragContainer}
 >
 	<div class="expand ghost" bind:this={container}></div>
 	<div class="expand" style="translate: {visualOffset.x}px {visualOffset.y}px;">
-		<slot />
+		{@render children?.()}
 	</div>
 </div>
 

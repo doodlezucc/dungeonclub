@@ -3,7 +3,11 @@
 	import { Button, Text } from '..';
 	import { Dialog, type ModalContext } from '../modal';
 
-	export let error: unknown;
+	interface Props {
+		error: unknown;
+	}
+
+	let { error }: Props = $props();
 
 	const modal = getContext<ModalContext>('modal');
 </script>
@@ -12,7 +16,9 @@
 	<Text>Sincere apologies! An error occurred.</Text>
 	<Text style="code" color="error">{error}</Text>
 
-	<svelte:fragment slot="actions">
-		<Button raised on:click={() => modal.pop()}>OK</Button>
-	</svelte:fragment>
+	{#snippet actions()}
+	
+			<Button raised on:click={() => modal.pop()}>OK</Button>
+		
+	{/snippet}
 </Dialog>

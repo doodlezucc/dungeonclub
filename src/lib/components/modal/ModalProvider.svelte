@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export const tooltipContainerID = 'tooltips';
 
 	export type ModalContext = {
@@ -33,6 +33,11 @@
 	import { writable } from 'svelte/store';
 	import { fade, fly } from 'svelte/transition';
 	import Toast, { MAX_TOAST_COUNT, TOAST_DURATION_MS, type ToastOptions } from './Toast.svelte';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	const stack = writable<Modal<any, any>[]>([]);
 	const toasts = writable<VisibleToast[]>([]);
@@ -86,12 +91,12 @@
 	}
 </script>
 
-<slot />
+{@render children?.()}
 
 <div class="modal-provider">
 	{#each $stack as modal (modal.id)}
 		<div class="modal" aria-modal="true" transition:fade={{ duration: 200 }}>
-			<svelte:component this={modal.component} {...modal.props} />
+			<modal.component {...modal.props} />
 		</div>
 	{/each}
 

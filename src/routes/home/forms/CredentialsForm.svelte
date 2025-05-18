@@ -1,24 +1,43 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	const MIN_PASSWORD_LENGTH = 7;
 </script>
 
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import Input from 'components/Input.svelte';
 	import { Column } from 'components/layout';
 	import { enteredEmailAddress } from '../credential-stores';
 	import Form from './Form.svelte';
 
-	export let title: string;
-	export let submitButtonLabel: string;
-	export let passwordInputLabel = 'Password';
 
-	export let handleSubmit: (emailAddress: string, password: string) => Promise<void>;
+	interface Props {
+		title: string;
+		submitButtonLabel: string;
+		passwordInputLabel?: string;
+		handleSubmit: (emailAddress: string, password: string) => Promise<void>;
+		note?: import('svelte').Snippet;
+		links?: import('svelte').Snippet;
+	}
 
-	$: password = '';
-	$: passwordConfirmation = '';
+	let {
+		title,
+		submitButtonLabel,
+		passwordInputLabel = 'Password',
+		handleSubmit,
+		note,
+		links
+	}: Props = $props();
 
-	$: formValidationError = 'woah';
-	$: isValid = false;
+	let password = $state('');
+	
+	let passwordConfirmation = $state('');
+	
+
+	let formValidationError = $state('woah');
+	
+	let isValid = $state(false);
+	
 
 	function validate() {
 		if (password.length === 0) {
@@ -38,7 +57,7 @@
 		}
 	}
 
-	$: {
+	run(() => {
 		[$enteredEmailAddress, password, passwordConfirmation];
 
 		isValid = false;
@@ -50,7 +69,7 @@
 		} catch (err) {
 			formValidationError = `${err}`;
 		}
-	}
+	});
 </script>
 
 <Form
@@ -59,7 +78,9 @@
 	disableSubmitButton={!isValid}
 	handleSubmit={() => handleSubmit($enteredEmailAddress, password)}
 >
-	<slot name="note" slot="note"></slot>
+	{#snippet note()}
+		{@render note?.()}
+	{/snippet}
 
 	<Input
 		autofocus
@@ -94,5 +115,7 @@
 		{/if}
 	</Column>
 
-	<slot name="links" slot="links"></slot>
+	{#snippet links()}
+		{@render links?.()}
+	{/snippet}
 </Form>

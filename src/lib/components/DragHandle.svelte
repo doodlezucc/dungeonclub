@@ -3,10 +3,14 @@
 
 	import Icon from './Icon.svelte';
 
-	export let controller: DragController;
+	interface Props {
+		controller: DragController;
+	}
+
+	let { controller }: Props = $props();
 </script>
 
-<button class="drag-handle" on:mousedown={controller.start} tabindex="-1">
+<button class="drag-handle" onmousedown={controller.start} tabindex="-1">
 	<Icon icon="grip-vertical" />
 </button>
 

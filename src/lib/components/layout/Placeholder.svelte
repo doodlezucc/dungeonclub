@@ -1,8 +1,13 @@
 <script lang="ts">
 	import type { Size } from '$lib/compounds';
 
-	export let expand = false;
-	export let size: Size | undefined = undefined;
+	interface Props {
+		expand?: boolean;
+		size?: Size | undefined;
+		children?: import('svelte').Snippet;
+	}
+
+	let { expand = false, size = undefined, children }: Props = $props();
 </script>
 
 <div
@@ -11,9 +16,9 @@
 	style={size ? `--width: ${size.width}px; --height: ${size.height}px;` : undefined}
 >
 	PLACEHOLDER
-	{#if $$slots.default}
+	{#if children}
 		<br />
-		(<slot></slot>)
+		({@render children?.()})
 	{/if}
 </div>
 

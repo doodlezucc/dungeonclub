@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export const MAX_TOAST_COUNT = 3;
 	export const TOAST_DURATION_MS = 3000;
 
@@ -13,8 +13,12 @@
 	import Separator from 'components/layout/Separator.svelte';
 	import Text from '../Text.svelte';
 
-	export let options: ToastOptions;
-	export let isLatest: boolean;
+	interface Props {
+		options: ToastOptions;
+		isLatest: boolean;
+	}
+
+	let { options, isLatest }: Props = $props();
 </script>
 
 <div class="toast" class:latest={isLatest}>

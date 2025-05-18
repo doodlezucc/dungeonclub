@@ -8,8 +8,12 @@
 	import { getContext } from 'svelte';
 	import CampaignDeleteDialog from './CampaignDeleteDialog.svelte';
 
-	export let id: string | undefined = undefined;
-	export let name: string;
+	interface Props {
+		id?: string | undefined;
+		name: string;
+	}
+
+	let { id = undefined, name = $bindable() }: Props = $props();
 
 	const modal = getContext<ModalContext>('modal');
 
@@ -54,16 +58,18 @@
 <Dialog title="Edit Campaign">
 	<Input label="Campaign Name" name="Campaign Name" placeholder="Name..." bind:value={name} />
 
-	<svelte:fragment slot="actions">
-		{#if id}
-			<Button raised on:click={deleteCampaign}>
-				<span class="error">Delete</span>
-			</Button>
-			<Flex expand />
-		{/if}
+	{#snippet actions()}
+	
+			{#if id}
+				<Button raised on:click={deleteCampaign}>
+					<span class="error">Delete</span>
+				</Button>
+				<Flex expand />
+			{/if}
 
-		<Button type="submit" raised highlight on:click={save}>
-			{id ? 'Save' : 'Create'}
-		</Button>
-	</svelte:fragment>
+			<Button type="submit" raised highlight on:click={save}>
+				{id ? 'Save' : 'Create'}
+			</Button>
+		
+	{/snippet}
 </Dialog>

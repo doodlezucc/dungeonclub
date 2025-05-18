@@ -1,12 +1,24 @@
 <script lang="ts">
 	import Flex, { type FlexAlign, type FlexJustify, type Gap } from './Flex.svelte';
 
-	export let expand = false;
-	export let wrap = false;
-	export let gap: Gap | undefined = undefined;
 
-	export let align: FlexAlign | undefined = undefined;
-	export let justify: FlexJustify | undefined = undefined;
+	interface Props {
+		expand?: boolean;
+		wrap?: boolean;
+		gap?: Gap | undefined;
+		align?: FlexAlign | undefined;
+		justify?: FlexJustify | undefined;
+		children?: import('svelte').Snippet;
+	}
+
+	let {
+		expand = false,
+		wrap = false,
+		gap = undefined,
+		align = undefined,
+		justify = undefined,
+		children
+	}: Props = $props();
 </script>
 
-<Flex direction="column" {expand} {wrap} {gap} {align} {justify}><slot /></Flex>
+<Flex direction="column" {expand} {wrap} {gap} {align} {justify}>{@render children?.()}</Flex>
