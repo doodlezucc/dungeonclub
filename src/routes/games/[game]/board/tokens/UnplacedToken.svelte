@@ -26,32 +26,30 @@
 	import { Board } from 'client/state';
 	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
 	import { EMPTY_TOKEN_PROPERTIES } from 'shared/token-materializing';
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { getContext } from 'svelte';
 	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';
 
 	interface Props {
 		template: TokenTemplateSnippet | undefined;
 		spawnPosition: Position;
+
+		onPlace: (place: TokenPlacementEvent) => void;
 	}
 
-	let { template, spawnPosition }: Props = $props();
+	let { template, spawnPosition, onPlace }: Props = $props();
 
-	let position;
+	let position: Position;
 	run(() => {
 		position = spawnPosition;
 	});
-
-	const dispatch = createEventDispatcher<{
-		place: TokenPlacementEvent;
-	}>();
 
 	function onDragToggle(isDragStart: boolean) {
 		if (isDragStart) return;
 
 		$unplacedTokenProperties = null;
 
-		dispatch('place', {
+		onPlace({
 			position: position,
 			templateId: template?.id
 		});

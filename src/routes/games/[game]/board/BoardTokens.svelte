@@ -9,7 +9,7 @@
 	import type { TokenSnippet } from 'shared';
 	import { getTemplateForToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
-	import { derived } from 'svelte/store';
+	import { derived as legacyDerived } from 'svelte/store';
 	import { type BoardContext } from './Board.svelte';
 	import Token from './tokens/Token.svelte';
 	import UnplacedToken, {
@@ -19,7 +19,7 @@
 	} from './tokens/UnplacedToken.svelte';
 	import * as Tokens from './tokens/token-management';
 
-	const loadedBoardId = derived(boardState, (board) => board!.id);
+	const loadedBoardId = legacyDerived(boardState, (board) => board!.id);
 
 	let tokens = $derived($boardState!.tokens);
 	let tokenTemplates = $derived($campaignState!.templates);
@@ -61,11 +61,11 @@
 		};
 	}
 
-	function onPlaceToken(ev: CustomEvent<TokenPlacementEvent>) {
+	function onPlaceToken(ev: TokenPlacementEvent) {
 		Tokens.createNewToken(
 			{
-				position: ev.detail.position,
-				tokenTemplateId: ev.detail.templateId ?? null,
+				position: ev.position,
+				tokenTemplateId: ev.templateId ?? null,
 				onServerSideCreation: (instantiatedToken) => {
 					tokenSelectionGroup!.select(instantiatedToken, { additive: false });
 				}
@@ -110,7 +110,7 @@
 		<UnplacedToken
 			template={$unplacedTokenProperties.tokenTemplate}
 			spawnPosition={unplacedTokenSpawnPosition}
-			on:place={onPlaceToken}
+			onPlace={onPlaceToken}
 		/>
 	{/key}
 {/if}

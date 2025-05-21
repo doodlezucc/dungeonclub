@@ -137,10 +137,10 @@
 		onDragToggle,
 		handleDragging
 	}}
-	on:mousedown={() => {
+	onmousedown={() => {
 		if (!selected) handleSelect();
 	}}
-	on:mouseup={() => {
+	onmouseup={() => {
 		const wasDraggedJustNow = isDragging;
 
 		if (!wasDraggedJustNow) {

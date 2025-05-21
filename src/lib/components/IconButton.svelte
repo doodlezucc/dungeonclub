@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { createBubbler } from 'svelte/legacy';
-
-	const bubble = createBubbler();
+	import type { MouseEventHandler } from 'svelte/elements';
 	import type { IconID } from './Icon.svelte';
 	import Icon from './Icon.svelte';
 
@@ -11,13 +9,22 @@
 		disabled?: boolean;
 		disableMargin?: boolean;
 		inline?: boolean;
+
+		onclick?: MouseEventHandler<HTMLButtonElement>;
 	}
 
-	let { icon, label, disabled = false, disableMargin = false, inline = false }: Props = $props();
+	let {
+		icon,
+		label,
+		disabled = false,
+		disableMargin = false,
+		inline = false,
+		onclick
+	}: Props = $props();
 </script>
 
 <button
-	onclick={bubble('click')}
+	{onclick}
 	class="icon"
 	class:disable-margin={disableMargin}
 	class:inline

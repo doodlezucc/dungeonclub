@@ -55,7 +55,7 @@
 </script>
 
 <Row gap="normal" wrap>
-	<ArrangedCollection customDragHandling bind:items={$campaigns} on:reorder={submitReorder}>
+	<ArrangedCollection customDragHandling bind:items={$campaigns} onReorder={submitReorder}>
 		{#snippet children({ item: campaign, dragController })}
 			<Container>
 				<Row gap="big" align="center" justify="space-between">
@@ -68,14 +68,14 @@
 					<Placeholder>Preview Image</Placeholder>
 
 					<Row gap="normal">
-						<Button on:click={() => editCampaign(campaign)}>Settings</Button>
+						<Button onclick={() => editCampaign(campaign)}>Settings</Button>
 						<Button highlight raised href="games/{campaign.id}">Host Session</Button>
 					</Row>
 				</Column>
 			</Container>
 		{/snippet}
 		{#snippet plus()}
-			<Button raised on:click={createCampaign}>Create new campaign</Button>
+			<Button raised onclick={createCampaign}>Create new campaign</Button>
 		{/snippet}
 	</ArrangedCollection>
 </Row>

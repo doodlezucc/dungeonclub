@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import type { Snippet } from 'svelte';
-	import { createBubbler } from 'svelte/legacy';
-
-	const bubble = createBubbler();
+	import type { MouseEventHandler } from 'svelte/elements';
 
 	interface Props {
 		href?: string | undefined;
@@ -11,6 +9,9 @@
 		raised?: boolean;
 		disabled?: boolean;
 		type?: HTMLButtonElement['type'] | undefined;
+
+		onclick?: MouseEventHandler<HTMLElement>;
+
 		children?: Snippet;
 	}
 
@@ -20,6 +21,7 @@
 		raised = false,
 		disabled = false,
 		type = undefined,
+		onclick,
 		children
 	}: Props = $props();
 
@@ -32,7 +34,7 @@
 
 <svelte:element
 	this={href ? 'a' : 'button'}
-	onclick={bubble('click')}
+	{onclick}
 	onkeypress={href ? handleSpaceBar : undefined}
 	{href}
 	role={href && 'button'}

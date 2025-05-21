@@ -69,7 +69,7 @@
 
 				<Button
 					type="submit"
-					on:click={onSubmitForm}
+					onclick={onSubmitForm}
 					raised
 					highlight
 					disabled={isSubmitting || disableSubmitButton}

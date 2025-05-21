@@ -28,7 +28,7 @@
 					disabled={disableToggle}
 					disableMargin
 					inline
-					on:click={toggle}
+					onclick={toggle}
 				/>
 			</span>
 		</Align>

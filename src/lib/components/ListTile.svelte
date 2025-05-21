@@ -1,25 +1,22 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { createBubbler } from 'svelte/legacy';
+	import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
 
-	const bubble = createBubbler();
 	interface Props {
 		selected?: boolean;
+
+		onkeydown?: KeyboardEventHandler<HTMLElement>;
+		onclick?: MouseEventHandler<HTMLElement>;
+		onmousedown?: MouseEventHandler<HTMLElement>;
+
 		children: Snippet;
 	}
 
-	let { selected = false, children }: Props = $props();
+	let { selected = false, onkeydown, onclick, onmousedown, children }: Props = $props();
 </script>
 
 <li class="list-tile" class:selected>
-	<div
-		role="button"
-		class="custom"
-		tabindex="0"
-		onkeydown={bubble('keydown')}
-		onclick={bubble('click')}
-		onmousedown={bubble('mousedown')}
-	>
+	<div role="button" class="custom" tabindex="0" {onkeydown} {onclick} {onmousedown}>
 		{@render children()}
 	</div>
 </li>

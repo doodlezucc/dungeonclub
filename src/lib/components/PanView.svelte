@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	import type { Position, Size } from '$lib/compounds';
-	import { createEventDispatcher, type Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
 
 	const minZoom = -1;
 	const maxZoom = 3;
@@ -35,6 +35,9 @@
 		zoom?: number;
 		elementView?: HTMLElement | undefined;
 		elementContent?: HTMLElement | undefined;
+
+		onClick: () => void;
+
 		children?: Snippet;
 	}
 
@@ -44,6 +47,7 @@
 		zoom = $bindable(0),
 		elementView = $bindable(undefined),
 		elementContent = $bindable(undefined),
+		onClick,
 		children
 	}: Props = $props();
 
@@ -61,10 +65,6 @@
 		width: 1,
 		height: 1
 	});
-
-	const dispatch = createEventDispatcher<{
-		click: void;
-	}>();
 
 	function isValidPanEventStarter(eventTarget: EventTarget | null) {
 		return eventTarget && elementsTriggeringPanEvent.includes(eventTarget);
@@ -86,7 +86,7 @@
 	function stopPanning() {
 		if (isPanning) {
 			if (!hasPointerMovedSincePanStart) {
-				dispatch('click');
+				onClick();
 			}
 
 			isPanning = false;

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import { createEventDispatcher, type Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
 	import { spring } from 'svelte/motion';
 	import type { DragState } from './ArrangedCollection.svelte';
 	import type { Position } from './compounds';
@@ -10,10 +10,13 @@
 		index: number;
 		state: DragState;
 		customDragHandling: boolean;
+
+		onDrag?: () => void;
+
 		children?: Snippet;
 	}
 
-	let { index, state: dragState, customDragHandling, children }: Props = $props();
+	let { index, state: dragState, customDragHandling, onDrag, children }: Props = $props();
 
 	let isDragging = dragState.controller.isDragging;
 	let isAnyDragging = dragState.isAnyDragging;
@@ -67,11 +70,9 @@
 			: { x: 0, y: 0 }
 	);
 
-	const dispatch = createEventDispatcher();
-
 	run(() => {
 		if (draggedCenter) {
-			dispatch('drag');
+			onDrag?.();
 			$visualCenter = draggedCenter;
 		}
 	});

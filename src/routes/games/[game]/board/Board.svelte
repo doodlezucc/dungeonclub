@@ -91,7 +91,7 @@
 	bind:zoom
 	bind:elementView={panViewElement}
 	bind:elementContent={contentElement}
-	on:click={onClickEmptySpace}
+	onClick={onClickEmptySpace}
 >
 	<div class="board" style="--cell-size: {cellSize}px; --cell-grow-factor: {tileHeightRatio};">
 		<BattleMap bind:size={dimensions} />

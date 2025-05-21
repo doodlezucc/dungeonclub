@@ -5,23 +5,20 @@
 	import { Flex, Row } from 'components/layout';
 	import ListTile from 'components/ListTile.svelte';
 	import type { TokenTemplateSnippet } from 'shared';
-	import { createEventDispatcher } from 'svelte';
 	import { unplacedTokenProperties } from '../tokens/UnplacedToken.svelte';
 
 	interface Props {
 		template: TokenTemplateSnippet;
+
+		handleDelete: () => void;
 	}
 
-	let { template }: Props = $props();
+	let { template, handleDelete }: Props = $props();
 
 	let avatarAsset = $derived(Campaign.instance.assetByNullableId(template.avatarId));
 	let avatarSrc = $derived($avatarAsset ? asset($avatarAsset.path) : null);
 
 	let isSelectedForPlacement = $derived($unplacedTokenProperties?.tokenTemplate === template);
-
-	const dispatch = createEventDispatcher<{
-		delete: void;
-	}>();
 
 	let captureMouseMovement = $state(false);
 
@@ -56,8 +53,8 @@
 
 <ListTile
 	selected={isSelectedForPlacement}
-	on:mousedown={handleMouseDown}
-	on:click={displayTokenAtCursor}
+	onmousedown={handleMouseDown}
+	onclick={displayTokenAtCursor}
 >
 	<Row align="center" gap="normal" expand>
 		<img class="token-template-avatar" src={avatarSrc} alt="Token avatar" />
@@ -65,7 +62,7 @@
 
 		<Flex expand />
 
-		<IconButton label="Delete" icon="remove" on:click={() => dispatch('delete')} />
+		<IconButton label="Delete" icon="remove" onclick={handleDelete} />
 	</Row>
 </ListTile>
 

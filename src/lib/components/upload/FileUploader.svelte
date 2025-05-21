@@ -6,13 +6,16 @@
 	import { run } from 'svelte/legacy';
 
 	import Icon, { type IconID } from 'components/Icon.svelte';
-	import { createEventDispatcher, type Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
 
 	interface Props {
 		accept: AcceptedFileType;
 		acceptMultiple?: boolean;
 		buttonClass?: string;
 		displayedIcon?: IconID | undefined;
+
+		onChange?: (files: File[]) => void;
+
 		children?: Snippet;
 	}
 
@@ -21,6 +24,7 @@
 		acceptMultiple = false,
 		buttonClass = 'raised',
 		displayedIcon = undefined,
+		onChange,
 		children
 	}: Props = $props();
 
@@ -36,13 +40,9 @@
 		input.click();
 	}
 
-	const dispatch = createEventDispatcher<{
-		change: File[];
-	}>();
-
 	run(() => {
 		if (fileList) {
-			dispatch('change', fileList);
+			onChange?.(fileList);
 
 			// Clear input element state to allow picking the same file again
 			input.value = '';

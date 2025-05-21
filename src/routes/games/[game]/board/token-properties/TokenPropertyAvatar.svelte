@@ -13,8 +13,7 @@
 
 	let { avatar = $bindable() }: Props = $props();
 
-	async function handleAvatarChange(ev: CustomEvent<File[]>) {
-		const files = ev.detail;
+	async function handleAvatarChange(files: File[]) {
 		if (files.length == 0) return;
 
 		const chosenAvatar = files[0];
@@ -31,7 +30,7 @@
 <FileUploader
 	accept="image/*"
 	buttonClass="token-properties-avatar-upload"
-	on:change={handleAvatarChange}
+	onChange={handleAvatarChange}
 >
 	<Row align="center">
 		{#if avatar}

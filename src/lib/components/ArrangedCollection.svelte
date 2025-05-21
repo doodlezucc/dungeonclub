@@ -17,7 +17,7 @@
 <script lang="ts" generics="T">
 	import { run } from 'svelte/legacy';
 
-	import { createEventDispatcher, type Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
 	import { derived as legacyDerived, writable, type Readable } from 'svelte/store';
 
 	import { fly } from 'svelte/transition';
@@ -26,11 +26,20 @@
 	interface Props {
 		items: Array<T>;
 		customDragHandling?: boolean;
+
+		onReorder?: () => void;
+
 		children?: Snippet<[any]>;
 		plus?: Snippet;
 	}
 
-	let { items = $bindable(), customDragHandling = false, children, plus }: Props = $props();
+	let {
+		items = $bindable(),
+		customDragHandling = false,
+		onReorder,
+		children,
+		plus
+	}: Props = $props();
 
 	let draggedItem = writable<T | null>(null);
 	let isAnyDragging = legacyDerived(draggedItem, (dragged) => dragged != null);
@@ -48,10 +57,6 @@
 			}
 		}
 	});
-
-	const dispatch = createEventDispatcher<{
-		reorder: undefined;
-	}>();
 
 	function registerDragState(item: T) {
 		$draggedItem = null;
@@ -83,7 +88,7 @@
 		return x * x + y * y;
 	}
 
-	function onDrag(entry: [T, DragState], ev: CustomEvent<Position>) {
+	function onDrag(entry: [T, DragState]) {
 		const [item, { center }] = entry;
 
 		if (!center) return;
@@ -118,7 +123,7 @@
 	function handleMouseUp() {
 		if ($draggedItem) {
 			$draggedItem = null;
-			dispatch('reorder');
+			onReorder?.();
 		}
 	}
 
@@ -135,7 +140,7 @@
 {#each itemsPlus as entry, index (entry ? entry[0] : null)}
 	<div in:fly|global={{ y: 30, delay: 200 + index * 50 }}>
 		{#if entry}
-			<Arrangable {index} state={entry[1]} {customDragHandling} on:drag={(ev) => onDrag(entry, ev)}>
+			<Arrangable {index} state={entry[1]} {customDragHandling} onDrag={() => onDrag(entry)}>
 				{@render children?.({ item: entry[0], dragController: entry[1].controller, this: true })}
 			</Arrangable>
 		{:else}

@@ -7,14 +7,13 @@
 </script>
 
 <script lang="ts">
-	import { run, createBubbler } from 'svelte/legacy';
-
-	const bubble = createBubbler();
 	import type { Position } from '$lib/compounds';
 	import { asset } from 'client/communication/asset';
 	import { Campaign } from 'client/state';
 	import { draggable, type DraggableParams } from 'components/Draggable.svelte';
 	import type { TokenProperties } from 'shared';
+	import type { MouseEventHandler } from 'svelte/elements';
+	import { run } from 'svelte/legacy';
 	import { spring } from 'svelte/motion';
 
 	interface Props {
@@ -22,9 +21,12 @@
 		position: Position;
 		style: TokenStyle;
 		draggableParams: DraggableParams;
+
+		onmousedown?: MouseEventHandler<HTMLDivElement>;
+		onmouseup?: MouseEventHandler<HTMLDivElement>;
 	}
 
-	let { properties, position, style, draggableParams }: Props = $props();
+	let { properties, position, style, draggableParams, onmousedown, onmouseup }: Props = $props();
 
 	const positionSpring = spring(position, {
 		damping: 0.7,
@@ -47,8 +49,8 @@
 	role="presentation"
 	use:draggable={draggableParams}
 	style="--x: {$positionSpring.x}; --y: {$positionSpring.y}; --size: {properties.size}"
-	onmousedown={bubble('mousedown')}
-	onmouseup={bubble('mouseup')}
+	{onmousedown}
+	{onmouseup}
 >
 	{#if avatarUrl}
 		<img src={asset(avatarUrl)} alt="Token avatar" />

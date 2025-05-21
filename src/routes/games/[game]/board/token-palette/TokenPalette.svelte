@@ -22,9 +22,7 @@
 
 	const modal = getContext<ModalContext>('modal');
 
-	async function createNewTemplatesFromFiles(ev: CustomEvent<File[]>) {
-		const files = ev.detail;
-
+	async function createNewTemplatesFromFiles(files: File[]) {
 		await runWithErrorDialogBoundary(modal, async () => {
 			for (const file of files) {
 				const isImage = file.type.startsWith('image/');
@@ -86,7 +84,7 @@
 				keyFunction={(template) => template.id}
 			>
 				{#snippet children({ item })}
-					<TokenTemplateItem template={item} on:delete={() => deleteTokenTemplate(item)} />
+					<TokenTemplateItem template={item} handleDelete={() => deleteTokenTemplate(item)} />
 				{/snippet}
 			</Collection>
 		</div>
@@ -95,7 +93,7 @@
 			accept="image/*"
 			acceptMultiple
 			buttonClass="token-palette-item"
-			on:change={createNewTemplatesFromFiles}
+			onChange={createNewTemplatesFromFiles}
 		>
 			<Icon icon="add" />
 		</FileUploader>

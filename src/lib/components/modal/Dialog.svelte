@@ -85,7 +85,7 @@
 					label="Close"
 					icon="close"
 					disableMargin
-					on:click={() => modal.pop(closeButtonResult)}
+					onclick={() => modal.pop(closeButtonResult)}
 				/>
 			{/if}
 		</Row>

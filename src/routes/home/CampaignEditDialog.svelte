@@ -60,13 +60,13 @@
 
 	{#snippet actions()}
 		{#if id}
-			<Button raised on:click={deleteCampaign}>
+			<Button raised onclick={deleteCampaign}>
 				<span class="error">Delete</span>
 			</Button>
 			<Flex expand />
 		{/if}
 
-		<Button type="submit" raised highlight on:click={save}>
+		<Button type="submit" raised highlight onclick={save}>
 			{id ? 'Save' : 'Create'}
 		</Button>
 	{/snippet}
