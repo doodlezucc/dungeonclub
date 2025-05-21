@@ -17,8 +17,6 @@
 	<Text style="code" color="error">{error}</Text>
 
 	{#snippet actions()}
-	
-			<Button raised on:click={() => modal.pop()}>OK</Button>
-		
+		<Button raised on:click={() => modal.pop()}>OK</Button>
 	{/snippet}
 </Dialog>

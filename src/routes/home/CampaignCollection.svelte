@@ -55,15 +55,9 @@
 </script>
 
 <Row gap="normal" wrap>
-	<ArrangedCollection
-		customDragHandling
-		bind:items={$campaigns}
-		on:reorder={submitReorder}
-		
-		
-	>
+	<ArrangedCollection customDragHandling bind:items={$campaigns} on:reorder={submitReorder}>
 		{#snippet children({ item: campaign, dragController })}
-				<Container>
+			<Container>
 				<Row gap="big" align="center" justify="space-between">
 					<h2>{campaign.name}</h2>
 					<DragHandle controller={dragController} />
@@ -79,13 +73,10 @@
 					</Row>
 				</Column>
 			</Container>
-
-			{/snippet}
-			{#snippet plus()}
-			
-				<Button raised on:click={createCampaign}>Create new campaign</Button>
-			
-			{/snippet}
+		{/snippet}
+		{#snippet plus()}
+			<Button raised on:click={createCampaign}>Create new campaign</Button>
+		{/snippet}
 	</ArrangedCollection>
 </Row>
 

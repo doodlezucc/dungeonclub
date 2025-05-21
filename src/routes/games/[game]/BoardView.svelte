@@ -14,7 +14,6 @@
 	const modal = getContext<ModalContext>('modal');
 
 	let selectBoardDialogIsVisible = $state(false);
-	
 
 	async function showBoardSelection() {
 		selectBoardDialogIsVisible = true;

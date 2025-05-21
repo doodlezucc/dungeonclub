@@ -6,7 +6,6 @@
 	import Form from './Form.svelte';
 
 	let password = $state('');
-	
 
 	async function attemptLogin() {
 		await Account.logIn($enteredEmailAddress, password);
@@ -35,7 +34,7 @@
 	/>
 
 	{#snippet links()}
-		<span >
+		<span>
 			<a href="./reset-password">Reset password</a>
 			<Dot />
 			<a href="./sign-up">Create an account</a>

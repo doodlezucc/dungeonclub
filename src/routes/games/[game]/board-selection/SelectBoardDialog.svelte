@@ -52,23 +52,20 @@
 <Dialog title="Select Board">
 	{#if $boardSnippets}
 		<Row gap="normal" wrap>
-			<ArrangedCollection items={$boardSnippets} >
+			<ArrangedCollection items={$boardSnippets}>
 				{#snippet children({ item: snippet })}
-								<BoardPreview name={snippet.name} on:click={() => selectBoard(snippet.id)} />
-
-					{/snippet}
-							{#snippet plus()}
-							
-						<FileUploader
-							accept="image/*"
-							acceptMultiple
-							displayedIcon="file-image"
-							on:change={createNewBoardsFromFiles}
-						>
-							New Board
-						</FileUploader>
-					
-							{/snippet}
+					<BoardPreview name={snippet.name} on:click={() => selectBoard(snippet.id)} />
+				{/snippet}
+				{#snippet plus()}
+					<FileUploader
+						accept="image/*"
+						acceptMultiple
+						displayedIcon="file-image"
+						on:change={createNewBoardsFromFiles}
+					>
+						New Board
+					</FileUploader>
+				{/snippet}
 			</ArrangedCollection>
 		</Row>
 	{/if}

@@ -1,7 +1,7 @@
 import type { Action } from 'svelte/action';
 import { tooltipContainerID } from './ModalProvider.svelte';
 import Tooltip, { TOOLTIP_TRANSITION_OUT_MS, type TooltipProps } from './Tooltip.svelte';
-import { mount } from "svelte";
+import { mount } from 'svelte';
 
 export const tooltip: Action<HTMLElement, TooltipProps> = (node, props) => {
 	const tooltipContainer = document.getElementById(tooltipContainerID)!;
@@ -12,12 +12,12 @@ export const tooltip: Action<HTMLElement, TooltipProps> = (node, props) => {
 		tooltipComponent?.$destroy();
 
 		tooltipComponent = mount(Tooltip, {
-        			target: tooltipContainer,
-        			props: {
-        				props,
-        				boundingRect: node.getBoundingClientRect()
-        			}
-        		});
+			target: tooltipContainer,
+			props: {
+				props,
+				boundingRect: node.getBoundingClientRect()
+			}
+		});
 	}
 
 	function destroyAfterFadeOut() {

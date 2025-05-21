@@ -41,12 +41,14 @@
 
 	const board = getContext<BoardContext>('board');
 
-	let unplacedTokenSpawnPosition = $derived($unplacedTokenProperties
-		? board.transformClientToGridSpace({
-				x: $unplacedTokenProperties.triggeringEvent.clientX,
-				y: $unplacedTokenProperties.triggeringEvent.clientY
-			})
-		: null);
+	let unplacedTokenSpawnPosition = $derived(
+		$unplacedTokenProperties
+			? board.transformClientToGridSpace({
+					x: $unplacedTokenProperties.triggeringEvent.clientX,
+					y: $unplacedTokenProperties.triggeringEvent.clientY
+				})
+			: null
+	);
 
 	export function clearSelection() {
 		tokenSelectionGroup?.clear();
@@ -93,8 +95,6 @@
 	getElementKey={(token) => token.id}
 	bind:selectedElements={selectedTokens}
 	bind:selectedKeys={selectedTokenIds}
-	
-	
 >
 	{#snippet children({ element, isSelected })}
 		<Token

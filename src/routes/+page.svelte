@@ -10,7 +10,6 @@
 	let isLoggedIn = $derived(!!$accountState);
 
 	let isMounted = $state(false);
-	
 
 	onMount(() => {
 		isMounted = true;

@@ -13,13 +13,7 @@
 		inline?: boolean;
 	}
 
-	let {
-		icon,
-		label,
-		disabled = false,
-		disableMargin = false,
-		inline = false
-	}: Props = $props();
+	let { icon, label, disabled = false, disableMargin = false, inline = false }: Props = $props();
 </script>
 
 <button

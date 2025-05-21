@@ -17,7 +17,6 @@
 	import type { TokenProperties } from 'shared';
 	import { spring } from 'svelte/motion';
 
-
 	interface Props {
 		properties: TokenProperties;
 		position: Position;
@@ -25,12 +24,7 @@
 		draggableParams: DraggableParams;
 	}
 
-	let {
-		properties,
-		position,
-		style,
-		draggableParams
-	}: Props = $props();
+	let { properties, position, style, draggableParams }: Props = $props();
 
 	const positionSpring = spring(position, {
 		damping: 0.7,

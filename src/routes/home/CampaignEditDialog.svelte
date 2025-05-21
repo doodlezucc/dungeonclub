@@ -59,17 +59,15 @@
 	<Input label="Campaign Name" name="Campaign Name" placeholder="Name..." bind:value={name} />
 
 	{#snippet actions()}
-	
-			{#if id}
-				<Button raised on:click={deleteCampaign}>
-					<span class="error">Delete</span>
-				</Button>
-				<Flex expand />
-			{/if}
-
-			<Button type="submit" raised highlight on:click={save}>
-				{id ? 'Save' : 'Create'}
+		{#if id}
+			<Button raised on:click={deleteCampaign}>
+				<span class="error">Delete</span>
 			</Button>
-		
+			<Flex expand />
+		{/if}
+
+		<Button type="submit" raised highlight on:click={save}>
+			{id ? 'Save' : 'Create'}
+		</Button>
 	{/snippet}
 </Dialog>

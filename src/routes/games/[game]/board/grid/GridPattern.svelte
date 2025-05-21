@@ -4,7 +4,6 @@
 	import { SquareGridSpace } from '$lib/packages/grid/spaces/square';
 	import SvgHexagon from './SvgHexagon.svelte';
 
-
 	interface Props {
 		id: string;
 		gridSpace: GridSpace | null;

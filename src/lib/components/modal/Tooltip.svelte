@@ -36,7 +36,6 @@
 	let { props, boundingRect, isDestroyed = false }: Props = $props();
 
 	let isMounted = $state(false);
-	
 
 	onMount(() => {
 		isMounted = true;

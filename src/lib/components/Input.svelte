@@ -11,10 +11,6 @@
 
 	import type { HTMLInputTypeAttribute } from 'svelte/elements';
 
-
-
-
-
 	interface Props {
 		value: string | number;
 		name: string;

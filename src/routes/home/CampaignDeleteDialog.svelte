@@ -21,11 +21,9 @@
 	</Text>
 
 	{#snippet actions()}
-	
-			<Button on:click={() => modal.pop(null)}>Cancel</Button>
-			<Button raised on:click={() => modal.pop(true)} type="submit">
-				<span class="error">Delete</span>
-			</Button>
-		
+		<Button on:click={() => modal.pop(null)}>Cancel</Button>
+		<Button raised on:click={() => modal.pop(true)} type="submit">
+			<span class="error">Delete</span>
+		</Button>
 	{/snippet}
 </Dialog>
