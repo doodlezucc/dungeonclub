@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { focusedHistory } from 'client/state/focused-history';
 	import type { ModalContext } from 'components/modal';
-	import { getContext } from 'svelte';
+	import { getContext, type Snippet } from 'svelte';
 	import { listenTo, ShortcutAction } from './ShortcutListener.svelte';
+
 	interface Props {
-		children?: import('svelte').Snippet;
+		children: Snippet;
 	}
 
 	let { children }: Props = $props();
@@ -36,4 +37,4 @@
 	});
 </script>
 
-{@render children?.()}
+{@render children()}

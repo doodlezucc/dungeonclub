@@ -17,7 +17,7 @@
 <script lang="ts" generics="T">
 	import { run } from 'svelte/legacy';
 
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, type Snippet } from 'svelte';
 	import { derived as legacyDerived, writable, type Readable } from 'svelte/store';
 
 	import { fly } from 'svelte/transition';
@@ -26,8 +26,8 @@
 	interface Props {
 		items: Array<T>;
 		customDragHandling?: boolean;
-		children?: import('svelte').Snippet<[any]>;
-		plus?: import('svelte').Snippet;
+		children?: Snippet<[any]>;
+		plus?: Snippet;
 	}
 
 	let { items = $bindable(), customDragHandling = false, children, plus }: Props = $props();

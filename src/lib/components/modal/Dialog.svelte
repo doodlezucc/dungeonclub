@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getContext, type Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import IconButton from '../IconButton.svelte';
 	import Row from '../layout/Row.svelte';
@@ -11,8 +11,8 @@
 		title: string;
 		disableCloseButton?: boolean;
 		closeButtonResult?: unknown;
-		children?: import('svelte').Snippet;
-		actions?: import('svelte').Snippet;
+		children: Snippet;
+		actions?: Snippet;
 	}
 
 	let {
@@ -94,7 +94,7 @@
 	<Separator fat />
 
 	<div class="content">
-		{@render children?.()}
+		{@render children()}
 	</div>
 
 	{#if actions}

@@ -68,12 +68,13 @@
 </script>
 
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { ShortcutManager } from '$lib/packages/shortcut-manager';
+	import type { Snippet } from 'svelte';
+	import { run } from 'svelte/legacy';
 	import { derived, readable, writable, type Readable } from 'svelte/store';
+
 	interface Props {
-		children?: import('svelte').Snippet;
+		children: Snippet;
 	}
 
 	let { children }: Props = $props();
@@ -132,4 +133,4 @@
 	}}
 />
 
-{@render children?.()}
+{@render children()}

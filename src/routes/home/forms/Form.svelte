@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { Button } from 'components';
 	import { Column, Container } from 'components/layout';
+	import type { Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
-
-
 
 	interface Props {
 		title: string;
@@ -11,9 +10,9 @@
 		disableSubmitButton?: boolean;
 		disableFormSpacing?: boolean;
 		handleSubmit: () => Promise<void>;
-		note?: import('svelte').Snippet;
-		children?: import('svelte').Snippet;
-		links?: import('svelte').Snippet;
+		note?: Snippet;
+		children?: Snippet;
+		links?: Snippet;
 	}
 
 	let {
@@ -28,9 +27,8 @@
 	}: Props = $props();
 
 	let errorReason = $state('');
-	
+
 	let isSubmitting = $state(false);
-	
 
 	async function onSubmitForm() {
 		isSubmitting = true;

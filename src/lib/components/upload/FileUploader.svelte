@@ -6,15 +6,14 @@
 	import { run } from 'svelte/legacy';
 
 	import Icon, { type IconID } from 'components/Icon.svelte';
-	import { createEventDispatcher } from 'svelte';
-
+	import { createEventDispatcher, type Snippet } from 'svelte';
 
 	interface Props {
 		accept: AcceptedFileType;
 		acceptMultiple?: boolean;
 		buttonClass?: string;
 		displayedIcon?: IconID | undefined;
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let {
@@ -26,7 +25,7 @@
 	}: Props = $props();
 
 	let dragOver = $state(false);
-	
+
 	let fileList;
 	run(() => {
 		fileList = null as File[] | null;

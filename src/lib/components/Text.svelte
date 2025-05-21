@@ -31,20 +31,16 @@
 </script>
 
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		style?: TextStyle;
 		color?: TextColor | undefined;
 		id?: string | undefined;
-		children?: import('svelte').Snippet;
+		children: Snippet;
 	}
 
-	let {
-		style = 'body',
-		color = undefined,
-		id = undefined,
-		children
-	}: Props = $props();
+	let { style = 'body', color = undefined, id = undefined, children }: Props = $props();
 
 	let styleDefinition = $derived(textStyles[style]);
 </script>
@@ -55,5 +51,5 @@
 	class:error={color === 'error'}
 	{id}
 >
-	{@render children?.()}
+	{@render children()}
 </svelte:element>

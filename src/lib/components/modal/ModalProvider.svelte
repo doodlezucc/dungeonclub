@@ -28,13 +28,14 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 
-	import { setContext, SvelteComponent } from 'svelte';
+	import { setContext, SvelteComponent, type Snippet } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { writable } from 'svelte/store';
 	import { fade, fly } from 'svelte/transition';
 	import Toast, { MAX_TOAST_COUNT, TOAST_DURATION_MS, type ToastOptions } from './Toast.svelte';
+
 	interface Props {
-		children?: import('svelte').Snippet;
+		children: Snippet;
 	}
 
 	let { children }: Props = $props();
@@ -91,7 +92,7 @@
 	}
 </script>
 
-{@render children?.()}
+{@render children()}
 
 <div class="modal-provider">
 	{#each $stack as modal (modal.id)}

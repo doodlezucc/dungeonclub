@@ -13,7 +13,7 @@
 </script>
 
 <script lang="ts">
-
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		direction?: FlexDirection | undefined;
@@ -22,7 +22,7 @@
 		justify?: FlexJustify | undefined;
 		expand?: boolean;
 		wrap?: boolean;
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let {

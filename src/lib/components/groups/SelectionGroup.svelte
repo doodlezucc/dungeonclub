@@ -14,15 +14,14 @@
 <script lang="ts" generics="T">
 	import { run } from 'svelte/legacy';
 
-	import { setContext } from 'svelte';
-
+	import { setContext, type Snippet } from 'svelte';
 
 	interface Props {
 		elements: T[];
 		getElementKey: (element: T) => string;
 		selectedKeys?: any;
 		selectedElements?: T[];
-		children?: import('svelte').Snippet<[any]>;
+		children?: Snippet<[any]>;
 	}
 
 	let {
@@ -75,5 +74,5 @@
 </script>
 
 {#each elements as element (getElementKey(element))}
-	{@render children?.({ element, isSelected: selectedElements.includes(element), })}
+	{@render children?.({ element, isSelected: selectedElements.includes(element) })}
 {/each}

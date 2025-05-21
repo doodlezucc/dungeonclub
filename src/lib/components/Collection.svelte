@@ -3,6 +3,8 @@
 </script>
 
 <script lang="ts" generics="T">
+	import type { Snippet } from 'svelte';
+
 	import { flip } from 'svelte/animate';
 	import { fly } from 'svelte/transition';
 
@@ -14,17 +16,11 @@
 		items: Array<T>;
 		itemClass?: string | undefined;
 		keyFunction?: (item: T) => unknown;
-		children?: import('svelte').Snippet<[any]>;
-		plus?: import('svelte').Snippet;
+		children?: Snippet<[any]>;
+		plus?: Snippet;
 	}
 
-	let {
-		items,
-		itemClass = undefined,
-		keyFunction = identity,
-		children,
-		plus
-	}: Props = $props();
+	let { items, itemClass = undefined, keyFunction = identity, children, plus }: Props = $props();
 
 	function keyOf(itemOrPlus: T) {
 		if (itemOrPlus === PLUS_ITEM_TOKEN) {
@@ -44,7 +40,7 @@
 		in:fly|global={{ y: 30, delay: 200 + index * 50 }}
 	>
 		{#if item !== PLUS_ITEM_TOKEN}
-			{@render children?.({ item, })}
+			{@render children?.({ item })}
 		{:else}
 			{@render plus?.()}
 		{/if}

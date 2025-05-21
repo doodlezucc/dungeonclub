@@ -1,10 +1,9 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import type { Snippet } from 'svelte';
 	import { createBubbler } from 'svelte/legacy';
 
 	const bubble = createBubbler();
-	import { goto } from '$app/navigation';
-
-
 
 	interface Props {
 		href?: string | undefined;
@@ -12,7 +11,7 @@
 		raised?: boolean;
 		disabled?: boolean;
 		type?: HTMLButtonElement['type'] | undefined;
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let {

@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	import type { Position, Size } from '$lib/compounds';
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, type Snippet } from 'svelte';
 
 	const minZoom = -1;
 	const maxZoom = 3;
@@ -29,17 +29,13 @@
 </script>
 
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
-
-
 	interface Props {
 		expand?: boolean;
 		position?: any;
 		zoom?: number;
 		elementView?: HTMLElement | undefined;
 		elementContent?: HTMLElement | undefined;
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let {
@@ -54,13 +50,10 @@
 	let elementsTriggeringPanEvent = $derived([elementView, elementContent] as EventTarget[]);
 
 	let isPanning = $state(false);
-	
+
 	let hasPointerMovedSincePanStart = $state(false);
-	
-	let pointerOrigin;
-	run(() => {
-		pointerOrigin = { x: 0, y: 0 };
-	});
+
+	let pointerOrigin = { x: 0, y: 0 };
 
 	let scale = $derived(Math.exp(zoom));
 

@@ -1,24 +1,18 @@
 <script lang="ts">
 	import { focusOnMount } from 'components/Input.svelte';
+	import type { Snippet } from 'svelte';
 	import Form from './Form.svelte';
-
 
 	interface Props {
 		title: string;
 		submitButtonLabel?: string;
 		handleCodeSubmit: (enteredCode: string) => Promise<void>;
-		note?: import('svelte').Snippet;
+		note?: Snippet;
 	}
 
-	let {
-		title,
-		submitButtonLabel = 'Verify',
-		handleCodeSubmit,
-		note
-	}: Props = $props();
+	let { title, submitButtonLabel = 'Verify', handleCodeSubmit, note }: Props = $props();
 
 	let enteredCode = $state('');
-	
 </script>
 
 <Form
@@ -28,7 +22,7 @@
 	handleSubmit={() => handleCodeSubmit(enteredCode)}
 >
 	{#snippet note()}
-		<p >
+		<p>
 			{@render note?.()}
 		</p>
 	{/snippet}

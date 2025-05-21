@@ -1,9 +1,10 @@
 <script lang="ts">
 	import Container from 'components/layout/Container.svelte';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		title: string;
-		children?: import('svelte').Snippet;
+		children: Snippet;
 	}
 
 	let { title, children }: Props = $props();
@@ -12,7 +13,7 @@
 <Container>
 	<h3>{title}</h3>
 
-	{@render children?.()}
+	{@render children()}
 </Container>
 
 <style>

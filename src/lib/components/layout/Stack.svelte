@@ -1,10 +1,16 @@
-<script>
-	/** @type {{expand?: boolean, children?: import('svelte').Snippet}} */
-	let { expand = false, children } = $props();
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+
+	interface Props {
+		expand?: boolean;
+		children: Snippet;
+	}
+
+	let { expand = false, children }: Props = $props();
 </script>
 
 <div class:expand>
-	{@render children?.()}
+	{@render children()}
 </div>
 
 <style>

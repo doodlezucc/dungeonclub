@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { ClientSocket } from 'client/communication';
+	import type { Snippet } from 'svelte';
+
 	interface Props {
-		children?: import('svelte').Snippet;
+		children: Snippet;
 	}
 
 	let { children }: Props = $props();
@@ -12,4 +14,4 @@
 	}
 </script>
 
-{@render children?.()}
+{@render children()}

@@ -14,10 +14,12 @@
 </script>
 
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	interface Props {
 		alignment: Alignment;
 		margin?: AlignMargin | undefined;
-		children?: import('svelte').Snippet;
+		children: Snippet;
 	}
 
 	let { alignment, margin = undefined, children }: Props = $props();
@@ -30,7 +32,7 @@
 	class:right={alignment.includes('right')}
 	data-margin={margin}
 >
-	{@render children?.()}
+	{@render children()}
 </div>
 
 <style>

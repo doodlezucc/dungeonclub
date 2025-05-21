@@ -1,11 +1,12 @@
 <script lang="ts">
 	import IconButton from 'components/IconButton.svelte';
 	import { Align, Stack } from 'components/layout';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		isInheriting: boolean;
 		disableToggle?: boolean;
-		children?: import('svelte').Snippet;
+		children: Snippet;
 	}
 
 	let { isInheriting = $bindable(), disableToggle = false, children }: Props = $props();
@@ -17,7 +18,7 @@
 
 <div class="property-container" class:is-inheriting={isInheriting}>
 	<Stack>
-		{@render children?.()}
+		{@render children()}
 
 		<Align alignment="right" margin="small">
 			<span class:is-inheriting={isInheriting} class:disabled={disableToggle}>

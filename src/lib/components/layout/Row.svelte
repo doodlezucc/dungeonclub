@@ -1,6 +1,6 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import Flex, { type FlexAlign, type FlexJustify, type Gap } from './Flex.svelte';
-
 
 	interface Props {
 		expand?: boolean;
@@ -8,7 +8,7 @@
 		gap?: Gap | undefined;
 		align?: FlexAlign | undefined;
 		justify?: FlexJustify | undefined;
-		children?: import('svelte').Snippet;
+		children: Snippet;
 	}
 
 	let {
@@ -22,5 +22,5 @@
 </script>
 
 <Flex direction="row" {expand} {wrap} {gap} {align} {justify}>
-	{@render children?.()}
+	{@render children()}
 </Flex>

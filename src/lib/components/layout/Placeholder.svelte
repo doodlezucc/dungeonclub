@@ -1,10 +1,11 @@
 <script lang="ts">
 	import type { Size } from '$lib/compounds';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		expand?: boolean;
 		size?: Size | undefined;
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let { expand = false, size = undefined, children }: Props = $props();
@@ -18,7 +19,7 @@
 	PLACEHOLDER
 	{#if children}
 		<br />
-		({@render children?.()})
+		({@render children()})
 	{/if}
 </div>
 

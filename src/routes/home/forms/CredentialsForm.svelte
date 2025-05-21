@@ -7,17 +7,17 @@
 
 	import Input from 'components/Input.svelte';
 	import { Column } from 'components/layout';
+	import type { Snippet } from 'svelte';
 	import { enteredEmailAddress } from '../credential-stores';
 	import Form from './Form.svelte';
-
 
 	interface Props {
 		title: string;
 		submitButtonLabel: string;
 		passwordInputLabel?: string;
 		handleSubmit: (emailAddress: string, password: string) => Promise<void>;
-		note?: import('svelte').Snippet;
-		links?: import('svelte').Snippet;
+		note?: Snippet;
+		links?: Snippet;
 	}
 
 	let {
@@ -30,14 +30,12 @@
 	}: Props = $props();
 
 	let password = $state('');
-	
+
 	let passwordConfirmation = $state('');
-	
 
 	let formValidationError = $state('woah');
-	
+
 	let isValid = $state(false);
-	
 
 	function validate() {
 		if (password.length === 0) {
@@ -77,11 +75,9 @@
 	{submitButtonLabel}
 	disableSubmitButton={!isValid}
 	handleSubmit={() => handleSubmit($enteredEmailAddress, password)}
+	{note}
+	{links}
 >
-	{#snippet note()}
-		{@render note?.()}
-	{/snippet}
-
 	<Input
 		autofocus
 		required
@@ -114,8 +110,4 @@
 			<span class="error">{formValidationError}</span>
 		{/if}
 	</Column>
-
-	{#snippet links()}
-		{@render links?.()}
-	{/snippet}
 </Form>

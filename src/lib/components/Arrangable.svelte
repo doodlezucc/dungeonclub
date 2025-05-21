@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, type Snippet } from 'svelte';
 	import { spring } from 'svelte/motion';
 	import type { DragState } from './ArrangedCollection.svelte';
 	import type { Position } from './compounds';
@@ -10,7 +10,7 @@
 		index: number;
 		state: DragState;
 		customDragHandling: boolean;
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let { index, state: dragState, customDragHandling, children }: Props = $props();
