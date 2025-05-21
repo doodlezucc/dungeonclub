@@ -1,5 +1,4 @@
-<!-- @migration-task Error while migrating Svelte code: Unexpected token -->
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export interface BoardContext {
 		transformClientToGridSpace: (position: Position) => Position;
 		transformGridToClientSpace: (position: Position) => Position;
@@ -8,6 +7,8 @@
 </script>
 
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import type { Position, Size } from '$lib/compounds';
 	import { Board, boardState } from 'client/state/board';
 	import { PanView } from 'components';
@@ -23,25 +24,29 @@
 
 	const cellsPerRow = $boardState!.gridCellsPerRow;
 
-	let position = <Position>{ x: 0, y: 0 };
-	let zoom = 0;
+	let position = $state(<Position>{ x: 0, y: 0 });
+	let zoom = $state(0);
 
-	let dimensions = undefined as Size | undefined;
+	let dimensions = $state(undefined as Size | undefined);
 
-	$: cellSize = (dimensions?.width ?? 0) / cellsPerRow;
+	let cellSize = $derived((dimensions?.width ?? 0) / cellsPerRow);
 
-	let tokenContainer: BoardTokens;
-	export let selectedTokenIds: string[] = [];
+	let tokenContainer: BoardTokens = $state();
+	interface Props {
+		selectedTokenIds?: string[];
+	}
 
-	let contentElement: HTMLElement;
-	let cachedClientRect = undefined as DOMRect | undefined;
+	let { selectedTokenIds = $bindable([]) }: Props = $props();
 
-	$: {
+	let contentElement: HTMLElement = $state();
+	let cachedClientRect = $state(undefined as DOMRect | undefined);
+
+	run(() => {
 		// Clear cached client rect when position or zoom change
 		if (position && zoom != undefined) {
 			cachedClientRect = undefined;
 		}
-	}
+	});
 
 	const keepTokenSelection = derivedKeyStateModifySelection();
 	function onClickEmptySpace() {
@@ -70,7 +75,7 @@
 		throw 'Not implemented';
 	}
 
-	let panViewElement: HTMLElement | undefined;
+	let panViewElement: HTMLElement | undefined = $state();
 
 	setContext<BoardContext>('board', {
 		transformClientToGridSpace,

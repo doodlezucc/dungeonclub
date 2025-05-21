@@ -1,5 +1,4 @@
-<!-- @migration-task Error while migrating Svelte code: Unexpected token -->
-<script lang="ts" context="module">
+<script lang="ts" module>
 	import type { Position } from './compounds';
 
 	export interface DragController {
@@ -16,23 +15,31 @@
 </script>
 
 <script lang="ts" generics="T">
+	import { run } from 'svelte/legacy';
+
 	import { createEventDispatcher } from 'svelte';
-	import { derived, writable, type Readable } from 'svelte/store';
+	import { derived as legacyDerived, writable, type Readable } from 'svelte/store';
 
 	import { fly } from 'svelte/transition';
 	import Arrangable from './Arrangable.svelte';
 
-	export let items: Array<T>;
-	export let customDragHandling = false;
+	interface Props {
+		items: Array<T>;
+		customDragHandling?: boolean;
+		children?: import('svelte').Snippet<[any]>;
+		plus?: import('svelte').Snippet;
+	}
+
+	let { items = $bindable(), customDragHandling = false, children, plus }: Props = $props();
 
 	let draggedItem = writable<T | null>(null);
-	let isAnyDragging = derived(draggedItem, (dragged) => dragged != null);
+	let isAnyDragging = legacyDerived(draggedItem, (dragged) => dragged != null);
 
-	$: mousePosition = <Position>{ x: 0, y: 0 };
+	let mousePosition = $derived(<Position>{ x: 0, y: 0 });
 
-	$: dragStates = new Map<T, DragState>();
+	let dragStates = $derived(new Map<T, DragState>());
 
-	$: {
+	run(() => {
 		const previouslyRegistered = [...dragStates.keys()];
 
 		for (const registeredItem of previouslyRegistered) {
@@ -40,7 +47,7 @@
 				dragStates.delete(registeredItem);
 			}
 		}
-	}
+	});
 
 	const dispatch = createEventDispatcher<{
 		reorder: undefined;
@@ -54,7 +61,7 @@
 				newState.center = center;
 			},
 			controller: {
-				isDragging: derived(draggedItem, (activeItem) => activeItem == item),
+				isDragging: legacyDerived(draggedItem, (activeItem) => activeItem == item),
 				start: () => {
 					$draggedItem = item;
 				}
@@ -65,10 +72,10 @@
 		return newState;
 	}
 
-	$: itemsPlus = [
+	let itemsPlus = $derived([
 		...items.map((item) => [item, dragStates.get(item) ?? registerDragState(item)]),
 		null
-	] as [T, DragState][];
+	] as [T, DragState][]);
 
 	function sqrDistance(a: Position, b: Position) {
 		const x = b.x - a.x;
@@ -123,16 +130,16 @@
 	}
 </script>
 
-<svelte:window on:mouseup={handleMouseUp} on:pointermove={handleMouseMove} />
+<svelte:window onmouseup={handleMouseUp} onpointermove={handleMouseMove} />
 
 {#each itemsPlus as entry, index (entry ? entry[0] : null)}
 	<div in:fly|global={{ y: 30, delay: 200 + index * 50 }}>
 		{#if entry}
 			<Arrangable {index} state={entry[1]} {customDragHandling} on:drag={(ev) => onDrag(entry, ev)}>
-				<slot item={entry[0]} dragController={entry[1].controller} this />
+				{@render children?.({ item: entry[0], dragController: entry[1].controller, this: true })}
 			</Arrangable>
 		{:else}
-			<slot name="plus" />
+			{@render plus?.()}
 		{/if}
 	</div>
 {/each}

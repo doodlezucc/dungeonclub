@@ -1,5 +1,4 @@
-<!-- @migration-task Error while migrating Svelte code: Unexpected token -->
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export interface HistoryTokenMovement {
 		tokenId: string;
 		position: Record<Direction, Position>;
@@ -25,20 +24,25 @@
 	import TokenBase from './TokenBase.svelte';
 	import * as Tokens from './token-management';
 
-	export let token: TokenSnippet;
-	export let template: TokenTemplateSnippet | undefined;
-	export let selected: boolean;
+	interface Props {
+		token: TokenSnippet;
+		template: TokenTemplateSnippet | undefined;
+		selected: boolean;
+	}
 
-	$: properties = materializeToken(token, template);
+	let { token, template, selected }: Props = $props();
 
-	$: position = <Position>{ x: token.x, y: token.y };
-	$: displaySize = properties.size;
+	let properties = $derived(materializeToken(token, template));
+
+	let position = $derived(<Position>{ x: token.x, y: token.y });
+	let displaySize = $derived(properties.size);
 
 	const selection = getContext<SelectionContext<TokenSnippet>>('selection');
 
 	const { transformClientToGridSpace } = getContext<BoardContext>('board');
 
-	$: isDragging = false;
+	let isDragging = $state(false);
+
 	let positionBeforeDragging = position;
 	let previousDragPosition = position;
 

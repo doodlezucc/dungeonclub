@@ -6,7 +6,6 @@
 	import CredentialsForm from '../home/forms/CredentialsForm.svelte';
 
 	let showActivationCodeForm = $state(false);
-	
 
 	async function attemptResetPassword(emailAddress: string, password: string) {
 		await Account.attemptResetPassword(emailAddress, password);
@@ -20,8 +19,7 @@
 </script>
 
 <ConfirmPasswordPage {showActivationCodeForm}>
-	<!-- @migration-task: migrate this slot by hand, `credentials-form` is an invalid identifier -->
-	<svelte:fragment slot="credentials-form">
+	{#snippet credentialsForm()}
 		<CredentialsForm
 			title="Reset your Password"
 			passwordInputLabel="New Password"
@@ -29,25 +27,24 @@
 			handleSubmit={attemptResetPassword}
 		>
 			{#snippet links()}
-						<span >
+				<span>
 					No need to reset?<br />
 					<a href="/">Log in here</a>
 				</span>
-					{/snippet}
+			{/snippet}
 		</CredentialsForm>
-	</svelte:fragment>
+	{/snippet}
 
-	<!-- @migration-task: migrate this slot by hand, `code-form` is an invalid identifier -->
-	<svelte:fragment slot="code-form">
+	{#snippet codeForm()}
 		<ActivationCodeForm title="Activate New Password" handleCodeSubmit={attemptVerify}>
 			{#snippet note()}
-						<span >
-					To fulfill the request to reset your password, please <b>check your email inbox</b> for an activation
-					code.
+				<span>
+					To fulfill the request to reset your password, please <b>check your email inbox</b> for an
+					activation code.
 				</span>
-					{/snippet}
+			{/snippet}
 		</ActivationCodeForm>
-	</svelte:fragment>
+	{/snippet}
 </ConfirmPasswordPage>
 
 <style>

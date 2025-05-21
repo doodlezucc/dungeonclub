@@ -7,7 +7,6 @@
 	import CredentialsForm from '../home/forms/CredentialsForm.svelte';
 
 	let showActivationCodeForm = $state(false);
-	
 
 	async function attemptSignUp(emailAddress: string, password: string) {
 		await Account.attemptSignUp(emailAddress, password);
@@ -21,40 +20,38 @@
 </script>
 
 <ConfirmPasswordPage {showActivationCodeForm}>
-	<!-- @migration-task: migrate this slot by hand, `credentials-form` is an invalid identifier -->
-	<svelte:fragment slot="credentials-form">
+	{#snippet credentialsForm()}
 		<CredentialsForm
 			title="Create a new Account"
 			submitButtonLabel="Sign Up"
 			handleSubmit={attemptSignUp}
 		>
 			{#snippet note()}
-						<span  class="heads-up" in:fly={{ delay: 100, y: 20, duration: 600 }}>
+				<span class="heads-up" in:fly={{ delay: 100, y: 20, duration: 600 }}>
 					<b>Tip!</b> Accounts are <em>not required</em><br />
 					for players, only for game leaders.
 				</span>
-					{/snippet}
+			{/snippet}
 
 			{#snippet links()}
-						<span >
+				<span>
 					Already have an account?<br />
 					<a href="/">Log in here</a>
 				</span>
-					{/snippet}
+			{/snippet}
 		</CredentialsForm>
-	</svelte:fragment>
+	{/snippet}
 
-	<!-- @migration-task: migrate this slot by hand, `code-form` is an invalid identifier -->
-	<svelte:fragment slot="code-form">
+	{#snippet codeForm()}
 		<ActivationCodeForm title="Activate Account" handleCodeSubmit={attemptVerify}>
 			{#snippet note()}
-						<span >
+				<span>
 					Hey there, thanks for signing up. Glad to have you! Please <b>check your email inbox</b> for
 					an activation code.
 				</span>
-					{/snippet}
+			{/snippet}
 		</ActivationCodeForm>
-	</svelte:fragment>
+	{/snippet}
 </ConfirmPasswordPage>
 
 <style>
