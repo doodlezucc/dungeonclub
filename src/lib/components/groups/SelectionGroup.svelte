@@ -19,7 +19,7 @@
 	interface Props {
 		elements: T[];
 		getElementKey: (element: T) => string;
-		selectedKeys?: any;
+		selectedKeys?: string[];
 		selectedElements?: T[];
 		children?: Snippet<[any]>;
 	}
@@ -27,7 +27,7 @@
 	let {
 		elements,
 		getElementKey,
-		selectedKeys = $bindable([] as string[]),
+		selectedKeys = $bindable([]),
 		selectedElements = $bindable([]),
 		children
 	}: Props = $props();

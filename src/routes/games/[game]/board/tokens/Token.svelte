@@ -12,7 +12,6 @@
 	import { socket } from 'client/communication';
 	import { Board, boardState } from 'client/state';
 	import {
-		KeyState,
 		derivedKeyStateModifySelection,
 		keyStateOf
 	} from 'components/extensions/ShortcutListener.svelte';
@@ -43,8 +42,8 @@
 
 	let isDragging = $state(false);
 
-	let positionBeforeDragging = position;
-	let previousDragPosition = position;
+	let positionBeforeDragging = $state<Position>();
+	let previousDragPosition = $state<Position>();
 
 	function onDragToggle(dragState: boolean) {
 		isDragging = dragState;
@@ -53,7 +52,7 @@
 			positionBeforeDragging = position;
 			previousDragPosition = position;
 		} else {
-			onDraggedTo(position, positionBeforeDragging);
+			onDraggedTo(position, positionBeforeDragging!);
 		}
 	}
 
@@ -74,7 +73,7 @@
 	}
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
-	const isGridSnappingDisabled = keyStateOf(KeyState.DisableGridSnapping);
+	const isGridSnappingDisabled = keyStateOf('DisableGridSnapping');
 
 	function handleDragging(ev: MouseEvent) {
 		const mouseInGridSpace = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });
@@ -96,8 +95,8 @@
 		}
 
 		const delta = <Position>{
-			x: dragPosition.x - previousDragPosition.x,
-			y: dragPosition.y - previousDragPosition.y
+			x: dragPosition.x - previousDragPosition!.x,
+			y: dragPosition.y - previousDragPosition!.y
 		};
 
 		previousDragPosition = dragPosition;

@@ -3,10 +3,17 @@
 	import { asset } from 'client/communication/asset';
 	import { boardState, Campaign } from 'client/state';
 
-	export const size: Size = {
-		width: 600,
-		height: 400
-	};
+	interface Props {
+		/** Read-only. */
+		size?: Size;
+	}
+
+	let {
+		size = $bindable({
+			width: 600,
+			height: 400
+		})
+	}: Props = $props();
 
 	let boardImageAsset = $derived(Campaign.instance.assetById($boardState!.mapImageId));
 </script>

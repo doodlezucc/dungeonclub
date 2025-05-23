@@ -21,10 +21,8 @@
 </script>
 
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { Board } from 'client/state';
-	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
+	import { keyStateOf } from 'components/extensions/ShortcutListener.svelte';
 	import { EMPTY_TOKEN_PROPERTIES } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import type { BoardContext } from '../Board.svelte';
@@ -39,10 +37,7 @@
 
 	let { template, spawnPosition, onPlace }: Props = $props();
 
-	let position: Position;
-	run(() => {
-		position = spawnPosition;
-	});
+	let position = $state(spawnPosition);
 
 	function onDragToggle(isDragStart: boolean) {
 		if (isDragStart) return;
@@ -56,7 +51,7 @@
 	}
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
-	const isGridSnappingDisabled = keyStateOf(KeyState.DisableGridSnapping);
+	const isGridSnappingDisabled = keyStateOf('DisableGridSnapping');
 	const { transformClientToGridSpace, getPanViewEventTarget } = getContext<BoardContext>('board');
 
 	let size = $derived(template?.size ?? 1);

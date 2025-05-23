@@ -3,8 +3,6 @@
 </script>
 
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import Icon, { type IconID } from 'components/Icon.svelte';
 	import { type Snippet } from 'svelte';
 
@@ -30,22 +28,19 @@
 
 	let dragOver = $state(false);
 
-	let fileList;
-	run(() => {
-		fileList = null as File[] | null;
-	});
+	let fileList = $state<File[] | null>(null);
 
-	let input: HTMLInputElement = $state();
+	let input = $state<HTMLInputElement>();
 	function openFilePicker() {
-		input.click();
+		input!.click();
 	}
 
-	run(() => {
+	$effect(() => {
 		if (fileList) {
 			onChange?.(fileList);
 
 			// Clear input element state to allow picking the same file again
-			input.value = '';
+			input!.value = '';
 		}
 	});
 
@@ -64,7 +59,7 @@
 	}
 
 	function handlePick() {
-		if (input.files) {
+		if (input?.files) {
 			fileList = Array.from(input.files);
 		}
 	}

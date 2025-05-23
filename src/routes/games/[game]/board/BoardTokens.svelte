@@ -4,7 +4,7 @@
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { boardState, campaignState } from 'client/state';
-	import { listenTo, ShortcutAction } from 'components/extensions/ShortcutListener.svelte';
+	import { listenTo } from 'components/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import type { TokenSnippet } from 'shared';
 	import { getTemplateForToken } from 'shared/token-materializing';
@@ -25,7 +25,7 @@
 	let tokenTemplates = $derived($campaignState!.templates);
 
 	let tokenSelectionGroup = $state(null as SelectionGroup<TokenSnippet> | null);
-	let selectedTokens: TokenSnippet[] = $state();
+	let selectedTokens = $state<TokenSnippet[]>([]);
 	interface Props {
 		selectedTokenIds?: string[];
 	}
@@ -74,14 +74,14 @@
 		);
 	}
 
-	const onPressDelete = listenTo(ShortcutAction.Delete);
+	const onPressDelete = listenTo('Delete');
 	$onPressDelete.handle(() => {
 		if (selectedTokens.length > 0) {
 			Tokens.deleteTokens(selectedTokens, buildContextForTokenManagement());
 		}
 	});
 
-	const onPressEscape = listenTo(ShortcutAction.Escape);
+	const onPressEscape = listenTo('Escape');
 	$onPressEscape.handle(() => {
 		if ($unplacedTokenProperties) {
 			exitTokenPlacement();

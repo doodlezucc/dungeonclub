@@ -31,14 +31,14 @@
 
 	let cellSize = $derived((dimensions?.width ?? 0) / cellsPerRow);
 
-	let tokenContainer: BoardTokens = $state();
+	let tokenContainer = $state<BoardTokens>();
 	interface Props {
 		selectedTokenIds?: string[];
 	}
 
 	let { selectedTokenIds = $bindable([]) }: Props = $props();
 
-	let contentElement: HTMLElement = $state();
+	let contentElement = $state<HTMLElement>();
 	let cachedClientRect = $state(undefined as DOMRect | undefined);
 
 	run(() => {
@@ -51,12 +51,12 @@
 	const keepTokenSelection = derivedKeyStateModifySelection();
 	function onClickEmptySpace() {
 		if (!$keepTokenSelection) {
-			tokenContainer.clearSelection();
+			tokenContainer!.clearSelection();
 		}
 	}
 
 	function getClientRect() {
-		return (cachedClientRect ??= contentElement.getBoundingClientRect());
+		return (cachedClientRect ??= contentElement!.getBoundingClientRect());
 	}
 
 	function transformClientToGridSpace(clientPosition: Position): Position {
@@ -94,7 +94,7 @@
 	onClick={onClickEmptySpace}
 >
 	<div class="board" style="--cell-size: {cellSize}px; --cell-grow-factor: {tileHeightRatio};">
-		<BattleMap bind:size={dimensions} />
+		<BattleMap size={dimensions} />
 
 		{#if dimensions}
 			<Overlay>

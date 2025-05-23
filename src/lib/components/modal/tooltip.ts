@@ -1,7 +1,7 @@
+import { mount, unmount } from 'svelte';
 import type { Action } from 'svelte/action';
 import { tooltipContainerID } from './ModalProvider.svelte';
 import Tooltip, { TOOLTIP_TRANSITION_OUT_MS, type TooltipProps } from './Tooltip.svelte';
-import { mount } from 'svelte';
 
 export const tooltip: Action<HTMLElement, TooltipProps> = (node, props) => {
 	const tooltipContainer = document.getElementById(tooltipContainerID)!;
@@ -9,7 +9,9 @@ export const tooltip: Action<HTMLElement, TooltipProps> = (node, props) => {
 	let tooltipComponent: Tooltip | undefined;
 
 	function onMouseEnter() {
-		tooltipComponent?.$destroy();
+		if (tooltipComponent) {
+			unmount(tooltipComponent);
+		}
 
 		tooltipComponent = mount(Tooltip, {
 			target: tooltipContainer,
@@ -23,7 +25,7 @@ export const tooltip: Action<HTMLElement, TooltipProps> = (node, props) => {
 	function destroyAfterFadeOut() {
 		const activeTooltip = tooltipComponent;
 		if (activeTooltip) {
-			activeTooltip.$set({
+			activeTooltip.$set?.({
 				isDestroyed: true
 			});
 
@@ -31,7 +33,7 @@ export const tooltip: Action<HTMLElement, TooltipProps> = (node, props) => {
 			const destructionDelay = TOOLTIP_TRANSITION_OUT_MS + 200;
 
 			setTimeout(() => {
-				activeTooltip.$destroy();
+				unmount(activeTooltip);
 			}, destructionDelay);
 		}
 	}
@@ -57,7 +59,7 @@ export const tooltip: Action<HTMLElement, TooltipProps> = (node, props) => {
 	return {
 		update: (props) => {
 			setAriaTooltip(props.label);
-			tooltipComponent?.$set({ props });
+			tooltipComponent?.$set?.({ props: props });
 		},
 		destroy: () => {
 			node.removeEventListener('mouseenter', onMouseEnter);
