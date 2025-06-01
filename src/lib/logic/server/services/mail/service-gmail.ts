@@ -21,7 +21,7 @@ export class GmailMailService extends TransporterMailService {
 		});
 	}
 
-	private static createTransporterFromToken(tokenState: GmailTokenState): Transporter {
+	private static createTransporterFromToken(tokenState: GmailTokenState | null): Transporter {
 		const {
 			GMAIL_API_USER,
 			GMAIL_API_CLIENT_ID,
@@ -39,18 +39,22 @@ export class GmailMailService extends TransporterMailService {
 				clientId: GMAIL_API_CLIENT_ID,
 				clientSecret: GMAIL_API_CLIENT_SECRET,
 				refreshToken: GMAIL_API_REFRESH_TOKEN,
-				accessToken: tokenState.accessToken,
-				expires: tokenState.expires
+				accessToken: tokenState?.accessToken,
+				expires: tokenState?.expires
 			}
 		});
 	}
 
-	private async readState(): Promise<GmailTokenState> {
-		const setting = await prisma.systemSetting.findFirstOrThrow({
+	private async readState(): Promise<GmailTokenState | null> {
+		const setting = await prisma.systemSetting.findFirst({
 			where: { key: SETTING_KEY_TOKEN_STATE }
 		});
 
-		return JSON.parse(setting.jsonValue);
+		if (setting) {
+			return JSON.parse(setting.jsonValue);
+		} else {
+			return null;
+		}
 	}
 
 	private async storeToken(token: GmailTokenState) {
