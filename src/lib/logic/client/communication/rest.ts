@@ -1,5 +1,5 @@
 import { derived, readable } from 'svelte/store';
-import { accountState } from '../state';
+import { accountState } from '../state/account';
 
 interface RequestOptions {
 	params?: Record<string, string>;
