@@ -1,4 +1,5 @@
-import { Board, Campaign } from 'client/state';
+import { Board } from 'client/state/board';
+import { Campaign } from 'client/state/session';
 import {
 	MessageHandler,
 	type AccountMessageCategory,
