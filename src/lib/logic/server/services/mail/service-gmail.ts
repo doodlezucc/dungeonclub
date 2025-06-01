@@ -60,9 +60,13 @@ export class GmailMailService extends TransporterMailService {
 	private async storeToken(token: GmailTokenState) {
 		const tokenJsonString = JSON.stringify(token);
 
-		await prisma.systemSetting.update({
+		await prisma.systemSetting.upsert({
 			where: { key: SETTING_KEY_TOKEN_STATE },
-			data: {
+			create: {
+				key: SETTING_KEY_TOKEN_STATE,
+				jsonValue: tokenJsonString
+			},
+			update: {
 				jsonValue: tokenJsonString
 			}
 		});
