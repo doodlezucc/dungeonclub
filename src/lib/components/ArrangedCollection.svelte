@@ -15,8 +15,6 @@
 </script>
 
 <script lang="ts" generics="T">
-	import { run } from 'svelte/legacy';
-
 	import { type Snippet } from 'svelte';
 	import { derived as legacyDerived, writable, type Readable } from 'svelte/store';
 
@@ -46,9 +44,10 @@
 
 	let mousePosition = $derived(<Position>{ x: 0, y: 0 });
 
-	let dragStates = $derived(new Map<T, DragState>());
+	let dragStates = new Map<T, DragState>();
 
-	run(() => {
+	// Runs everytime the "items" array is changed
+	$effect(() => {
 		const previouslyRegistered = [...dragStates.keys()];
 
 		for (const registeredItem of previouslyRegistered) {

@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
-	import { type Snippet } from 'svelte';
-	import { spring } from 'svelte/motion';
+	import { untrack, type Snippet } from 'svelte';
+	import { Spring } from 'svelte/motion';
 	import type { DragState } from './ArrangedCollection.svelte';
 	import type { Position } from './compounds';
 
@@ -21,12 +19,9 @@
 	let isDragging = dragState.controller.isDragging;
 	let isAnyDragging = dragState.isAnyDragging;
 
-	let mouseOffset;
-	run(() => {
-		mouseOffset = undefined as Position | undefined;
-	});
+	let mouseOffset = $state<Position>();
 
-	let visualCenter = spring<Position>(undefined, {
+	let visualCenter = new Spring<Position | undefined>(undefined, {
 		stiffness: 0.1,
 		damping: 0.4
 	});
@@ -36,7 +31,7 @@
 
 	let container = $state<HTMLElement>();
 
-	run(() => {
+	$effect(() => {
 		if (!$isDragging) {
 			mouseOffset = undefined;
 			draggedCenter = center;
@@ -50,27 +45,27 @@
 			y: rect.top + rect.height / 2
 		};
 		if (!$isDragging) {
-			$visualCenter = center;
+			visualCenter.set(center);
 		}
 		dragState.setItemCenter(center);
 	}
 
-	run(() => {
+	$effect(() => {
 		if (container && $isAnyDragging && index !== undefined) {
-			findCenter();
+			untrack(() => findCenter());
 		}
 	});
 
 	let visualOffset = $derived(
-		$visualCenter && center
+		visualCenter.current && center
 			? {
-					x: $visualCenter.x - center!.x,
-					y: $visualCenter.y - center!.y
+					x: visualCenter.current.x - center!.x,
+					y: visualCenter.current.y - center!.y
 				}
 			: { x: 0, y: 0 }
 	);
 
-	run(() => {
+	$effect(() => {
 		if (draggedCenter) {
 			onDrag?.();
 			$visualCenter = draggedCenter;
