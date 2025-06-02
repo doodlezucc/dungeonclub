@@ -13,8 +13,7 @@
 	import { draggable, type DraggableParams } from 'components/Draggable.svelte';
 	import type { TokenProperties } from 'shared';
 	import type { MouseEventHandler } from 'svelte/elements';
-	import { run } from 'svelte/legacy';
-	import { spring } from 'svelte/motion';
+	import { Spring } from 'svelte/motion';
 
 	interface Props {
 		properties: TokenProperties;
@@ -28,12 +27,12 @@
 
 	let { properties, position, style, draggableParams, onmousedown, onmouseup }: Props = $props();
 
-	const positionSpring = spring(position, {
+	const positionSpring = new Spring(position, {
 		damping: 0.7,
 		stiffness: 0.2
 	});
 
-	run(() => {
+	$effect(() => {
 		$positionSpring = position;
 	});
 

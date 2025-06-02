@@ -7,8 +7,6 @@
 </script>
 
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import type { Position, Size } from '$lib/compounds';
 	import { Board, boardState } from 'client/state/board';
 	import { PanView } from 'components';
@@ -27,7 +25,7 @@
 	let position = $state(<Position>{ x: 0, y: 0 });
 	let zoom = $state(0);
 
-	let dimensions = $state(undefined as Size | undefined);
+	let dimensions = $state<Size>();
 
 	let cellSize = $derived((dimensions?.width ?? 0) / cellsPerRow);
 
@@ -39,10 +37,10 @@
 	let { selectedTokenIds = $bindable([]) }: Props = $props();
 
 	let contentElement = $state<HTMLElement>();
-	let cachedClientRect = $state(undefined as DOMRect | undefined);
+	let cachedClientRect = $state<DOMRect>();
 
-	run(() => {
-		// Clear cached client rect when position or zoom change
+	$effect(() => {
+		// Clear cached client rect when position or zoom changes
 		if (position && zoom != undefined) {
 			cachedClientRect = undefined;
 		}

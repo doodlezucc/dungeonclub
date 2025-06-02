@@ -20,8 +20,6 @@
 </script>
 
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { Board, Campaign } from 'client/state';
 	import Input from 'components/Input.svelte';
 	import { Column, Container } from 'components/layout';
@@ -194,7 +192,7 @@
 	onMount(() => {
 		isMounted = true;
 	});
-	run(() => {
+	$effect(() => {
 		updatePropertyValue('name', name);
 		updatePropertyInheritance('name', inheritName);
 		updatePropertyValue('size', size);

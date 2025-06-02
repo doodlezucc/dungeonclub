@@ -12,8 +12,6 @@
 </script>
 
 <script lang="ts" generics="T">
-	import { run } from 'svelte/legacy';
-
 	import { setContext, type Snippet } from 'svelte';
 
 	interface Props {
@@ -32,7 +30,7 @@
 		children
 	}: Props = $props();
 
-	run(() => {
+	$effect(() => {
 		const staleKeys = selectedKeys.filter(
 			(key) => !elements.some((element) => getElementKey(element) === key)
 		);

@@ -1,6 +1,5 @@
 <script lang="ts" module>
 	import type { Position, Size } from '$lib/compounds';
-	import { type Snippet } from 'svelte';
 
 	const minZoom = -1;
 	const maxZoom = 3;
@@ -29,6 +28,8 @@
 </script>
 
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	interface Props {
 		expand?: boolean;
 		position?: any;

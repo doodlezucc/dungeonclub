@@ -63,7 +63,6 @@
 <script lang="ts">
 	import { ShortcutManager } from '$lib/packages/shortcut-manager';
 	import type { Snippet } from 'svelte';
-	import { run } from 'svelte/legacy';
 	import { derived, readable, writable, type Readable } from 'svelte/store';
 
 	interface Props {
@@ -75,7 +74,7 @@
 	const shortcutManager = new ShortcutManager<ShortcutAction, KeyState>(handleAction);
 	const activeManagerKeyStates = shortcutManager.activeKeyStates;
 
-	run(() => {
+	$effect(() => {
 		activeKeyStates.set($activeManagerKeyStates);
 	});
 

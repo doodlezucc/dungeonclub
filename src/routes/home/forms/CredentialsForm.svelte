@@ -3,8 +3,6 @@
 </script>
 
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import Input from 'components/Input.svelte';
 	import { Column } from 'components/layout';
 	import type { Snippet } from 'svelte';
@@ -55,7 +53,8 @@
 		}
 	}
 
-	run(() => {
+	// Runs whenever an input is changed
+	$effect(() => {
 		[$enteredEmailAddress, password, passwordConfirmation];
 
 		isValid = false;

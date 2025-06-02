@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { boardState, campaignState } from 'client/state';
 	import { Align, Column, Stack } from 'components/layout';
 	import type { ModalContext } from 'components/modal';
@@ -20,7 +18,7 @@
 		await modal.display(SelectBoardDialog, {});
 	}
 
-	run(() => {
+	$effect(() => {
 		if (!selectBoardDialogIsVisible) {
 			const loadedCampaign = $campaignState;
 

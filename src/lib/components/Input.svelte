@@ -7,8 +7,6 @@
 </script>
 
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import type { HTMLInputTypeAttribute } from 'svelte/elements';
 
 	interface Props {
@@ -46,18 +44,6 @@
 			node.focus();
 		}
 	}
-
-	// "const" -> Only updated on mount
-	const isNumericInput = typeof value === 'number';
-
-	let valueAsString = $state(`${value}`);
-	run(() => {
-		if (isNumericInput) {
-			value = parseFloat(valueAsString);
-		} else {
-			value = valueAsString;
-		}
-	});
 </script>
 
 {#if label}
@@ -73,7 +59,7 @@
 			{required}
 			aria-required={required}
 			data-size={size}
-			bind:value={valueAsString}
+			bind:value
 			use:applyType
 			use:focusOnMount={autofocus}
 		/>
@@ -88,7 +74,7 @@
 		{required}
 		aria-required={required}
 		data-size={size}
-		bind:value={valueAsString}
+		bind:value
 		use:applyType
 		use:focusOnMount={autofocus}
 	/>

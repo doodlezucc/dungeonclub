@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { boardState, campaignState } from 'client/state';
@@ -9,7 +7,7 @@
 	import type { TokenSnippet } from 'shared';
 	import { getTemplateForToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
-	import { derived as legacyDerived } from 'svelte/store';
+	import { derived as storeDerived } from 'svelte/store';
 	import { type BoardContext } from './Board.svelte';
 	import Token from './tokens/Token.svelte';
 	import UnplacedToken, {
@@ -19,7 +17,7 @@
 	} from './tokens/UnplacedToken.svelte';
 	import * as Tokens from './tokens/token-management';
 
-	const loadedBoardId = legacyDerived(boardState, (board) => board!.id);
+	const loadedBoardId = storeDerived(boardState, (board) => board!.id);
 
 	let tokens = $derived($boardState!.tokens);
 	let tokenTemplates = $derived($campaignState!.templates);
@@ -32,7 +30,7 @@
 
 	let { selectedTokenIds = $bindable([]) }: Props = $props();
 
-	run(() => {
+	$effect(() => {
 		if ($loadedBoardId) {
 			// Called whenever a board gets loaded
 			tokenSelectionGroup?.clear();

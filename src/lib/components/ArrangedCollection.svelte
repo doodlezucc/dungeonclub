@@ -16,7 +16,7 @@
 
 <script lang="ts" generics="T">
 	import { type Snippet } from 'svelte';
-	import { derived as legacyDerived, writable, type Readable } from 'svelte/store';
+	import { derived as storeDerived, writable, type Readable } from 'svelte/store';
 
 	import { fly } from 'svelte/transition';
 	import Arrangable from './Arrangable.svelte';
@@ -40,7 +40,7 @@
 	}: Props = $props();
 
 	let draggedItem = writable<T | null>(null);
-	let isAnyDragging = legacyDerived(draggedItem, (dragged) => dragged != null);
+	let isAnyDragging = storeDerived(draggedItem, (dragged) => dragged != null);
 
 	let mousePosition = $derived(<Position>{ x: 0, y: 0 });
 
@@ -65,7 +65,7 @@
 				newState.center = center;
 			},
 			controller: {
-				isDragging: legacyDerived(draggedItem, (activeItem) => activeItem == item),
+				isDragging: storeDerived(draggedItem, (activeItem) => activeItem == item),
 				start: () => {
 					$draggedItem = item;
 				}
