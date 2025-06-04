@@ -47,8 +47,9 @@
 	class:transparent={style.transparent}
 	role="presentation"
 	use:draggable={draggableParams}
-	style="--x: {positionSpring.current.x}; --y: {positionSpring.current
-		.y}; --size: {properties.size}"
+	style:--x={positionSpring.current.x}
+	style:--y={positionSpring.current.y}
+	style:--size={properties.size}
 	{onmousedown}
 	{onmouseup}
 >
