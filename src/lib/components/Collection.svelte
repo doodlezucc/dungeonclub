@@ -6,6 +6,7 @@
 	import type { Snippet } from 'svelte';
 
 	import { flip } from 'svelte/animate';
+	import type { ClassValue } from 'svelte/elements';
 	import { fly } from 'svelte/transition';
 
 	function identity<T>(x: T) {
@@ -14,26 +15,32 @@
 
 	interface Props {
 		items: Array<T>;
-		itemClass?: string | undefined;
+		itemClass?: ClassValue;
 		keyFunction?: (item: T) => unknown;
 		children?: Snippet<[any]>;
 		plus?: Snippet;
 	}
 
-	let { items, itemClass = undefined, keyFunction = identity, children, plus }: Props = $props();
+	let { items, itemClass, keyFunction = identity, children, plus }: Props = $props();
 
-	function keyOf(itemOrPlus: T) {
+	function keyOf(itemOrPlus: T | typeof PLUS_ITEM_TOKEN) {
 		if (itemOrPlus === PLUS_ITEM_TOKEN) {
 			return PLUS_ITEM_TOKEN;
 		}
 
-		return keyFunction(itemOrPlus);
+		return keyFunction(itemOrPlus as T);
 	}
 
-	let modifiedItems = $derived([...items, PLUS_ITEM_TOKEN] as Array<T>);
+	let itemsWithPlusToken = $derived.by(() => {
+		if (plus) {
+			return [...items, PLUS_ITEM_TOKEN];
+		} else {
+			return items;
+		}
+	});
 </script>
 
-{#each modifiedItems as item, index (keyOf(item))}
+{#each itemsWithPlusToken as item, index (keyOf(item))}
 	<div
 		class={item !== PLUS_ITEM_TOKEN ? itemClass : undefined}
 		animate:flip={{ duration: 200 }}
