@@ -67,10 +67,13 @@
 		getSelected: () => selectedElements,
 		select,
 
-		includes: (element) => selectedKeys.includes(getElementKey(element))
+		includes: (element) => $state.snapshot(selectedKeys).includes(getElementKey(element))
 	});
 </script>
 
 {#each elements as element (getElementKey(element))}
-	{@render children?.({ element, isSelected: selectedElements.includes(element) })}
+	{@render children?.({
+		element,
+		isSelected: selectedKeys.includes(getElementKey(element))
+	})}
 {/each}
