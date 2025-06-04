@@ -33,7 +33,7 @@
 	});
 
 	$effect(() => {
-		$positionSpring = position;
+		positionSpring.set(position);
 	});
 
 	let avatarAsset = $derived(Campaign.instance.assetByNullableId(properties.avatarId));
@@ -47,7 +47,8 @@
 	class:transparent={style.transparent}
 	role="presentation"
 	use:draggable={draggableParams}
-	style="--x: {$positionSpring.x}; --y: {$positionSpring.y}; --size: {properties.size}"
+	style="--x: {positionSpring.current.x}; --y: {positionSpring.current
+		.y}; --size: {properties.size}"
 	{onmousedown}
 	{onmouseup}
 >

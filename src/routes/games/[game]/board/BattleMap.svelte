@@ -8,12 +8,16 @@
 		size?: Size;
 	}
 
-	let {
-		size = $bindable({
-			width: 600,
-			height: 400
-		})
-	}: Props = $props();
+	let { size = $bindable() }: Props = $props();
+
+	let width = $state<number>();
+	let height = $state<number>();
+
+	$effect(() => {
+		if (width !== undefined && height !== undefined) {
+			size = { width: width, height: height };
+		}
+	});
 
 	let boardImageAsset = $derived(Campaign.instance.assetById($boardState!.mapImageId));
 </script>
@@ -21,6 +25,6 @@
 <img
 	alt="Battle map of this board"
 	src={asset($boardImageAsset.path)}
-	width={size.width}
-	height={size.height}
+	bind:naturalWidth={width}
+	bind:naturalHeight={height}
 />

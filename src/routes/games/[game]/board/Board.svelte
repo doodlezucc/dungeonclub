@@ -17,12 +17,18 @@
 	import BoardTokens from './BoardTokens.svelte';
 	import Grid from './grid/Grid.svelte';
 
+	interface Props {
+		selectedTokenIds?: string[];
+	}
+
+	let { selectedTokenIds = $bindable([]) }: Props = $props();
+
 	const activeGridSpace = Board.instance.grid.gridSpace;
 	const tileHeightRatio = $activeGridSpace?.tileHeightRatio ?? 1;
 
 	const cellsPerRow = $boardState!.gridCellsPerRow;
 
-	let position = $state(<Position>{ x: 0, y: 0 });
+	let position = $state<Position>({ x: 0, y: 0 });
 	let zoom = $state(0);
 
 	let dimensions = $state<Size>();
@@ -30,11 +36,6 @@
 	let cellSize = $derived((dimensions?.width ?? 0) / cellsPerRow);
 
 	let tokenContainer = $state<BoardTokens>();
-	interface Props {
-		selectedTokenIds?: string[];
-	}
-
-	let { selectedTokenIds = $bindable([]) }: Props = $props();
 
 	let contentElement = $state<HTMLElement>();
 	let cachedClientRect = $state<DOMRect>();
@@ -92,7 +93,7 @@
 	onClick={onClickEmptySpace}
 >
 	<div class="board" style="--cell-size: {cellSize}px; --cell-grow-factor: {tileHeightRatio};">
-		<BattleMap size={dimensions} />
+		<BattleMap bind:size={dimensions} />
 
 		{#if dimensions}
 			<Overlay>
