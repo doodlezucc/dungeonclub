@@ -10,6 +10,16 @@ export default defineConfig({
 			handledPath: '/websocket'
 		})
 	],
+	optimizeDeps: {
+		include: [
+			'@fortawesome/fontawesome-svg-core',
+			'@fortawesome/free-brands-svg-icons',
+			'@fortawesome/free-solid-svg-icons',
+			'@fortawesome/svelte-fontawesome',
+			'svelte-time/Time.svelte',
+			'lodash/isEqual'
+		]
+	},
 	test: {
 		workspace: [
 			{
