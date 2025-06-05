@@ -1,7 +1,13 @@
 <script lang="ts">
 	import { Button } from 'components';
+	import type { MouseEventHandler } from 'svelte/elements';
 
-	export let name: string;
+	interface Props {
+		name: string;
+		onclick: MouseEventHandler<HTMLElement>;
+	}
+
+	let { name, onclick }: Props = $props();
 </script>
 
-<Button on:click>{name}</Button>
+<Button {onclick}>{name}</Button>

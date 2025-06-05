@@ -7,10 +7,13 @@
 	import FileUploader from 'components/upload/FileUploader.svelte';
 	import type { AssetSnippet } from 'shared';
 
-	export let avatar: AssetSnippet | null;
+	interface Props {
+		avatar: AssetSnippet | null;
+	}
 
-	async function handleAvatarChange(ev: CustomEvent<File[]>) {
-		const files = ev.detail;
+	let { avatar = $bindable() }: Props = $props();
+
+	async function handleAvatarChange(files: File[]) {
 		if (files.length == 0) return;
 
 		const chosenAvatar = files[0];
@@ -27,7 +30,7 @@
 <FileUploader
 	accept="image/*"
 	buttonClass="token-properties-avatar-upload"
-	on:change={handleAvatarChange}
+	onChange={handleAvatarChange}
 >
 	<Row align="center">
 		{#if avatar}

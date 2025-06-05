@@ -1,40 +1,55 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	const PLUS_ITEM_TOKEN = {};
 </script>
 
 <script lang="ts" generics="T">
+	import type { Snippet } from 'svelte';
+
 	import { flip } from 'svelte/animate';
+	import type { ClassValue } from 'svelte/elements';
 	import { fly } from 'svelte/transition';
 
 	function identity<T>(x: T) {
 		return x;
 	}
 
-	export let items: Array<T>;
-	export let itemClass: string | undefined = undefined;
-	export let keyFunction: (item: T) => unknown = identity;
+	interface Props {
+		items: Array<T>;
+		itemClass?: ClassValue;
+		keyFunction?: (item: T) => unknown;
+		children?: Snippet<[any]>;
+		plus?: Snippet;
+	}
 
-	function keyOf(itemOrPlus: T) {
+	let { items, itemClass, keyFunction = identity, children, plus }: Props = $props();
+
+	function keyOf(itemOrPlus: T | typeof PLUS_ITEM_TOKEN) {
 		if (itemOrPlus === PLUS_ITEM_TOKEN) {
 			return PLUS_ITEM_TOKEN;
 		}
 
-		return keyFunction(itemOrPlus);
+		return keyFunction(itemOrPlus as T);
 	}
 
-	$: modifiedItems = [...items, PLUS_ITEM_TOKEN] as Array<T>;
+	let itemsWithPlusToken = $derived.by(() => {
+		if (plus) {
+			return [...items, PLUS_ITEM_TOKEN];
+		} else {
+			return items;
+		}
+	});
 </script>
 
-{#each modifiedItems as item, index (keyOf(item))}
+{#each itemsWithPlusToken as item, index (keyOf(item))}
 	<div
 		class={item !== PLUS_ITEM_TOKEN ? itemClass : undefined}
 		animate:flip={{ duration: 200 }}
 		in:fly|global={{ y: 30, delay: 200 + index * 50 }}
 	>
 		{#if item !== PLUS_ITEM_TOKEN}
-			<slot {item} />
+			{@render children?.({ item })}
 		{:else}
-			<slot name="plus" />
+			{@render plus?.()}
 		{/if}
 	</div>
 {/each}

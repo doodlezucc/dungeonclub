@@ -3,12 +3,16 @@
 	import type { Size } from 'components/compounds';
 	import GridPattern from './GridPattern.svelte';
 
-	export let dimensions: Size;
-	export let cellsPerRow: number;
+	interface Props {
+		dimensions: Size;
+		cellsPerRow: number;
+	}
+
+	let { dimensions, cellsPerRow }: Props = $props();
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
 
-	$: cellWidth = dimensions.width / cellsPerRow;
+	let cellWidth = $derived(dimensions.width / cellsPerRow);
 </script>
 
 <svg id="grid" width={dimensions.width} height={dimensions.height}>

@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export interface TokenStyle {
 		selected: boolean;
 		dragging: boolean;
@@ -12,25 +12,32 @@
 	import { Campaign } from 'client/state';
 	import { draggable, type DraggableParams } from 'components/Draggable.svelte';
 	import type { TokenProperties } from 'shared';
-	import { spring } from 'svelte/motion';
+	import type { MouseEventHandler } from 'svelte/elements';
+	import { Spring } from 'svelte/motion';
 
-	export let properties: TokenProperties;
-	export let position: Position;
+	interface Props {
+		properties: TokenProperties;
+		position: Position;
+		style: TokenStyle;
+		draggableParams: DraggableParams;
 
-	export let style: TokenStyle;
-	export let draggableParams: DraggableParams;
+		onmousedown?: MouseEventHandler<HTMLDivElement>;
+		onmouseup?: MouseEventHandler<HTMLDivElement>;
+	}
 
-	const positionSpring = spring(position, {
+	let { properties, position, style, draggableParams, onmousedown, onmouseup }: Props = $props();
+
+	const positionSpring = new Spring(position, {
 		damping: 0.7,
 		stiffness: 0.2
 	});
 
-	$: {
-		$positionSpring = position;
-	}
+	$effect(() => {
+		positionSpring.set(position);
+	});
 
-	$: avatarAsset = Campaign.instance.assetByNullableId(properties.avatarId);
-	$: avatarUrl = $avatarAsset?.path;
+	let avatarAsset = $derived(Campaign.instance.assetByNullableId(properties.avatarId));
+	let avatarUrl = $derived($avatarAsset?.path);
 </script>
 
 <div
@@ -40,9 +47,11 @@
 	class:transparent={style.transparent}
 	role="presentation"
 	use:draggable={draggableParams}
-	style="--x: {$positionSpring.x}; --y: {$positionSpring.y}; --size: {properties.size}"
-	on:mousedown
-	on:mouseup
+	style:--x={positionSpring.current.x}
+	style:--y={positionSpring.current.y}
+	style:--size={properties.size}
+	{onmousedown}
+	{onmouseup}
 >
 	{#if avatarUrl}
 		<img src={asset(avatarUrl)} alt="Token avatar" />

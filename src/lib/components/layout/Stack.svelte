@@ -1,9 +1,16 @@
-<script>
-	export let expand = false;
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+
+	interface Props {
+		expand?: boolean;
+		children: Snippet;
+	}
+
+	let { expand = false, children }: Props = $props();
 </script>
 
 <div class:expand>
-	<slot />
+	{@render children()}
 </div>
 
 <style>

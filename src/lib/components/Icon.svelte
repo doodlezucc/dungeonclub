@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	import { library, type IconName } from '@fortawesome/fontawesome-svg-core';
 	import { fab } from '@fortawesome/free-brands-svg-icons';
 	import { fas } from '@fortawesome/free-solid-svg-icons';
@@ -11,7 +11,11 @@
 <script lang="ts">
 	import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 
-	export let icon: IconID;
+	interface Props {
+		icon: IconID;
+	}
+
+	let { icon }: Props = $props();
 </script>
 
 {#key icon}

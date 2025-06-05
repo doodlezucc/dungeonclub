@@ -1,6 +1,5 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	import type { Position, Size } from '$lib/compounds';
-	import { createEventDispatcher } from 'svelte';
 
 	const minZoom = -1;
 	const maxZoom = 3;
@@ -29,30 +28,44 @@
 </script>
 
 <script lang="ts">
-	export let expand = false;
+	import type { Snippet } from 'svelte';
 
-	export let position = { x: 0, y: 0 };
-	export let zoom = 0;
+	interface Props {
+		expand?: boolean;
+		position?: any;
+		zoom?: number;
+		elementView?: HTMLElement | undefined;
+		elementContent?: HTMLElement | undefined;
 
-	export let elementView: HTMLElement | undefined = undefined;
-	export let elementContent: HTMLElement | undefined = undefined;
+		onClick: () => void;
 
-	$: elementsTriggeringPanEvent = [elementView, elementContent] as EventTarget[];
+		children?: Snippet;
+	}
 
-	$: isPanning = false;
-	$: hasPointerMovedSincePanStart = false;
-	$: pointerOrigin = { x: 0, y: 0 };
+	let {
+		expand = false,
+		position = $bindable({ x: 0, y: 0 }),
+		zoom = $bindable(0),
+		elementView = $bindable(undefined),
+		elementContent = $bindable(undefined),
+		onClick,
+		children
+	}: Props = $props();
 
-	$: scale = Math.exp(zoom);
+	let elementsTriggeringPanEvent = $derived([elementView, elementContent] as EventTarget[]);
 
-	let dimensions = {
+	let isPanning = $state(false);
+
+	let hasPointerMovedSincePanStart = $state(false);
+
+	let pointerOrigin = { x: 0, y: 0 };
+
+	let scale = $derived(Math.exp(zoom));
+
+	let dimensions = $state({
 		width: 1,
 		height: 1
-	};
-
-	const dispatch = createEventDispatcher<{
-		click: void;
-	}>();
+	});
 
 	function isValidPanEventStarter(eventTarget: EventTarget | null) {
 		return eventTarget && elementsTriggeringPanEvent.includes(eventTarget);
@@ -74,7 +87,7 @@
 	function stopPanning() {
 		if (isPanning) {
 			if (!hasPointerMovedSincePanStart) {
-				dispatch('click');
+				onClick();
 			}
 
 			isPanning = false;
@@ -116,14 +129,14 @@
 	}
 </script>
 
-<svelte:document on:pointermove={handlePointerMove} on:pointerup={stopPanning} />
+<svelte:document onpointermove={handlePointerMove} onpointerup={stopPanning} />
 
 <div
 	bind:this={elementView}
 	class="pan-view"
 	class:expand
-	on:pointerdown={startPanning}
-	on:wheel={handleMouseWheel}
+	onpointerdown={startPanning}
+	onwheel={handleMouseWheel}
 	style="--x: {position.x}; --y: {position.y}; --scale: {scale};"
 >
 	<div
@@ -132,7 +145,7 @@
 		bind:clientWidth={dimensions.width}
 		bind:clientHeight={dimensions.height}
 	>
-		<slot />
+		{@render children?.()}
 	</div>
 </div>
 

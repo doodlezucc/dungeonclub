@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export interface HistoryTokenMovement {
 		tokenId: string;
 		position: Record<Direction, Position>;
@@ -12,7 +12,6 @@
 	import { socket } from 'client/communication';
 	import { Board, boardState } from 'client/state';
 	import {
-		KeyState,
 		derivedKeyStateModifySelection,
 		keyStateOf
 	} from 'components/extensions/ShortcutListener.svelte';
@@ -24,22 +23,27 @@
 	import TokenBase from './TokenBase.svelte';
 	import * as Tokens from './token-management';
 
-	export let token: TokenSnippet;
-	export let template: TokenTemplateSnippet | undefined;
-	export let selected: boolean;
+	interface Props {
+		token: TokenSnippet;
+		template: TokenTemplateSnippet | undefined;
+		selected: boolean;
+	}
 
-	$: properties = materializeToken(token, template);
+	let { token, template, selected }: Props = $props();
 
-	$: position = <Position>{ x: token.x, y: token.y };
-	$: displaySize = properties.size;
+	let properties = $derived(materializeToken(token, template));
+
+	let position = $derived(<Position>{ x: token.x, y: token.y });
+	let displaySize = $derived(properties.size);
 
 	const selection = getContext<SelectionContext<TokenSnippet>>('selection');
 
 	const { transformClientToGridSpace } = getContext<BoardContext>('board');
 
-	$: isDragging = false;
-	let positionBeforeDragging = position;
-	let previousDragPosition = position;
+	let isDragging = $state(false);
+
+	let positionBeforeDragging = $state<Position>();
+	let previousDragPosition = $state<Position>();
 
 	function onDragToggle(dragState: boolean) {
 		isDragging = dragState;
@@ -48,7 +52,7 @@
 			positionBeforeDragging = position;
 			previousDragPosition = position;
 		} else {
-			onDraggedTo(position, positionBeforeDragging);
+			onDraggedTo(position, positionBeforeDragging!);
 		}
 	}
 
@@ -69,7 +73,7 @@
 	}
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
-	const isGridSnappingDisabled = keyStateOf(KeyState.DisableGridSnapping);
+	const isGridSnappingDisabled = keyStateOf('DisableGridSnapping');
 
 	function handleDragging(ev: MouseEvent) {
 		const mouseInGridSpace = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });
@@ -91,8 +95,8 @@
 		}
 
 		const delta = <Position>{
-			x: dragPosition.x - previousDragPosition.x,
-			y: dragPosition.y - previousDragPosition.y
+			x: dragPosition.x - previousDragPosition!.x,
+			y: dragPosition.y - previousDragPosition!.y
 		};
 
 		previousDragPosition = dragPosition;
@@ -132,10 +136,10 @@
 		onDragToggle,
 		handleDragging
 	}}
-	on:mousedown={() => {
+	onmousedown={() => {
 		if (!selected) handleSelect();
 	}}
-	on:mouseup={() => {
+	onmouseup={() => {
 		const wasDraggedJustNow = isDragging;
 
 		if (!wasDraggedJustNow) {

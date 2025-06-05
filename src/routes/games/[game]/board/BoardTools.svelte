@@ -13,7 +13,7 @@
 </script>
 
 <Column gap="normal">
-	<Button raised on:click={switchBoard}>Switch Board</Button>
+	<Button raised onclick={switchBoard}>Switch Board</Button>
 	<Button raised>Edit Board</Button>
 	<Button raised>Roll Dice</Button>
 </Column>

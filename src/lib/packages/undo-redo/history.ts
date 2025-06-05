@@ -1,4 +1,4 @@
-import { writable, type Invalidator, type Subscriber, type Unsubscriber } from 'svelte/store';
+import { writable, type Subscriber, type Unsubscriber } from 'svelte/store';
 import type {
 	BidirectionalAction,
 	DeltaOptions,
@@ -34,10 +34,7 @@ interface HistoryManipulationResult {
 }
 
 export interface HistoryStore {
-	subscribe: (
-		run: Subscriber<HistoryState>,
-		invalidate?: Invalidator<HistoryState> | undefined
-	) => Unsubscriber;
+	subscribe: (run: Subscriber<HistoryState>) => Unsubscriber;
 
 	register: (action: BidirectionalAction) => Promise<void>;
 	registerUndoable: (name: string, doAction: UndoableFn) => Promise<void>;

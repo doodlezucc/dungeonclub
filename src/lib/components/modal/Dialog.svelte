@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getContext, type Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import IconButton from '../IconButton.svelte';
 	import Row from '../layout/Row.svelte';
@@ -7,9 +7,21 @@
 	import Text from '../Text.svelte';
 	import type { ModalContext } from './ModalProvider.svelte';
 
-	export let title: string;
-	export let disableCloseButton: boolean = false;
-	export let closeButtonResult: unknown = undefined;
+	interface Props {
+		title: string;
+		disableCloseButton?: boolean;
+		closeButtonResult?: unknown;
+		children: Snippet;
+		actions?: Snippet;
+	}
+
+	let {
+		title,
+		disableCloseButton = false,
+		closeButtonResult = undefined,
+		children,
+		actions
+	}: Props = $props();
 
 	const modal = getContext<ModalContext>('modal');
 
@@ -73,7 +85,7 @@
 					label="Close"
 					icon="close"
 					disableMargin
-					on:click={() => modal.pop(closeButtonResult)}
+					onclick={() => modal.pop(closeButtonResult)}
 				/>
 			{/if}
 		</Row>
@@ -82,13 +94,13 @@
 	<Separator fat />
 
 	<div class="content">
-		<slot />
+		{@render children()}
 	</div>
 
-	{#if $$slots.actions}
+	{#if actions}
 		<div class="actions">
 			<Row justify="end" gap="normal">
-				<slot name="actions" />
+				{@render actions?.()}
 			</Row>
 		</div>
 	{/if}

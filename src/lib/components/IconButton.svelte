@@ -1,16 +1,30 @@
 <script lang="ts">
+	import type { MouseEventHandler } from 'svelte/elements';
 	import type { IconID } from './Icon.svelte';
 	import Icon from './Icon.svelte';
 
-	export let icon: IconID;
-	export let label: string;
-	export let disabled: boolean = false;
-	export let disableMargin: boolean = false;
-	export let inline: boolean = false;
+	interface Props {
+		icon: IconID;
+		label: string;
+		disabled?: boolean;
+		disableMargin?: boolean;
+		inline?: boolean;
+
+		onclick?: MouseEventHandler<HTMLButtonElement>;
+	}
+
+	let {
+		icon,
+		label,
+		disabled = false,
+		disableMargin = false,
+		inline = false,
+		onclick
+	}: Props = $props();
 </script>
 
 <button
-	on:click
+	{onclick}
 	class="icon"
 	class:disable-margin={disableMargin}
 	class:inline

@@ -2,12 +2,12 @@
 	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { boardState, campaignState } from 'client/state';
-	import { listenTo, ShortcutAction } from 'components/extensions/ShortcutListener.svelte';
+	import { listenTo } from 'components/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
 	import type { TokenSnippet } from 'shared';
 	import { getTemplateForToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
-	import { derived } from 'svelte/store';
+	import { derived as storeDerived } from 'svelte/store';
 	import { type BoardContext } from './Board.svelte';
 	import Token from './tokens/Token.svelte';
 	import UnplacedToken, {
@@ -17,30 +17,37 @@
 	} from './tokens/UnplacedToken.svelte';
 	import * as Tokens from './tokens/token-management';
 
-	const loadedBoardId = derived(boardState, (board) => board!.id);
+	interface Props {
+		selectedTokenIds?: string[];
+	}
 
-	$: tokens = $boardState!.tokens;
-	$: tokenTemplates = $campaignState!.templates;
+	let { selectedTokenIds = $bindable([]) }: Props = $props();
 
-	let tokenSelectionGroup = null as SelectionGroup<TokenSnippet> | null;
-	let selectedTokens: TokenSnippet[];
-	export let selectedTokenIds: string[] = [];
+	const loadedBoardId = storeDerived(boardState, (board) => board!.id);
 
-	$: {
+	let tokens = $derived($boardState!.tokens);
+	let tokenTemplates = $derived($campaignState!.templates);
+
+	let tokenSelectionGroup = $state(null as SelectionGroup<TokenSnippet> | null);
+	let selectedTokens = $state<TokenSnippet[]>([]);
+
+	$effect(() => {
 		if ($loadedBoardId) {
 			// Called whenever a board gets loaded
 			tokenSelectionGroup?.clear();
 		}
-	}
+	});
 
 	const board = getContext<BoardContext>('board');
 
-	$: unplacedTokenSpawnPosition = $unplacedTokenProperties
-		? board.transformClientToGridSpace({
-				x: $unplacedTokenProperties.triggeringEvent.clientX,
-				y: $unplacedTokenProperties.triggeringEvent.clientY
-			})
-		: null;
+	let unplacedTokenSpawnPosition = $derived(
+		$unplacedTokenProperties
+			? board.transformClientToGridSpace({
+					x: $unplacedTokenProperties.triggeringEvent.clientX,
+					y: $unplacedTokenProperties.triggeringEvent.clientY
+				})
+			: null
+	);
 
 	export function clearSelection() {
 		tokenSelectionGroup?.clear();
@@ -53,11 +60,11 @@
 		};
 	}
 
-	function onPlaceToken(ev: CustomEvent<TokenPlacementEvent>) {
+	function onPlaceToken(ev: TokenPlacementEvent) {
 		Tokens.createNewToken(
 			{
-				position: ev.detail.position,
-				tokenTemplateId: ev.detail.templateId ?? null,
+				position: ev.position,
+				tokenTemplateId: ev.templateId ?? null,
 				onServerSideCreation: (instantiatedToken) => {
 					tokenSelectionGroup!.select(instantiatedToken, { additive: false });
 				}
@@ -66,14 +73,14 @@
 		);
 	}
 
-	const onPressDelete = listenTo(ShortcutAction.Delete);
+	const onPressDelete = listenTo('Delete');
 	$onPressDelete.handle(() => {
 		if (selectedTokens.length > 0) {
 			Tokens.deleteTokens(selectedTokens, buildContextForTokenManagement());
 		}
 	});
 
-	const onPressEscape = listenTo(ShortcutAction.Escape);
+	const onPressEscape = listenTo('Escape');
 	$onPressEscape.handle(() => {
 		if ($unplacedTokenProperties) {
 			exitTokenPlacement();
@@ -87,14 +94,14 @@
 	getElementKey={(token) => token.id}
 	bind:selectedElements={selectedTokens}
 	bind:selectedKeys={selectedTokenIds}
-	let:element
-	let:isSelected
 >
-	<Token
-		token={element}
-		template={getTemplateForToken(element, tokenTemplates)}
-		selected={isSelected}
-	/>
+	{#snippet children({ element, isSelected })}
+		<Token
+			token={element}
+			template={getTemplateForToken(element, tokenTemplates)}
+			selected={isSelected}
+		/>
+	{/snippet}
 </SelectionGroup>
 
 {#if $unplacedTokenProperties && unplacedTokenSpawnPosition}
@@ -102,7 +109,7 @@
 		<UnplacedToken
 			template={$unplacedTokenProperties.tokenTemplate}
 			spawnPosition={unplacedTokenSpawnPosition}
-			on:place={onPlaceToken}
+			onPlace={onPlaceToken}
 		/>
 	{/key}
 {/if}

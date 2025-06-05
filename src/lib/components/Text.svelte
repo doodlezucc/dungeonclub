@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export type TextStyle = 'display' | 'heading' | 'subtitle' | 'body' | 'code';
 	export type TextColor = 'error';
 
@@ -31,12 +31,18 @@
 </script>
 
 <script lang="ts">
-	export let style: TextStyle = 'body';
-	export let color: TextColor | undefined = undefined;
+	import type { Snippet } from 'svelte';
 
-	export let id: string | undefined = undefined;
+	interface Props {
+		style?: TextStyle;
+		color?: TextColor | undefined;
+		id?: string | undefined;
+		children: Snippet;
+	}
 
-	$: styleDefinition = textStyles[style];
+	let { style = 'body', color = undefined, id = undefined, children }: Props = $props();
+
+	let styleDefinition = $derived(textStyles[style]);
 </script>
 
 <svelte:element
@@ -45,5 +51,5 @@
 	class:error={color === 'error'}
 	{id}
 >
-	<slot />
+	{@render children()}
 </svelte:element>

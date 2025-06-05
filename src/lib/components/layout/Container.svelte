@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export type Padding = 'big';
 	export type ContainerMargin = 'big';
 
@@ -6,12 +6,18 @@
 </script>
 
 <script lang="ts">
-	export let margin: ContainerMargin | undefined = undefined;
-	export let padding: Padding | undefined = undefined;
+	import type { Snippet } from 'svelte';
 
-	export let variant: ContainerVariant = 'elevated';
+	interface Props {
+		margin?: ContainerMargin | undefined;
+		padding?: Padding | undefined;
+		variant?: ContainerVariant;
+		children: Snippet;
+	}
+
+	let { margin = undefined, padding = undefined, variant = 'elevated', children }: Props = $props();
 </script>
 
 <div class="container" data-margin={margin} data-padding={padding} data-variant={variant}>
-	<slot />
+	{@render children?.()}
 </div>

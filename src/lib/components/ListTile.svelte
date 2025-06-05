@@ -1,10 +1,23 @@
 <script lang="ts">
-	export let selected: boolean = false;
+	import type { Snippet } from 'svelte';
+	import type { KeyboardEventHandler, MouseEventHandler } from 'svelte/elements';
+
+	interface Props {
+		selected?: boolean;
+
+		onkeydown?: KeyboardEventHandler<HTMLElement>;
+		onclick?: MouseEventHandler<HTMLElement>;
+		onmousedown?: MouseEventHandler<HTMLElement>;
+
+		children: Snippet;
+	}
+
+	let { selected = false, onkeydown, onclick, onmousedown, children }: Props = $props();
 </script>
 
 <li class="list-tile" class:selected>
-	<div role="button" class="custom" tabindex="0" on:keydown on:click on:mousedown>
-		<slot />
+	<div role="button" class="custom" tabindex="0" {onkeydown} {onclick} {onmousedown}>
+		{@render children()}
 	</div>
 </li>
 

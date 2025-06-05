@@ -1,17 +1,24 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
 
-	export let showActivationCodeForm: boolean;
+	interface Props {
+		showActivationCodeForm: boolean;
+		credentialsForm: Snippet;
+		codeForm: Snippet;
+	}
+
+	let { showActivationCodeForm, credentialsForm, codeForm }: Props = $props();
 </script>
 
 <main>
 	{#if !showActivationCodeForm}
 		<div out:fly={{ x: -100 }}>
-			<slot name="credentials-form" />
+			{@render credentialsForm()}
 		</div>
 	{:else}
 		<div in:fly={{ x: 100, delay: 400 }}>
-			<slot name="code-form" />
+			{@render codeForm()}
 		</div>
 	{/if}
 </main>

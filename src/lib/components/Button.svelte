@@ -1,13 +1,29 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import type { Snippet } from 'svelte';
+	import type { MouseEventHandler } from 'svelte/elements';
 
-	export let href: string | undefined = undefined;
+	interface Props {
+		href?: string | undefined;
+		highlight?: boolean;
+		raised?: boolean;
+		disabled?: boolean;
+		type?: HTMLButtonElement['type'] | undefined;
 
-	export let highlight: boolean = false;
-	export let raised: boolean = false;
+		onclick?: MouseEventHandler<HTMLElement>;
 
-	export let disabled: boolean = false;
-	export let type: HTMLButtonElement['type'] | undefined = undefined;
+		children?: Snippet;
+	}
+
+	let {
+		href = undefined,
+		highlight = false,
+		raised = false,
+		disabled = false,
+		type = undefined,
+		onclick,
+		children
+	}: Props = $props();
 
 	function handleSpaceBar(ev: KeyboardEvent) {
 		if (ev.key === ' ') {
@@ -18,8 +34,8 @@
 
 <svelte:element
 	this={href ? 'a' : 'button'}
-	on:click
-	on:keypress={href ? handleSpaceBar : undefined}
+	{onclick}
+	onkeypress={href ? handleSpaceBar : undefined}
 	{href}
 	role={href && 'button'}
 	class:action={highlight}
@@ -27,5 +43,5 @@
 	{disabled}
 	{type}
 >
-	<slot />
+	{@render children?.()}
 </svelte:element>

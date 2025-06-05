@@ -1,6 +1,6 @@
 import type { CampaignSnippet, GetPayload } from 'shared';
 import { derived, readable } from 'svelte/store';
-import { getSocket } from '../communication';
+import { getSocket } from '../communication/socket';
 import { Board } from './board';
 import { WithState } from './with-state';
 

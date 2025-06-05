@@ -1,24 +1,17 @@
-<script lang="ts" context="module">
-	export enum ShortcutAction {
-		Escape = 'Escape',
-
-		Undo = 'Undo',
-		Redo = 'Redo',
-		Copy = 'Copy',
-		Cut = 'Cut',
-		Paste = 'Paste',
-		Delete = 'Delete',
-
-		SelectAll = 'Select All'
-	}
+<script lang="ts" module>
+	export type ShortcutAction =
+		| 'Escape'
+		| 'Undo'
+		| 'Redo'
+		| 'Copy'
+		| 'Cut'
+		| 'Paste'
+		| 'Delete'
+		| 'SelectAll';
 
 	export type ActionListener = [ShortcutAction, () => void];
 
-	export enum KeyState {
-		DisableGridSnapping = 'Disable Grid Snapping',
-		ModifySelectionRange = 'Modify Selection Range',
-		ModifySelection = 'Modify Selection'
-	}
+	export type KeyState = 'DisableGridSnapping' | 'ModifySelectionRange' | 'ModifySelection';
 
 	interface ListenerHandle {
 		handle: (handler: () => void) => void;
@@ -48,7 +41,7 @@
 
 	export function derivedKeyStateModifySelection() {
 		return derived(
-			[keyStateOf(KeyState.ModifySelection), keyStateOf(KeyState.ModifySelectionRange)],
+			[keyStateOf('ModifySelection'), keyStateOf('ModifySelectionRange')],
 			([doModify, doModifyRange]) => {
 				return doModify || doModifyRange;
 			}
@@ -69,40 +62,47 @@
 
 <script lang="ts">
 	import { ShortcutManager } from '$lib/packages/shortcut-manager';
+	import type { Snippet } from 'svelte';
 	import { derived, readable, writable, type Readable } from 'svelte/store';
+
+	interface Props {
+		children: Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	const shortcutManager = new ShortcutManager<ShortcutAction, KeyState>(handleAction);
 	const activeManagerKeyStates = shortcutManager.activeKeyStates;
 
-	$: {
+	$effect(() => {
 		activeKeyStates.set($activeManagerKeyStates);
-	}
+	});
 
-	shortcutManager.bind('Escape', ShortcutAction.Escape);
+	shortcutManager.bind('Escape', 'Escape');
 
 	// See https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values#editing_keys for reference
-	shortcutManager.bind('Undo', ShortcutAction.Undo);
-	shortcutManager.bind({ ctrl: 'z' }, ShortcutAction.Undo);
+	shortcutManager.bind('Undo', 'Undo');
+	shortcutManager.bind({ ctrl: 'z' }, 'Undo');
 
-	shortcutManager.bind('Redo', ShortcutAction.Redo);
-	shortcutManager.bind({ ctrl: 'y' }, ShortcutAction.Redo);
-	shortcutManager.bind({ ctrlShift: 'z' }, ShortcutAction.Redo);
+	shortcutManager.bind('Redo', 'Redo');
+	shortcutManager.bind({ ctrl: 'y' }, 'Redo');
+	shortcutManager.bind({ ctrlShift: 'z' }, 'Redo');
 
-	shortcutManager.bind('Copy', ShortcutAction.Copy);
-	shortcutManager.bind({ ctrl: 'c' }, ShortcutAction.Copy);
+	shortcutManager.bind('Copy', 'Copy');
+	shortcutManager.bind({ ctrl: 'c' }, 'Copy');
 
-	shortcutManager.bind('Cut', ShortcutAction.Cut);
-	shortcutManager.bind({ ctrl: 'x' }, ShortcutAction.Cut);
+	shortcutManager.bind('Cut', 'Cut');
+	shortcutManager.bind({ ctrl: 'x' }, 'Cut');
 
-	shortcutManager.bind('Paste', ShortcutAction.Paste);
-	shortcutManager.bind({ ctrl: 'v' }, ShortcutAction.Paste);
+	shortcutManager.bind('Paste', 'Paste');
+	shortcutManager.bind({ ctrl: 'v' }, 'Paste');
 
-	shortcutManager.bind('Backspace', ShortcutAction.Delete);
-	shortcutManager.bind('Delete', ShortcutAction.Delete);
+	shortcutManager.bind('Backspace', 'Delete');
+	shortcutManager.bind('Delete', 'Delete');
 
-	shortcutManager.bindState({ alt: true }, KeyState.DisableGridSnapping);
-	shortcutManager.bindState({ shift: true }, KeyState.ModifySelectionRange);
-	shortcutManager.bindState({ ctrl: true }, KeyState.ModifySelection);
+	shortcutManager.bindState({ alt: true }, 'DisableGridSnapping');
+	shortcutManager.bindState({ shift: true }, 'ModifySelectionRange');
+	shortcutManager.bindState({ ctrl: true }, 'ModifySelection');
 
 	function isNativelyHandled(ev: KeyboardEvent) {
 		const focusedElement = ev.target;
@@ -114,15 +114,15 @@
 </script>
 
 <svelte:window
-	on:keydown={(ev) => {
+	onkeydown={(ev) => {
 		if (!isNativelyHandled(ev)) {
 			shortcutManager.handleShortcutAction(ev);
 			shortcutManager.updateKeyStates(ev, true);
 		}
 	}}
-	on:keyup={(ev) => {
+	onkeyup={(ev) => {
 		shortcutManager.updateKeyStates(ev, false);
 	}}
 />
 
-<slot />
+{@render children()}

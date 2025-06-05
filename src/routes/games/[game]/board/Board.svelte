@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export interface BoardContext {
 		transformClientToGridSpace: (position: Position) => Position;
 		transformGridToClientSpace: (position: Position) => Position;
@@ -17,40 +17,45 @@
 	import BoardTokens from './BoardTokens.svelte';
 	import Grid from './grid/Grid.svelte';
 
+	interface Props {
+		selectedTokenIds?: string[];
+	}
+
+	let { selectedTokenIds = $bindable([]) }: Props = $props();
+
 	const activeGridSpace = Board.instance.grid.gridSpace;
 	const tileHeightRatio = $activeGridSpace?.tileHeightRatio ?? 1;
 
 	const cellsPerRow = $boardState!.gridCellsPerRow;
 
-	let position = <Position>{ x: 0, y: 0 };
-	let zoom = 0;
+	let position = $state<Position>({ x: 0, y: 0 });
+	let zoom = $state(0);
 
-	let dimensions = undefined as Size | undefined;
+	let dimensions = $state<Size>();
 
-	$: cellSize = (dimensions?.width ?? 0) / cellsPerRow;
+	let cellSize = $derived((dimensions?.width ?? 0) / cellsPerRow);
 
-	let tokenContainer: BoardTokens;
-	export let selectedTokenIds: string[] = [];
+	let tokenContainer = $state<BoardTokens>();
 
-	let contentElement: HTMLElement;
-	let cachedClientRect = undefined as DOMRect | undefined;
+	let contentElement = $state<HTMLElement>();
+	let cachedClientRect: DOMRect | undefined = undefined;
 
-	$: {
-		// Clear cached client rect when position or zoom change
+	$effect(() => {
+		// Clear cached client rect when position or zoom changes
 		if (position && zoom != undefined) {
 			cachedClientRect = undefined;
 		}
-	}
+	});
 
 	const keepTokenSelection = derivedKeyStateModifySelection();
 	function onClickEmptySpace() {
 		if (!$keepTokenSelection) {
-			tokenContainer.clearSelection();
+			tokenContainer!.clearSelection();
 		}
 	}
 
 	function getClientRect() {
-		return (cachedClientRect ??= contentElement.getBoundingClientRect());
+		return (cachedClientRect ??= contentElement!.getBoundingClientRect());
 	}
 
 	function transformClientToGridSpace(clientPosition: Position): Position {
@@ -69,7 +74,7 @@
 		throw 'Not implemented';
 	}
 
-	let panViewElement: HTMLElement | undefined;
+	let panViewElement: HTMLElement | undefined = $state();
 
 	setContext<BoardContext>('board', {
 		transformClientToGridSpace,
@@ -85,7 +90,7 @@
 	bind:zoom
 	bind:elementView={panViewElement}
 	bind:elementContent={contentElement}
-	on:click={onClickEmptySpace}
+	onClick={onClickEmptySpace}
 >
 	<div class="board" style="--cell-size: {cellSize}px; --cell-grow-factor: {tileHeightRatio};">
 		<BattleMap bind:size={dimensions} />

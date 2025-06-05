@@ -1,37 +1,48 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export type AcceptedFileType = 'audio/*' | 'image/*';
 </script>
 
 <script lang="ts">
 	import Icon, { type IconID } from 'components/Icon.svelte';
-	import { createEventDispatcher } from 'svelte';
+	import { type Snippet } from 'svelte';
 
-	export let accept: AcceptedFileType;
-	export let acceptMultiple = false;
+	interface Props {
+		accept: AcceptedFileType;
+		acceptMultiple?: boolean;
+		buttonClass?: string;
+		displayedIcon?: IconID | undefined;
 
-	export let buttonClass = 'raised';
-	export let displayedIcon: IconID | undefined = undefined;
+		onChange?: (files: File[]) => void;
 
-	$: dragOver = false;
-	$: fileList = null as File[] | null;
-
-	let input: HTMLInputElement;
-	function openFilePicker() {
-		input.click();
+		children?: Snippet;
 	}
 
-	const dispatch = createEventDispatcher<{
-		change: File[];
-	}>();
+	let {
+		accept,
+		acceptMultiple = false,
+		buttonClass = 'raised',
+		displayedIcon = undefined,
+		onChange,
+		children
+	}: Props = $props();
 
-	$: {
+	let dragOver = $state(false);
+
+	let fileList = $state<File[] | null>(null);
+
+	let input = $state<HTMLInputElement>();
+	function openFilePicker() {
+		input!.click();
+	}
+
+	$effect(() => {
 		if (fileList) {
-			dispatch('change', fileList);
+			onChange?.(fileList);
 
 			// Clear input element state to allow picking the same file again
-			input.value = '';
+			input!.value = '';
 		}
-	}
+	});
 
 	function handleDrop(ev: DragEvent) {
 		dragOver = false;
@@ -48,7 +59,7 @@
 	}
 
 	function handlePick() {
-		if (input.files) {
+		if (input?.files) {
 			fileList = Array.from(input.files);
 		}
 	}
@@ -56,11 +67,11 @@
 
 <button
 	id="upload-button"
-	on:click={openFilePicker}
-	on:dragenter={() => (dragOver = true)}
-	on:dragover={(ev) => ev.preventDefault()}
-	on:dragleave={() => (dragOver = false)}
-	on:drop={handleDrop}
+	onclick={openFilePicker}
+	ondragenter={() => (dragOver = true)}
+	ondragover={(ev) => ev.preventDefault()}
+	ondragleave={() => (dragOver = false)}
+	ondrop={handleDrop}
 	type="button"
 	aria-describedby="file-upload"
 	class={buttonClass}
@@ -73,13 +84,13 @@
 		</div>
 	{/if}
 
-	<slot />
+	{@render children?.()}
 </button>
 <input
 	{accept}
 	multiple={acceptMultiple}
 	bind:this={input}
-	on:change={handlePick}
+	onchange={handlePick}
 	type="file"
 	id="file-upload"
 	aria-labelledby="upload-button"

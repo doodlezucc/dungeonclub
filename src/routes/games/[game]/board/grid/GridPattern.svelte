@@ -4,11 +4,14 @@
 	import { SquareGridSpace } from '$lib/packages/grid/spaces/square';
 	import SvgHexagon from './SvgHexagon.svelte';
 
-	export let id: string;
-	export let gridSpace: GridSpace | null;
+	interface Props {
+		id: string;
+		gridSpace: GridSpace | null;
+		cellWidth: number;
+	}
 
-	export let cellWidth: number;
-	$: cellHeight = cellWidth * (gridSpace?.tileHeightRatio ?? 1);
+	let { id, gridSpace, cellWidth }: Props = $props();
+	let cellHeight = $derived(cellWidth * (gridSpace?.tileHeightRatio ?? 1));
 </script>
 
 {#if gridSpace instanceof SquareGridSpace}

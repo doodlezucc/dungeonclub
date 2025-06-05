@@ -3,7 +3,7 @@ import type { GridSpace } from '$lib/packages/grid/spaces/interface';
 import { historyOf } from '$lib/packages/undo-redo/history';
 import type { BoardSnippet, GetForwarded, GetPayload, GetResponse, TokenSnippet } from 'shared';
 import { derived, type Readable } from 'svelte/store';
-import { getSocket } from '../communication';
+import { getSocket } from '../communication/socket';
 import { focusedHistory } from './focused-history';
 import { Campaign } from './session';
 import { WithState } from './with-state';

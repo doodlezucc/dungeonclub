@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	export interface SelectOptions {
 		additive: boolean;
 	}
@@ -12,15 +12,25 @@
 </script>
 
 <script lang="ts" generics="T">
-	import { setContext } from 'svelte';
+	import { setContext, type Snippet } from 'svelte';
 
-	export let elements: T[];
-	export let getElementKey: (element: T) => string;
+	interface Props {
+		elements: T[];
+		getElementKey: (element: T) => string;
+		selectedKeys?: string[];
+		selectedElements?: T[];
+		children?: Snippet<[any]>;
+	}
 
-	export let selectedKeys = [] as string[];
-	export let selectedElements: T[] = [];
+	let {
+		elements,
+		getElementKey,
+		selectedKeys = $bindable([]),
+		selectedElements = $bindable([]),
+		children
+	}: Props = $props();
 
-	$: {
+	$effect(() => {
 		const staleKeys = selectedKeys.filter(
 			(key) => !elements.some((element) => getElementKey(element) === key)
 		);
@@ -35,7 +45,7 @@
 		selectedElements = selectedKeys.map(
 			(key) => elements.find((element) => getElementKey(element) === key)!
 		);
-	}
+	});
 
 	export function clear() {
 		selectedKeys = [];
@@ -57,10 +67,13 @@
 		getSelected: () => selectedElements,
 		select,
 
-		includes: (element) => selectedKeys.includes(getElementKey(element))
+		includes: (element) => $state.snapshot(selectedKeys).includes(getElementKey(element))
 	});
 </script>
 
 {#each elements as element (getElementKey(element))}
-	<slot {element} isSelected={selectedElements.includes(element)} />
+	{@render children?.({
+		element,
+		isSelected: selectedKeys.includes(getElementKey(element))
+	})}
 {/each}

@@ -4,7 +4,11 @@
 	import Text from 'components/Text.svelte';
 	import { getContext } from 'svelte';
 
-	export let campaignName: string;
+	interface Props {
+		campaignName: string;
+	}
+
+	let { campaignName }: Props = $props();
 
 	const modal = getContext<ModalContext>('modal');
 </script>
@@ -16,10 +20,10 @@
 		All of its boards, tokens and assets will be lost.
 	</Text>
 
-	<svelte:fragment slot="actions">
-		<Button on:click={() => modal.pop(null)}>Cancel</Button>
-		<Button raised on:click={() => modal.pop(true)} type="submit">
+	{#snippet actions()}
+		<Button onclick={() => modal.pop(null)}>Cancel</Button>
+		<Button raised onclick={() => modal.pop(true)} type="submit">
 			<span class="error">Delete</span>
 		</Button>
-	</svelte:fragment>
+	{/snippet}
 </Dialog>

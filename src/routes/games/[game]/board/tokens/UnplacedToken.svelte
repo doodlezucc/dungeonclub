@@ -1,4 +1,4 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
 	import type { Position } from '$lib/compounds';
 	import type { TokenTemplateSnippet } from 'shared';
 	import { writable } from 'svelte/store';
@@ -22,37 +22,39 @@
 
 <script lang="ts">
 	import { Board } from 'client/state';
-	import { KeyState, keyStateOf } from 'components/extensions/ShortcutListener.svelte';
+	import { keyStateOf } from 'components/extensions/ShortcutListener.svelte';
 	import { EMPTY_TOKEN_PROPERTIES } from 'shared/token-materializing';
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { getContext } from 'svelte';
 	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';
 
-	export let template: TokenTemplateSnippet | undefined;
-	export let spawnPosition: Position;
+	interface Props {
+		template: TokenTemplateSnippet | undefined;
+		spawnPosition: Position;
 
-	$: position = spawnPosition;
+		onPlace: (place: TokenPlacementEvent) => void;
+	}
 
-	const dispatch = createEventDispatcher<{
-		place: TokenPlacementEvent;
-	}>();
+	let { template, spawnPosition, onPlace }: Props = $props();
+
+	let position = $state(spawnPosition);
 
 	function onDragToggle(isDragStart: boolean) {
 		if (isDragStart) return;
 
-		$unplacedTokenProperties = null;
-
-		dispatch('place', {
+		onPlace({
 			position: position,
 			templateId: template?.id
 		});
+
+		$unplacedTokenProperties = null;
 	}
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
-	const isGridSnappingDisabled = keyStateOf(KeyState.DisableGridSnapping);
+	const isGridSnappingDisabled = keyStateOf('DisableGridSnapping');
 	const { transformClientToGridSpace, getPanViewEventTarget } = getContext<BoardContext>('board');
 
-	$: size = template?.size ?? 1;
+	let size = $derived(template?.size ?? 1);
 
 	function handleDragging(ev: MouseEvent) {
 		const mouseInGridSpace = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });

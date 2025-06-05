@@ -1,12 +1,18 @@
 <script lang="ts">
 	import { focusedHistory } from 'client/state/focused-history';
 	import type { ModalContext } from 'components/modal';
-	import { getContext } from 'svelte';
-	import { listenTo, ShortcutAction } from './ShortcutListener.svelte';
+	import { getContext, type Snippet } from 'svelte';
+	import { listenTo } from './ShortcutListener.svelte';
+
+	interface Props {
+		children: Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	const modal = getContext<ModalContext>('modal');
 
-	const onUndo = listenTo(ShortcutAction.Undo);
+	const onUndo = listenTo('Undo');
 	$onUndo.handle(async () => {
 		const undoResult = await $focusedHistory?.undo();
 		if (!undoResult) return;
@@ -18,7 +24,7 @@
 		});
 	});
 
-	const onRedo = listenTo(ShortcutAction.Redo);
+	const onRedo = listenTo('Redo');
 	$onRedo.handle(async () => {
 		const redoResult = await $focusedHistory?.redo();
 		if (!redoResult) return;
@@ -31,4 +37,4 @@
 	});
 </script>
 
-<slot />
+{@render children()}

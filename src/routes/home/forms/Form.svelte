@@ -1,18 +1,34 @@
 <script lang="ts">
 	import { Button } from 'components';
 	import { Column, Container } from 'components/layout';
+	import type { Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
 
-	export let title: string;
-	export let submitButtonLabel: string;
+	interface Props {
+		title: string;
+		submitButtonLabel: string;
+		disableSubmitButton?: boolean;
+		disableFormSpacing?: boolean;
+		handleSubmit: () => Promise<void>;
+		note?: Snippet;
+		children?: Snippet;
+		links?: Snippet;
+	}
 
-	export let disableSubmitButton = false;
-	export let disableFormSpacing = false;
+	let {
+		title,
+		submitButtonLabel,
+		disableSubmitButton = false,
+		disableFormSpacing = false,
+		handleSubmit,
+		note,
+		children,
+		links
+	}: Props = $props();
 
-	export let handleSubmit: () => Promise<void>;
+	let errorReason = $state('');
 
-	$: errorReason = '';
-	$: isSubmitting = false;
+	let isSubmitting = $state(false);
 
 	async function onSubmitForm() {
 		isSubmitting = true;
@@ -37,15 +53,15 @@
 		<Column align="center">
 			<h2>{title}</h2>
 
-			<slot name="note" />
+			{@render note?.()}
 
 			<form
 				class:disable-spacing={disableFormSpacing}
 				action="javascript:void(0);"
 				method="dialog"
-				on:submit={() => false}
+				onsubmit={() => false}
 			>
-				<slot />
+				{@render children?.()}
 
 				{#if errorReason}
 					<span class="error" aria-live="polite" in:fly={{ y: 20 }}>{errorReason}.</span>
@@ -53,7 +69,7 @@
 
 				<Button
 					type="submit"
-					on:click={onSubmitForm}
+					onclick={onSubmitForm}
 					raised
 					highlight
 					disabled={isSubmitting || disableSubmitButton}
@@ -61,7 +77,7 @@
 					{submitButtonLabel}
 				</Button>
 
-				<slot name="links" />
+				{@render links?.()}
 			</form>
 		</Column>
 	</Container>

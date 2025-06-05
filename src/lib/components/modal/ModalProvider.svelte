@@ -1,11 +1,14 @@
-<script lang="ts" context="module">
+<script lang="ts" module>
+	import type { Component } from 'svelte';
+	import type { ToastOptions } from './Toast.svelte';
+
 	export const tooltipContainerID = 'tooltips';
 
 	export type ModalContext = {
 		displayToast: (options: ToastOptions) => void;
 
 		display: <T, PROPS extends Record<string, any>>(
-			component: typeof SvelteComponent<PROPS>,
+			component: Component<PROPS>,
 			props: PROPS
 		) => Promise<T>;
 
@@ -14,7 +17,7 @@
 
 	interface Modal<T, PROPS extends Record<string, any>> {
 		id: number;
-		component: typeof SvelteComponent<PROPS>;
+		component: Component<PROPS>;
 		props: PROPS;
 		callback: (result: T) => void;
 	}
@@ -28,11 +31,17 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 
-	import { setContext, SvelteComponent } from 'svelte';
+	import { setContext, type Snippet } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { writable } from 'svelte/store';
 	import { fade, fly } from 'svelte/transition';
-	import Toast, { MAX_TOAST_COUNT, TOAST_DURATION_MS, type ToastOptions } from './Toast.svelte';
+	import Toast, { MAX_TOAST_COUNT, TOAST_DURATION_MS } from './Toast.svelte';
+
+	interface Props {
+		children: Snippet;
+	}
+
+	let { children }: Props = $props();
 
 	const stack = writable<Modal<any, any>[]>([]);
 	const toasts = writable<VisibleToast[]>([]);
@@ -41,7 +50,7 @@
 	const nextToastID = writable(0);
 
 	function display<T, PROPS extends Record<string, any>>(
-		component: typeof SvelteComponent<PROPS>,
+		component: Component<PROPS>,
 		props: PROPS
 	): Promise<T> {
 		return new Promise((resolve) => {
@@ -86,12 +95,12 @@
 	}
 </script>
 
-<slot />
+{@render children()}
 
 <div class="modal-provider">
 	{#each $stack as modal (modal.id)}
 		<div class="modal" aria-modal="true" transition:fade={{ duration: 200 }}>
-			<svelte:component this={modal.component} {...modal.props} />
+			<modal.component {...modal.props} />
 		</div>
 	{/each}
 

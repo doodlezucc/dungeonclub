@@ -5,21 +5,22 @@
 	import { Flex, Row } from 'components/layout';
 	import ListTile from 'components/ListTile.svelte';
 	import type { TokenTemplateSnippet } from 'shared';
-	import { createEventDispatcher } from 'svelte';
 	import { unplacedTokenProperties } from '../tokens/UnplacedToken.svelte';
 
-	export let template: TokenTemplateSnippet;
+	interface Props {
+		template: TokenTemplateSnippet;
 
-	$: avatarAsset = Campaign.instance.assetByNullableId(template.avatarId);
-	$: avatarSrc = $avatarAsset ? asset($avatarAsset.path) : null;
+		handleDelete: () => void;
+	}
 
-	$: isSelectedForPlacement = $unplacedTokenProperties?.tokenTemplate === template;
+	let { template, handleDelete }: Props = $props();
 
-	const dispatch = createEventDispatcher<{
-		delete: void;
-	}>();
+	let avatarAsset = $derived(Campaign.instance.assetByNullableId(template.avatarId));
+	let avatarSrc = $derived($avatarAsset ? asset($avatarAsset.path) : null);
 
-	let captureMouseMovement = false;
+	let isSelectedForPlacement = $derived($unplacedTokenProperties?.tokenTemplate === template);
+
+	let captureMouseMovement = $state(false);
 
 	function handleMouseDown(ev: MouseEvent) {
 		if (ev.target instanceof HTMLButtonElement) {
@@ -46,14 +47,14 @@
 </script>
 
 <svelte:window
-	on:mousemove={captureMouseMovement ? displayTokenAtCursor : undefined}
-	on:mouseup={captureMouseMovement ? handleMouseUp : undefined}
+	onmousemove={captureMouseMovement ? displayTokenAtCursor : undefined}
+	onmouseup={captureMouseMovement ? handleMouseUp : undefined}
 />
 
 <ListTile
 	selected={isSelectedForPlacement}
-	on:mousedown={handleMouseDown}
-	on:click={displayTokenAtCursor}
+	onmousedown={handleMouseDown}
+	onclick={displayTokenAtCursor}
 >
 	<Row align="center" gap="normal" expand>
 		<img class="token-template-avatar" src={avatarSrc} alt="Token avatar" />
@@ -61,7 +62,7 @@
 
 		<Flex expand />
 
-		<IconButton label="Delete" icon="remove" on:click={() => dispatch('delete')} />
+		<IconButton label="Delete" icon="remove" onclick={handleDelete} />
 	</Row>
 </ListTile>
 
