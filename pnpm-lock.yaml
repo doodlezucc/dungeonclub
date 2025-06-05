@@ -7,28 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@prisma/client':
-        specifier: ^5.22.0
-        version: 5.22.0(prisma@5.22.0)
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
-      mime-types:
-        specifier: ^2.1.35
-        version: 2.1.35
-      mjml:
-        specifier: 5.0.0-alpha.6
-        version: 5.0.0-alpha.6(svgo@3.3.2)(typescript@5.8.3)
-      nodemailer:
-        specifier: ^6.10.1
-        version: 6.10.1
-      normalize-email:
-        specifier: 1.1.1
-        version: 1.1.1
-      ws:
-        specifier: ^8.18.2
-        version: 8.18.2
     devDependencies:
       '@eslint/compat':
         specifier: ^1.2.9
@@ -48,6 +26,9 @@ importers:
       '@fortawesome/svelte-fontawesome':
         specifier: ^0.2.3
         version: 0.2.3(@fortawesome/fontawesome-svg-core@6.7.2)(svelte@5.33.14)
+      '@prisma/client':
+        specifier: ^5.22.0
+        version: 5.22.0(prisma@5.22.0)
       '@sveltejs/adapter-auto':
         specifier: ^6.0.1
         version: 6.0.1(@sveltejs/kit@2.21.2(@sveltejs/vite-plugin-svelte@5.1.0(svelte@5.33.14)(vite@6.3.5(@types/node@20.17.58)(sass@1.89.1)))(svelte@5.33.14)(vite@6.3.5(@types/node@20.17.58)(sass@1.89.1)))
@@ -99,6 +80,21 @@ importers:
       jsdom:
         specifier: ^26.1.0
         version: 26.1.0
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      mime-types:
+        specifier: ^2.1.35
+        version: 2.1.35
+      mjml:
+        specifier: 5.0.0-alpha.6
+        version: 5.0.0-alpha.6(svgo@3.3.2)(typescript@5.8.3)
+      nodemailer:
+        specifier: ^6.10.1
+        version: 6.10.1
+      normalize-email:
+        specifier: 1.1.1
+        version: 1.1.1
       prettier:
         specifier: ^3.5.3
         version: 3.5.3
@@ -135,6 +131,9 @@ importers:
       vitest:
         specifier: ^3.2.2
         version: 3.2.2(@types/node@20.17.58)(jsdom@26.1.0)(sass@1.89.1)
+      ws:
+        specifier: ^8.18.2
+        version: 8.18.2
 
 packages:
 
