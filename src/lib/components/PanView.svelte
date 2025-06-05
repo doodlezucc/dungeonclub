@@ -32,7 +32,7 @@
 
 	interface Props {
 		expand?: boolean;
-		position?: any;
+		position?: Position;
 		zoom?: number;
 		elementView?: HTMLElement | undefined;
 		elementContent?: HTMLElement | undefined;

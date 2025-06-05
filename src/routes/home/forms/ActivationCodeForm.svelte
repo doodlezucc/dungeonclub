@@ -10,7 +10,12 @@
 		note?: Snippet;
 	}
 
-	let { title, submitButtonLabel = 'Verify', handleCodeSubmit, note }: Props = $props();
+	let {
+		title,
+		submitButtonLabel = 'Verify',
+		handleCodeSubmit,
+		note: noteSnippet
+	}: Props = $props();
 
 	let enteredCode = $state('');
 </script>
@@ -23,7 +28,7 @@
 >
 	{#snippet note()}
 		<p>
-			{@render note?.()}
+			{@render noteSnippet?.()}
 		</p>
 	{/snippet}
 

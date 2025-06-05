@@ -67,7 +67,7 @@ export const SelectToken = {
 export type TokenSnippet = Prisma.TokenGetPayload<{ select: typeof SelectToken }>;
 
 export type TokenProperties = Omit<
-	Prisma.TokenTemplateGetPayload<{}>,
+	Prisma.TokenTemplateGetPayload<null>,
 	'id' | 'campaignId' | 'avatar'
 >;
 export type OverridableTokenProperty = keyof TokenProperties;
