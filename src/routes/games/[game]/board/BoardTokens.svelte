@@ -17,6 +17,12 @@
 	} from './tokens/UnplacedToken.svelte';
 	import * as Tokens from './tokens/token-management';
 
+	interface Props {
+		selectedTokenIds?: string[];
+	}
+
+	let { selectedTokenIds = $bindable([]) }: Props = $props();
+
 	const loadedBoardId = storeDerived(boardState, (board) => board!.id);
 
 	let tokens = $derived($boardState!.tokens);
@@ -24,11 +30,6 @@
 
 	let tokenSelectionGroup = $state(null as SelectionGroup<TokenSnippet> | null);
 	let selectedTokens = $state<TokenSnippet[]>([]);
-	interface Props {
-		selectedTokenIds?: string[];
-	}
-
-	let { selectedTokenIds = $bindable([]) }: Props = $props();
 
 	$effect(() => {
 		if ($loadedBoardId) {

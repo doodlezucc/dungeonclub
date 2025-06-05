@@ -38,7 +38,7 @@
 	let tokenContainer = $state<BoardTokens>();
 
 	let contentElement = $state<HTMLElement>();
-	let cachedClientRect = $state<DOMRect>();
+	let cachedClientRect: DOMRect | undefined = undefined;
 
 	$effect(() => {
 		// Clear cached client rect when position or zoom changes

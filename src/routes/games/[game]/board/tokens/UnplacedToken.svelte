@@ -42,12 +42,12 @@
 	function onDragToggle(isDragStart: boolean) {
 		if (isDragStart) return;
 
-		$unplacedTokenProperties = null;
-
 		onPlace({
 			position: position,
 			templateId: template?.id
 		});
+
+		$unplacedTokenProperties = null;
 	}
 
 	const activeGridSpace = Board.instance.grid.gridSpace;
