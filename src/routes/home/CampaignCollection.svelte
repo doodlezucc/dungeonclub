@@ -10,7 +10,7 @@
 	import type { ModalContext } from 'components/modal';
 	import type { CampaignCardSnippet, CampaignSnippet } from 'shared';
 	import { getContext } from 'svelte';
-	import Time from 'svelte-time/Time.svelte';
+	import Time from 'svelte-time';
 	import CampaignEditDialog from './CampaignEditDialog.svelte';
 
 	const campaigns = Account.campaigns;

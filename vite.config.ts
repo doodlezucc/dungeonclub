@@ -16,8 +16,8 @@ export default defineConfig({
 			'@fortawesome/free-brands-svg-icons',
 			'@fortawesome/free-solid-svg-icons',
 			'@fortawesome/svelte-fontawesome',
-			'svelte-time/Time.svelte',
-			'lodash/isEqual'
+			'lodash/isEqual',
+			'svelte-time'
 		]
 	},
 	test: {
