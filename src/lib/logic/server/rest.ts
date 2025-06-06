@@ -46,7 +46,7 @@ export async function authorizedEndpoint(
 export async function campaignEndpoint(
 	request: Request,
 	campaignId: string,
-	ifValid: (campaign: Prisma.CampaignGetPayload<{}>) => Response | Promise<Response>
+	ifValid: (campaign: Prisma.CampaignGetPayload<null>) => Response | Promise<Response>
 ): Promise<Response> {
 	return await authorizedEndpoint(request, async (accountEmailHash) => {
 		const campaign = await prisma.campaign.findUnique({

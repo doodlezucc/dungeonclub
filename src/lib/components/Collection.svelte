@@ -17,11 +17,11 @@
 		items: Array<T>;
 		itemClass?: ClassValue;
 		keyFunction?: (item: T) => unknown;
-		children?: Snippet<[any]>;
+		item: Snippet<[item: T]>;
 		plus?: Snippet;
 	}
 
-	let { items, itemClass, keyFunction = identity, children, plus }: Props = $props();
+	let { items, itemClass, keyFunction = identity, item: itemSnippet, plus }: Props = $props();
 
 	function keyOf(itemOrPlus: T | typeof PLUS_ITEM_TOKEN) {
 		if (itemOrPlus === PLUS_ITEM_TOKEN) {
@@ -47,7 +47,7 @@
 		in:fly|global={{ y: 30, delay: 200 + index * 50 }}
 	>
 		{#if item !== PLUS_ITEM_TOKEN}
-			{@render children?.({ item })}
+			{@render itemSnippet(item as T)}
 		{:else}
 			{@render plus?.()}
 		{/if}

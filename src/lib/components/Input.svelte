@@ -7,32 +7,35 @@
 </script>
 
 <script lang="ts">
-	import type { HTMLInputTypeAttribute } from 'svelte/elements';
+	import type { HTMLInputAttributes, HTMLInputTypeAttribute } from 'svelte/elements';
 
 	interface Props {
 		value: string | number;
 		name: string;
-		label?: string | undefined;
-		id?: string | undefined;
+		label?: string;
+		id?: string;
 		placeholder: string;
-		type?: HTMLInputTypeAttribute | undefined;
-		required?: boolean | undefined;
-		autocomplete?: 'email' | 'current-password' | 'new-password' | undefined;
+		type?: HTMLInputTypeAttribute;
+		required?: boolean;
+		autocomplete?: 'email' | 'current-password' | 'new-password';
 		autofocus?: boolean;
-		size?: 'small' | undefined;
+		size?: 'small';
+
+		onInput?: HTMLInputAttributes['oninput'];
 	}
 
 	let {
 		value = $bindable(),
 		name,
-		label = undefined,
-		id = undefined,
+		label,
+		id,
 		placeholder,
-		type = undefined,
-		required = undefined,
-		autocomplete = undefined,
+		type,
+		required,
+		autocomplete,
 		autofocus = false,
-		size = undefined
+		size,
+		onInput
 	}: Props = $props();
 
 	function applyType(node: HTMLInputElement) {
@@ -60,6 +63,7 @@
 			aria-required={required}
 			data-size={size}
 			bind:value
+			oninput={onInput}
 			use:applyType
 			use:focusOnMount={autofocus}
 		/>
@@ -75,6 +79,7 @@
 		aria-required={required}
 		data-size={size}
 		bind:value
+		oninput={onInput}
 		use:applyType
 		use:focusOnMount={autofocus}
 	/>

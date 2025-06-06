@@ -4,6 +4,8 @@ static/user-media
 # Output
 .output
 .vercel
+.netlify
+.wrangler
 /.svelte-kit
 /build
 

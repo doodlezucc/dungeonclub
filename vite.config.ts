@@ -1,5 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vitest/config';
+import { svelteTesting } from '@testing-library/svelte/vite';
+import { defineConfig } from 'vite';
 import { webSocketServer } from './src/lib/logic/server/ws-server/plugin';
 
 export default defineConfig({
@@ -9,8 +10,39 @@ export default defineConfig({
 			handledPath: '/websocket'
 		})
 	],
-	assetsInclude: '**/*.mjml',
+	optimizeDeps: {
+		include: [
+			'@fortawesome/fontawesome-svg-core',
+			'@fortawesome/free-brands-svg-icons',
+			'@fortawesome/free-solid-svg-icons',
+			'@fortawesome/svelte-fontawesome',
+			'lodash/isEqual',
+			'svelte-time'
+		]
+	},
 	test: {
-		include: ['src/**/*.{test,spec}.{js,ts}']
+		workspace: [
+			{
+				extends: './vite.config.ts',
+				plugins: [svelteTesting()],
+				test: {
+					name: 'client',
+					environment: 'jsdom',
+					clearMocks: true,
+					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
+					exclude: ['src/lib/server/**'],
+					setupFiles: ['./vitest-setup-client.ts']
+				}
+			},
+			{
+				extends: './vite.config.ts',
+				test: {
+					name: 'server',
+					environment: 'node',
+					include: ['src/**/*.{test,spec}.{js,ts}'],
+					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
+				}
+			}
+		]
 	}
 });

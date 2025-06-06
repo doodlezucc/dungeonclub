@@ -5,7 +5,7 @@
 <script lang="ts">
 	import Input from 'components/Input.svelte';
 	import { Column } from 'components/layout';
-	import type { Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import { enteredEmailAddress } from '../credential-stores';
 	import Form from './Form.svelte';
 
@@ -31,7 +31,7 @@
 
 	let passwordConfirmation = $state('');
 
-	let formValidationError = $state('woah');
+	let formValidationError = $state('');
 
 	let isValid = $state(false);
 
@@ -53,10 +53,7 @@
 		}
 	}
 
-	// Runs whenever an input is changed
-	$effect(() => {
-		[$enteredEmailAddress, password, passwordConfirmation];
-
+	function updateFormValidation() {
 		isValid = false;
 
 		try {
@@ -66,6 +63,10 @@
 		} catch (err) {
 			formValidationError = `${err}`;
 		}
+	}
+
+	onMount(() => {
+		updateFormValidation();
 	});
 </script>
 
@@ -86,6 +87,7 @@
 		type="email"
 		autocomplete="email"
 		bind:value={$enteredEmailAddress}
+		onInput={updateFormValidation}
 	/>
 	<Column gap="normal">
 		<Input
@@ -96,6 +98,7 @@
 			type="password"
 			autocomplete="new-password"
 			bind:value={password}
+			onInput={updateFormValidation}
 		/>
 		<Input
 			required
@@ -104,6 +107,7 @@
 			type="password"
 			autocomplete="new-password"
 			bind:value={passwordConfirmation}
+			onInput={updateFormValidation}
 		/>
 		{#if formValidationError.length > 0}
 			<span class="error">{formValidationError}</span>

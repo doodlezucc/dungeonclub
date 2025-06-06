@@ -21,13 +21,18 @@
 	import { fly } from 'svelte/transition';
 	import Arrangable from './Arrangable.svelte';
 
+	interface ChildContext<T> {
+		item: T;
+		dragController: DragController;
+	}
+
 	interface Props {
 		items: Array<T>;
 		customDragHandling?: boolean;
 
 		onReorder?: () => void;
 
-		children?: Snippet<[any]>;
+		children?: Snippet<[context: ChildContext<T>]>;
 		plus?: Snippet;
 	}
 
@@ -140,7 +145,7 @@
 	<div in:fly|global={{ y: 30, delay: 200 + index * 50 }}>
 		{#if entry}
 			<Arrangable {index} state={entry[1]} {customDragHandling} onDrag={() => onDrag(entry)}>
-				{@render children?.({ item: entry[0], dragController: entry[1].controller, this: true })}
+				{@render children?.({ item: entry[0], dragController: entry[1].controller })}
 			</Arrangable>
 		{:else}
 			{@render plus?.()}

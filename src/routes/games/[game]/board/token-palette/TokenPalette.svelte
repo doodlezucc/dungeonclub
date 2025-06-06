@@ -28,7 +28,7 @@
 				const isImage = file.type.startsWith('image/');
 
 				if (isImage) {
-					const response = await restPostTokenTemplate({ avatarImageFile: file });
+					await restPostTokenTemplate({ avatarImageFile: file });
 				}
 			}
 		});
@@ -83,7 +83,7 @@
 				items={$tokenTemplates}
 				keyFunction={(template) => template.id}
 			>
-				{#snippet children({ item })}
+				{#snippet item(item)}
 					<TokenTemplateItem template={item} handleDelete={() => deleteTokenTemplate(item)} />
 				{/snippet}
 			</Collection>

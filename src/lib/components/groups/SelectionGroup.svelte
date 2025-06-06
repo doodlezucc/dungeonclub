@@ -14,12 +14,17 @@
 <script lang="ts" generics="T">
 	import { setContext, type Snippet } from 'svelte';
 
+	interface ChildContext {
+		element: T;
+		isSelected: boolean;
+	}
+
 	interface Props {
 		elements: T[];
 		getElementKey: (element: T) => string;
 		selectedKeys?: string[];
 		selectedElements?: T[];
-		children?: Snippet<[any]>;
+		children?: Snippet<[context: ChildContext]>;
 	}
 
 	let {
