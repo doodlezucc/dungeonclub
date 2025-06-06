@@ -3,7 +3,7 @@
 
 	import { page } from '$app/state';
 	import { Campaign } from 'client/state';
-	import { Row } from 'components/layout';
+	import { Row } from 'packages/ui/layout';
 	import BoardView from './BoardView.svelte';
 	import Sidebar from './Sidebar.svelte';
 

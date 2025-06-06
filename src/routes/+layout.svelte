@@ -1,8 +1,8 @@
 <script lang="ts">
-	import ShortcutListener from 'components/extensions/ShortcutListener.svelte';
-	import SocketProvider from 'components/extensions/SocketProvider.svelte';
-	import UndoRedoListener from 'components/extensions/UndoRedoListener.svelte';
-	import { ModalProvider } from 'components/modal';
+	import ShortcutListener from 'packages/ui/extensions/ShortcutListener.svelte';
+	import SocketProvider from 'packages/ui/extensions/SocketProvider.svelte';
+	import UndoRedoListener from 'packages/ui/extensions/UndoRedoListener.svelte';
+	import { ModalProvider } from 'packages/ui/modal';
 	import type { Snippet } from 'svelte';
 	import '../styles/style.scss';
 	import Header from './Header.svelte';

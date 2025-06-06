@@ -1,5 +1,5 @@
 <script>
-	import { Placeholder } from 'components/layout';
+	import { Placeholder } from 'packages/ui/layout';
 </script>
 
 <Placeholder>Audio Player</Placeholder>

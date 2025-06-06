@@ -1,4 +1,4 @@
-import type { Position } from 'components/compounds';
+import type { Position } from 'packages/ui/compounds';
 import type { HexagonAxis } from './hex';
 
 export interface UnitHexagon {

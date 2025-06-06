@@ -2,9 +2,9 @@
 	import { rest } from 'client/communication';
 	import { asset } from 'client/communication/asset';
 	import { campaignState } from 'client/state';
-	import Icon from 'components/Icon.svelte';
-	import { Row } from 'components/layout';
-	import FileUploader from 'components/upload/FileUploader.svelte';
+	import Icon from 'packages/ui/Icon.svelte';
+	import { Row } from 'packages/ui/layout';
+	import FileUploader from 'packages/ui/upload/FileUploader.svelte';
 	import type { AssetSnippet } from 'shared';
 
 	interface Props {

@@ -1,6 +1,6 @@
 import type { ClientSocket } from 'client/communication';
 import { Board } from 'client/state';
-import type { Position } from 'components/compounds';
+import type { Position } from 'packages/ui/compounds';
 import type { Direction } from 'packages/undo-redo/action';
 import { type HistoryStore } from 'packages/undo-redo/history';
 import type { GetPayload, TokenSnippet } from 'shared';

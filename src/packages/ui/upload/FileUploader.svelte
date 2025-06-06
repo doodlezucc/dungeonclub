@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-	import Icon, { type IconID } from 'components/Icon.svelte';
+	import Icon, { type IconID } from 'packages/ui/Icon.svelte';
 	import { type Snippet } from 'svelte';
 
 	interface Props {

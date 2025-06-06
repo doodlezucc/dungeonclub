@@ -21,8 +21,8 @@
 
 <script lang="ts">
 	import { Board, Campaign } from 'client/state';
-	import Input from 'components/Input.svelte';
-	import { Column, Container } from 'components/layout';
+	import Input from 'packages/ui/Input.svelte';
+	import { Column, Container } from 'packages/ui/layout';
 	import type { GetPayload, OverridableTokenProperty, TokenProperties, TokenSnippet } from 'shared';
 	import { getTemplateForToken, materializeToken } from 'shared/token-materializing';
 	import { onMount } from 'svelte';

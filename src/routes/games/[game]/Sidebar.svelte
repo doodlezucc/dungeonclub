@@ -1,5 +1,5 @@
 <script>
-	import { Column } from 'components/layout';
+	import { Column } from 'packages/ui/layout';
 	import AudioPlayer from './sidebar/AudioPlayer.svelte';
 	import Chat from './sidebar/Chat.svelte';
 </script>

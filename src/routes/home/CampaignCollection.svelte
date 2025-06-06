@@ -2,12 +2,12 @@
 	import { goto } from '$app/navigation';
 	import { socket } from 'client/communication';
 	import { Account, Campaign } from 'client/state';
-	import { Button, Text } from 'components';
-	import ArrangedCollection from 'components/ArrangedCollection.svelte';
-	import DragHandle from 'components/DragHandle.svelte';
-	import { runWithErrorDialogBoundary } from 'components/extensions/modal';
-	import { Column, Container, Placeholder, Row } from 'components/layout';
-	import type { ModalContext } from 'components/modal';
+	import { Button, Text } from 'packages/ui';
+	import ArrangedCollection from 'packages/ui/ArrangedCollection.svelte';
+	import DragHandle from 'packages/ui/DragHandle.svelte';
+	import { runWithErrorDialogBoundary } from 'packages/ui/extensions/modal';
+	import { Column, Container, Placeholder, Row } from 'packages/ui/layout';
+	import type { ModalContext } from 'packages/ui/modal';
 	import type { CampaignCardSnippet, CampaignSnippet } from 'shared';
 	import { getContext } from 'svelte';
 	import Time from 'svelte-time';

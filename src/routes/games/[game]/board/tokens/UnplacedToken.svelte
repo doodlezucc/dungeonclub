@@ -22,7 +22,7 @@
 
 <script lang="ts">
 	import { Board } from 'client/state';
-	import { keyStateOf } from 'components/extensions/ShortcutListener.svelte';
+	import { keyStateOf } from 'packages/ui/extensions/ShortcutListener.svelte';
 	import { EMPTY_TOKEN_PROPERTIES } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import type { BoardContext } from '../Board.svelte';

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import IconButton from 'components/IconButton.svelte';
-	import { Align, Stack } from 'components/layout';
+	import IconButton from 'packages/ui/IconButton.svelte';
+	import { Align, Stack } from 'packages/ui/layout';
 	import type { Snippet } from 'svelte';
 
 	interface Props {

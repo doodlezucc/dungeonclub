@@ -1,5 +1,5 @@
 <script>
-	import { Content } from 'components';
+	import { Content } from 'packages/ui';
 </script>
 
 <header>

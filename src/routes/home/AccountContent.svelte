@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Text } from 'components';
+	import { Text } from 'packages/ui';
 	import CampaignCollection from './CampaignCollection.svelte';
 </script>
 

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { rest, socket } from 'client/communication';
 	import { Board, Campaign, campaignState } from 'client/state';
-	import ArrangedCollection from 'components/ArrangedCollection.svelte';
-	import { displayErrorDialog } from 'components/extensions/modal';
-	import Row from 'components/layout/Row.svelte';
-	import { Dialog, type ModalContext } from 'components/modal';
-	import FileUploader from 'components/upload/FileUploader.svelte';
+	import ArrangedCollection from 'packages/ui/ArrangedCollection.svelte';
+	import { displayErrorDialog } from 'packages/ui/extensions/modal';
+	import Row from 'packages/ui/layout/Row.svelte';
+	import { Dialog, type ModalContext } from 'packages/ui/modal';
+	import FileUploader from 'packages/ui/upload/FileUploader.svelte';
 	import { getContext } from 'svelte';
 	import { derived } from 'svelte/store';
 	import BoardPreview from './BoardPreview.svelte';

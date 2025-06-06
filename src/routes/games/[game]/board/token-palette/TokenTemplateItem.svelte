@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { asset } from 'client/communication/asset';
 	import { Campaign } from 'client/state';
-	import IconButton from 'components/IconButton.svelte';
-	import { Flex, Row } from 'components/layout';
-	import ListTile from 'components/ListTile.svelte';
+	import IconButton from 'packages/ui/IconButton.svelte';
+	import { Flex, Row } from 'packages/ui/layout';
+	import ListTile from 'packages/ui/ListTile.svelte';
 	import type { TokenTemplateSnippet } from 'shared';
 	import { unplacedTokenProperties } from '../tokens/UnplacedToken.svelte';
 

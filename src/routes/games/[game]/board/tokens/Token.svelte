@@ -12,8 +12,8 @@
 	import {
 		derivedKeyStateModifySelection,
 		keyStateOf
-	} from 'components/extensions/ShortcutListener.svelte';
-	import type { SelectionContext } from 'components/groups/SelectionGroup.svelte';
+	} from 'packages/ui/extensions/ShortcutListener.svelte';
+	import type { SelectionContext } from 'packages/ui/groups/SelectionGroup.svelte';
 	import type { Direction } from 'packages/undo-redo/action';
 	import { historyOf } from 'packages/undo-redo/history';
 	import type { TokenSnippet, TokenTemplateSnippet } from 'shared';

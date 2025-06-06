@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from 'components';
+	import { Button } from 'packages/ui';
 	import type { MouseEventHandler } from 'svelte/elements';
 
 	interface Props {

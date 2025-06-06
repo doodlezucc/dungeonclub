@@ -9,8 +9,8 @@
 </script>
 
 <script lang="ts">
-	import Icon, { type IconID } from 'components/Icon.svelte';
-	import Separator from 'components/layout/Separator.svelte';
+	import Icon, { type IconID } from 'packages/ui/Icon.svelte';
+	import Separator from 'packages/ui/layout/Separator.svelte';
 	import Text from '../Text.svelte';
 
 	interface Props {

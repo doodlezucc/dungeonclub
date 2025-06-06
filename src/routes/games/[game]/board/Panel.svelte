@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Container from 'components/layout/Container.svelte';
+	import Container from 'packages/ui/layout/Container.svelte';
 	import type { Snippet } from 'svelte';
 
 	interface Props {

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { socket } from 'client/communication';
 	import { Board, boardState, Campaign, campaignState } from 'client/state';
-	import Collection from 'components/Collection.svelte';
-	import { runWithErrorDialogBoundary } from 'components/extensions/modal';
-	import Icon from 'components/Icon.svelte';
-	import Column from 'components/layout/Column.svelte';
-	import type { ModalContext } from 'components/modal';
-	import FileUploader from 'components/upload/FileUploader.svelte';
+	import Collection from 'packages/ui/Collection.svelte';
+	import { runWithErrorDialogBoundary } from 'packages/ui/extensions/modal';
+	import Icon from 'packages/ui/Icon.svelte';
+	import Column from 'packages/ui/layout/Column.svelte';
+	import type { ModalContext } from 'packages/ui/modal';
+	import FileUploader from 'packages/ui/upload/FileUploader.svelte';
 	import { historyOf } from 'packages/undo-redo/history';
 	import type { TokenTemplateSnippet } from 'shared';
 	import { getContext } from 'svelte';

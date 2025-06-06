@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { boardState, campaignState } from 'client/state';
-	import { Align, Column, Stack } from 'components/layout';
-	import type { ModalContext } from 'components/modal';
+	import { Align, Column, Stack } from 'packages/ui/layout';
+	import type { ModalContext } from 'packages/ui/modal';
 	import { getContext } from 'svelte';
 	import SelectBoardDialog from './board-selection/SelectBoardDialog.svelte';
 	import Board from './board/Board.svelte';

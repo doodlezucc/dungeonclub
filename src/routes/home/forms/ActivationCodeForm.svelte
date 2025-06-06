@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { focusOnMount } from 'components/Input.svelte';
+	import { focusOnMount } from 'packages/ui/Input.svelte';
 	import type { Snippet } from 'svelte';
 	import Form from './Form.svelte';
 
