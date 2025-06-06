@@ -21,10 +21,15 @@
 
 <script lang="ts">
 	import { Board, Campaign } from '$lib/client/state';
+	import type {
+		GetPayload,
+		OverridableTokenProperty,
+		TokenProperties,
+		TokenSnippet
+	} from '$lib/net';
+	import { getTemplateForToken, materializeToken } from '$lib/net/token-materializing';
 	import Input from 'packages/ui/Input.svelte';
 	import { Column, Container } from 'packages/ui/layout';
-	import type { GetPayload, OverridableTokenProperty, TokenProperties, TokenSnippet } from 'shared';
-	import { getTemplateForToken, materializeToken } from 'shared/token-materializing';
 	import { onMount } from 'svelte';
 	import Inheritable from './Inheritable.svelte';
 	import TokenPropertyAvatar from './TokenPropertyAvatar.svelte';

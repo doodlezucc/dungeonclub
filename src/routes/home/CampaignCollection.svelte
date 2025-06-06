@@ -2,13 +2,13 @@
 	import { goto } from '$app/navigation';
 	import { socket } from '$lib/client/communication';
 	import { Account, Campaign } from '$lib/client/state';
+	import type { CampaignCardSnippet, CampaignSnippet } from '$lib/net';
 	import { Button, Text } from 'packages/ui';
 	import ArrangedCollection from 'packages/ui/ArrangedCollection.svelte';
 	import DragHandle from 'packages/ui/DragHandle.svelte';
 	import { runWithErrorDialogBoundary } from 'packages/ui/extensions/modal';
 	import { Column, Container, Placeholder, Row } from 'packages/ui/layout';
 	import type { ModalContext } from 'packages/ui/modal';
-	import type { CampaignCardSnippet, CampaignSnippet } from 'shared';
 	import { getContext } from 'svelte';
 	import Time from 'svelte-time';
 	import CampaignEditDialog from './CampaignEditDialog.svelte';

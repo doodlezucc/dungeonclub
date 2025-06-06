@@ -2,10 +2,10 @@
 	import { rest } from '$lib/client/communication';
 	import { asset } from '$lib/client/communication/asset';
 	import { campaignState } from '$lib/client/state';
+	import type { AssetSnippet } from '$lib/net';
 	import Icon from 'packages/ui/Icon.svelte';
 	import { Row } from 'packages/ui/layout';
 	import FileUploader from 'packages/ui/upload/FileUploader.svelte';
-	import type { AssetSnippet } from 'shared';
 
 	interface Props {
 		avatar: AssetSnippet | null;

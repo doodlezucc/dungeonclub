@@ -1,8 +1,8 @@
+import { SelectTokenTemplate } from '$lib/net';
 import { prisma } from '$lib/server/prisma.js';
 import { campaignEndpoint } from '$lib/server/rest.js';
 import { server } from '$lib/server/server.js';
 import { json } from '@sveltejs/kit';
-import { SelectTokenTemplate } from 'shared';
 
 export const POST = ({ params: { campaignId }, request }) =>
 	campaignEndpoint(request, campaignId, async () => {

@@ -9,6 +9,8 @@
 	import { socket } from '$lib/client/communication';
 	import { Board, boardState } from '$lib/client/state';
 	import type { Position } from '$lib/compounds';
+	import type { TokenSnippet, TokenTemplateSnippet } from '$lib/net';
+	import { materializeToken } from '$lib/net/token-materializing';
 	import {
 		derivedKeyStateModifySelection,
 		keyStateOf
@@ -16,8 +18,6 @@
 	import type { SelectionContext } from 'packages/ui/groups/SelectionGroup.svelte';
 	import type { Direction } from 'packages/undo-redo/action';
 	import { historyOf } from 'packages/undo-redo/history';
-	import type { TokenSnippet, TokenTemplateSnippet } from 'shared';
-	import { materializeToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';

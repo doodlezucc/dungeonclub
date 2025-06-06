@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { socket } from '$lib/client/communication';
 	import { Board, boardState, Campaign, campaignState } from '$lib/client/state';
+	import type { TokenTemplateSnippet } from '$lib/net';
 	import Collection from 'packages/ui/Collection.svelte';
 	import { runWithErrorDialogBoundary } from 'packages/ui/extensions/modal';
 	import Icon from 'packages/ui/Icon.svelte';
@@ -8,7 +9,6 @@
 	import type { ModalContext } from 'packages/ui/modal';
 	import FileUploader from 'packages/ui/upload/FileUploader.svelte';
 	import { historyOf } from 'packages/undo-redo/history';
-	import type { TokenTemplateSnippet } from 'shared';
 	import { getContext } from 'svelte';
 	import Panel from '../Panel.svelte';
 	import { exitTokenPlacement } from '../tokens/UnplacedToken.svelte';

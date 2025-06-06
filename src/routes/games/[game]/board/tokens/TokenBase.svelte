@@ -10,8 +10,8 @@
 	import { asset } from '$lib/client/communication/asset';
 	import { Campaign } from '$lib/client/state';
 	import type { Position } from '$lib/compounds';
+	import type { TokenProperties } from '$lib/net';
 	import { draggable, type DraggableParams } from 'packages/ui/Draggable.svelte';
-	import type { TokenProperties } from 'shared';
 	import type { MouseEventHandler } from 'svelte/elements';
 	import { Spring } from 'svelte/motion';
 

@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	import type { Position } from '$lib/compounds';
-	import type { TokenTemplateSnippet } from 'shared';
+	import type { TokenTemplateSnippet } from '$lib/net';
 	import { writable } from 'svelte/store';
 
 	export interface UnplacedTokenProperties {
@@ -22,8 +22,8 @@
 
 <script lang="ts">
 	import { Board } from '$lib/client/state';
+	import { EMPTY_TOKEN_PROPERTIES } from '$lib/net/token-materializing';
 	import { keyStateOf } from 'packages/ui/extensions/ShortcutListener.svelte';
-	import { EMPTY_TOKEN_PROPERTIES } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import type { BoardContext } from '../Board.svelte';
 	import TokenBase from './TokenBase.svelte';

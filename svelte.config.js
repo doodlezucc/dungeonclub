@@ -14,10 +14,7 @@ const config = {
 		adapter: adapter(),
 
 		alias: {
-			packages: 'src/packages',
-			client: 'src/lib/client',
-			shared: 'src/lib/net',
-			server: 'src/lib/server'
+			packages: 'src/packages'
 		}
 	}
 };

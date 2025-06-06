@@ -1,5 +1,5 @@
+import { publicResponse, type BoardMessageCategory } from '$lib/net';
 import { Limits as LIMITS } from '$lib/server/limits';
-import { publicResponse, type BoardMessageCategory } from 'shared';
 import { SelectBoard, SelectToken } from '../../net/snippets';
 import { prisma } from '../server';
 import type { CategoryHandler } from '../socket';

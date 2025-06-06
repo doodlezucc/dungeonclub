@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { socket } from '$lib/client/communication';
 	import { boardState, campaignState } from '$lib/client/state';
+	import type { TokenSnippet } from '$lib/net';
+	import { getTemplateForToken } from '$lib/net/token-materializing';
 	import { listenTo } from 'packages/ui/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'packages/ui/groups/SelectionGroup.svelte';
 	import { historyOf } from 'packages/undo-redo/history';
-	import type { TokenSnippet } from 'shared';
-	import { getTemplateForToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';
 	import { derived as storeDerived } from 'svelte/store';
 	import { type BoardContext } from './Board.svelte';
