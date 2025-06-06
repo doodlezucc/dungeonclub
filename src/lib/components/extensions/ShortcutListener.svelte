@@ -61,7 +61,7 @@
 </script>
 
 <script lang="ts">
-	import { ShortcutManager } from '$lib/packages/shortcut-manager';
+	import { ShortcutManager } from 'packages/shortcut-manager';
 	import type { Snippet } from 'svelte';
 	import { derived, readable, writable, type Readable } from 'svelte/store';
 

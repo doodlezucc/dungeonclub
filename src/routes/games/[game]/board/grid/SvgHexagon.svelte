@@ -1,6 +1,6 @@
 <script lang="ts" module>
-	import type { HexGridSpace } from '$lib/packages/grid/spaces/hex';
 	import type { Position } from 'components/compounds';
+	import type { HexGridSpace } from 'packages/grid/spaces/hex';
 
 	function drawPolygon(offset: Position, scale: number, gridSpace: HexGridSpace): Position[] {
 		const unitHexagon = gridSpace.getUnitHexagonShape();

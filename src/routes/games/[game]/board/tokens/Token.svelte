@@ -7,8 +7,6 @@
 
 <script lang="ts">
 	import type { Position } from '$lib/compounds';
-	import type { Direction } from '$lib/packages/undo-redo/action';
-	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { Board, boardState } from 'client/state';
 	import {
@@ -16,6 +14,8 @@
 		keyStateOf
 	} from 'components/extensions/ShortcutListener.svelte';
 	import type { SelectionContext } from 'components/groups/SelectionGroup.svelte';
+	import type { Direction } from 'packages/undo-redo/action';
+	import { historyOf } from 'packages/undo-redo/history';
 	import type { TokenSnippet, TokenTemplateSnippet } from 'shared';
 	import { materializeToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';

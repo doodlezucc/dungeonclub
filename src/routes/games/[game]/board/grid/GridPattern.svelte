@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { HexGridSpace } from '$lib/packages/grid/spaces/hex';
-	import type { GridSpace } from '$lib/packages/grid/spaces/interface';
-	import { SquareGridSpace } from '$lib/packages/grid/spaces/square';
+	import { HexGridSpace } from 'packages/grid/spaces/hex';
+	import type { GridSpace } from 'packages/grid/spaces/interface';
+	import { SquareGridSpace } from 'packages/grid/spaces/square';
 	import SvgHexagon from './SvgHexagon.svelte';
 
 	interface Props {

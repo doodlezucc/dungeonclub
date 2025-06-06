@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { boardState, campaignState } from 'client/state';
 	import { listenTo } from 'components/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'components/groups/SelectionGroup.svelte';
+	import { historyOf } from 'packages/undo-redo/history';
 	import type { TokenSnippet } from 'shared';
 	import { getTemplateForToken } from 'shared/token-materializing';
 	import { getContext } from 'svelte';

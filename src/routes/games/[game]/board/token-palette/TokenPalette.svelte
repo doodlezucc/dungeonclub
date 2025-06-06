@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { historyOf } from '$lib/packages/undo-redo/history';
 	import { socket } from 'client/communication';
 	import { Board, boardState, Campaign, campaignState } from 'client/state';
 	import Collection from 'components/Collection.svelte';
@@ -8,6 +7,7 @@
 	import Column from 'components/layout/Column.svelte';
 	import type { ModalContext } from 'components/modal';
 	import FileUploader from 'components/upload/FileUploader.svelte';
+	import { historyOf } from 'packages/undo-redo/history';
 	import type { TokenTemplateSnippet } from 'shared';
 	import { getContext } from 'svelte';
 	import Panel from '../Panel.svelte';
