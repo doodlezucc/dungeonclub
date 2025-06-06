@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { asset } from 'client/communication/asset';
-	import { Campaign } from 'client/state';
+	import { asset } from '$lib/client/communication/asset';
+	import { Campaign } from '$lib/client/state';
 	import IconButton from 'packages/ui/IconButton.svelte';
 	import { Flex, Row } from 'packages/ui/layout';
 	import ListTile from 'packages/ui/ListTile.svelte';

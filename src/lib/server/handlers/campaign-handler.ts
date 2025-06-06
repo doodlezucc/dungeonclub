@@ -1,9 +1,9 @@
-import type { CampaignMessageCategory, OverridableTokenProperty } from 'shared';
+import type { CampaignMessageCategory, OverridableTokenProperty } from '$lib/net';
 import {
 	applyTemplateInheritanceOnProperties,
 	extractPropertiesFromTemplate,
 	getInheritedPropertiesOfToken
-} from 'shared/token-materializing';
+} from '$lib/net/token-materializing';
 import { SelectCampaignCard, SelectTokenProperties, SelectTokenTemplate } from '../../net/snippets';
 import { prisma, server } from '../server';
 import type { CategoryHandler } from '../socket';

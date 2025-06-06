@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { accountState } from 'client/state';
+	import { accountState } from '$lib/client/state';
 	import { Content } from 'packages/ui';
 	import { Row } from 'packages/ui/layout';
 	import { onMount } from 'svelte';

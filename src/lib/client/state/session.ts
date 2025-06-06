@@ -1,4 +1,4 @@
-import type { CampaignSnippet, GetPayload } from 'shared';
+import type { CampaignSnippet, GetPayload } from '$lib/net';
 import { derived, readable } from 'svelte/store';
 import { getSocket } from '../communication/socket';
 import { Board } from './board';

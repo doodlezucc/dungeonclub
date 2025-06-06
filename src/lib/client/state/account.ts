@@ -1,4 +1,4 @@
-import type { AccountSnippet } from 'shared';
+import type { AccountSnippet } from '$lib/net';
 import { getSocket } from '../communication/socket'; // Avoid ../communication/index.ts to prevent cyclic dependency in ../communication/rest.ts
 import { WithState } from './with-state';
 

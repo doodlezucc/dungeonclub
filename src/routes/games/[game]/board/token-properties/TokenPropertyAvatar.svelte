@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { rest } from 'client/communication';
-	import { asset } from 'client/communication/asset';
-	import { campaignState } from 'client/state';
+	import { rest } from '$lib/client/communication';
+	import { asset } from '$lib/client/communication/asset';
+	import { campaignState } from '$lib/client/state';
 	import Icon from 'packages/ui/Icon.svelte';
 	import { Row } from 'packages/ui/layout';
 	import FileUploader from 'packages/ui/upload/FileUploader.svelte';

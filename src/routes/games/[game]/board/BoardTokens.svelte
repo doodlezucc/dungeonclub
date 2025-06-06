@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { socket } from 'client/communication';
-	import { boardState, campaignState } from 'client/state';
+	import { socket } from '$lib/client/communication';
+	import { boardState, campaignState } from '$lib/client/state';
 	import { listenTo } from 'packages/ui/extensions/ShortcutListener.svelte';
 	import SelectionGroup from 'packages/ui/groups/SelectionGroup.svelte';
 	import { historyOf } from 'packages/undo-redo/history';

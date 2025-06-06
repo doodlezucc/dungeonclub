@@ -1,5 +1,5 @@
 import { DISABLE_PERMISSIONS } from '$env/static/private';
-import { type CampaignSnippet } from 'shared';
+import { type CampaignSnippet } from '$lib/net';
 import { server } from './server';
 import { SessionConnection } from './session';
 import { ConnectionSocket } from './socket';

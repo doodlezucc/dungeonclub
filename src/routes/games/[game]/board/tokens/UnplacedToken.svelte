@@ -21,7 +21,7 @@
 </script>
 
 <script lang="ts">
-	import { Board } from 'client/state';
+	import { Board } from '$lib/client/state';
 	import { keyStateOf } from 'packages/ui/extensions/ShortcutListener.svelte';
 	import { EMPTY_TOKEN_PROPERTIES } from 'shared/token-materializing';
 	import { getContext } from 'svelte';

@@ -4,7 +4,7 @@ import {
 	type ClientSentMessages,
 	type Payload,
 	type ResponseObject
-} from 'shared';
+} from '$lib/net';
 import { readonly, writable } from 'svelte/store';
 import { ClientRequestHandler } from './handlers';
 

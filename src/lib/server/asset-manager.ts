@@ -1,6 +1,6 @@
+import { SelectAsset, type AssetSnippet } from '$lib/net';
 import * as fs from 'fs/promises';
 import * as mime from 'mime-types';
-import { SelectAsset, type AssetSnippet } from 'shared';
 import { prisma, server } from './server';
 import { generateUniqueString } from './util/generate-string';
 

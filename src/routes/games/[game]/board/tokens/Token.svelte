@@ -6,9 +6,9 @@
 </script>
 
 <script lang="ts">
+	import { socket } from '$lib/client/communication';
+	import { Board, boardState } from '$lib/client/state';
 	import type { Position } from '$lib/compounds';
-	import { socket } from 'client/communication';
-	import { Board, boardState } from 'client/state';
 	import {
 		derivedKeyStateModifySelection,
 		keyStateOf

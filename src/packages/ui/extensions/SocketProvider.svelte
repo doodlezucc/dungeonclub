@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { ClientSocket } from 'client/communication/socket';
+	import { ClientSocket } from '$lib/client/communication/socket';
 	import type { Snippet } from 'svelte';
 
 	interface Props {

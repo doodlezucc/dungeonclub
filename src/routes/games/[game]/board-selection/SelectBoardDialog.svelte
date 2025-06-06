@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { rest, socket } from 'client/communication';
-	import { Board, Campaign, campaignState } from 'client/state';
+	import { rest, socket } from '$lib/client/communication';
+	import { Board, Campaign, campaignState } from '$lib/client/state';
 	import ArrangedCollection from 'packages/ui/ArrangedCollection.svelte';
 	import { displayErrorDialog } from 'packages/ui/extensions/modal';
 	import Row from 'packages/ui/layout/Row.svelte';

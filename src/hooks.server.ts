@@ -1,3 +1,3 @@
-import { server } from 'server/server';
+import { server } from '$lib/server/server';
 
 await server.start();

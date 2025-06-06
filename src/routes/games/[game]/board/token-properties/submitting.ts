@@ -1,13 +1,13 @@
-import { getSocket } from 'client/communication';
-import isEqual from 'lodash/isEqual';
+import { getSocket } from '$lib/client/communication';
 import type {
 	GetPayload,
 	TokenProperties,
 	TokenPropertiesOrNull,
 	TokenSnippet,
 	TokenTemplateSnippet
-} from 'shared';
-import { extractOverridableProperties } from 'shared/token-materializing';
+} from '$lib/net';
+import { extractOverridableProperties } from '$lib/net/token-materializing';
+import isEqual from 'lodash/isEqual';
 
 export function getRawCommonTokenTemplateProperties(
 	singleTokenTemplateId: string | null,

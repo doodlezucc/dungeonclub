@@ -20,7 +20,7 @@
 </script>
 
 <script lang="ts">
-	import { Board, Campaign } from 'client/state';
+	import { Board, Campaign } from '$lib/client/state';
 	import Input from 'packages/ui/Input.svelte';
 	import { Column, Container } from 'packages/ui/layout';
 	import type { GetPayload, OverridableTokenProperty, TokenProperties, TokenSnippet } from 'shared';

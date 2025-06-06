@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Account } from 'client/state';
+	import { Account } from '$lib/client/state';
 	import ActivationCodeForm from '../home/forms/ActivationCodeForm.svelte';
 	import ConfirmPasswordPage from '../home/forms/ConfirmPasswordPage.svelte';
 	import CredentialsForm from '../home/forms/CredentialsForm.svelte';

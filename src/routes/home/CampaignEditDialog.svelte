@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { socket } from 'client/communication';
-	import { Account } from 'client/state';
+	import { socket } from '$lib/client/communication';
+	import { Account } from '$lib/client/state';
 	import { Button, Input } from 'packages/ui';
 	import { runWithErrorDialogBoundary } from 'packages/ui/extensions/modal';
 	import { Flex } from 'packages/ui/layout';

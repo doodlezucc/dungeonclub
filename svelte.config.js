@@ -15,10 +15,9 @@ const config = {
 
 		alias: {
 			packages: 'src/packages',
-			components: 'src/lib/components',
-			client: 'src/lib/logic/client',
-			shared: 'src/lib/logic/net',
-			server: 'src/lib/logic/server'
+			client: 'src/lib/client',
+			shared: 'src/lib/net',
+			server: 'src/lib/server'
 		}
 	}
 };

@@ -3,7 +3,7 @@ import type {
 	TokenProperties,
 	TokenSnippet,
 	TokenTemplateSnippet
-} from 'shared';
+} from '$lib/net';
 import { prisma } from './prisma';
 import { server } from './server';
 

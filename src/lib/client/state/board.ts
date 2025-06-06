@@ -1,7 +1,7 @@
+import type { BoardSnippet, GetForwarded, GetPayload, GetResponse, TokenSnippet } from '$lib/net';
 import { GridSpaces } from 'packages/grid/grid-snapping';
 import type { GridSpace } from 'packages/grid/spaces/interface';
 import { historyOf } from 'packages/undo-redo/history';
-import type { BoardSnippet, GetForwarded, GetPayload, GetResponse, TokenSnippet } from 'shared';
 import { derived, type Readable } from 'svelte/store';
 import { getSocket } from '../communication/socket';
 import { focusedHistory } from './focused-history';

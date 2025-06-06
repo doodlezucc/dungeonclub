@@ -1,5 +1,5 @@
-import { Board } from 'client/state/board';
-import { Campaign } from 'client/state/session';
+import { Board } from '$lib/client/state/board';
+import { Campaign } from '$lib/client/state/session';
 import {
 	MessageHandler,
 	type AccountMessageCategory,
@@ -7,7 +7,7 @@ import {
 	type CampaignMessageCategory,
 	type CategoryHandlers,
 	type ClientHandledMessages
-} from 'shared';
+} from '$lib/net';
 
 type Options = {};
 

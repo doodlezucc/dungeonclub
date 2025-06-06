@@ -6,7 +6,7 @@ import {
 	type ResponseObject,
 	type ServerHandledMessages,
 	type ServerSentMessages
-} from 'shared';
+} from '$lib/net';
 import type { WebSocket } from 'ws';
 import { accountHandler } from './handlers/account-handler';
 import { boardHandler } from './handlers/board-handler';

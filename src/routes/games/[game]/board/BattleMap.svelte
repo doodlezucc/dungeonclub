@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { asset } from '$lib/client/communication/asset';
+	import { boardState, Campaign } from '$lib/client/state';
 	import type { Size } from '$lib/compounds';
-	import { asset } from 'client/communication/asset';
-	import { boardState, Campaign } from 'client/state';
 
 	interface Props {
 		/** Read-only. */

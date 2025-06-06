@@ -1,4 +1,4 @@
-import { type AccountMessageCategory } from 'shared';
+import { type AccountMessageCategory } from '$lib/net';
 import { prisma, server } from '../server';
 import type { CategoryHandler } from '../socket';
 

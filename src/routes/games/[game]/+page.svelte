@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 
 	import { page } from '$app/state';
-	import { Campaign } from 'client/state';
+	import { Campaign } from '$lib/client/state';
 	import { Row } from 'packages/ui/layout';
 	import BoardView from './BoardView.svelte';
 	import Sidebar from './Sidebar.svelte';

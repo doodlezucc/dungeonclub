@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { socket } from 'client/communication';
-	import { Board, boardState, Campaign, campaignState } from 'client/state';
+	import { socket } from '$lib/client/communication';
+	import { Board, boardState, Campaign, campaignState } from '$lib/client/state';
 	import Collection from 'packages/ui/Collection.svelte';
 	import { runWithErrorDialogBoundary } from 'packages/ui/extensions/modal';
 	import Icon from 'packages/ui/Icon.svelte';

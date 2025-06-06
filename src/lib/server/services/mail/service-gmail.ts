@@ -1,6 +1,6 @@
 import { env } from '$env/dynamic/private';
+import { prisma } from '$lib/server/server';
 import nodemailer, { type Transporter } from 'nodemailer';
-import { prisma } from 'server/server';
 import { TransporterMailService } from './transporter-service';
 
 const SETTING_KEY_TOKEN_STATE = 'GMAIL_TOKEN';

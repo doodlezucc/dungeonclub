@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { socket } from 'client/communication';
-	import { Account, Campaign } from 'client/state';
+	import { socket } from '$lib/client/communication';
+	import { Account, Campaign } from '$lib/client/state';
 	import { Button, Text } from 'packages/ui';
 	import ArrangedCollection from 'packages/ui/ArrangedCollection.svelte';
 	import DragHandle from 'packages/ui/DragHandle.svelte';

@@ -1,10 +1,10 @@
-import { RestConnection } from 'client/communication';
-import { Board, campaignState } from 'client/state';
-import type { TokenTemplateSnippet } from 'shared';
+import { RestConnection } from '$lib/client/communication';
+import { Board, campaignState } from '$lib/client/state';
+import type { TokenTemplateSnippet } from '$lib/net';
 import {
 	extractPropertiesFromTemplate,
 	getInheritedPropertiesOfToken
-} from 'shared/token-materializing';
+} from '$lib/net/token-materializing';
 import { get } from 'svelte/store';
 
 interface CreateTokenTemplateOptions {

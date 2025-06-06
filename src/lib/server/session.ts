@@ -6,7 +6,7 @@ import {
 	type Payload,
 	type ServerHandledMessages,
 	type ServerSentMessages
-} from 'shared';
+} from '$lib/net';
 import { prisma, server } from './server';
 import { SessionGarbage } from './session-garbage';
 import type { User } from './user';

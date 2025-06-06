@@ -1,9 +1,9 @@
-import type { ClientSocket } from 'client/communication';
-import { Board } from 'client/state';
+import type { ClientSocket } from '$lib/client/communication';
+import { Board } from '$lib/client/state';
+import type { GetPayload, TokenSnippet } from '$lib/net';
 import type { Position } from 'packages/ui/compounds';
 import type { Direction } from 'packages/undo-redo/action';
 import { type HistoryStore } from 'packages/undo-redo/history';
-import type { GetPayload, TokenSnippet } from 'shared';
 
 export interface Context {
 	boardHistory: HistoryStore;

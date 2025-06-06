@@ -1,4 +1,4 @@
-import { Limits as LIMITS } from 'server/limits';
+import { Limits as LIMITS } from '$lib/server/limits';
 import { publicResponse, type BoardMessageCategory } from 'shared';
 import { SelectBoard, SelectToken } from '../../net/snippets';
 import { prisma } from '../server';

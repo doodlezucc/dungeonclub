@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Board } from 'client/state';
+	import { Board } from '$lib/client/state';
 	import type { Size } from 'packages/ui/compounds';
 	import GridPattern from './GridPattern.svelte';
 
