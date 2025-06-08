@@ -2,7 +2,6 @@ import type { Point } from 'packages/math';
 import { oneThird, unitHexagons, type UnitHexagon } from './hex-shape';
 import { GridSpace, type PositionedSquare } from './interface';
 
-type Point = Point;
 export type HexagonAxis = 'horizontal' | 'vertical';
 
 /**
