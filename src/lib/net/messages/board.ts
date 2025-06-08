@@ -1,4 +1,4 @@
-import type { Position } from 'packages/math';
+import type { Point } from 'packages/math';
 import type {
 	BoardSnippet,
 	TokenProperties,
@@ -61,6 +61,6 @@ export interface BoardMessageCategory {
 	}>;
 
 	tokensMove: DefineSendAndForward<{
-		[id: UUID]: Position;
+		[id: UUID]: Point;
 	}>;
 }

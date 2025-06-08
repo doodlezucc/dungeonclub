@@ -1,11 +1,11 @@
 <script lang="ts" module>
-	import type { Position, Size } from 'packages/math';
+	import type { Point, Size } from 'packages/math';
 
 	const minZoom = -1;
 	const maxZoom = 3;
 	const zoomStep = 0.25;
 
-	function clampToBounds(position: Position, dimensions: Size) {
+	function clampToBounds(position: Point, dimensions: Size) {
 		const maxX = dimensions.width / 2;
 		const maxY = dimensions.height / 2;
 		const minX = -maxX;
@@ -32,7 +32,7 @@
 
 	interface Props {
 		expand?: boolean;
-		position?: Position;
+		position?: Point;
 		zoom?: number;
 		elementView?: HTMLElement | undefined;
 		elementContent?: HTMLElement | undefined;

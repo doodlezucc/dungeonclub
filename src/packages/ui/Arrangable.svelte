@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Position } from 'packages/math';
+	import type { Point } from 'packages/math';
 	import { untrack, type Snippet } from 'svelte';
 	import { Spring } from 'svelte/motion';
 	import type { DragState } from './ArrangedCollection.svelte';
@@ -19,15 +19,15 @@
 	let isDragging = dragState.controller.isDragging;
 	let isAnyDragging = dragState.isAnyDragging;
 
-	let mouseOffset = $state<Position>();
+	let mouseOffset = $state<Point>();
 
-	let visualCenter = new Spring<Position | undefined>(undefined, {
+	let visualCenter = new Spring<Point | undefined>(undefined, {
 		stiffness: 0.1,
 		damping: 0.4
 	});
 
-	let center = $state<Position>();
-	let draggedCenter = $state<Position>();
+	let center = $state<Point>();
+	let draggedCenter = $state<Point>();
 
 	let container = $state<HTMLElement>();
 

@@ -1,10 +1,10 @@
-import type { Position } from 'packages/math';
+import type { Point } from 'packages/math';
 import { describe, expect, test } from 'vitest';
 import { HexGridSpace } from './spaces/hex';
 import type { PositionedSquare } from './spaces/interface';
 import { SquareGridSpace } from './spaces/square';
 
-function expectApproximatePosition(received: Position, expected: Position) {
+function expectApproximatePosition(received: Point, expected: Point) {
 	return expect(received).toEqual({
 		x: expect.closeTo(expected.x),
 		y: expect.closeTo(expected.y)
@@ -15,7 +15,7 @@ describe('Square Grid', () => {
 	const gridSpace = new SquareGridSpace();
 
 	test('Snap token of size 1 or 3', () => {
-		function expectSnapped(raw: Position, expected: Position) {
+		function expectSnapped(raw: Point, expected: Point) {
 			expectApproximatePosition(gridSpace.snapShapeToGrid({ size: 1, center: raw }), expected);
 			expectApproximatePosition(gridSpace.snapShapeToGrid({ size: 3, center: raw }), expected);
 		}
@@ -28,7 +28,7 @@ describe('Square Grid', () => {
 	});
 
 	test('Snap token of size 0, 2 or 4', () => {
-		function expectSnapped(raw: Position, expected: Position) {
+		function expectSnapped(raw: Point, expected: Point) {
 			expectApproximatePosition(gridSpace.snapShapeToGrid({ size: 0, center: raw }), expected);
 			expectApproximatePosition(gridSpace.snapShapeToGrid({ size: 2, center: raw }), expected);
 			expectApproximatePosition(gridSpace.snapShapeToGrid({ size: 4, center: raw }), expected);
@@ -46,7 +46,7 @@ describe('Hex Grid', () => {
 	const gridSpaceHorizontal = new HexGridSpace('horizontal');
 	const gridSpaceVertical = new HexGridSpace('vertical');
 
-	function expectApproximate(token: PositionedSquare, expectedUnstretched: Position) {
+	function expectApproximate(token: PositionedSquare, expectedUnstretched: Point) {
 		expectApproximatePosition(gridSpaceHorizontal.snapShapeToGrid(token), {
 			x: expectedUnstretched.x,
 			y: expectedUnstretched.y * gridSpaceHorizontal.tileHeightRatio
@@ -67,7 +67,7 @@ describe('Hex Grid', () => {
 	}
 
 	test('Snap token of size 1 or 3', () => {
-		function expectSnapped(raw: Position, expected: Position) {
+		function expectSnapped(raw: Point, expected: Point) {
 			expectApproximate({ size: 1, center: raw }, expected);
 			expectApproximate({ size: 3, center: raw }, expected);
 		}
@@ -94,7 +94,7 @@ describe('Hex Grid', () => {
 	});
 
 	describe('Snap token of size 0, 2 or 4', () => {
-		function expectSnapped(raw: Position, expected: Position) {
+		function expectSnapped(raw: Point, expected: Point) {
 			test('Snap ' + JSON.stringify(raw) + ' to intersection', () => {
 				expectApproximate({ size: 0, center: raw }, expected);
 				expectApproximate({ size: 2, center: raw }, expected);

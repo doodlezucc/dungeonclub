@@ -1,8 +1,8 @@
 <script lang="ts" module>
 	import type { HexGridSpace } from 'packages/grid/spaces/hex';
-	import type { Position } from 'packages/math';
+	import type { Point } from 'packages/math';
 
-	function drawPolygon(offset: Position, scale: number, gridSpace: HexGridSpace): Position[] {
+	function drawPolygon(offset: Point, scale: number, gridSpace: HexGridSpace): Point[] {
 		const unitHexagon = gridSpace.getUnitHexagonShape();
 
 		return unitHexagon.points.map((point) => ({
@@ -11,14 +11,14 @@
 		}));
 	}
 
-	function makePolygonData(points: Position[]) {
+	function makePolygonData(points: Point[]) {
 		return points.map((point) => `${point.x},${point.y}`).join(' ');
 	}
 </script>
 
 <script lang="ts">
 	interface Props {
-		offset: Position;
+		offset: Point;
 		cellWidth: number;
 		gridSpace: HexGridSpace;
 	}

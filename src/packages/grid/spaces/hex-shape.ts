@@ -1,8 +1,8 @@
-import type { Position } from 'packages/math';
+import type { Point } from 'packages/math';
 import type { HexagonAxis } from './hex';
 
 export interface UnitHexagon {
-	points: Position[];
+	points: Point[];
 }
 
 export const oneThird = 1 / 3;

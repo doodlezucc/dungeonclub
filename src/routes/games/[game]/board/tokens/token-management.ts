@@ -1,7 +1,7 @@
 import type { ClientSocket } from '$lib/client/communication';
 import { Board } from '$lib/client/state';
 import type { GetPayload, TokenSnippet } from '$lib/net';
-import type { Position } from 'packages/math';
+import type { Point } from 'packages/math';
 import type { Direction } from 'packages/undo-redo/action';
 import { type HistoryStore } from 'packages/undo-redo/history';
 
@@ -11,7 +11,7 @@ export interface Context {
 }
 
 export interface CreateTokenOptions {
-	position: Position;
+	position: Point;
 	tokenTemplateId: string | null;
 	onServerSideCreation: (instantiatedToken: TokenSnippet) => void;
 }
@@ -78,7 +78,7 @@ export function deleteTokens(tokens: TokenSnippet[], context: Context) {
 }
 
 export interface TokenMovementOptions {
-	delta: Position;
+	delta: Point;
 	selection: TokenSnippet[];
 }
 
@@ -87,19 +87,19 @@ export function submitTokenMovement(options: TokenMovementOptions, context: Cont
 	const { delta, selection } = options;
 
 	const tokenMovements = selection.map((selectedToken) => {
-		const newPosition = <Position>{
+		const newPosition = <Point>{
 			x: selectedToken.x,
 			y: selectedToken.y
 		};
 
-		const originalPosition = <Position>{
+		const originalPosition = <Point>{
 			x: newPosition.x - delta.x,
 			y: newPosition.y - delta.y
 		};
 
 		return {
 			tokenId: selectedToken.id,
-			position: <Record<Direction, Position>>{
+			position: <Record<Direction, Point>>{
 				forward: newPosition,
 				backward: originalPosition
 			}

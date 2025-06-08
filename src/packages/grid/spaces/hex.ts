@@ -1,8 +1,8 @@
-import type { Position } from 'packages/math';
+import type { Point } from 'packages/math';
 import { oneThird, unitHexagons, type UnitHexagon } from './hex-shape';
 import { GridSpace, type PositionedSquare } from './interface';
 
-type Vector = Position;
+type Point = Point;
 export type HexagonAxis = 'horizontal' | 'vertical';
 
 /**
@@ -44,7 +44,7 @@ export class HexGridSpace extends GridSpace {
 		return unitHexagons[this.axis];
 	}
 
-	private rotated(flat: FlatVector): Vector {
+	private rotated(flat: FlatVector): Point {
 		if (this.axis === 'horizontal') {
 			return {
 				x: flat.longCoordinate,
@@ -58,7 +58,7 @@ export class HexGridSpace extends GridSpace {
 		}
 	}
 
-	private flat(vector: Vector): FlatVector {
+	private flat(vector: Point): FlatVector {
 		if (this.axis === 'horizontal') {
 			return {
 				longCoordinate: vector.x,
@@ -72,7 +72,7 @@ export class HexGridSpace extends GridSpace {
 		}
 	}
 
-	protected snapShapeToGridUnstretched({ center, size }: PositionedSquare): Vector {
+	protected snapShapeToGridUnstretched({ center, size }: PositionedSquare): Point {
 		const flatCenter = this.flat(center);
 
 		const snappedFlatCenter = flatSnapShapeToGrid(flatCenter, size);

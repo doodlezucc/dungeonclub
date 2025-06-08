@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	export interface HistoryTokenMovement {
 		tokenId: string;
-		position: Record<Direction, Position>;
+		position: Record<Direction, Point>;
 	}
 </script>
 
@@ -10,7 +10,7 @@
 	import { Board, boardState } from '$lib/client/state';
 	import type { TokenSnippet, TokenTemplateSnippet } from '$lib/net';
 	import { materializeToken } from '$lib/net/token-materializing';
-	import type { Position } from 'packages/math';
+	import type { Point } from 'packages/math';
 	import {
 		derivedKeyStateModifySelection,
 		keyStateOf
@@ -33,7 +33,7 @@
 
 	let properties = $derived(materializeToken(token, template));
 
-	let position = $derived(<Position>{ x: token.x, y: token.y });
+	let position = $derived(<Point>{ x: token.x, y: token.y });
 	let displaySize = $derived(properties.size);
 
 	const selection = getContext<SelectionContext<TokenSnippet>>('selection');
@@ -42,8 +42,8 @@
 
 	let isDragging = $state(false);
 
-	let positionBeforeDragging = $state<Position>();
-	let previousDragPosition = $state<Position>();
+	let positionBeforeDragging = $state<Point>();
+	let previousDragPosition = $state<Point>();
 
 	function onDragToggle(dragState: boolean) {
 		isDragging = dragState;
@@ -56,7 +56,7 @@
 		}
 	}
 
-	function onDraggedTo(position: Position, originalPosition: Position) {
+	function onDraggedTo(position: Point, originalPosition: Point) {
 		Tokens.submitTokenMovement(
 			{
 				selection: selection.getSelected(),
@@ -78,7 +78,7 @@
 	function handleDragging(ev: MouseEvent) {
 		const mouseInGridSpace = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });
 
-		let dragPosition: Position;
+		let dragPosition: Point;
 
 		if ($isGridSnappingDisabled) {
 			dragPosition = {
@@ -94,7 +94,7 @@
 			dragPosition = snapped;
 		}
 
-		const delta = <Position>{
+		const delta = <Point>{
 			x: dragPosition.x - previousDragPosition!.x,
 			y: dragPosition.y - previousDragPosition!.y
 		};

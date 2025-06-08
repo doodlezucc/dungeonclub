@@ -10,14 +10,14 @@
 	import { asset } from '$lib/client/communication/asset';
 	import { Campaign } from '$lib/client/state';
 	import type { TokenProperties } from '$lib/net';
-	import type { Position } from 'packages/math';
+	import type { Point } from 'packages/math';
 	import { draggable, type DraggableParams } from 'packages/ui/Draggable.svelte';
 	import type { MouseEventHandler } from 'svelte/elements';
 	import { Spring } from 'svelte/motion';
 
 	interface Props {
 		properties: TokenProperties;
-		position: Position;
+		position: Point;
 		style: TokenStyle;
 		draggableParams: DraggableParams;
 

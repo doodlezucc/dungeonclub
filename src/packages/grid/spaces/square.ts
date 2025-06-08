@@ -1,10 +1,10 @@
-import type { Position } from 'packages/math';
+import type { Point } from 'packages/math';
 import { GridSpace, type PositionedSquare } from './interface';
 
 export class SquareGridSpace extends GridSpace {
 	static readonly instance = new SquareGridSpace();
 
-	protected snapShapeToGridUnstretched({ center: { x, y }, size }: PositionedSquare): Position {
+	protected snapShapeToGridUnstretched({ center: { x, y }, size }: PositionedSquare): Point {
 		if (size % 2 == 1) {
 			// Sizes 1, 3, 5 are centered in the middle of a grid cell
 			return {

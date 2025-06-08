@@ -1,15 +1,15 @@
-import type { Position } from 'packages/math';
+import type { Point } from 'packages/math';
 
 export type PositionedSquare = {
-	center: Position;
+	center: Point;
 	size: number;
 };
 
 export abstract class GridSpace {
 	abstract get tileHeightRatio(): number;
-	protected abstract snapShapeToGridUnstretched(token: PositionedSquare): Position;
+	protected abstract snapShapeToGridUnstretched(token: PositionedSquare): Point;
 
-	snapShapeToGrid(token: PositionedSquare): Position {
+	snapShapeToGrid(token: PositionedSquare): Point {
 		const unstretched = this.snapShapeToGridUnstretched(token);
 		return {
 			x: unstretched.x,

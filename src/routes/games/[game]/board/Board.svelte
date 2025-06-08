@@ -1,14 +1,14 @@
 <script lang="ts" module>
 	export interface BoardContext {
-		transformClientToGridSpace: (position: Position) => Position;
-		transformGridToClientSpace: (position: Position) => Position;
+		transformClientToGridSpace: (position: Point) => Point;
+		transformGridToClientSpace: (position: Point) => Point;
 		getPanViewEventTarget(): EventTarget;
 	}
 </script>
 
 <script lang="ts">
 	import { Board, boardState } from '$lib/client/state/board';
-	import type { Position, Size } from 'packages/math';
+	import type { Point, Size } from 'packages/math';
 	import { PanView } from 'packages/ui';
 	import { derivedKeyStateModifySelection } from 'packages/ui/extensions/ShortcutListener.svelte';
 	import { Overlay } from 'packages/ui/layout';
@@ -28,7 +28,7 @@
 
 	const cellsPerRow = $boardState!.gridCellsPerRow;
 
-	let position = $state<Position>({ x: 0, y: 0 });
+	let position = $state<Point>({ x: 0, y: 0 });
 	let zoom = $state(0);
 
 	let dimensions = $state<Size>();
@@ -58,7 +58,7 @@
 		return (cachedClientRect ??= contentElement!.getBoundingClientRect());
 	}
 
-	function transformClientToGridSpace(clientPosition: Position): Position {
+	function transformClientToGridSpace(clientPosition: Point): Point {
 		const rect = getClientRect();
 
 		const zoomFactor = Math.exp(zoom);
@@ -70,7 +70,7 @@
 		};
 	}
 
-	function transformGridToClientSpace(position: Position): Position {
+	function transformGridToClientSpace(position: Point): Point {
 		throw 'Not implemented';
 	}
 

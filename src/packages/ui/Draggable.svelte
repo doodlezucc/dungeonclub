@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import type { Position } from 'packages/math';
+	import type { Point } from 'packages/math';
 	import type { Action } from 'svelte/action';
 
 	export interface DraggableParams {
@@ -62,13 +62,13 @@
 	import { Spring } from 'svelte/motion';
 
 	interface Props {
-		offset?: Position;
+		offset?: Point;
 		children: Snippet;
 	}
 
 	let { offset = $bindable({ x: 0, y: 0 }), children }: Props = $props();
 
-	let visualOffset = new Spring<Position>(offset, {
+	let visualOffset = new Spring<Point>(offset, {
 		stiffness: 0.1,
 		damping: 0.4
 	});

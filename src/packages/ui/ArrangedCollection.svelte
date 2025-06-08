@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import type { Position } from 'packages/math';
+	import type { Point } from 'packages/math';
 
 	export interface DragController {
 		start: () => void;
@@ -8,9 +8,9 @@
 
 	export interface DragState {
 		controller: DragController;
-		center?: Position;
+		center?: Point;
 		isAnyDragging: Readable<boolean>;
-		setItemCenter: (position: Position) => void;
+		setItemCenter: (position: Point) => void;
 	}
 </script>
 
@@ -47,7 +47,7 @@
 	let draggedItem = writable<T | null>(null);
 	let isAnyDragging = storeDerived(draggedItem, (dragged) => dragged != null);
 
-	let mousePosition = $derived(<Position>{ x: 0, y: 0 });
+	let mousePosition = $derived(<Point>{ x: 0, y: 0 });
 
 	let dragStates = new Map<T, DragState>();
 
@@ -86,7 +86,7 @@
 		null
 	] as [T, DragState][]);
 
-	function sqrDistance(a: Position, b: Position) {
+	function sqrDistance(a: Point, b: Point) {
 		const x = b.x - a.x;
 		const y = b.y - a.y;
 		return x * x + y * y;

@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	import type { TokenTemplateSnippet } from '$lib/net';
-	import type { Position } from 'packages/math';
+	import type { Point } from 'packages/math';
 	import { writable } from 'svelte/store';
 
 	export interface UnplacedTokenProperties {
@@ -9,7 +9,7 @@
 	}
 
 	export interface TokenPlacementEvent {
-		position: Position;
+		position: Point;
 		templateId?: string;
 	}
 
@@ -30,7 +30,7 @@
 
 	interface Props {
 		template: TokenTemplateSnippet | undefined;
-		spawnPosition: Position;
+		spawnPosition: Point;
 
 		onPlace: (place: TokenPlacementEvent) => void;
 	}
