@@ -2,8 +2,8 @@
 	import { socket } from '$lib/client/communication';
 	import { Board, boardState, Campaign, campaignState } from '$lib/client/state';
 	import type { TokenTemplateSnippet } from '$lib/net';
+	import { runWithErrorDialogBoundary } from '$lib/ui/util/modal';
 	import Collection from 'packages/ui/Collection.svelte';
-	import { runWithErrorDialogBoundary } from 'packages/ui/extensions/modal';
 	import Icon from 'packages/ui/Icon.svelte';
 	import Column from 'packages/ui/layout/Column.svelte';
 	import type { ModalContext } from 'packages/ui/modal';

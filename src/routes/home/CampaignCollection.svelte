@@ -3,10 +3,10 @@
 	import { socket } from '$lib/client/communication';
 	import { Account, Campaign } from '$lib/client/state';
 	import type { CampaignCardSnippet, CampaignSnippet } from '$lib/net';
+	import { runWithErrorDialogBoundary } from '$lib/ui/util/modal';
 	import { Button, Text } from 'packages/ui';
 	import ArrangedCollection from 'packages/ui/ArrangedCollection.svelte';
 	import DragHandle from 'packages/ui/DragHandle.svelte';
-	import { runWithErrorDialogBoundary } from 'packages/ui/extensions/modal';
 	import { Column, Container, Placeholder, Row } from 'packages/ui/layout';
 	import type { ModalContext } from 'packages/ui/modal';
 	import { getContext } from 'svelte';

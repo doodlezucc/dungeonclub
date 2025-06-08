@@ -8,9 +8,9 @@
 
 <script lang="ts">
 	import { Board, boardState } from '$lib/client/state/board';
+	import { derivedKeyStateModifySelection } from '$lib/ui/util/ShortcutListener.svelte';
 	import type { Point, Size } from 'packages/math';
 	import { PanView } from 'packages/ui';
-	import { derivedKeyStateModifySelection } from 'packages/ui/extensions/ShortcutListener.svelte';
 	import { Overlay } from 'packages/ui/layout';
 	import { setContext } from 'svelte';
 	import BattleMap from './BattleMap.svelte';

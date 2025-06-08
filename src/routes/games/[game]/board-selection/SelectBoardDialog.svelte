@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { rest, socket } from '$lib/client/communication';
 	import { Board, Campaign, campaignState } from '$lib/client/state';
+	import { displayErrorDialog } from '$lib/ui/util/modal';
 	import ArrangedCollection from 'packages/ui/ArrangedCollection.svelte';
-	import { displayErrorDialog } from 'packages/ui/extensions/modal';
 	import Row from 'packages/ui/layout/Row.svelte';
 	import { Dialog, type ModalContext } from 'packages/ui/modal';
 	import FileUploader from 'packages/ui/upload/FileUploader.svelte';

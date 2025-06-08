@@ -3,7 +3,7 @@
 	import { boardState, campaignState } from '$lib/client/state';
 	import type { TokenSnippet } from '$lib/net';
 	import { getTemplateForToken } from '$lib/net/token-materializing';
-	import { listenTo } from 'packages/ui/extensions/ShortcutListener.svelte';
+	import { listenTo } from '$lib/ui/util/ShortcutListener.svelte';
 	import SelectionGroup from 'packages/ui/groups/SelectionGroup.svelte';
 	import { historyOf } from 'packages/undo-redo/history';
 	import { getContext } from 'svelte';

@@ -4,9 +4,9 @@
 	import '@fontsource/lato';
 	import 'packages/ui/scss/global.scss';
 
-	import ShortcutListener from 'packages/ui/extensions/ShortcutListener.svelte';
-	import SocketProvider from 'packages/ui/extensions/SocketProvider.svelte';
-	import UndoRedoListener from 'packages/ui/extensions/UndoRedoListener.svelte';
+	import ShortcutListener from '$lib/ui/util/ShortcutListener.svelte';
+	import SocketProvider from '$lib/ui/util/SocketProvider.svelte';
+	import UndoRedoListener from '$lib/ui/util/UndoRedoListener.svelte';
 	import { ModalProvider } from 'packages/ui/modal';
 	import type { Snippet } from 'svelte';
 	import Header from './Header.svelte';

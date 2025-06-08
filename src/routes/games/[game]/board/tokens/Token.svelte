@@ -10,11 +10,8 @@
 	import { Board, boardState } from '$lib/client/state';
 	import type { TokenSnippet, TokenTemplateSnippet } from '$lib/net';
 	import { materializeToken } from '$lib/net/token-materializing';
+	import { derivedKeyStateModifySelection, keyStateOf } from '$lib/ui/util/ShortcutListener.svelte';
 	import type { Point } from 'packages/math';
-	import {
-		derivedKeyStateModifySelection,
-		keyStateOf
-	} from 'packages/ui/extensions/ShortcutListener.svelte';
 	import type { SelectionContext } from 'packages/ui/groups/SelectionGroup.svelte';
 	import type { Direction } from 'packages/undo-redo/action';
 	import { historyOf } from 'packages/undo-redo/history';

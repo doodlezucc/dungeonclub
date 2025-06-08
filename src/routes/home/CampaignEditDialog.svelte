@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { socket } from '$lib/client/communication';
 	import { Account } from '$lib/client/state';
+	import { runWithErrorDialogBoundary } from '$lib/ui/util/modal';
 	import { Button, Input } from 'packages/ui';
-	import { runWithErrorDialogBoundary } from 'packages/ui/extensions/modal';
 	import { Flex } from 'packages/ui/layout';
 	import { Dialog, type ModalContext } from 'packages/ui/modal';
 	import { getContext } from 'svelte';
