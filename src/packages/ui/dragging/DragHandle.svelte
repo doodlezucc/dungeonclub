@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { DragController } from './ArrangedCollection.svelte';
+	import type { DragController } from '../groups/ArrangedCollection.svelte';
 
-	import Icon from './Icon.svelte';
+	import Icon from '../base/Icon.svelte';
 
 	interface Props {
 		controller: DragController;

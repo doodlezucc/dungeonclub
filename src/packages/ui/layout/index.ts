@@ -2,6 +2,7 @@ export { default as Align } from './Align.svelte';
 export { default as Center } from './Center.svelte';
 export { default as Column } from './Column.svelte';
 export { default as Container } from './Container.svelte';
+export { default as Content } from './Content.svelte';
 export { default as Dot } from './Dot.svelte';
 export { default as Flex } from './Flex.svelte';
 export { default as Overlay } from './Overlay.svelte';

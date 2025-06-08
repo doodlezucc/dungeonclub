@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { getContext, type Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
-	import IconButton from '../IconButton.svelte';
+	import IconButton from '../base/IconButton.svelte';
+	import Text from '../base/Text.svelte';
 	import Row from '../layout/Row.svelte';
 	import Separator from '../layout/Separator.svelte';
-	import Text from '../Text.svelte';
 	import type { ModalContext } from './ModalProvider.svelte';
 
 	interface Props {

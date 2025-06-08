@@ -9,10 +9,10 @@
 </script>
 
 <script lang="ts">
-	import Icon, { type IconID } from '../Icon.svelte';
+	import Icon, { type IconID } from '../base/Icon.svelte';
 	import Separator from '../layout/Separator.svelte';
 
-	import Text from '../Text.svelte';
+	import Text from '../base/Text.svelte';
 
 	interface Props {
 		options: ToastOptions;
