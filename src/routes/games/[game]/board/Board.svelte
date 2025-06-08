@@ -10,8 +10,7 @@
 	import { Board, boardState } from '$lib/client/state/board';
 	import { derivedKeyStateModifySelection } from '$lib/ui/util/ShortcutListener.svelte';
 	import type { Point, Size } from 'packages/math';
-	import { PanView } from 'packages/ui';
-	import { Overlay } from 'packages/ui/layout';
+	import { Overlay, PanView } from 'packages/ui';
 	import { setContext } from 'svelte';
 	import BattleMap from './BattleMap.svelte';
 	import BoardTokens from './BoardTokens.svelte';

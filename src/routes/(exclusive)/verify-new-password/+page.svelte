@@ -1,5 +1,5 @@
-<script>
-	import Content from 'packages/ui/Content.svelte';
+<script lang="ts">
+	import { Content } from 'packages/ui';
 </script>
 
 <main>

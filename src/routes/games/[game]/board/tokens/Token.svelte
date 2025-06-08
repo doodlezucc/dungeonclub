@@ -12,7 +12,7 @@
 	import { materializeToken } from '$lib/net/token-materializing';
 	import { derivedKeyStateModifySelection, keyStateOf } from '$lib/ui/util/ShortcutListener.svelte';
 	import type { Point } from 'packages/math';
-	import type { SelectionContext } from 'packages/ui/groups/SelectionGroup.svelte';
+	import type { SelectionContext } from 'packages/ui';
 	import type { Direction } from 'packages/undo-redo/action';
 	import { historyOf } from 'packages/undo-redo/history';
 	import { getContext } from 'svelte';

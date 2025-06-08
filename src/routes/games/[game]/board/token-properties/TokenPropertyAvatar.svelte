@@ -3,9 +3,7 @@
 	import { asset } from '$lib/client/communication/asset';
 	import { campaignState } from '$lib/client/state';
 	import type { AssetSnippet } from '$lib/net';
-	import Icon from 'packages/ui/Icon.svelte';
-	import { Row } from 'packages/ui/layout';
-	import FileUploader from 'packages/ui/upload/FileUploader.svelte';
+	import { FileUploader, Icon, Row } from 'packages/ui';
 
 	interface Props {
 		avatar: AssetSnippet | null;

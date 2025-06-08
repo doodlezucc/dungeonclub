@@ -28,8 +28,7 @@
 		TokenSnippet
 	} from '$lib/net';
 	import { getTemplateForToken, materializeToken } from '$lib/net/token-materializing';
-	import Input from 'packages/ui/Input.svelte';
-	import { Column, Container } from 'packages/ui/layout';
+	import { Column, Container, Input } from 'packages/ui';
 	import { onMount } from 'svelte';
 	import Inheritable from './Inheritable.svelte';
 	import TokenPropertyAvatar from './TokenPropertyAvatar.svelte';

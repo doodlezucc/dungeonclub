@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Account } from '$lib/client/state';
-	import { Input } from 'packages/ui';
-	import Dot from 'packages/ui/layout/Dot.svelte';
+	import { Dot, Input } from 'packages/ui';
 	import { enteredEmailAddress } from '../credential-stores';
 	import Form from './Form.svelte';
 

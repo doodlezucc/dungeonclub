@@ -1,4 +1,4 @@
-import type { ModalContext } from 'packages/ui/modal';
+import type { ModalContext } from 'packages/ui';
 import ErrorDialog from './ErrorDialog.svelte';
 
 export async function displayErrorDialog(modal: ModalContext, error: unknown) {

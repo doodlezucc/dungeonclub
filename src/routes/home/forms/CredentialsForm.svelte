@@ -3,8 +3,7 @@
 </script>
 
 <script lang="ts">
-	import Input from 'packages/ui/Input.svelte';
-	import { Column } from 'packages/ui/layout';
+	import { Column, Input } from 'packages/ui';
 	import { onMount, type Snippet } from 'svelte';
 	import { enteredEmailAddress } from '../credential-stores';
 	import Form from './Form.svelte';

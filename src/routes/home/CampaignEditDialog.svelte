@@ -2,9 +2,7 @@
 	import { socket } from '$lib/client/communication';
 	import { Account } from '$lib/client/state';
 	import { runWithErrorDialogBoundary } from '$lib/ui/util/modal';
-	import { Button, Input } from 'packages/ui';
-	import { Flex } from 'packages/ui/layout';
-	import { Dialog, type ModalContext } from 'packages/ui/modal';
+	import { Button, Dialog, Flex, Input, type ModalContext } from 'packages/ui';
 	import { getContext } from 'svelte';
 	import CampaignDeleteDialog from './CampaignDeleteDialog.svelte';
 

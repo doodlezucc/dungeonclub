@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { accountState } from '$lib/client/state';
-	import { Content } from 'packages/ui';
-	import { Row } from 'packages/ui/layout';
+	import { Content, Row } from 'packages/ui';
 	import { onMount } from 'svelte';
 	import { fly, slide } from 'svelte/transition';
 	import AccountContent from './home/AccountContent.svelte';

@@ -2,9 +2,7 @@
 	import { asset } from '$lib/client/communication/asset';
 	import { Campaign } from '$lib/client/state';
 	import type { TokenTemplateSnippet } from '$lib/net';
-	import IconButton from 'packages/ui/IconButton.svelte';
-	import { Flex, Row } from 'packages/ui/layout';
-	import ListTile from 'packages/ui/ListTile.svelte';
+	import { Flex, IconButton, ListTile, Row } from 'packages/ui';
 	import { unplacedTokenProperties } from '../tokens/UnplacedToken.svelte';
 
 	interface Props {

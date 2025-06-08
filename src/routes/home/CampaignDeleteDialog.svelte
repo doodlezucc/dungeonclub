@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { Button } from 'packages/ui';
-	import { Dialog, type ModalContext } from 'packages/ui/modal';
-	import Text from 'packages/ui/Text.svelte';
+	import { Button, Dialog, Text, type ModalContext } from 'packages/ui';
 	import { getContext } from 'svelte';
 
 	interface Props {

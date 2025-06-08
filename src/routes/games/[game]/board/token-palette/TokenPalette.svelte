@@ -3,11 +3,7 @@
 	import { Board, boardState, Campaign, campaignState } from '$lib/client/state';
 	import type { TokenTemplateSnippet } from '$lib/net';
 	import { runWithErrorDialogBoundary } from '$lib/ui/util/modal';
-	import Collection from 'packages/ui/Collection.svelte';
-	import Icon from 'packages/ui/Icon.svelte';
-	import Column from 'packages/ui/layout/Column.svelte';
-	import type { ModalContext } from 'packages/ui/modal';
-	import FileUploader from 'packages/ui/upload/FileUploader.svelte';
+	import { Collection, Column, FileUploader, Icon, type ModalContext } from 'packages/ui';
 	import { historyOf } from 'packages/undo-redo/history';
 	import { getContext } from 'svelte';
 	import Panel from '../Panel.svelte';

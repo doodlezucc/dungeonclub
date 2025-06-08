@@ -2,10 +2,7 @@
 	import { rest, socket } from '$lib/client/communication';
 	import { Board, Campaign, campaignState } from '$lib/client/state';
 	import { displayErrorDialog } from '$lib/ui/util/modal';
-	import ArrangedCollection from 'packages/ui/ArrangedCollection.svelte';
-	import Row from 'packages/ui/layout/Row.svelte';
-	import { Dialog, type ModalContext } from 'packages/ui/modal';
-	import FileUploader from 'packages/ui/upload/FileUploader.svelte';
+	import { ArrangedCollection, Dialog, FileUploader, Row, type ModalContext } from 'packages/ui';
 	import { getContext } from 'svelte';
 	import { derived } from 'svelte/store';
 	import BoardPreview from './BoardPreview.svelte';

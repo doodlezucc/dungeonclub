@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { Button } from 'packages/ui';
-	import { Column } from 'packages/ui/layout';
-	import type { ModalContext } from 'packages/ui/modal';
+	import { Button, Column, type ModalContext } from 'packages/ui';
 	import { getContext } from 'svelte';
 	import SelectBoardDialog from '../board-selection/SelectBoardDialog.svelte';
 

@@ -4,11 +4,17 @@
 	import { Account, Campaign } from '$lib/client/state';
 	import type { CampaignCardSnippet, CampaignSnippet } from '$lib/net';
 	import { runWithErrorDialogBoundary } from '$lib/ui/util/modal';
-	import { Button, Text } from 'packages/ui';
-	import ArrangedCollection from 'packages/ui/ArrangedCollection.svelte';
-	import DragHandle from 'packages/ui/DragHandle.svelte';
-	import { Column, Container, Placeholder, Row } from 'packages/ui/layout';
-	import type { ModalContext } from 'packages/ui/modal';
+	import {
+		ArrangedCollection,
+		Button,
+		Column,
+		Container,
+		DragHandle,
+		Placeholder,
+		Row,
+		Text,
+		type ModalContext
+	} from 'packages/ui';
 	import { getContext } from 'svelte';
 	import Time from 'svelte-time';
 	import CampaignEditDialog from './CampaignEditDialog.svelte';

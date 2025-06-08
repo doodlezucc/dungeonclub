@@ -1,12 +1,11 @@
-import Align from './Align.svelte';
-import Center from './Center.svelte';
-import Column from './Column.svelte';
-import Container from './Container.svelte';
-import Flex from './Flex.svelte';
-import Overlay from './Overlay.svelte';
-import Placeholder from './Placeholder.svelte';
-import Row from './Row.svelte';
-import Separator from './Separator.svelte';
-import Stack from './Stack.svelte';
-
-export { Align, Center, Column, Container, Flex, Overlay, Placeholder, Row, Separator, Stack };
+export { default as Align } from './Align.svelte';
+export { default as Center } from './Center.svelte';
+export { default as Column } from './Column.svelte';
+export { default as Container } from './Container.svelte';
+export { default as Dot } from './Dot.svelte';
+export { default as Flex } from './Flex.svelte';
+export { default as Overlay } from './Overlay.svelte';
+export { default as Placeholder } from './Placeholder.svelte';
+export { default as Row } from './Row.svelte';
+export { default as Separator } from './Separator.svelte';
+export { default as Stack } from './Stack.svelte';

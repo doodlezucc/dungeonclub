@@ -11,7 +11,7 @@
 	import { Campaign } from '$lib/client/state';
 	import type { TokenProperties } from '$lib/net';
 	import type { Point } from 'packages/math';
-	import { draggable, type DraggableParams } from 'packages/ui/Draggable.svelte';
+	import { draggable, type DraggableParams } from 'packages/ui';
 	import type { MouseEventHandler } from 'svelte/elements';
 	import { Spring } from 'svelte/motion';
 

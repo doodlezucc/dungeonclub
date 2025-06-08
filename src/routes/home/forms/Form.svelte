@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Button } from 'packages/ui';
-	import { Column, Container } from 'packages/ui/layout';
+	import { Button, Column, Container } from 'packages/ui';
 	import type { Snippet } from 'svelte';
 	import { fly } from 'svelte/transition';
 

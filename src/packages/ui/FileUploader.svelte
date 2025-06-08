@@ -3,8 +3,8 @@
 </script>
 
 <script lang="ts">
-	import Icon, { type IconID } from 'packages/ui/Icon.svelte';
 	import { type Snippet } from 'svelte';
+	import Icon, { type IconID } from './Icon.svelte';
 
 	interface Props {
 		accept: AcceptedFileType;

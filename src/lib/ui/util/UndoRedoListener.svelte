@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { focusedHistory } from '$lib/client/state/focused-history';
-	import type { ModalContext } from 'packages/ui/modal';
+	import type { ModalContext } from 'packages/ui';
 	import { getContext, type Snippet } from 'svelte';
 	import { listenTo } from './ShortcutListener.svelte';
 
