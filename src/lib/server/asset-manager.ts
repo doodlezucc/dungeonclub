@@ -8,7 +8,7 @@ type PartialAsset = Pick<AssetSnippet, 'path'>;
 
 export class AssetManager {
 	readonly rootDirFromFrontend: string = '/user-media';
-	readonly rootDirFromBackend: string = `./static${this.rootDirFromFrontend}`;
+	readonly rootDirFromBackend: string = `.${this.rootDirFromFrontend}`;
 
 	constructor() {
 		this.createStaticDirectory();

@@ -10,6 +10,11 @@ export default defineConfig({
 			handledPath: '/websocket'
 		})
 	],
+	server: {
+		fs: {
+			allow: ['./user-media']
+		}
+	},
 	optimizeDeps: {
 		include: [
 			'@fortawesome/fontawesome-svg-core',
