@@ -1,4 +1,4 @@
-import type { Position } from 'packages/ui/compounds';
+import type { Position } from 'packages/math';
 import { describe, expect, test } from 'vitest';
 import { HexGridSpace } from './spaces/hex';
 import type { PositionedSquare } from './spaces/interface';

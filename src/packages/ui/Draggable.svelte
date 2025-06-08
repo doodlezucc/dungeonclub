@@ -1,6 +1,6 @@
 <script lang="ts" module>
+	import type { Position } from 'packages/math';
 	import type { Action } from 'svelte/action';
-	import type { Position } from './compounds';
 
 	export interface DraggableParams {
 		autoDrag?: boolean;

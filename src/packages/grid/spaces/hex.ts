@@ -1,4 +1,4 @@
-import type { Position } from '$lib/compounds';
+import type { Position } from 'packages/math';
 import { oneThird, unitHexagons, type UnitHexagon } from './hex-shape';
 import { GridSpace, type PositionedSquare } from './interface';
 

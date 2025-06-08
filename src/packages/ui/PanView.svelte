@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import type { Position, Size } from '$lib/compounds';
+	import type { Position, Size } from 'packages/math';
 
 	const minZoom = -1;
 	const maxZoom = 3;

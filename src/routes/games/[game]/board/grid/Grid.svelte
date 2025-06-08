@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Board } from '$lib/client/state';
-	import type { Size } from 'packages/ui/compounds';
+	import type { Size } from 'packages/math';
 	import GridPattern from './GridPattern.svelte';
 
 	interface Props {

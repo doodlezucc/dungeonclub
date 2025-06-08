@@ -1,8 +1,8 @@
 <script lang="ts">
+	import type { Position } from 'packages/math';
 	import { untrack, type Snippet } from 'svelte';
 	import { Spring } from 'svelte/motion';
 	import type { DragState } from './ArrangedCollection.svelte';
-	import type { Position } from './compounds';
 
 	interface Props {
 		index: number;

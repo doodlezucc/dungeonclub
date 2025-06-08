@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import type { Position } from './compounds';
+	import type { Position } from 'packages/math';
 
 	export interface DragController {
 		start: () => void;

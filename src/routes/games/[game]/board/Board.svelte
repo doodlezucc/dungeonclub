@@ -8,7 +8,7 @@
 
 <script lang="ts">
 	import { Board, boardState } from '$lib/client/state/board';
-	import type { Position, Size } from '$lib/compounds';
+	import type { Position, Size } from 'packages/math';
 	import { PanView } from 'packages/ui';
 	import { derivedKeyStateModifySelection } from 'packages/ui/extensions/ShortcutListener.svelte';
 	import { Overlay } from 'packages/ui/layout';

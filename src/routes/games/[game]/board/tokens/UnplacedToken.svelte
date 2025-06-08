@@ -1,6 +1,6 @@
 <script lang="ts" module>
-	import type { Position } from '$lib/compounds';
 	import type { TokenTemplateSnippet } from '$lib/net';
+	import type { Position } from 'packages/math';
 	import { writable } from 'svelte/store';
 
 	export interface UnplacedTokenProperties {

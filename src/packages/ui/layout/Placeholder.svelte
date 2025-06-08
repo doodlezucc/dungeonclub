@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Size } from '$lib/compounds';
+	import type { Size } from 'packages/math';
 	import type { Snippet } from 'svelte';
 
 	interface Props {

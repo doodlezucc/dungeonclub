@@ -9,8 +9,8 @@
 <script lang="ts">
 	import { asset } from '$lib/client/communication/asset';
 	import { Campaign } from '$lib/client/state';
-	import type { Position } from '$lib/compounds';
 	import type { TokenProperties } from '$lib/net';
+	import type { Position } from 'packages/math';
 	import { draggable, type DraggableParams } from 'packages/ui/Draggable.svelte';
 	import type { MouseEventHandler } from 'svelte/elements';
 	import { Spring } from 'svelte/motion';

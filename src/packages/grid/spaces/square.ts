@@ -1,4 +1,4 @@
-import type { Position } from '$lib/compounds';
+import type { Position } from 'packages/math';
 import { GridSpace, type PositionedSquare } from './interface';
 
 export class SquareGridSpace extends GridSpace {

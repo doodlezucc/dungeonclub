@@ -8,9 +8,9 @@
 <script lang="ts">
 	import { socket } from '$lib/client/communication';
 	import { Board, boardState } from '$lib/client/state';
-	import type { Position } from '$lib/compounds';
 	import type { TokenSnippet, TokenTemplateSnippet } from '$lib/net';
 	import { materializeToken } from '$lib/net/token-materializing';
+	import type { Position } from 'packages/math';
 	import {
 		derivedKeyStateModifySelection,
 		keyStateOf
