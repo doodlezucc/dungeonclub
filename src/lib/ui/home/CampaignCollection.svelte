@@ -46,7 +46,7 @@
 		});
 
 		if (result) {
-			goto('/games/' + result.id);
+			goto('/game/' + result.id);
 			Campaign.instance.onEnter(result);
 		}
 	}
@@ -75,7 +75,7 @@
 
 					<Row gap="normal">
 						<Button onclick={() => editCampaign(campaign)}>Settings</Button>
-						<Button highlight raised href="games/{campaign.id}">Host Session</Button>
+						<Button highlight raised href="game/{campaign.id}">Host Session</Button>
 					</Row>
 				</Column>
 			</Container>

@@ -8,7 +8,7 @@
 	import { Row } from 'packages/ui';
 
 	onMount(async () => {
-		await Campaign.instance.join({ id: page.params.game });
+		await Campaign.instance.join({ id: page.params.campaignId });
 	});
 </script>
 
