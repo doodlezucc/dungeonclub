@@ -6,6 +6,7 @@ export { default as Content } from './Content.svelte';
 export { default as Dot } from './Dot.svelte';
 export { default as Flex } from './Flex.svelte';
 export { default as Overlay } from './Overlay.svelte';
+export { default as PanView } from './PanView.svelte';
 export { default as Placeholder } from './Placeholder.svelte';
 export { default as Row } from './Row.svelte';
 export { default as Separator } from './Separator.svelte';

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { Account } from '$lib/client/state';
-	import ActivationCodeForm from '../home/forms/ActivationCodeForm.svelte';
-	import ConfirmPasswordPage from '../home/forms/ConfirmPasswordPage.svelte';
-	import CredentialsForm from '../home/forms/CredentialsForm.svelte';
+	import ActivationCodeForm from '$lib/ui/home/forms/ActivationCodeForm.svelte';
+	import ConfirmPasswordPage from '$lib/ui/home/forms/ConfirmPasswordPage.svelte';
+	import CredentialsForm from '$lib/ui/home/forms/CredentialsForm.svelte';
 
 	let showActivationCodeForm = $state(false);
 

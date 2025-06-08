@@ -3,9 +3,9 @@
 
 	import { page } from '$app/state';
 	import { Campaign } from '$lib/client/state';
+	import BoardView from '$lib/ui/game/BoardView.svelte';
+	import Sidebar from '$lib/ui/game/Sidebar.svelte';
 	import { Row } from 'packages/ui';
-	import BoardView from './BoardView.svelte';
-	import Sidebar from './Sidebar.svelte';
 
 	onMount(async () => {
 		await Campaign.instance.join({ id: page.params.game });
