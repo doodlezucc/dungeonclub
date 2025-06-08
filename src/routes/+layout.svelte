@@ -1,4 +1,7 @@
 <script lang="ts">
+	import '@fontsource-variable/recursive';
+	import '@fontsource/fira-mono';
+	import '@fontsource/lato';
 	import 'packages/ui/scss/global.scss';
 
 	import ShortcutListener from 'packages/ui/extensions/ShortcutListener.svelte';

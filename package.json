@@ -21,6 +21,9 @@
 	"devDependencies": {
 		"@eslint/compat": "^1.2.9",
 		"@eslint/js": "^9.28.0",
+		"@fontsource-variable/recursive": "^5.2.6",
+		"@fontsource/fira-mono": "^5.2.6",
+		"@fontsource/lato": "^5.2.6",
 		"@fortawesome/fontawesome-svg-core": "^6.7.2",
 		"@fortawesome/free-brands-svg-icons": "^6.7.2",
 		"@fortawesome/free-solid-svg-icons": "^6.7.2",

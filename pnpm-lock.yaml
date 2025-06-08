@@ -14,6 +14,15 @@ importers:
       '@eslint/js':
         specifier: ^9.28.0
         version: 9.28.0
+      '@fontsource-variable/recursive':
+        specifier: ^5.2.6
+        version: 5.2.6
+      '@fontsource/fira-mono':
+        specifier: ^5.2.6
+        version: 5.2.6
+      '@fontsource/lato':
+        specifier: ^5.2.6
+        version: 5.2.6
       '@fortawesome/fontawesome-svg-core':
         specifier: ^6.7.2
         version: 6.7.2
@@ -383,6 +392,15 @@ packages:
   '@eslint/plugin-kit@0.3.1':
     resolution: {integrity: sha512-0J+zgWxHN+xXONWIyPWKFMgVuJoZuGiIFu8yxk7RJjxkzpGmyja5wRFqZIVtjDVOQpV+Rw0iOAjYPE2eQyjr0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@fontsource-variable/recursive@5.2.6':
+    resolution: {integrity: sha512-nhYU43mj2Z77LTOL/w+aLW7fHEluKI3VEVp1SSZAV/vK+khiQwRIOiL8/R0VKXRLFO4N9ZDhj+mDFY5gfdzrZA==}
+
+  '@fontsource/fira-mono@5.2.6':
+    resolution: {integrity: sha512-6pyiGeFH+5DP5sICSwx5wu+9BlTEMTKki7bTppsEqXJysi1MiK82n6oSUaYkQWRLH51+DK7zv2JJsi82cOIS3g==}
+
+  '@fontsource/lato@5.2.6':
+    resolution: {integrity: sha512-ykbyuHKHdFsV8QNWPgo2kkCV0veY8/w1HzPlTd7f08LRGGYijPoN7QHkVKPq5QLpgeNauPPe+0a6oRhd8b6MpQ==}
 
   '@fortawesome/fontawesome-common-types@6.7.2':
     resolution: {integrity: sha512-Zs+YeHUC5fkt7Mg1l6XTniei3k4bwG/yo3iFUtZWd/pMx9g3fdvkSK9E0FOC+++phXOka78uJcYb8JaFkW52Xg==}
@@ -2687,6 +2705,12 @@ snapshots:
     dependencies:
       '@eslint/core': 0.14.0
       levn: 0.4.1
+
+  '@fontsource-variable/recursive@5.2.6': {}
+
+  '@fontsource/fira-mono@5.2.6': {}
+
+  '@fontsource/lato@5.2.6': {}
 
   '@fortawesome/fontawesome-common-types@6.7.2': {}
 
