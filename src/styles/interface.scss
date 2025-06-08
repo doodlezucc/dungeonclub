@@ -1,4 +1,4 @@
-@use 'scheme.scss' as *;
+@use './scheme.scss' as *;
 
 @function cubic-out($duration, $aria-duration) {
 	@return $duration cubic-bezier(0.165, 0.84, 0.44, 1), outline $aria-duration;

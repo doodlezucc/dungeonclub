@@ -1,5 +1,5 @@
-@use 'scheme/colors' as *;
-@use 'scheme/text' as *;
+@use './scheme/colors' as *;
+@use './scheme/text' as *;
 
 @mixin rounded() {
 	border-radius: 8px;

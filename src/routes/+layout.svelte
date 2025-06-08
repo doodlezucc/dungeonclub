@@ -4,7 +4,7 @@
 	import UndoRedoListener from 'packages/ui/extensions/UndoRedoListener.svelte';
 	import { ModalProvider } from 'packages/ui/modal';
 	import type { Snippet } from 'svelte';
-	import '../styles/style.scss';
+	import '../styles/global.scss';
 	import Header from './Header.svelte';
 
 	interface Props {
