@@ -14,10 +14,7 @@ const config = {
 		adapter: adapter(),
 
 		alias: {
-			components: 'src/lib/components',
-			client: 'src/lib/logic/client',
-			shared: 'src/lib/logic/net',
-			server: 'src/lib/logic/server'
+			packages: 'src/packages'
 		}
 	}
 };

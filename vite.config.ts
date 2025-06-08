@@ -1,7 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { svelteTesting } from '@testing-library/svelte/vite';
 import { defineConfig } from 'vite';
-import { webSocketServer } from './src/lib/logic/server/ws-server/plugin';
+import { webSocketServer } from './src/lib/server/ws-server/plugin';
 
 export default defineConfig({
 	plugins: [
@@ -10,6 +10,11 @@ export default defineConfig({
 			handledPath: '/websocket'
 		})
 	],
+	server: {
+		fs: {
+			allow: ['./user-media']
+		}
+	},
 	optimizeDeps: {
 		include: [
 			'@fortawesome/fontawesome-svg-core',
@@ -21,7 +26,7 @@ export default defineConfig({
 		]
 	},
 	test: {
-		workspace: [
+		projects: [
 			{
 				extends: './vite.config.ts',
 				plugins: [svelteTesting()],

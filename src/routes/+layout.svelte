@@ -1,10 +1,14 @@
 <script lang="ts">
-	import ShortcutListener from 'components/extensions/ShortcutListener.svelte';
-	import SocketProvider from 'components/extensions/SocketProvider.svelte';
-	import UndoRedoListener from 'components/extensions/UndoRedoListener.svelte';
-	import { ModalProvider } from 'components/modal';
+	import '@fontsource-variable/recursive';
+	import '@fontsource/fira-mono';
+	import '@fontsource/lato';
+	import 'packages/ui/scss/global.scss';
+
+	import ShortcutListener from '$lib/ui/util/ShortcutListener.svelte';
+	import SocketProvider from '$lib/ui/util/SocketProvider.svelte';
+	import UndoRedoListener from '$lib/ui/util/UndoRedoListener.svelte';
+	import { ModalProvider } from 'packages/ui';
 	import type { Snippet } from 'svelte';
-	import '../styles/style.scss';
 	import Header from './Header.svelte';
 
 	interface Props {

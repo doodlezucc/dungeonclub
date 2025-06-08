@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { accountState } from 'client/state';
-	import { Content } from 'components';
-	import { Row } from 'components/layout';
+	import { accountState } from '$lib/client/state';
+	import AccountContent from '$lib/ui/home/AccountContent.svelte';
+	import LoginForm from '$lib/ui/home/forms/LoginForm.svelte';
+	import { Content, Row } from 'packages/ui';
 	import { onMount } from 'svelte';
 	import { fly, slide } from 'svelte/transition';
-	import AccountContent from './home/AccountContent.svelte';
-	import LoginForm from './home/forms/LoginForm.svelte';
 
 	let isLoggedIn = $derived(!!$accountState);
 
