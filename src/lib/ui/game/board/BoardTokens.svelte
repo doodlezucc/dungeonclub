@@ -25,7 +25,7 @@
 
 	const loadedBoardId = storeDerived(boardState, (board) => board!.id);
 
-	let allTemplates = $derived($campaignState!.templates);
+	let allPresets = $derived($campaignState!.presets);
 	let tokens = $derived($boardState!.tokens);
 
 	let tokenSelectionGroup = $state(null as SelectionGroup<TokenSnippet> | null);
@@ -61,8 +61,8 @@
 	}
 
 	function onPlaceToken(ev: TokenPlacementEvent) {
-		const properties = ev.templateId
-			? allTemplates.find((template) => template.id === ev.templateId)!
+		const properties = ev.presetId
+			? allPresets.find((preset) => preset.id === ev.presetId)!
 			: EMPTY_TOKEN_PROPERTIES;
 
 		Tokens.createNewToken(
@@ -105,9 +105,9 @@
 </SelectionGroup>
 
 {#if $unplacedTokenProperties && unplacedTokenSpawnPosition}
-	{#key $unplacedTokenProperties.tokenTemplate?.id}
+	{#key $unplacedTokenProperties.tokenPreset?.id}
 		<UnplacedToken
-			template={$unplacedTokenProperties.tokenTemplate}
+			preset={$unplacedTokenProperties.tokenPreset}
 			spawnPosition={unplacedTokenSpawnPosition}
 			onPlace={onPlaceToken}
 		/>

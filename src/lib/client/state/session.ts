@@ -19,11 +19,11 @@ export class Campaign extends WithState<CampaignSnippet> {
 		}
 	}
 
-	readonly tokenTemplates = this.derived(
-		(campaign) => campaign.templates,
-		(campaign, templates) => ({
+	readonly tokenPresets = this.derived(
+		(campaign) => campaign.presets,
+		(campaign, presets) => ({
 			...campaign,
-			templates: templates
+			presets: presets
 		})
 	);
 
@@ -55,9 +55,9 @@ export class Campaign extends WithState<CampaignSnippet> {
 		});
 	}
 
-	handleTokenTemplateCreate(payload: GetPayload<'tokenTemplateCreate'>) {
-		this.tokenTemplates.update((templates) => {
-			return [...templates, payload.tokenTemplate];
+	handleTokenPresetCreate(payload: GetPayload<'tokenPresetCreate'>) {
+		this.tokenPresets.update((presets) => {
+			return [...presets, payload.tokenPreset];
 		});
 	}
 }

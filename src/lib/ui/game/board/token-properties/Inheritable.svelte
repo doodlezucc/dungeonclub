@@ -23,7 +23,7 @@
 			<span class:is-inheriting={isInheriting} class:disabled={disableToggle}>
 				<IconButton
 					icon={disableToggle ? 'link-slash' : isInheriting ? 'globe' : 'reply'}
-					label={isInheriting ? 'Make unique' : 'Inherit from template'}
+					label={isInheriting ? 'Make unique' : 'Inherit from preset'}
 					disabled={disableToggle}
 					disableMargin
 					inline

@@ -1,22 +1,22 @@
 <script lang="ts">
 	import { asset } from '$lib/client/communication/asset';
 	import { Campaign } from '$lib/client/state';
-	import type { TokenTemplateSnippet } from '$lib/net';
+	import type { TokenPresetSnippet } from '$lib/net';
 	import { Flex, IconButton, ListTile, Row } from 'packages/ui';
 	import { unplacedTokenProperties } from '../tokens/UnplacedToken.svelte';
 
 	interface Props {
-		template: TokenTemplateSnippet;
+		preset: TokenPresetSnippet;
 
 		handleDelete: () => void;
 	}
 
-	let { template, handleDelete }: Props = $props();
+	let { preset, handleDelete }: Props = $props();
 
-	let avatarAsset = $derived(Campaign.instance.assetByNullableId(template.avatarId));
+	let avatarAsset = $derived(Campaign.instance.assetByNullableId(preset.avatarId));
 	let avatarSrc = $derived($avatarAsset ? asset($avatarAsset.path) : null);
 
-	let isSelectedForPlacement = $derived($unplacedTokenProperties?.tokenTemplate === template);
+	let isSelectedForPlacement = $derived($unplacedTokenProperties?.tokenPreset === preset);
 
 	let captureMouseMovement = $state(false);
 
@@ -34,7 +34,7 @@
 
 		captureMouseMovement = false;
 		$unplacedTokenProperties = {
-			tokenTemplate: template,
+			tokenPreset: preset,
 			triggeringEvent: ev
 		};
 	}
@@ -55,8 +55,8 @@
 	onclick={displayTokenAtCursor}
 >
 	<Row align="center" gap="normal" expand>
-		<img class="token-template-avatar" src={avatarSrc} alt="Token avatar" />
-		<span>{template.name}</span>
+		<img class="token-preset-avatar" src={avatarSrc} alt="Token avatar" />
+		<span>{preset.name}</span>
 
 		<Flex expand />
 
@@ -67,7 +67,7 @@
 <style lang="scss">
 	$avatar-size: 40px;
 
-	.token-template-avatar {
+	.token-preset-avatar {
 		width: $avatar-size;
 		height: $avatar-size;
 		border-radius: 50%;

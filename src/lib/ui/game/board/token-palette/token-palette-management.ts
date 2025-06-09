@@ -1,19 +1,19 @@
 import { RestConnection } from '$lib/client/communication';
 import { campaignState } from '$lib/client/state';
-import type { TokenTemplateSnippet } from '$lib/net';
+import type { TokenPresetSnippet } from '$lib/net';
 import { get } from 'svelte/store';
 
-interface CreateTokenTemplateOptions {
+interface CreateTokenPresetOptions {
 	avatarImageFile: File;
 }
 
-export async function restPostTokenTemplate(options: CreateTokenTemplateOptions) {
+export async function restPostTokenPreset(options: CreateTokenPresetOptions) {
 	const { avatarImageFile } = options;
 
 	const activeCampaignId = get(campaignState)!.id;
 
 	return (await RestConnection.instance.postFile(
-		`/campaigns/${activeCampaignId}/token-templates`,
+		`/campaigns/${activeCampaignId}/token-presets`,
 		avatarImageFile
-	)) as TokenTemplateSnippet;
+	)) as TokenPresetSnippet;
 }

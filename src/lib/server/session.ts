@@ -90,9 +90,9 @@ export class CampaignSession {
 		});
 
 		if (this.isOwner(user)) {
-			// Keep deletion-marked token templates from getting sent to the client
-			campaign.templates = campaign.templates.filter(
-				(tokenTemplate) => !this.garbage.tokenTemplates.isMarkedForDeletion(tokenTemplate.id)
+			// Keep deletion-marked token presets from getting sent to the client
+			campaign.presets = campaign.presets.filter(
+				(tokenPreset) => !this.garbage.tokenPresets.isMarkedForDeletion(tokenPreset.id)
 			);
 		}
 

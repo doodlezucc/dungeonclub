@@ -27,9 +27,9 @@ model Asset {
   campaign   Campaign @relation(fields: [campaignId], references: [id])
   campaignId String
 
-  avatarOfTokenTemplates TokenTemplate[]
-  avatarOfTokens         Token[]
-  mapImageOfBoards       Board[]
+  avatarOfTokenPresets TokenPreset[]
+  avatarOfTokens       Token[]
+  mapImageOfBoards     Board[]
 }
 
 model Crypt {
@@ -71,7 +71,7 @@ model Campaign {
 
   assets           Asset[]
   playerCharacters PlayerCharacter[]
-  templates        TokenTemplate[]
+  presets          TokenPreset[]
   boards           Board[]
   boardIdsOrdered  String[]
   selectedBoardId  String?
@@ -88,11 +88,11 @@ model PlayerCharacter {
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId String
 
-  tokenTemplate   TokenTemplate @relation(fields: [tokenTemplateId], references: [id], onDelete: Cascade)
-  tokenTemplateId String        @unique
+  tokenPreset   TokenPreset @relation(fields: [tokenPresetId], references: [id], onDelete: Cascade)
+  tokenPresetId String      @unique
 }
 
-model TokenTemplate {
+model TokenPreset {
   id String @id @default(uuid())
 
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
