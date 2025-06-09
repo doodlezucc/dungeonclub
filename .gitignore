@@ -1,8 +1,11 @@
 node_modules
+user-media
 
 # Output
 .output
 .vercel
+.netlify
+.wrangler
 /.svelte-kit
 /build
 
