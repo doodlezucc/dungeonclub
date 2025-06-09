@@ -1,16 +1,16 @@
 <script lang="ts" module>
-	import type { TokenTemplateSnippet } from '$lib/net';
+	import type { TokenPresetSnippet } from '$lib/net';
 	import type { Point } from 'packages/math';
 	import { writable } from 'svelte/store';
 
 	export interface UnplacedTokenProperties {
-		tokenTemplate?: TokenTemplateSnippet;
+		tokenPreset?: TokenPresetSnippet;
 		triggeringEvent: MouseEvent;
 	}
 
 	export interface TokenPlacementEvent {
 		position: Point;
-		templateId?: string;
+		presetId?: string;
 	}
 
 	export const unplacedTokenProperties = writable<UnplacedTokenProperties | null>(null);
@@ -29,13 +29,13 @@
 	import TokenBase from './TokenBase.svelte';
 
 	interface Props {
-		template: TokenTemplateSnippet | undefined;
+		preset: TokenPresetSnippet | undefined;
 		spawnPosition: Point;
 
 		onPlace: (place: TokenPlacementEvent) => void;
 	}
 
-	let { template, spawnPosition, onPlace }: Props = $props();
+	let { preset, spawnPosition, onPlace }: Props = $props();
 
 	let position = $state(spawnPosition);
 
@@ -44,7 +44,7 @@
 
 		onPlace({
 			position: position,
-			templateId: template?.id
+			presetId: preset?.id
 		});
 
 		$unplacedTokenProperties = null;
@@ -54,7 +54,7 @@
 	const isGridSnappingDisabled = keyStateOf('DisableGridSnapping');
 	const { transformClientToGridSpace, getPanViewEventTarget } = getContext<BoardContext>('board');
 
-	let size = $derived(template?.size ?? 1);
+	let size = $derived(preset?.size ?? 1);
 
 	function handleDragging(ev: MouseEvent) {
 		const mouseInGridSpace = transformClientToGridSpace({ x: ev.clientX, y: ev.clientY });
@@ -76,7 +76,7 @@
 </script>
 
 <TokenBase
-	properties={template ?? { ...EMPTY_TOKEN_PROPERTIES }}
+	properties={preset ?? { ...EMPTY_TOKEN_PROPERTIES }}
 	{position}
 	style={{
 		dragging: true,

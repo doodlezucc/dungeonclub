@@ -1,9 +1,4 @@
-import type {
-	OverridableTokenProperty,
-	TokenProperties,
-	TokenSnippet,
-	TokenTemplateSnippet
-} from '$lib/net';
+import type { TokenPresetSnippet, TokenProperties, TokenSnippet } from '$lib/net';
 import { prisma } from './prisma';
 import { server } from './server';
 
@@ -12,9 +7,8 @@ export interface DeletedTokenInfo {
 	token: TokenSnippet;
 }
 
-export interface DeletedTokenTemplateInfo {
-	tokenTemplate: TokenProperties & TokenTemplateSnippet;
-	tokenToInheritedPropertyMap: Record<string, OverridableTokenProperty[]>;
+export interface DeletedTokenPresetInfo {
+	tokenPreset: TokenProperties & TokenPresetSnippet;
 }
 
 export class SessionGarbage {
@@ -30,26 +24,26 @@ export class SessionGarbage {
 		}
 	});
 
-	readonly tokenTemplates = new DedicatedGarbage<string, DeletedTokenTemplateInfo>({
+	readonly tokenPresets = new DedicatedGarbage<string, DeletedTokenPresetInfo>({
 		onPurge: async (markedForDeletion) => {
 			const idsMarkedForDeletion = Array.from(markedForDeletion.keys());
 
-			await prisma.tokenTemplate.deleteMany({
+			await prisma.tokenPreset.deleteMany({
 				where: { id: { in: idsMarkedForDeletion } }
 			});
 
 			for (const info of markedForDeletion.values()) {
-				const avatarIdOfDeletedTemplate = info.tokenTemplate.avatarId;
+				const avatarIdOfDeletedPreset = info.tokenPreset.avatarId;
 
-				if (avatarIdOfDeletedTemplate !== null) {
-					await server.assetManager.deleteIfUnused(avatarIdOfDeletedTemplate);
+				if (avatarIdOfDeletedPreset !== null) {
+					await server.assetManager.deleteIfUnused(avatarIdOfDeletedPreset);
 				}
 			}
 		}
 	});
 
 	private get subGarbages() {
-		return [this.tokens, this.tokenTemplates];
+		return [this.tokens, this.tokenPresets];
 	}
 
 	purge() {

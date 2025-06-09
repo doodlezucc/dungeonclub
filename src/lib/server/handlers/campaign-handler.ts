@@ -1,10 +1,5 @@
-import type { CampaignMessageCategory, OverridableTokenProperty } from '$lib/net';
-import {
-	applyTemplateInheritanceOnProperties,
-	extractPropertiesFromTemplate,
-	getInheritedPropertiesOfToken
-} from '$lib/net/token-materializing';
-import { SelectCampaignCard, SelectTokenProperties, SelectTokenTemplate } from '../../net/snippets';
+import type { CampaignMessageCategory } from '$lib/net';
+import { SelectCampaignCard, SelectTokenPreset, SelectTokenProperties } from '../../net/snippets';
 import { prisma, server } from '../server';
 import type { CategoryHandler } from '../socket';
 import { generateUniqueString } from '../util/generate-string';
@@ -54,7 +49,7 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 						mapImage: true
 					}
 				},
-				templates: {
+				tokenPresets: {
 					select: {
 						avatar: true
 					}
@@ -64,9 +59,7 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 
 		const allAssets = [
 			...selectedAssets.boards.map((board) => board.mapImage),
-			...selectedAssets.templates
-				.map((template) => template.avatar)
-				.filter((asset) => asset != null)
+			...selectedAssets.tokenPresets.map((preset) => preset.avatar).filter((asset) => asset != null)
 		];
 
 		await server.assetManager.disposeAssetsInBatch(allAssets);
@@ -126,68 +119,32 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 		return await dispatcher.enterSession(id);
 	},
 
-	handleTokenTemplateDelete: async ({ tokenTemplateId }, { dispatcher }) => {
+	handleTokenPresetDelete: async ({ tokenPresetId }, { dispatcher }) => {
 		const session = dispatcher.sessionAsOwner;
 		const campaignId = session.campaignId;
 
-		const tokenTemplate = await prisma.tokenTemplate.findUnique({
-			where: { id: tokenTemplateId },
+		const tokenPreset = await prisma.tokenPreset.findUnique({
+			where: { id: tokenPresetId },
 			select: {
-				...SelectTokenTemplate,
+				...SelectTokenPreset,
 				...SelectTokenProperties,
 				campaignId: true
 			}
 		});
 
-		if (tokenTemplate?.campaignId !== campaignId) {
-			throw 'Token template is not part of the hosted campaign';
+		if (tokenPreset?.campaignId !== campaignId) {
+			throw 'Token preset is not part of the hosted campaign';
 		}
 
-		const tokensInheritingTemplate = await prisma.token.findMany({
-			where: { templateId: tokenTemplateId },
-			select: {
-				id: true,
-				...SelectTokenProperties
-			}
-		});
-
-		const tokenToInheritedPropertyMap: Record<string, OverridableTokenProperty[]> = {};
-
-		for (const token of tokensInheritingTemplate) {
-			// Remember inherited properties of each token (in case of an "undo")
-			const inheritedProperties = getInheritedPropertiesOfToken(token);
-			tokenToInheritedPropertyMap[token.id] = inheritedProperties;
-
-			// Remove token template reference from each inheriting token
-			await prisma.token.update({
-				where: { id: token.id },
-				data: {
-					...extractPropertiesFromTemplate(tokenTemplate, inheritedProperties),
-					templateId: null
-				}
-			});
-		}
-
-		session.garbage.tokenTemplates.markForDeletion(tokenTemplateId, {
-			tokenTemplate: tokenTemplate,
-			tokenToInheritedPropertyMap: tokenToInheritedPropertyMap
+		session.garbage.tokenPresets.markForDeletion(tokenPresetId, {
+			tokenPreset: tokenPreset
 		});
 	},
 
-	handleTokenTemplateRestore: async ({ tokenTemplateId }, { dispatcher }) => {
+	handleTokenPresetRestore: async ({ tokenPresetId }, { dispatcher }) => {
 		const session = dispatcher.sessionAsOwner;
 
-		const { tokenToInheritedPropertyMap } = session.garbage.tokenTemplates.restore(tokenTemplateId);
-
-		for (const [tokenId, inheritedProperties] of Object.entries(tokenToInheritedPropertyMap)) {
-			await prisma.token.update({
-				where: { id: tokenId },
-				data: {
-					...applyTemplateInheritanceOnProperties(inheritedProperties),
-					templateId: tokenTemplateId
-				}
-			});
-		}
+		session.garbage.tokenPresets.restore(tokenPresetId);
 	},
 
 	// FIXME: Only here because [Server -> Client] broadcasts aren't yet possible to define under net/messages/*.
@@ -196,7 +153,7 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 	},
 
 	// FIXME: Only here because [Server -> Client] broadcasts aren't yet possible to define under net/messages/*.
-	handleTokenTemplateCreate: async (payload) => {
+	handleTokenPresetCreate: async (payload) => {
 		return { forwardedResponse: payload };
 	}
 };

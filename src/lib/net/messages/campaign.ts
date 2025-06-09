@@ -2,7 +2,7 @@ import type {
 	AssetSnippet,
 	CampaignCardSnippet,
 	CampaignSnippet,
-	TokenTemplateSnippet
+	TokenPresetSnippet
 } from '../snippets';
 import type { DefinePrivateRequest, DefineServerBroadcast, UUID } from './messages';
 
@@ -44,22 +44,22 @@ export interface CampaignMessageCategory {
 		CampaignSnippet
 	>;
 
-	tokenTemplateDelete: DefinePrivateRequest<
+	tokenPresetDelete: DefinePrivateRequest<
 		{
-			tokenTemplateId: UUID;
+			tokenPresetId: UUID;
 		},
 		void
 	>;
 
-	tokenTemplateRestore: DefinePrivateRequest<
+	tokenPresetRestore: DefinePrivateRequest<
 		{
-			tokenTemplateId: UUID;
+			tokenPresetId: UUID;
 		},
 		void
 	>;
 
-	tokenTemplateCreate: DefineServerBroadcast<{
-		tokenTemplate: TokenTemplateSnippet;
+	tokenPresetCreate: DefineServerBroadcast<{
+		tokenPreset: TokenPresetSnippet;
 	}>;
 
 	assetCreate: DefineServerBroadcast<{

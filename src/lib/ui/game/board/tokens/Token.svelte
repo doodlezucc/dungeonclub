@@ -8,8 +8,7 @@
 <script lang="ts">
 	import { socket } from '$lib/client/communication';
 	import { Board, boardState } from '$lib/client/state';
-	import type { TokenSnippet, TokenTemplateSnippet } from '$lib/net';
-	import { materializeToken } from '$lib/net/token-materializing';
+	import type { TokenSnippet } from '$lib/net';
 	import { derivedKeyStateModifySelection, keyStateOf } from '$lib/ui/util/ShortcutListener.svelte';
 	import type { Point } from 'packages/math';
 	import type { SelectionContext } from 'packages/ui';
@@ -22,16 +21,13 @@
 
 	interface Props {
 		token: TokenSnippet;
-		template: TokenTemplateSnippet | undefined;
 		selected: boolean;
 	}
 
-	let { token, template, selected }: Props = $props();
-
-	let properties = $derived(materializeToken(token, template));
+	let { token, selected }: Props = $props();
 
 	let position = $derived(<Point>{ x: token.x, y: token.y });
-	let displaySize = $derived(properties.size);
+	let displaySize = $derived(token.size);
 
 	const selection = getContext<SelectionContext<TokenSnippet>>('selection');
 
@@ -122,7 +118,7 @@
 </script>
 
 <TokenBase
-	{properties}
+	properties={token}
 	{position}
 	style={{
 		selected,

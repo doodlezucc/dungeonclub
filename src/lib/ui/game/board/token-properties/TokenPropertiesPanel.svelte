@@ -1,8 +1,4 @@
 <script lang="ts" module>
-	function getCommonTokenTemplateId(tokens: TokenSnippet[]) {
-		return findCommonValue(tokens.map((token) => token.templateId)) ?? null;
-	}
-
 	function findCommonValue<T>(values: T[]) {
 		if (values.length == 0) return undefined;
 
@@ -21,16 +17,9 @@
 
 <script lang="ts">
 	import { Board, Campaign } from '$lib/client/state';
-	import type {
-		GetPayload,
-		OverridableTokenProperty,
-		TokenProperties,
-		TokenSnippet
-	} from '$lib/net';
-	import { getTemplateForToken, materializeToken } from '$lib/net/token-materializing';
+	import type { GetPayload, OverridableTokenProperty, TokenProperties } from '$lib/net';
 	import { Column, Container, Input } from 'packages/ui';
 	import { onMount } from 'svelte';
-	import Inheritable from './Inheritable.svelte';
 	import TokenPropertyAvatar from './TokenPropertyAvatar.svelte';
 	import {
 		arePayloadsEqual,
@@ -45,56 +34,27 @@
 	let { selectedTokenIds }: Props = $props();
 
 	const allTokens = Board.instance.tokens;
-	const allTemplates = Campaign.instance.tokenTemplates;
 	const allAssets = Campaign.instance.assets;
 
-	const selectedTokens = selectedTokenIds.map((id) => $allTokens.find((token) => token.id === id)!);
-	const singleTokenTemplateId = getCommonTokenTemplateId(selectedTokens);
-
-	const canToggleInheritance = singleTokenTemplateId !== null;
-
-	const materializedTokens = selectedTokens.map((token) =>
-		materializeToken(token, getTemplateForToken(token, $allTemplates))
+	const selectedTokens = $derived(
+		selectedTokenIds.map((id) => $allTokens.find((token) => token.id === id)!)
 	);
 
-	function doAllTokensInherit<T>(getProperty: (token: TokenSnippet) => T | null) {
-		const doesAnyTokenOverride = selectedTokens.some((token) => getProperty(token) !== null);
-		return !doesAnyTokenOverride;
-	}
+	const conflictOverrideProperties = $derived(selectedTokens[selectedTokens.length - 1]);
 
-	const conflictOverrideProperties = materializedTokens[materializedTokens.length - 1];
-
-	const commonAvatarId = findCommonValue(materializedTokens.map((token) => token.avatarId));
-	const commonName = findCommonValue(materializedTokens.map((token) => token.name));
-	const commonSize = findCommonValue(materializedTokens.map((token) => token.size));
-	const commonInitiativeModifier = findCommonValue(
-		materializedTokens.map((token) => token.initiativeModifier)
+	const commonAvatarId = $derived(findCommonValue(selectedTokens.map((token) => token.avatarId)));
+	const commonName = $derived(findCommonValue(selectedTokens.map((token) => token.name)));
+	const commonSize = $derived(findCommonValue(selectedTokens.map((token) => token.size)));
+	const commonInitiativeModifier = $derived(
+		findCommonValue(selectedTokens.map((token) => token.initiativeModifier))
 	);
 
-	let displayedProperties: TokenProperties = {
+	let displayedProperties: TokenProperties = $derived({
 		avatarId: commonAvatarId !== undefined ? commonAvatarId : conflictOverrideProperties.avatarId,
 		name: commonName ?? conflictOverrideProperties.name,
 		size: commonSize ?? conflictOverrideProperties.size,
 		initiativeModifier: commonInitiativeModifier ?? conflictOverrideProperties.initiativeModifier
-	};
-
-	let displayedInheritance: Record<OverridableTokenProperty, boolean> = {
-		avatarId: doAllTokensInherit((token) => token.avatarId),
-		name: doAllTokensInherit((token) => token.name),
-		size: doAllTokensInherit((token) => token.size),
-		initiativeModifier: doAllTokensInherit((token) => token.initiativeModifier)
-	};
-
-	function updateTemplateProperty<T extends OverridableTokenProperty>(
-		property: T,
-		value: TokenProperties[T]
-	) {
-		$allTemplates = $allTemplates.map((template) => {
-			if (template.id !== singleTokenTemplateId) return template;
-
-			return { ...template, [property]: value };
-		});
-	}
+	});
 
 	function updatePropertyOnSelectedTokens<T extends OverridableTokenProperty>(
 		property: T,
@@ -108,88 +68,38 @@
 		});
 	}
 
-	/**
-	 * Updates the specified property on either the selected tokens or their shared inherited template.
-	 */
-	function handlePropertyEdit<K extends OverridableTokenProperty>(
-		property: K,
-		value: TokenProperties[K]
-	) {
-		const propertyIsInherited = displayedInheritance[property];
-
-		if (propertyIsInherited) {
-			updateTemplateProperty(property, value);
-		} else {
-			updatePropertyOnSelectedTokens(property, value);
-		}
-	}
-
-	/**
-	 * Applies either the independence or the template inheritance of a specified property.
-	 */
-	function handleInheritanceStateToggle(property: OverridableTokenProperty, inherit: boolean) {
-		const propertyValue = displayedProperties[property];
-
-		if (inherit) {
-			// At this point, assume that `singleTokenTemplate` != null
-			updateTemplateProperty(property, propertyValue);
-			updatePropertyOnSelectedTokens(property, null);
-		} else {
-			updatePropertyOnSelectedTokens(property, propertyValue);
-		}
-	}
-
 	function updatePropertyValue<T extends OverridableTokenProperty>(
 		property: T,
 		value: TokenProperties[T]
 	) {
 		if (value !== displayedProperties[property]) {
 			displayedProperties = { ...displayedProperties, [property]: value };
-			handlePropertyEdit(property, value);
+			updatePropertyOnSelectedTokens(property, value);
 		}
 	}
 
-	function updatePropertyInheritance<T extends OverridableTokenProperty>(
-		property: T,
-		inherit: boolean
-	) {
-		if (inherit !== displayedInheritance[property]) {
-			displayedInheritance = { ...displayedInheritance, [property]: inherit };
-			handleInheritanceStateToggle(property, inherit);
-		}
-	}
+	let avatarId = $derived(displayedProperties.avatarId);
+	let avatar = $derived(avatarId ? $allAssets.find((asset) => asset.id === avatarId)! : null);
 
-	let avatarId = displayedProperties.avatarId;
-	let inheritAvatar = $state(displayedInheritance.avatarId);
-	let avatar = $state(avatarId ? $allAssets.find((asset) => asset.id === avatarId)! : null);
-
-	let name = $state(displayedProperties.name);
-	let inheritName = $state(displayedInheritance.name);
-
-	let size = $state(displayedProperties.size);
-	let inheritSize = $state(displayedInheritance.size);
-
-	let initiativeModifier = $state(displayedProperties.initiativeModifier);
-	let inheritInitiaveModifier = $state(displayedInheritance.initiativeModifier);
+	let name = $derived(displayedProperties.name);
+	let size = $derived(displayedProperties.size);
+	let initiativeModifier = $derived(displayedProperties.initiativeModifier);
 
 	let isMounted = $state(false);
 
 	function buildEditingPayload(): GetPayload<'tokensEdit'> {
-		return buildWebSocketPayload(
-			singleTokenTemplateId,
-			$allTemplates,
-			selectedTokenIds,
-			$allTokens
-		);
+		return buildWebSocketPayload(selectedTokenIds, $allTokens);
 	}
 
-	const initialPayload = buildEditingPayload();
+	let initialPayload = buildEditingPayload();
 
 	function submitChanges() {
 		const editedPayload = buildEditingPayload();
 
 		if (!arePayloadsEqual(initialPayload, editedPayload)) {
 			submitTokenPropertiesToServer(editedPayload);
+
+			initialPayload = editedPayload;
 		}
 	}
 
@@ -198,14 +108,10 @@
 	});
 	$effect(() => {
 		updatePropertyValue('name', name);
-		updatePropertyInheritance('name', inheritName);
 		updatePropertyValue('size', size);
-		updatePropertyInheritance('size', inheritSize);
 		updatePropertyValue('initiativeModifier', initiativeModifier);
-		updatePropertyInheritance('initiativeModifier', inheritInitiaveModifier);
 
 		updatePropertyValue('avatarId', avatar?.id ?? null);
-		updatePropertyInheritance('avatarId', inheritAvatar);
 
 		if (isMounted) {
 			submitChanges();
@@ -215,26 +121,15 @@
 
 <Container>
 	<Column gap="normal">
-		<Inheritable bind:isInheriting={inheritName} disableToggle={!canToggleInheritance}>
-			<Input name="name" bind:value={name} placeholder="Name..." size="small" />
-		</Inheritable>
-
-		<Inheritable bind:isInheriting={inheritAvatar} disableToggle={!canToggleInheritance}>
-			<TokenPropertyAvatar bind:avatar />
-		</Inheritable>
-
-		<Inheritable bind:isInheriting={inheritSize} disableToggle={!canToggleInheritance}>
-			<Input name="size" bind:value={size} type="number" placeholder="Size..." size="small" />
-		</Inheritable>
-
-		<Inheritable bind:isInheriting={inheritInitiaveModifier} disableToggle={!canToggleInheritance}>
-			<Input
-				name="initiative-modifier"
-				bind:value={initiativeModifier}
-				type="number"
-				placeholder="Initiative Modifier..."
-				size="small"
-			/>
-		</Inheritable>
+		<Input name="name" bind:value={name} placeholder="Name..." size="small" />
+		<TokenPropertyAvatar bind:avatar />
+		<Input name="size" bind:value={size} type="number" placeholder="Size..." size="small" />
+		<Input
+			name="initiative-modifier"
+			bind:value={initiativeModifier}
+			type="number"
+			placeholder="Initiative Modifier..."
+			size="small"
+		/>
 	</Column>
 </Container>

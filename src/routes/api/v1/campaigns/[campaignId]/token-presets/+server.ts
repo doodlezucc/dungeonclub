@@ -1,4 +1,4 @@
-import { SelectTokenTemplate } from '$lib/net';
+import { SelectTokenPreset } from '$lib/net';
 import { prisma } from '$lib/server/prisma.js';
 import { campaignEndpoint } from '$lib/server/rest.js';
 import { server } from '$lib/server/server.js';
@@ -8,18 +8,18 @@ export const POST = ({ params: { campaignId }, request }) =>
 	campaignEndpoint(request, campaignId, async () => {
 		const asset = await server.assetManager.uploadAsset(campaignId, request);
 
-		const tokenTemplate = await prisma.tokenTemplate.create({
+		const tokenPreset = await prisma.tokenPreset.create({
 			data: {
 				campaignId: campaignId,
 				avatarId: asset.id,
 				name: 'Token'
 			},
-			select: SelectTokenTemplate
+			select: SelectTokenPreset
 		});
 
-		server.sessionManager.findSession(campaignId)?.broadcastMessage('tokenTemplateCreate', {
-			tokenTemplate: tokenTemplate
+		server.sessionManager.findSession(campaignId)?.broadcastMessage('tokenPresetCreate', {
+			tokenPreset: tokenPreset
 		});
 
-		return json(tokenTemplate);
+		return json(tokenPreset);
 	});

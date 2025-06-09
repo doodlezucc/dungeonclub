@@ -9,21 +9,21 @@ export type AssetSnippet = Prisma.AssetGetPayload<{
 	select: typeof SelectAsset;
 }>;
 
-export const SelectTokenTemplate = {
+export const SelectTokenPreset = {
 	id: true,
 	avatarId: true,
 	name: true,
 	size: true,
 	initiativeModifier: true
-} satisfies Prisma.TokenTemplateSelect;
-export type TokenTemplateSnippet = Prisma.TokenTemplateGetPayload<{
-	select: typeof SelectTokenTemplate;
+} satisfies Prisma.TokenPresetSelect;
+export type TokenPresetSnippet = Prisma.TokenPresetGetPayload<{
+	select: typeof SelectTokenPreset;
 }>;
 
 export const SelectPlayerCharacter = {
 	id: true,
-	tokenTemplate: {
-		select: SelectTokenTemplate
+	tokenPreset: {
+		select: SelectTokenPreset
 	}
 } satisfies Prisma.PlayerCharacterSelect;
 export type PlayerCharacterSnippet = Prisma.PlayerCharacterGetPayload<{
@@ -36,12 +36,7 @@ export const SelectInitiativeOrder = {
 			token: {
 				select: {
 					id: true,
-					initiativeModifier: true,
-					template: {
-						select: {
-							initiativeModifier: true
-						}
-					}
+					initiativeModifier: true
 				}
 			},
 			roll: true
@@ -54,7 +49,6 @@ export type InitiativeOrderSnippet = Prisma.InitiativeOrderGetPayload<{
 
 export const SelectToken = {
 	id: true,
-	templateId: true,
 	invisible: true,
 	conditions: true,
 	name: true,
@@ -67,14 +61,10 @@ export const SelectToken = {
 export type TokenSnippet = Prisma.TokenGetPayload<{ select: typeof SelectToken }>;
 
 export type TokenProperties = Omit<
-	Prisma.TokenTemplateGetPayload<null>,
+	Prisma.TokenPresetGetPayload<null>,
 	'id' | 'campaignId' | 'avatar'
 >;
 export type OverridableTokenProperty = keyof TokenProperties;
-
-export type TokenPropertiesOrNull = {
-	[K in OverridableTokenProperty]: TokenProperties[K] | null;
-};
 
 export const SelectTokenProperties = {
 	name: true,
@@ -84,7 +74,7 @@ export const SelectTokenProperties = {
 } satisfies Record<
 	OverridableTokenProperty,
 	true
-> satisfies Prisma.TokenSelect satisfies Prisma.TokenTemplateSelect;
+> satisfies Prisma.TokenSelect satisfies Prisma.TokenPresetSelect;
 
 export const SelectBoardPreview = {
 	id: true,
@@ -130,8 +120,8 @@ export const SelectCampaign = {
 	},
 	boardIdsOrdered: true,
 	selectedBoardId: true,
-	templates: {
-		select: SelectTokenTemplate
+	tokenPresets: {
+		select: SelectTokenPreset
 	},
 	assets: {
 		select: SelectAsset

@@ -1,10 +1,5 @@
 import type { Point } from 'packages/math';
-import type {
-	BoardSnippet,
-	TokenProperties,
-	TokenPropertiesOrNull,
-	TokenSnippet
-} from '../snippets';
+import type { BoardSnippet, TokenProperties, TokenSnippet } from '../snippets';
 import type {
 	DefinePrivateRequest,
 	DefineRequestWithPublicResponse,
@@ -28,8 +23,7 @@ export interface BoardMessageCategory {
 	>;
 
 	tokenCreate: DefineRequestWithPublicResponse<
-		{
-			templateId: string | null;
+		TokenProperties & {
 			x: number;
 			y: number;
 		},
@@ -51,12 +45,8 @@ export interface BoardMessageCategory {
 	>;
 
 	tokensEdit: DefineSendAndForward<{
-		editedTokenTemplate?: {
-			tokenTemplateId: string;
-			newProperties: TokenProperties;
-		};
 		editedTokens: {
-			[id: UUID]: TokenPropertiesOrNull;
+			[id: UUID]: TokenProperties;
 		};
 	}>;
 

@@ -27,9 +27,9 @@ model Asset {
   campaign   Campaign @relation(fields: [campaignId], references: [id])
   campaignId String
 
-  avatarOfTokenTemplates TokenTemplate[]
-  avatarOfTokens         Token[]
-  mapImageOfBoards       Board[]
+  avatarOfTokenPresets TokenPreset[]
+  avatarOfTokens       Token[]
+  mapImageOfBoards     Board[]
 }
 
 model Crypt {
@@ -71,7 +71,7 @@ model Campaign {
 
   assets           Asset[]
   playerCharacters PlayerCharacter[]
-  templates        TokenTemplate[]
+  tokenPresets     TokenPreset[]
   boards           Board[]
   boardIdsOrdered  String[]
   selectedBoardId  String?
@@ -88,19 +88,17 @@ model PlayerCharacter {
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId String
 
-  tokenTemplate   TokenTemplate @relation(fields: [tokenTemplateId], references: [id], onDelete: Cascade)
-  tokenTemplateId String        @unique
+  tokenPreset   TokenPreset @relation(fields: [tokenPresetId], references: [id], onDelete: Cascade)
+  tokenPresetId String      @unique
 }
 
-model TokenTemplate {
+model TokenPreset {
   id String @id @default(uuid())
 
   campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId String
 
   player PlayerCharacter?
-
-  instances Token[]
 
   //
   // Common token properties
@@ -118,15 +116,12 @@ model Token {
   board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId String
 
-  template   TokenTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  templateId String?
-
   //
-  // Common token properties (null = "inherit from template")
+  // Common token properties
 
-  name               String?
-  size               Int?
-  initiativeModifier Int?
+  name               String
+  size               Int     @default(1)
+  initiativeModifier Int     @default(0)
   avatar             Asset?  @relation(fields: [avatarId], references: [id], onDelete: SetNull)
   avatarId           String?
 
