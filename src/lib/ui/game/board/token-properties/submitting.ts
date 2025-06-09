@@ -12,7 +12,12 @@ export function getRawSelectedTokenProperties(
 	);
 
 	for (const token of updatedSelectedTokens) {
-		result[token.id] = token;
+		result[token.id] = {
+			name: token.name,
+			avatarId: token.avatarId,
+			initiativeModifier: token.initiativeModifier,
+			size: token.size
+		};
 	}
 
 	return result;
