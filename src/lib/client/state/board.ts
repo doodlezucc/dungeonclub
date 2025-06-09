@@ -5,7 +5,6 @@ import { historyOf } from 'packages/undo-redo/history';
 import { derived, type Readable } from 'svelte/store';
 import { getSocket } from '../communication/socket';
 import { focusedHistory } from './focused-history';
-import { Campaign } from './session';
 import { WithState } from './with-state';
 
 export class BoardGrid {
@@ -59,22 +58,6 @@ export class Board extends WithState<BoardSnippet> {
 	}
 
 	handleTokensEdit(payload: GetPayload<'tokensEdit'>) {
-		if (payload.editedTokenTemplate) {
-			const { tokenTemplateId, newProperties } = payload.editedTokenTemplate;
-
-			Campaign.instance.tokenTemplates.update((allTokenTemplates) => {
-				return allTokenTemplates.map((tokenTemplate) => {
-					if (tokenTemplate.id !== tokenTemplateId) return tokenTemplate;
-
-					// Inject updated properties into template
-					return {
-						...tokenTemplate,
-						...newProperties
-					};
-				});
-			});
-		}
-
 		this.applyChangesToTokens(payload.editedTokens);
 	}
 

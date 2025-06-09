@@ -2,7 +2,7 @@
 	import { socket } from '$lib/client/communication';
 	import { boardState, campaignState } from '$lib/client/state';
 	import type { TokenSnippet } from '$lib/net';
-	import { getTemplateForToken } from '$lib/net/token-materializing';
+	import { EMPTY_TOKEN_PROPERTIES } from '$lib/net/token-materializing';
 	import { listenTo } from '$lib/ui/util/ShortcutListener.svelte';
 	import { SelectionGroup } from 'packages/ui';
 	import { historyOf } from 'packages/undo-redo/history';
@@ -25,8 +25,8 @@
 
 	const loadedBoardId = storeDerived(boardState, (board) => board!.id);
 
+	let allTemplates = $derived($campaignState!.templates);
 	let tokens = $derived($boardState!.tokens);
-	let tokenTemplates = $derived($campaignState!.templates);
 
 	let tokenSelectionGroup = $state(null as SelectionGroup<TokenSnippet> | null);
 	let selectedTokens = $state<TokenSnippet[]>([]);
@@ -61,10 +61,14 @@
 	}
 
 	function onPlaceToken(ev: TokenPlacementEvent) {
+		const properties = ev.templateId
+			? allTemplates.find((template) => template.id === ev.templateId)!
+			: EMPTY_TOKEN_PROPERTIES;
+
 		Tokens.createNewToken(
 			{
 				position: ev.position,
-				tokenTemplateId: ev.templateId ?? null,
+				properties: properties,
 				onServerSideCreation: (instantiatedToken) => {
 					tokenSelectionGroup!.select(instantiatedToken, { additive: false });
 				}
@@ -96,11 +100,7 @@
 	bind:selectedKeys={selectedTokenIds}
 >
 	{#snippet children({ element, isSelected })}
-		<Token
-			token={element}
-			template={getTemplateForToken(element, tokenTemplates)}
-			selected={isSelected}
-		/>
+		<Token token={element} selected={isSelected} />
 	{/snippet}
 </SelectionGroup>
 

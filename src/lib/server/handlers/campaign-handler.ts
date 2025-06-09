@@ -1,9 +1,4 @@
-import type { CampaignMessageCategory, OverridableTokenProperty } from '$lib/net';
-import {
-	applyTemplateInheritanceOnProperties,
-	extractPropertiesFromTemplate,
-	getInheritedPropertiesOfToken
-} from '$lib/net/token-materializing';
+import type { CampaignMessageCategory } from '$lib/net';
 import { SelectCampaignCard, SelectTokenProperties, SelectTokenTemplate } from '../../net/snippets';
 import { prisma, server } from '../server';
 import type { CategoryHandler } from '../socket';
@@ -143,51 +138,15 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 			throw 'Token template is not part of the hosted campaign';
 		}
 
-		const tokensInheritingTemplate = await prisma.token.findMany({
-			where: { templateId: tokenTemplateId },
-			select: {
-				id: true,
-				...SelectTokenProperties
-			}
-		});
-
-		const tokenToInheritedPropertyMap: Record<string, OverridableTokenProperty[]> = {};
-
-		for (const token of tokensInheritingTemplate) {
-			// Remember inherited properties of each token (in case of an "undo")
-			const inheritedProperties = getInheritedPropertiesOfToken(token);
-			tokenToInheritedPropertyMap[token.id] = inheritedProperties;
-
-			// Remove token template reference from each inheriting token
-			await prisma.token.update({
-				where: { id: token.id },
-				data: {
-					...extractPropertiesFromTemplate(tokenTemplate, inheritedProperties),
-					templateId: null
-				}
-			});
-		}
-
 		session.garbage.tokenTemplates.markForDeletion(tokenTemplateId, {
-			tokenTemplate: tokenTemplate,
-			tokenToInheritedPropertyMap: tokenToInheritedPropertyMap
+			tokenTemplate: tokenTemplate
 		});
 	},
 
 	handleTokenTemplateRestore: async ({ tokenTemplateId }, { dispatcher }) => {
 		const session = dispatcher.sessionAsOwner;
 
-		const { tokenToInheritedPropertyMap } = session.garbage.tokenTemplates.restore(tokenTemplateId);
-
-		for (const [tokenId, inheritedProperties] of Object.entries(tokenToInheritedPropertyMap)) {
-			await prisma.token.update({
-				where: { id: tokenId },
-				data: {
-					...applyTemplateInheritanceOnProperties(inheritedProperties),
-					templateId: tokenTemplateId
-				}
-			});
-		}
+		session.garbage.tokenTemplates.restore(tokenTemplateId);
 	},
 
 	// FIXME: Only here because [Server -> Client] broadcasts aren't yet possible to define under net/messages/*.

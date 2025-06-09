@@ -1,9 +1,4 @@
-import type {
-	OverridableTokenProperty,
-	TokenProperties,
-	TokenSnippet,
-	TokenTemplateSnippet
-} from '$lib/net';
+import type { TokenProperties, TokenSnippet, TokenTemplateSnippet } from '$lib/net';
 import { prisma } from './prisma';
 import { server } from './server';
 
@@ -14,7 +9,6 @@ export interface DeletedTokenInfo {
 
 export interface DeletedTokenTemplateInfo {
 	tokenTemplate: TokenProperties & TokenTemplateSnippet;
-	tokenToInheritedPropertyMap: Record<string, OverridableTokenProperty[]>;
 }
 
 export class SessionGarbage {

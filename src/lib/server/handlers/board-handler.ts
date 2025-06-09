@@ -47,7 +47,7 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 		return publicResponse(boardSnippet);
 	},
 
-	handleTokenCreate: async ({ templateId, x, y }, { dispatcher }) => {
+	handleTokenCreate: async (payload, { dispatcher }) => {
 		const sessionCampaignId = dispatcher.sessionAsOwner.campaignId;
 		const boardId = dispatcher.sessionConnection.visibleBoardId;
 
@@ -78,10 +78,8 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 
 		const createdToken = await prisma.token.create({
 			data: {
-				boardId,
-				templateId: templateId,
-				x: x,
-				y: y
+				...payload,
+				boardId
 			},
 			select: SelectToken
 		});
@@ -134,23 +132,14 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 	},
 
 	handleTokensEdit: async (payload, { dispatcher }) => {
-		const { editedTokenTemplate, editedTokens } = payload;
+		const { editedTokens } = payload;
 
-		const campaignId = dispatcher.sessionAsOwner.campaignId;
 		const boardId = dispatcher.sessionConnection.visibleBoardId;
-
-		if (editedTokenTemplate) {
-			// Edits affect a token template
-			await prisma.tokenTemplate.update({
-				where: { campaignId: campaignId, id: editedTokenTemplate.tokenTemplateId },
-				data: editedTokenTemplate.newProperties
-			});
-		}
 
 		for (const tokenId in editedTokens) {
 			await prisma.token.update({
 				where: { boardId: boardId, id: tokenId },
-				data: editedTokens[tokenId]
+				data: editedTokens
 			});
 		}
 

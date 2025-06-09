@@ -14,25 +14,26 @@ import { MessageSocket } from './socket';
 
 it('sends and receives', async () => {
 	const response = await testClient.request('tokenCreate', {
+		name: 'Test Label',
+		size: 1,
+		avatarId: null,
+		initiativeModifier: 0,
 		x: 0.5,
-		y: 2.5,
-		templateId: 'someTokenDefId'
+		y: 2.5
 	});
 
 	expect(response).toEqual({
 		boardId: 'boardid',
 		token: {
 			id: 'new uuid',
-			templateId: 'someTokenDefId',
 			avatarId: null,
-			avatar: null,
 			conditions: [],
 			invisible: false,
 			name: 'Test Label',
 			size: 1,
 			x: 0.5,
 			y: 2.5,
-			initiativeModifier: null
+			initiativeModifier: 0
 		}
 	} as Response<AllMessages, 'tokenCreate'>);
 });
@@ -62,22 +63,13 @@ class TestServer extends MessageSocket<_ServerHandled, ServerSentMessages> {
 	): Promise<ResponseObject<_ServerHandled, T>> {
 		console.log(`server processes ${name} with payload`, payload);
 
-		const { x, y, templateId } = payload;
-
 		return publicResponse(<Response<_ServerHandled, 'tokenCreate'>>{
 			boardId: 'boardid',
 			token: {
-				templateId: templateId,
-				x: x,
-				y: y,
+				...payload,
 				id: 'new uuid',
-				avatarId: null,
-				avatar: null,
 				conditions: [],
-				invisible: false,
-				name: 'Test Label',
-				size: 1,
-				initiativeModifier: null
+				invisible: false
 			}
 		}) as ResponseObject<_ServerHandled, T>;
 	}

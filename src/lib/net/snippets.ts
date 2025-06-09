@@ -36,12 +36,7 @@ export const SelectInitiativeOrder = {
 			token: {
 				select: {
 					id: true,
-					initiativeModifier: true,
-					template: {
-						select: {
-							initiativeModifier: true
-						}
-					}
+					initiativeModifier: true
 				}
 			},
 			roll: true
@@ -54,7 +49,6 @@ export type InitiativeOrderSnippet = Prisma.InitiativeOrderGetPayload<{
 
 export const SelectToken = {
 	id: true,
-	templateId: true,
 	invisible: true,
 	conditions: true,
 	name: true,
@@ -71,10 +65,6 @@ export type TokenProperties = Omit<
 	'id' | 'campaignId' | 'avatar'
 >;
 export type OverridableTokenProperty = keyof TokenProperties;
-
-export type TokenPropertiesOrNull = {
-	[K in OverridableTokenProperty]: TokenProperties[K] | null;
-};
 
 export const SelectTokenProperties = {
 	name: true,

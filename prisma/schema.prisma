@@ -100,8 +100,6 @@ model TokenTemplate {
 
   player PlayerCharacter?
 
-  instances Token[]
-
   //
   // Common token properties
 
@@ -118,15 +116,12 @@ model Token {
   board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId String
 
-  template   TokenTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  templateId String?
-
   //
-  // Common token properties (null = "inherit from template")
+  // Common token properties
 
-  name               String?
-  size               Int?
-  initiativeModifier Int?
+  name               String
+  size               Int     @default(1)
+  initiativeModifier Int     @default(0)
   avatar             Asset?  @relation(fields: [avatarId], references: [id], onDelete: SetNull)
   avatarId           String?
 

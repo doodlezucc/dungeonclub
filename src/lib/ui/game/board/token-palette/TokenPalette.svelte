@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { socket } from '$lib/client/communication';
-	import { Board, boardState, Campaign, campaignState } from '$lib/client/state';
+	import { boardState, Campaign, campaignState } from '$lib/client/state';
 	import type { TokenTemplateSnippet } from '$lib/net';
 	import { runWithErrorDialogBoundary } from '$lib/ui/util/modal';
 	import { Collection, Column, FileUploader, Icon, type ModalContext } from 'packages/ui';
@@ -8,10 +8,7 @@
 	import { getContext } from 'svelte';
 	import Panel from '../Panel.svelte';
 	import { exitTokenPlacement } from '../tokens/UnplacedToken.svelte';
-	import {
-		detachTemplateFromVisibleTokens,
-		restPostTokenTemplate
-	} from './token-palette-management';
+	import { restPostTokenTemplate } from './token-palette-management';
 	import TokenTemplateItem from './TokenTemplateItem.svelte';
 
 	const tokenTemplates = Campaign.instance.tokenTemplates.withFallback([]);
@@ -40,28 +37,12 @@
 			() => {
 				$socket.send('tokenTemplateDelete', { tokenTemplateId: deletedTemplate.id });
 
-				const boardBeforeDelete = $boardState;
-				if ($boardState) {
-					detachTemplateFromVisibleTokens(deletedTemplate);
-				}
-
 				const tokenTemplatesBeforeDelete = $tokenTemplates;
 				$tokenTemplates = $tokenTemplates.filter((template) => template.id !== deletedTemplate.id);
 
 				return {
 					undo: () => {
 						$socket.send('tokenTemplateRestore', { tokenTemplateId: deletedTemplate.id });
-
-						const isAffectedBoardVisible =
-							$boardState && boardBeforeDelete && $boardState.id === boardBeforeDelete.id;
-
-						if (isAffectedBoardVisible) {
-							// Reset tokens to how they were before their template was detached
-							Board.instance.put((board) => ({
-								...board,
-								tokens: boardBeforeDelete.tokens
-							}));
-						}
 
 						$tokenTemplates = tokenTemplatesBeforeDelete;
 					}
