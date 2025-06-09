@@ -91,7 +91,7 @@ export class CampaignSession {
 
 		if (this.isOwner(user)) {
 			// Keep deletion-marked token presets from getting sent to the client
-			campaign.presets = campaign.presets.filter(
+			campaign.tokenPresets = campaign.tokenPresets.filter(
 				(tokenPreset) => !this.garbage.tokenPresets.isMarkedForDeletion(tokenPreset.id)
 			);
 		}

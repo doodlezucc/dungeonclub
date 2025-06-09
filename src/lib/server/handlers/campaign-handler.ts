@@ -49,7 +49,7 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 						mapImage: true
 					}
 				},
-				presets: {
+				tokenPresets: {
 					select: {
 						avatar: true
 					}
@@ -59,7 +59,7 @@ export const campaignHandler: CategoryHandler<CampaignMessageCategory> = {
 
 		const allAssets = [
 			...selectedAssets.boards.map((board) => board.mapImage),
-			...selectedAssets.presets.map((preset) => preset.avatar).filter((asset) => asset != null)
+			...selectedAssets.tokenPresets.map((preset) => preset.avatar).filter((asset) => asset != null)
 		];
 
 		await server.assetManager.disposeAssetsInBatch(allAssets);

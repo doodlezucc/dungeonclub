@@ -120,7 +120,7 @@ export const SelectCampaign = {
 	},
 	boardIdsOrdered: true,
 	selectedBoardId: true,
-	presets: {
+	tokenPresets: {
 		select: SelectTokenPreset
 	},
 	assets: {

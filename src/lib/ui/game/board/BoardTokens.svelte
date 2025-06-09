@@ -25,7 +25,7 @@
 
 	const loadedBoardId = storeDerived(boardState, (board) => board!.id);
 
-	let allPresets = $derived($campaignState!.presets);
+	let allPresets = $derived($campaignState!.tokenPresets);
 	let tokens = $derived($boardState!.tokens);
 
 	let tokenSelectionGroup = $state(null as SelectionGroup<TokenSnippet> | null);

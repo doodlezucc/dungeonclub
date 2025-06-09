@@ -71,7 +71,7 @@ model Campaign {
 
   assets           Asset[]
   playerCharacters PlayerCharacter[]
-  presets          TokenPreset[]
+  tokenPresets     TokenPreset[]
   boards           Board[]
   boardIdsOrdered  String[]
   selectedBoardId  String?

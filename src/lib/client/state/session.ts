@@ -20,10 +20,10 @@ export class Campaign extends WithState<CampaignSnippet> {
 	}
 
 	readonly tokenPresets = this.derived(
-		(campaign) => campaign.presets,
-		(campaign, presets) => ({
+		(campaign) => campaign.tokenPresets,
+		(campaign, tokenPresets) => ({
 			...campaign,
-			presets: presets
+			tokenPresets: tokenPresets
 		})
 	);
 
@@ -56,8 +56,8 @@ export class Campaign extends WithState<CampaignSnippet> {
 	}
 
 	handleTokenPresetCreate(payload: GetPayload<'tokenPresetCreate'>) {
-		this.tokenPresets.update((presets) => {
-			return [...presets, payload.tokenPreset];
+		this.tokenPresets.update((tokenPresets) => {
+			return [...tokenPresets, payload.tokenPreset];
 		});
 	}
 }
