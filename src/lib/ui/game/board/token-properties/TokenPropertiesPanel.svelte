@@ -36,23 +36,25 @@
 	const allTokens = Board.instance.tokens;
 	const allAssets = Campaign.instance.assets;
 
-	const selectedTokens = selectedTokenIds.map((id) => $allTokens.find((token) => token.id === id)!);
-
-	const conflictOverrideProperties = selectedTokens[selectedTokens.length - 1];
-
-	const commonAvatarId = findCommonValue(selectedTokens.map((token) => token.avatarId));
-	const commonName = findCommonValue(selectedTokens.map((token) => token.name));
-	const commonSize = findCommonValue(selectedTokens.map((token) => token.size));
-	const commonInitiativeModifier = findCommonValue(
-		selectedTokens.map((token) => token.initiativeModifier)
+	const selectedTokens = $derived(
+		selectedTokenIds.map((id) => $allTokens.find((token) => token.id === id)!)
 	);
 
-	let displayedProperties: TokenProperties = {
+	const conflictOverrideProperties = $derived(selectedTokens[selectedTokens.length - 1]);
+
+	const commonAvatarId = $derived(findCommonValue(selectedTokens.map((token) => token.avatarId)));
+	const commonName = $derived(findCommonValue(selectedTokens.map((token) => token.name)));
+	const commonSize = $derived(findCommonValue(selectedTokens.map((token) => token.size)));
+	const commonInitiativeModifier = $derived(
+		findCommonValue(selectedTokens.map((token) => token.initiativeModifier))
+	);
+
+	let displayedProperties: TokenProperties = $derived({
 		avatarId: commonAvatarId !== undefined ? commonAvatarId : conflictOverrideProperties.avatarId,
 		name: commonName ?? conflictOverrideProperties.name,
 		size: commonSize ?? conflictOverrideProperties.size,
 		initiativeModifier: commonInitiativeModifier ?? conflictOverrideProperties.initiativeModifier
-	};
+	});
 
 	function updatePropertyOnSelectedTokens<T extends OverridableTokenProperty>(
 		property: T,
@@ -76,12 +78,12 @@
 		}
 	}
 
-	let avatarId = displayedProperties.avatarId;
-	let avatar = $state(avatarId ? $allAssets.find((asset) => asset.id === avatarId)! : null);
+	let avatarId = $derived(displayedProperties.avatarId);
+	let avatar = $derived(avatarId ? $allAssets.find((asset) => asset.id === avatarId)! : null);
 
-	let name = $state(displayedProperties.name);
-	let size = $state(displayedProperties.size);
-	let initiativeModifier = $state(displayedProperties.initiativeModifier);
+	let name = $derived(displayedProperties.name);
+	let size = $derived(displayedProperties.size);
+	let initiativeModifier = $derived(displayedProperties.initiativeModifier);
 
 	let isMounted = $state(false);
 
@@ -89,13 +91,15 @@
 		return buildWebSocketPayload(selectedTokenIds, $allTokens);
 	}
 
-	const initialPayload = buildEditingPayload();
+	let initialPayload = buildEditingPayload();
 
 	function submitChanges() {
 		const editedPayload = buildEditingPayload();
 
 		if (!arePayloadsEqual(initialPayload, editedPayload)) {
 			submitTokenPropertiesToServer(editedPayload);
+
+			initialPayload = editedPayload;
 		}
 	}
 
