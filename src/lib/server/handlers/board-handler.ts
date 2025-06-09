@@ -139,7 +139,7 @@ export const boardHandler: CategoryHandler<BoardMessageCategory> = {
 		for (const tokenId in editedTokens) {
 			await prisma.token.update({
 				where: { boardId: boardId, id: tokenId },
-				data: editedTokens
+				data: editedTokens[tokenId]
 			});
 		}
 
