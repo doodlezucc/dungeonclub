@@ -29,7 +29,10 @@ export function createNewToken(options: CreateTokenOptions, context: Context) {
 			const response = await socket.request('tokenCreate', {
 				x: position.x,
 				y: position.y,
-				...properties
+				name: properties.name,
+				avatarId: properties.avatarId,
+				initiativeModifier: properties.initiativeModifier,
+				size: properties.size
 			});
 			Board.instance.handleTokenCreate(response);
 
