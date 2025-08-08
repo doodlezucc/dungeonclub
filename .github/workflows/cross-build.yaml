@@ -14,10 +14,13 @@ jobs:
           - runs-on: windows-latest
             artifact: windows
             binary-name: server.exe
+          - runs-on: ubuntu-24.04-arm
+            artifact: linux_arm64
+            binary-name: server
     runs-on: ${{ matrix.runs-on }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: dart-lang/setup-dart@v1.4
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1.7.1
 
       - name: Install dependencies
         run: dart pub get
@@ -26,7 +29,7 @@ jobs:
         run: dart bin/build.dart --part server
 
       - name: Upload as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: server_${{ matrix.artifact }}
           path: build/latest/${{ matrix.binary-name }}
@@ -35,8 +38,8 @@ jobs:
     name: Build All (Linux)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: dart-lang/setup-dart@v1.5.0
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1.7.1
 
       - name: Install dependencies
         run: dart pub get
@@ -48,7 +51,7 @@ jobs:
         run: find build/latest -printf "%P\n" | tar -czf build.tgz --no-recursion -C build/latest -T -
 
       - name: Upload as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: all_linux
           path: build.tgz
@@ -62,7 +65,7 @@ jobs:
         run: sudo apt-get install -y zip
 
       - name: Download Linux build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: all_linux
 
@@ -72,9 +75,10 @@ jobs:
 
       - run: rm build/server
       - run: cp -r build/. build_macos
+      - run: cp -r build/. build_linux_arm
 
       - name: Download Windows server
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: server_windows
           path: build
@@ -83,7 +87,7 @@ jobs:
         run: cd build; zip -r ../dungeonclub-windows.zip *; cd ..
 
       - name: Download MacOS server
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: server_macos
           path: build_macos
@@ -93,13 +97,25 @@ jobs:
       - name: Compress MacOS build
         run: cd build_macos; zip -r ../dungeonclub-macos.zip *; cd ..
 
+      - name: Download Linux (ARM64) server
+        uses: actions/download-artifact@v4
+        with:
+          name: server_linux_arm64
+          path: build_linux_arm
+
+      - run: chmod +x build_linux_arm/server
+
+      - name: Compress Linux (ARM64) build
+        run: cd build_linux_arm; zip -r ../dungeonclub-linux-arm.zip *; cd ..
+
       - run: mv build.tgz dungeonclub-linux.tgz
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2.3.2
         with:
           draft: true
           files: |
             dungeonclub-windows.zip
             dungeonclub-macos.zip
             dungeonclub-linux.tgz
+            dungeonclub-linux-arm.zip

@@ -2,9 +2,9 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:archive/archive_io.dart';
-import 'config.dart';
 import 'package:path/path.dart' as p;
 
+import 'config.dart';
 import 'data.dart';
 
 final _backupDaily = Directory(
@@ -99,10 +99,10 @@ void _isolateZip(List<Object> args) async {
     }
 
     var relPath = p.relative(fp, from: dir.path);
-    await encoder.addFile(file, relPath);
+    await encoder.addFile(file, relPath, ZipFileEncoder.STORE);
   }
 
-  encoder.close();
+  await encoder.close();
 
   var stat = await File(path).stat();
   port.send(stat.size / 1000 / 1000);
