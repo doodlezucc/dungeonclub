@@ -1,5 +1,5 @@
 {
-  "modified": 1719904541000,
+  "modified": 1765747265000,
   "tracks": [
     {
       "id": "F-CU7SomBvo",
@@ -128,6 +128,12 @@
       "duration": 223
     },
     {
+      "id": "hvIbsHE_OPw",
+      "title": "The Gnome Tavern",
+      "artist": "Samuel Oliveira",
+      "duration": 96
+    },
+    {
       "id": "orvLhmoRLUQ",
       "title": "The Story So Far",
       "artist": "Vindsvept",
@@ -227,7 +233,7 @@
       "id": "kRgdp8hOqec",
       "title": "Spirit Of The Wind",
       "artist": "Vindsvept",
-      "duration": 146
+      "duration": 147
     },
     {
       "id": "b1kUm551sD0",
@@ -440,6 +446,12 @@
       "duration": 628
     },
     {
+      "id": "Qk_uJ5gw1bY",
+      "title": "Unveiled Horizons",
+      "artist": "Samuel Oliveira",
+      "duration": 138
+    },
+    {
       "id": "KqPibIc4Ans",
       "title": "The Crypt",
       "artist": "myuu",
@@ -492,6 +504,12 @@
       "title": "Silently Watch",
       "artist": "Canamo",
       "duration": 195
+    },
+    {
+      "id": "7HqbonZW8u4",
+      "title": "Mysterious Secrets",
+      "artist": "Samuel Oliveira",
+      "duration": 336
     },
     {
       "id": "h7losFn9oS8",
@@ -599,7 +617,7 @@
       "id": "OtKgkuWL3ao",
       "title": "Midsommar",
       "artist": "Scott Buckley",
-      "duration": 234
+      "duration": 235
     },
     {
       "id": "lR2lMI5Wn-A",
@@ -627,7 +645,7 @@
     },
     {
       "id": "_PMOj6m7gf8",
-      "title": "Birds Of Paradise",
+      "title": "Birds of Paradise",
       "artist": "Samuel Oliveira",
       "duration": 219
     },
@@ -914,6 +932,12 @@
       "duration": 254
     },
     {
+      "id": "QomY_9E0VN0",
+      "title": "Final Battle",
+      "artist": "Samuel Oliveira",
+      "duration": 196
+    },
+    {
       "id": "M58Oc-jdDOk",
       "title": "The First",
       "artist": "Samuel Oliveira",
@@ -957,7 +981,8 @@
         "ivhLdVg38DY",
         "ZffDOCZy_bA",
         "Mf95wQ7Gz20",
-        "8JFG_bKg5lE"
+        "8JFG_bKg5lE",
+        "hvIbsHE_OPw"
       ]
     },
     {
@@ -1016,7 +1041,8 @@
         "AJ_xsMnG26U",
         "R9IugwRZewE",
         "jhKIgyylk5w",
-        "JgHQx00vcTw"
+        "JgHQx00vcTw",
+        "Qk_uJ5gw1bY"
       ]
     },
     {
@@ -1031,7 +1057,8 @@
         "RY-qFyV0wZ4",
         "8AwTkZ16UBw",
         "BDQJ0BNNf24",
-        "JzIja-oEbEA"
+        "JzIja-oEbEA",
+        "7HqbonZW8u4"
       ]
     },
     {
@@ -1120,6 +1147,7 @@
         "lKfePuM-WdA",
         "xBe_b9P5Zsc",
         "ylkdt8mTbOQ",
+        "QomY_9E0VN0",
         "M58Oc-jdDOk",
         "UH2Zz1RUA38",
         "1cdvLEr8cts"
