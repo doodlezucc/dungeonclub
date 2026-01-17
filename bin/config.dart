@@ -3,20 +3,24 @@ import 'dart:io';
 import 'package:yaml/yaml.dart';
 
 final _yamlConfigFile = File("config.yaml");
-final _yamlConfig = _yamlConfigFile.existsSync() ? loadYaml(_yamlConfigFile.readAsStringSync()) : {};
+final _yamlConfig = _yamlConfigFile.existsSync()
+    ? loadYaml(_yamlConfigFile.readAsStringSync())
+    : {};
 
 class DungeonClubConfig {
-  static String _databasePath = _yamlConfig["database_path"] ?? ".";
-  static int _storageMegabytesPerCampaign = _yamlConfig["storage_megabytes_per_campaign"] ?? 25;
-  static int _prefabsPerCampaign = _yamlConfig["prefabs_per_campaign"] ?? 20;
-  static int _scenesPerCampaign = _yamlConfig["scenes_per_campaign"] ?? 20;
-  static int _mapsPerCampaign = _yamlConfig["maps_per_campaign"] ?? 10;
-  static int _campaignsPerAccount = _yamlConfig["campaigns_per_account"] ?? 10;
+  static String? _configDatabasePath = _yamlConfig["database_path"];
+  static int? _configStorageMegabytesPerCampaign =
+      _yamlConfig["storage_megabytes_per_campaign"];
+  static int? _configPrefabsPerCampaign = _yamlConfig["prefabs_per_campaign"];
+  static int? _configScenesPerCampaign = _yamlConfig["scenes_per_campaign"];
+  static int? _configMapsPerCampaign = _yamlConfig["maps_per_campaign"];
+  static int? _configCampaignsPerAccount = _yamlConfig["campaigns_per_account"];
 
-  static String get databasePath => _databasePath;
-  static int get storageMegabytesPerCampaign => _storageMegabytesPerCampaign;
-  static int get prefabsPerCampaign => _prefabsPerCampaign;
-  static int get scenesPerCampaign => _scenesPerCampaign;
-  static int get mapsPerCampaign => _mapsPerCampaign;
-  static int get campaignsPerAccount => _campaignsPerAccount;
+  static final String databasePath = _configDatabasePath ?? ".";
+  static final int storageMegabytesPerCampaign =
+      _configStorageMegabytesPerCampaign ?? 25;
+  static final int prefabsPerCampaign = _configPrefabsPerCampaign ?? 100;
+  static final int scenesPerCampaign = _configScenesPerCampaign ?? 20;
+  static final int mapsPerCampaign = _configMapsPerCampaign ?? 10;
+  static final int campaignsPerAccount = _configCampaignsPerAccount ?? 10;
 }
