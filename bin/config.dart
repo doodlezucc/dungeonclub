@@ -19,7 +19,7 @@ class DungeonClubConfig {
   static final String databasePath = _configDatabasePath ?? ".";
   static final int storageMegabytesPerCampaign =
       _configStorageMegabytesPerCampaign ?? 25;
-  static final int prefabsPerCampaign = _configPrefabsPerCampaign ?? 20;
+  static final int prefabsPerCampaign = _configPrefabsPerCampaign ?? 100;
   static final int scenesPerCampaign = _configScenesPerCampaign ?? 20;
   static final int mapsPerCampaign = _configMapsPerCampaign ?? 10;
   static final int campaignsPerAccount = _configCampaignsPerAccount ?? 10;
