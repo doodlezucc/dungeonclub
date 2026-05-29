@@ -27,6 +27,7 @@
 
 	let { properties, position, style, draggableParams, onmousedown, onmouseup }: Props = $props();
 
+	// svelte-ignore state_referenced_locally
 	const positionSpring = new Spring(position, {
 		damping: 0.7,
 		stiffness: 0.2

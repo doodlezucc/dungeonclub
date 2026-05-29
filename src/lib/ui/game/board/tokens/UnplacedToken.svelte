@@ -37,7 +37,7 @@
 
 	let { preset, spawnPosition, onPlace }: Props = $props();
 
-	let position = $state(spawnPosition);
+	let position = $derived(spawnPosition);
 
 	function onDragToggle(isDragStart: boolean) {
 		if (isDragStart) return;

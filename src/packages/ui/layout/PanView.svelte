@@ -133,6 +133,7 @@
 
 <div
 	bind:this={elementView}
+	role="presentation"
 	class="pan-view"
 	class:expand
 	onpointerdown={startPanning}

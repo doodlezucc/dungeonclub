@@ -16,8 +16,8 @@
 
 	let { index, state: dragState, customDragHandling, onDrag, children }: Props = $props();
 
-	let isDragging = dragState.controller.isDragging;
-	let isAnyDragging = dragState.isAnyDragging;
+	let isDragging = $derived(dragState.controller.isDragging);
+	let isAnyDragging = $derived(dragState.isAnyDragging);
 
 	let mouseOffset = $state<Point>();
 
@@ -32,7 +32,7 @@
 	let container = $state<HTMLElement>();
 
 	$effect(() => {
-		if (!$isDragging) {
+		if (!isDragging) {
 			mouseOffset = undefined;
 			draggedCenter = center;
 		}
@@ -44,14 +44,14 @@
 			x: rect.left + rect.width / 2,
 			y: rect.top + rect.height / 2
 		};
-		if (!$isDragging) {
+		if (!isDragging) {
 			visualCenter.set(center);
 		}
 		dragState.setItemCenter(center);
 	}
 
 	$effect(() => {
-		if (container && $isAnyDragging && index !== undefined) {
+		if (container && isAnyDragging && index !== undefined) {
 			untrack(() => findCenter());
 		}
 	});
@@ -68,7 +68,7 @@
 	$effect(() => {
 		if (draggedCenter) {
 			onDrag?.();
-			$visualCenter = draggedCenter;
+			visualCenter.target = draggedCenter;
 		}
 	});
 
@@ -93,11 +93,11 @@
 	}
 </script>
 
-<svelte:window onpointermove={$isDragging ? handleMouseMove : undefined} />
+<svelte:window onpointermove={isDragging ? handleMouseMove : undefined} />
 
 <div
 	class="arrangable"
-	class:dragging={$isDragging}
+	class:dragging={isDragging}
 	role="listitem"
 	draggable="true"
 	ondragstart={onDragContainer}
