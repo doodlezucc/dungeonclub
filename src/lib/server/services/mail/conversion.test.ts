@@ -38,7 +38,10 @@ test('Interpolate content from relative file import', async () => {
 		customText: string;
 	}>(testLayout, 'Test Email');
 
-	await convertTemplateToHtml(template, {
+	const processed = await convertTemplateToHtml(template, {
 		customText: 'This is my custom text :)'
 	});
+
+	expect(processed).toContain('This is my custom text :)');
+	expect(processed).not.toContain('${customText}');
 });
