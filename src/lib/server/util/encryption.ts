@@ -1,4 +1,4 @@
-import type { Crypt } from '@prisma/client';
+import type { Crypt } from '$lib/generated/prisma/client';
 import * as crypto from 'crypto';
 import normalizeEmail from 'normalize-email';
 

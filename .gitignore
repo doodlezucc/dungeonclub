@@ -1,5 +1,7 @@
-node_modules
 user-media
+src/lib/generated
+
+node_modules
 
 # Output
 .output

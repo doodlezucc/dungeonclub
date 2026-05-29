@@ -1,5 +1,5 @@
+import type { Crypt } from '$lib/generated/prisma/client';
 import { SelectAccount } from '$lib/net';
-import type { Crypt } from '@prisma/client';
 import { ExpiringCodeManager } from './expiring-code-manager';
 import { prisma, server } from './server';
 import { TEMPLATE_ACTIVATE_ACCOUNT, TEMPLATE_RESET_PASSWORD } from './services/mail/templates';
