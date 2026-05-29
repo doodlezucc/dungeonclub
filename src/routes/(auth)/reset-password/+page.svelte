@@ -39,8 +39,8 @@
 		<ActivationCodeForm title="Activate New Password" handleCodeSubmit={attemptVerify}>
 			{#snippet note()}
 				<span>
-					To fulfill the request to reset your password, please <b>check your email inbox</b> for an
-					activation code.
+					To fulfill the request to reset your password, please <b>check your email inbox</b> for an activation
+					code.
 				</span>
 			{/snippet}
 		</ActivationCodeForm>

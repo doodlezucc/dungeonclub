@@ -1,4 +1,4 @@
-import type { GridType } from '@prisma/client';
+import type { GridType } from '$lib/generated/prisma/client';
 import { HexGridSpace } from './spaces/hex';
 import type { GridSpace } from './spaces/interface';
 import { SquareGridSpace } from './spaces/square';

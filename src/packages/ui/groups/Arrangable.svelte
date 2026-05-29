@@ -16,8 +16,8 @@
 
 	let { index, state: dragState, customDragHandling, onDrag, children }: Props = $props();
 
-	let isDragging = dragState.controller.isDragging;
-	let isAnyDragging = dragState.isAnyDragging;
+	let isDragging = $derived(dragState.controller.isDragging);
+	let isAnyDragging = $derived(dragState.isAnyDragging);
 
 	let mouseOffset = $state<Point>();
 
@@ -68,7 +68,7 @@
 	$effect(() => {
 		if (draggedCenter) {
 			onDrag?.();
-			$visualCenter = draggedCenter;
+			visualCenter.target = draggedCenter;
 		}
 	});
 
