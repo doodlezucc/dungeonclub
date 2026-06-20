@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -13,9 +14,9 @@ final _backupWeeks = Directory(
     p.join(DungeonClubConfig.databasePath, 'database_backup', 'weeks'));
 
 class AutoSaver {
-  final int weeklySaveDay = DateTime.monday;
+  static final int weeklySaveDay = DateTime.monday;
   final ServerData data;
-  int bufferedWeekday = -1;
+  int _lastSavedWeekday = -1;
 
   AutoSaver(this.data);
 
@@ -24,53 +25,80 @@ class AutoSaver {
     await _backupWeeks.create(recursive: true);
 
     while (true) {
-      await Future.delayed(Duration(seconds: 3));
+      await Future.delayed(Duration(minutes: 3));
 
       try {
-        await tryZipAndSave();
-      } catch (err) {
+        await _tryZipAndSave();
+      } catch (err, stackTrace) {
+        stderr.writeln('Autosave failed:');
         stderr.writeln(err);
+        stderr.writeln(stackTrace.toString());
       }
     }
   }
 
-  Future<void> tryZipAndSave() async {
-    var date = DateTime.now();
+  Future<void> _tryZipAndSave() async {
+    final now = DateTime.now();
+    final weekday = now.weekday;
 
-    var weekday = date.weekday;
-
-    if (weekday != bufferedWeekday) {
+    if (weekday != _lastSavedWeekday) {
       if (weekday == weeklySaveDay) {
-        var yyyy = date.year;
-        var mm = date.month.toString().padLeft(2, '0');
-        var dd = date.day.toString().padLeft(2, '0');
+        final yyyy = now.year;
+        final mm = now.month.toString().padLeft(2, '0');
+        final dd = now.day.toString().padLeft(2, '0');
 
-        await zipTo(p.join(_backupWeeks.path, '$yyyy-$mm-$dd.zip'));
+        await _zipTo(p.join(_backupWeeks.path, '$yyyy-$mm-$dd.zip'));
       } else {
-        await zipTo(p.join(_backupDaily.path, 'weekday$weekday.zip'),
+        await _zipTo(p.join(_backupDaily.path, 'weekday$weekday.zip'),
             force: true, includeImages: true);
       }
 
-      bufferedWeekday = weekday;
+      _lastSavedWeekday = weekday;
     }
   }
 
-  Future<void> zipTo(String path,
+  Future<void> _zipTo(String path,
       {bool force = false, bool includeImages = false}) async {
     if (!force && await File(path).exists()) return;
 
-    print('Saving backup... ($path)');
+    print('Starting backup...');
     await data.save();
+    print('Zipping backup... ($path)');
 
-    var receive = ReceivePort();
-    var isolate = await Isolate.spawn(
-        _isolateZip, [receive.sendPort, path, includeImages]);
+    final completer = Completer<double>();
 
-    double sizeInMBs = await receive.first;
-    print('Zipped backup size: ${sizeInMBs.toStringAsFixed(2)} MB');
+    final dataReceivePort = ReceivePort();
+    final errorReceivePort = ReceivePort();
 
-    receive.close();
-    isolate.kill();
+    dataReceivePort.listen((size) => completer.complete(size as double));
+    errorReceivePort.listen((payload) {
+      // Isolates send back errors as two-element lists [error, stack trace],
+      // where both have been converted to strings.
+      final String error = payload[0];
+      final String? stackTraceString = payload[1];
+
+      final stackTrace = stackTraceString != null
+          ? StackTrace.fromString(stackTraceString)
+          : null;
+
+      completer.completeError(error, stackTrace);
+    });
+
+    final isolate = await Isolate.spawn(
+      _isolateZip,
+      [dataReceivePort.sendPort, path, includeImages],
+      errorsAreFatal: false,
+      onError: errorReceivePort.sendPort,
+    );
+
+    try {
+      final double sizeInMBs = await completer.future;
+      print('Zipped backup size: ${sizeInMBs.toStringAsFixed(2)} MB');
+    } finally {
+      dataReceivePort.close();
+      errorReceivePort.close();
+      isolate.kill();
+    }
   }
 }
 
@@ -79,31 +107,39 @@ void _isolateZip(List<Object> args) async {
   final path = args[1] as String;
   final includeImages = args[2] as bool;
 
-  var encoder = ZipFileEncoder();
-  encoder.create(path, level: Deflate.BEST_SPEED);
+  final zipEncoder = ZipFileEncoder();
+  zipEncoder.create(path, level: Deflate.BEST_SPEED);
 
-  var dir = ServerData.directory;
-  var files = await dir.list(recursive: true).toList();
-  for (var file in files) {
+  final dataDirectory = ServerData.directory;
+  final allDatabaseFiles = await dataDirectory.list(recursive: true).toList();
+
+  for (final file in allDatabaseFiles) {
     if (file is! File) {
       continue;
     }
 
-    var fp = file.path;
+    final filePath = file.path;
 
     if (!includeImages) {
-      var ext = p.extension(fp);
-      if (!(ext == '.json' || fp.endsWith('histogram'))) {
+      final fileExtension = p.extension(filePath);
+
+      // Images have been stored in the database without any file extension in
+      // the past (they were all served as JPEG I think).
+      // This is a very general check to account for these legacy images.
+      final isImageFile =
+          fileExtension != '.json' && !filePath.endsWith('histogram');
+
+      if (isImageFile) {
         continue;
       }
     }
 
-    var relPath = p.relative(fp, from: dir.path);
-    await encoder.addFile(file, relPath, ZipFileEncoder.STORE);
+    final relativeFilePath = p.relative(filePath, from: dataDirectory.path);
+    await zipEncoder.addFile(file, relativeFilePath, ZipFileEncoder.STORE);
   }
 
-  await encoder.close();
+  await zipEncoder.close();
 
-  var stat = await File(path).stat();
-  port.send(stat.size / 1000 / 1000);
+  final encodedZipStat = await File(path).stat();
+  port.send(encodedZipStat.size / 1000 / 1000);
 }
