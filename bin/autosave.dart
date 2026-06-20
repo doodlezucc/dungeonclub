@@ -61,8 +61,9 @@ class AutoSaver {
       {bool force = false, bool includeImages = false}) async {
     if (!force && await File(path).exists()) return;
 
-    print('Saving backup... ($path)');
+    print('Starting backup...');
     await data.save();
+    print('Zipping backup... ($path)');
 
     final completer = Completer<double>();
 

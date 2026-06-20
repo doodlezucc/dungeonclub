@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'dart:io';
 import 'dart:math';
 
 import 'package:crypt/crypt.dart';
 import 'package:dungeonclub/actions.dart' as a;
-import 'config.dart';
 import 'package:dungeonclub/iterable_extension.dart';
-import 'limits.dart';
 import 'package:dungeonclub/models/entity_base.dart';
 import 'package:dungeonclub/models/token.dart';
 import 'package:dungeonclub/point_json.dart';
@@ -20,15 +17,18 @@ import 'package:web_whiteboard/layers/drawing_data.dart';
 import 'package:web_whiteboard/whiteboard_data.dart';
 
 import 'audio.dart';
+import 'config.dart';
 import 'connections.dart';
 import 'controlled_resource.dart';
+import 'limits.dart';
 import 'playing_histogram.dart';
 import 'server.dart';
 import 'versioning.dart';
 
 class ServerData {
   static final _manualSaveWatch = Stopwatch();
-  static final directory = Directory(path.join(DungeonClubConfig.databasePath, "database"));
+  static final directory =
+      Directory(path.join(DungeonClubConfig.databasePath, "database"));
   static final file = File(path.join(directory.path, 'data.json'));
   static bool _isInitialized = false;
 
@@ -98,6 +98,8 @@ class ServerData {
 
   Future<void> save() async {
     if (!_isInitialized) return print('Not initialized, skipped save.');
+
+    print('Saving server data to disk...');
 
     var json = JsonEncoder.withIndent(' ').convert(toJson());
     // print(json);
