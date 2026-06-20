@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
@@ -13,9 +14,9 @@ final _backupWeeks = Directory(
     p.join(DungeonClubConfig.databasePath, 'database_backup', 'weeks'));
 
 class AutoSaver {
-  final int weeklySaveDay = DateTime.monday;
+  static final int weeklySaveDay = DateTime.monday;
   final ServerData data;
-  int bufferedWeekday = -1;
+  int _lastSavedWeekday = -1;
 
   AutoSaver(this.data);
 
@@ -25,7 +26,14 @@ class AutoSaver {
 
     while (true) {
       await Future.delayed(Duration(minutes: 3));
-      await _tryZipAndSave();
+
+      try {
+        await _tryZipAndSave();
+      } catch (err, stackTrace) {
+        stderr.writeln('Autosave failed:');
+        stderr.writeln(err);
+        stderr.writeln(stackTrace.toString());
+      }
     }
   }
 
@@ -33,19 +41,19 @@ class AutoSaver {
     final now = DateTime.now();
     final weekday = now.weekday;
 
-    if (weekday != bufferedWeekday) {
-      bufferedWeekday = weekday;
-
+    if (weekday != _lastSavedWeekday) {
       if (weekday == weeklySaveDay) {
         final yyyy = now.year;
         final mm = now.month.toString().padLeft(2, '0');
         final dd = now.day.toString().padLeft(2, '0');
 
-        return _zipTo(p.join(_backupWeeks.path, '$yyyy-$mm-$dd.zip'));
+        await _zipTo(p.join(_backupWeeks.path, '$yyyy-$mm-$dd.zip'));
       } else {
-        return _zipTo(p.join(_backupDaily.path, 'weekday$weekday.zip'),
+        await _zipTo(p.join(_backupDaily.path, 'weekday$weekday.zip'),
             force: true, includeImages: true);
       }
+
+      _lastSavedWeekday = weekday;
     }
   }
 
@@ -56,15 +64,40 @@ class AutoSaver {
     print('Saving backup... ($path)');
     await data.save();
 
-    final receivePort = ReceivePort();
+    final completer = Completer<double>();
+
+    final dataReceivePort = ReceivePort();
+    final errorReceivePort = ReceivePort();
+
+    dataReceivePort.listen((size) => completer.complete(size as double));
+    errorReceivePort.listen((payload) {
+      // Isolates send back errors as two-element lists [error, stack trace],
+      // where both have been converted to strings.
+      final String error = payload[0];
+      final String? stackTraceString = payload[1];
+
+      final stackTrace = stackTraceString != null
+          ? StackTrace.fromString(stackTraceString)
+          : null;
+
+      completer.completeError(error, stackTrace);
+    });
+
     final isolate = await Isolate.spawn(
-        _isolateZip, [receivePort.sendPort, path, includeImages]);
+      _isolateZip,
+      [dataReceivePort.sendPort, path, includeImages],
+      errorsAreFatal: false,
+      onError: errorReceivePort.sendPort,
+    );
 
-    final double sizeInMBs = await receivePort.first;
-    print('Zipped backup size: ${sizeInMBs.toStringAsFixed(2)} MB');
-
-    receivePort.close();
-    isolate.kill();
+    try {
+      final double sizeInMBs = await completer.future;
+      print('Zipped backup size: ${sizeInMBs.toStringAsFixed(2)} MB');
+    } finally {
+      dataReceivePort.close();
+      errorReceivePort.close();
+      isolate.kill();
+    }
   }
 }
 
