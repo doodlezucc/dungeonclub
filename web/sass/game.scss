@@ -1179,8 +1179,8 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
 }
 
 #conds {
-    top: 0;
-    right: 0;
+    bottom: calc(100% - 40px);
+    right: -10px;
     gap: 8px;
 
     .toolbox {
