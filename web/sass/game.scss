@@ -288,6 +288,9 @@
         position: relative;
         gap: 8px;
         white-space: nowrap;
+        max-height: 100vh;
+        overflow: visible visible;
+        transition: opacity .2s, max-height .2s !important;
 
         > span {
             justify-content: flex-start;
@@ -305,6 +308,9 @@
 
         &.hidden {
             @extend .invisible;
+
+            overflow: visible clip;
+            max-height: 0;
         }
     }
 
