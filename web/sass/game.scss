@@ -156,14 +156,24 @@
 
     #rightControls {
         position: absolute;
-        top: 16px;
-        right: 16px;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        padding: 16px;
         gap: 16px;
         display: flex;
         flex-direction: column;
         z-index: 6;
         pointer-events: none;
         width: 280px;
+
+        overflow: visible auto;
+        padding-left: 100vw;
+
+        scrollbar-width: none;
+        &::-webkit-scrollbar { 
+            display: none;
+        }
 
         > .panel {
             padding: 8px;
@@ -172,14 +182,17 @@
     }
 
     #prefabPalette {
+        position: relative;
         gap: 0;
         height: auto;
-        max-height: 800px;
+        max-height: 200vh;
         transition-property: opacity, max-height !important;
         transition-timing-function: ease-in-out !important;
 
         > .close {
             background-color: transparent !important;
+            top: 0;
+            right: 0;
         }
 
         &.collapsed {
@@ -275,6 +288,9 @@
         position: relative;
         gap: 8px;
         white-space: nowrap;
+        max-height: 100vh;
+        overflow: visible visible;
+        transition: opacity .2s, max-height .2s !important;
 
         > span {
             justify-content: flex-start;
@@ -292,6 +308,9 @@
 
         &.hidden {
             @extend .invisible;
+
+            overflow: visible clip;
+            max-height: 0;
         }
     }
 
@@ -1162,8 +1181,8 @@ $token-unit-size-half-px: ($token-unit-size * -0.5) + px;
 }
 
 #conds {
-    top: 0;
-    right: 0;
+    bottom: calc(100% - 40px);
+    right: -10px;
     gap: 8px;
 
     .toolbox {
